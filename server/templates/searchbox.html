@@ -1,0 +1,15 @@
+      <form onsubmit="return addLayer();">
+       <select id="id">
+       </select>
+       Z-index: <input type="text" id="z", value="0">
+       <input type="submit" value="Add">
+      </form>
+      <hr>
+      <label>
+       Test tile set
+       <select id="testSet" onchange="testSetChanged();"></select>
+       <select id="testSubset"></select>
+       <button onclick="addTest()"> AddTest </button>
+      </label>
+      <hr>
+      <button onclick="addOutlineLayer()"> AddOutline 320 </button>

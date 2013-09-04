@@ -1,0 +1,100 @@
+div#sliceDisplay
+{
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+div.draggableDiv /*div#controlPanel*/
+{
+  position: absolute;
+  right: 10%;
+  bottom: 10%;
+  z-index: 2000;
+  background: #FFF;
+  border: solid gray 1px;
+}
+
+div.draggableDiv div.draggableDivContent
+{
+  padding: 1ex 1em;
+}
+
+div.draggableDiv div.dragBar
+{
+  text-align: center;
+  background: gray;
+  padding-left: 1em;
+  padding-right: 4em;
+  position: relative;
+}
+
+div.draggableDiv div.dragBar div
+{
+  position: absolute;
+  right: 0px;
+  float: right;
+  top: 0px;
+  color: navy;
+  padding-right: 1em;
+}
+
+div.topLayer, div.tileLayer, div.outlineLayer
+{
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+div.tileLayer
+{
+  opacity: 0.8;
+}
+
+div.outlineLayer
+{
+  opacity: 0.5;
+}
+
+div.topLayer
+{
+  border: 1px solid black;
+}
+
+div.topLayer>img.crosshair
+{
+  position: absolute;
+  width: 101px;
+  height: 101px;
+}
+
+
+div.topLayer>div.scale
+{
+  position: absolute;
+  bottom: 2ex;
+  left: auto;
+  right: 2em;
+  top: auto;
+  text-align: right;
+}
+
+div.topLayer>div.scale>span
+{
+  margin-right: 1em;
+  padding: 2px 6px;
+  background: rgba(128, 128, 128, 0.5);
+}
+
+div.topLayer>div.scale>img
+{
+  margin-top: 0.5ex;
+  height: 1mm;
+  border: 1mm solid rgba(128, 128, 128, 0.5);
+}

@@ -1,0 +1,55 @@
+  <div id="userPanel" class = "overlay">
+    <div class = "modalwin">
+
+      <img align = "right" alt="X" src="/static/gfx/close.png" class="clickable_close">
+      <div id = "loginDiv" >
+       <form name="loginForm">
+        <p id = "loggedOutMessage" class = 'loginMessages' style = "color: blue"></p>
+		    Login: <input id = "login" class = 'loginForm' type = "text" name = "login">
+        <m id = "loginFieldError" class = "formErrorMessages loginFieldError"></m>
+		    <br>Password: <input id = "password" class = 'loginForm' type = "password" name = "password">
+        <m id = "passwordFieldError" class = "formErrorMessages passwordFieldError"></m>
+        <p id = "badPass" class = 'loginMessages badPass' style = "color: red"></p>
+        <input id = "loginButton" type="submit" value="Go!"/>
+       </form>
+        <br>
+        <a id = "registerButton" href='javascript:void(0)'>New User</a>
+        <br>
+        <a id = "regeneratePasswordButton" href='javascript:void(0)'>forgot password?</a>
+      </div>
+
+      <div id = "registerDiv" >
+ 		    Login: <input id = "newLogin" class = "registerForm" type = "text">
+        <m id = "newLoginFieldError" class = "formErrorMessages"></m>
+        <br>Password: <input id = "registerPassword" class = "registerForm" type = "password">
+        <m id = "newPasswordFieldError" class = "formErrorMessages"></m>
+        <br>Confirm password: <input id = "confirmPassword" class = "registerForm" type = "password">
+        <m id = "confirmPasswordFieldError" class = "formErrorMessages"></m>
+        <br>Name: <input id = "name" class = "registerForm "type = "text">
+        <m id = "nameFieldError" class = "formErrorMessages"></m>
+        <br>Email: <input id = "eMail" class = "registerForm" type = "text">
+        <m id = "eMailFieldError" class = "formErrorMessages"></m>
+        <br>
+        <input id = "registerSubmit" type="button" value="Register!"/>     
+        <br>
+        <a id = "backFromRegister" href = 'javascript:void(0)'>back to login form</a>
+      </div>
+
+      <div id = "regeneratePasswordDiv">
+ 		    Login: <input id = "regenerateLogin" class = "regenerateForm" type = "text">
+        <m id = "regenerateLoginError" class = "regenerationFieldsErrors"></m>
+        <br> Email: <input id = "regenerateEmail" class = "regenerateForm" type = "text">
+        <m id = "regenerateEmailError" class = "regenerationFieldsErrors"></m>
+        <br><input id = "regenerateSubmit" type="button" value="Regenerate Password!"/>     
+        <br><a id = "backFromRegenerate" href = 'javascript:void(0)'>back to login form</a>
+      </div>
+
+      <div id = "registrationOkDiv">
+        <p id ="registrationOkMessage">An e-mail has been sent to you. Click the link
+        contained in the e-mail to confirm this registration</p>
+        <a id = "backFromRegistrationOkDiv" href = 'javascript:void(0)'>back</a>
+      </div>
+	
+    </div>
+  </div>
+

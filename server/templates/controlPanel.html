@@ -1,0 +1,50 @@
+    <form onsubmit="return test();">
+     <label>X: <input type="text" id="x" value="0"></label> <label>Y: <input type="text" id="y" value="0"></label>
+     <input type="submit" value="Update">
+    </form>
+    <label>Zoom <input type="range" name="zoomLog" value="0" min="0" max="14" step="0.125"> <input type="text" name="zoom" value="1">x</label>
+    <label>Quality:
+     <select name="quality">
+      <option>low</option>
+      <option selected="selected">med</option>
+      <option>high</option>
+     </select>
+    </label><br>
+    <label>Transparency: <input type="range" max="1" min="0" step="0.1" name="transparency" value="0.5"></label><hr>
+    Grid parameters: <input id="nx" type="number" min="1" step="1" value="1" onchange="rearrangeInterface();">x<input id="ny" type="number" min="1" step="1" value="1" onchange="rearrangeInterface();"><br>
+    <input type="checkbox" name="synchronization" checked="checked"> synchronized
+    <label>Display:
+     <select id="display" onchange="rearrangeInterface();">
+      <option selected="selected">matrix</option>
+      <option>serial</option>
+     </select>
+    </label>
+    <button onclick="compressStacks();">Compress</button>
+    <button onclick="decompressStacks();">Decompress</button>
+		<hr>
+    <table id="layersConsole">
+     <thead>
+      <tr>
+       <th>
+        Label
+       </th>
+       <th>
+        Download
+       </th>
+       <th>
+        Visible
+       </th>
+       <th>
+        Adjust
+       </th>
+       <th>
+        Delete
+       </th>
+      </tr>
+     </thead>
+     <tfoot>
+     </tfoot>
+     <tbody class="layerList">
+     </tbody>
+    </table>
+    <!--%searchbox%-->

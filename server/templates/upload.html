@@ -1,0 +1,160 @@
+<html>
+ <head>
+  <title>Skrawki engine - upload test site.</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <link rel="icon" type="image/vnd.microsoft.icon" href="/static/gfx/nut.ico"/>
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+  <link rel="stylesheet" type="text/css" href="/static/css/jquery-ui-1.10.3.dialog.min.css" />
+  <script src="/static/js/jquery.js" type="text/javascript"></script>
+  <script src="/static/js/html5slider.js" type="text/javascript"></script>
+  <script src="/static/js/common.js" type="text/javascript"></script>
+  <script src="/static/js/spark-md5.min.js" type="text/javascript"></script>
+  <script src="/static/js/upload.js" type="text/javascript"></script>
+  <script src="/static/js/layer_stack.js" type="text/javascript"></script>
+  <script src="/static/js/tile_layer.js" type="text/javascript"></script>
+  <script src="/static/js/draggable_div.js" type="text/javascript"></script>
+  <script src="/static/js/image_manager.js" type="text/javascript"></script>
+  <script src="/static/js/synchronized_stacks.js" type="text/javascript"></script>
+  <script src="/static/js/main.js" type="text/javascript"></script>
+  <script src="/static/js/jquery-ui-1.10.3.dialog.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+
+
+function listBatch()
+{
+  var bid = $('.batch select').val();
+  var query = (bid == 'None') ? '' : 'bid=' + bid;
+
+  $.ajax({
+    //type: 'POST', //causes 412 error on refresh -_-
+    type: 'GET',
+    url: '/upload/batchDetails',
+    data: query,
+    dataType: 'json',
+    success: function(data)
+    {
+      if (!data.status)
+      {
+        alert(data.message);
+        return false;
+      }
+
+      stacks.flush();
+      fileUploader.uploaded.reset();
+
+			for (var id in data.data)
+			{
+        var image = data.data[id];
+        if (image[0] >= 6)
+        {
+          // status: completed
+          stacks.addTileLayer(id, '/images/' + id, null, image[6]); 
+        }
+        fileUploader.uploaded.append({name: image[6] + (image[0] == 7 ? '' : '(' + image[0] + ')'), size: image[4], iid: id, crc32: image[3]});
+			}
+    },
+    error: ajaxErrorHandler
+  });
+
+  return false;
+}
+
+function rearrangeInterface()
+{
+  var nx = $('#nx').val();
+  var ny = $('#ny').val();
+  var display = $('#display').val();
+  var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
+
+  stacks.rearrange(nx, ny, width);
+  stacks.arrangeInterface();
+}
+
+function compressStacks()
+{
+  var images = stacks.loadedImagesOrdered();
+  stacks.rearrange(1, 1);
+  for (var i = 0; i < images.length; i++)
+  {
+    if (!stacks.has(0, images[i]))
+    {
+      stacks.load(0, images[i], true);
+    }
+  }
+  stacks.arrangeInterface();
+  $('#nx').val(stacks.nx);
+  $('#ny').val(stacks.ny);
+}
+
+function decompressStacks()
+{
+  var images = stacks.loadedImagesOrdered();
+  var nx = $('#nx').val();
+  var ny = $('#ny').val();
+  var nxCor = nx * ny < images.length ?
+              parseInt(Math.ceil(images.length / ny)) :
+              nx;
+  var display = $('#display').val();
+  var width = display == 'matrix' ?
+              null :
+              parseInt(Math.max(100, 66 * nxCor / ny)) + '%';
+  stacks.unloadAll();
+  stacks.rearrange(nxCor, ny, width);
+  for (var i = 0; i < images.length; i++)
+  {
+    stacks.load(i, images[images.length - 1 - i], true);
+  }
+
+  stacks.arrangeInterface();
+  $('#nx').val(stacks.nx);
+  $('#ny').val(stacks.ny);
+}
+
+$(document).ready(function()
+{
+	loginConsole = new CLoginConsole($('#userPanel'), $('#loginLink'), $('#logoutLink'),
+	          function()
+	          {
+	            $('#logoutLink').text('Logout [' +
+	                                  loginConsole.isLoggedAs() + ']');
+	          },
+	          null,
+	          null,
+	          function()
+	          {
+	            $('#loginDiv').show();
+	            $('#registerDiv').hide();
+	            $('.formErrorMessages').text('');
+	            $('#registerOkDiv').hide('');
+	            $('#regeneratePasswordDiv').hide('');
+	            $('.regenerateForm').val('');
+	          });
+	
+  fileUploader = new CFileUploader($('#upload'));
+  var nx = 1;
+  var ny = 1;
+
+  stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
+                                          $('#controlPanel [name="synchronization"]:checked').length != 0,
+                                          $('#controlPanel [name="zoom"]').val(),
+                                          $('#x').val(), $('#y').val(),
+                                          null, null,
+                                          $('#controlPanel'),
+                                          false, false, false,
+                                          '/static/gfx');
+  
+});
+
+  </script>
+
+ </head>    
+ <body style="margin: 0pt; height:100%;">
+  <div style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; overflow: hidden;">
+   <div id="sliceDisplay">
+   </div>
+   <!--%controlPanel%-->
+  </div>
+	<div id="dialog" title="Broken and duplicate uploads found!"></div>
+ </body>
+</html>
+

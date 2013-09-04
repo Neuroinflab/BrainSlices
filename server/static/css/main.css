@@ -1,0 +1,31 @@
+div.modalwin
+{
+  height:20xm;
+  width:30em; 
+  display: inline-block;
+  text-align: left; 
+  padding: 40px 20px 20px;
+  border:2px solid ;
+  font-size: 14px;
+  z-index: 101;
+  background:#fff;
+}
+
+div.overlay
+{
+  padding-top: 10%;
+
+  position: absolute;
+  left:0px;
+  top:0px;
+  bottom:0px;
+  right:0px;
+  z-index:3000;
+  background:rgba(0,0,0,0.1);
+  text-align:center;
+}
+
+.formErrorMessages
+{
+  color: red;
+}

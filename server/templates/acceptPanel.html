@@ -1,0 +1,110 @@
+<div style="display: none">
+    <form onsubmit="return test();">
+     <label>X: <input type="text" id="x" value="0"></label> <label>Y: <input type="text" id="y" value="0"></label>
+     <input type="submit" value="Update">
+    </form>
+</div>
+    <label>Zoom <input type="range" name="zoomLog" value="0" min="0" max="14" step="0.125"> <input type="text" name="zoom" value="1">x</label>
+    <label>Quality:
+     <select name="quality">
+      <option>low</option>
+      <option selected="selected">med</option>
+      <option>high</option>
+     </select>
+    </label><br>
+    <label>Transparency: <input type="range" max="1" min="0" step="0.1" name="transparency" value="0.5"></label><hr>
+    Grid parameters: <input id="nx" type="number" min="1" step="1" value="1" onchange="rearrangeInterface();">x<input id="ny" type="number" min="1" step="1" value="1" onchange="rearrangeInterface();"><br>
+    <input type="checkbox" name="synchronization" checked="checked"> synchronized
+    <label>Display:
+     <select id="display" class="displayMode" onchange="rearrangeInterface();">
+      <option selected="selected">matrix</option>
+      <option>serial</option>
+     </select>
+    </label>
+    <button onclick="compressStacks();">Compress</button>
+    <button onclick="decompressStacks();">Decompress</button>
+		<hr>
+    <table id="layersConsole">
+     <thead>
+      <tr>
+       <th>
+        Label
+       </th>
+       <th>
+        Download
+       </th>
+       <th>
+        Visible
+       </th>
+       <th>
+        Adjust
+       </th>
+       <th>
+        Accept
+       </th>
+      </tr>
+     </thead>
+     <tfoot>
+     </tfoot>
+     <tbody class="layerList">
+     </tbody>
+    </table>
+    <!--%searchbox%-->
+    <hr>
+    <form action="upload" method="post" enctype="multipart/form-data" id="upload">
+  
+     <div class="batch">
+      Batch:
+      <select name="bid">
+       <option selected="selected">None</option>
+      </select>
+		  <a href="javascript:void(0)" onclick="return listBatch();">Refresh</a>
+			<br/>
+   
+      <input type="text" value="Batch comment..."><input type="button" value="New batch" />
+     </div>
+  
+  
+     File: <input type="file" name="theFile" multiple="multiple"/> <br/>
+     <select class="uploadMethod">
+      <option selected="selected">chunked</option>
+      <option>compact</option>
+     </select>
+  
+     <div class="uploadNew">
+  
+      <input type="button" value="Upload" />
+      <ul class="uploads"></ul>
+     </div>
+  
+     <div class="uploadOld" style="display: none;">
+      <input type="button" value="Upload" />
+      <ul class="uploads"></ul>
+      <progress max="1"></progress> 
+     </div>
+  
+     <table border class="uploaded">
+      <thead>
+       <tr>
+        <th>
+        Filename
+       </th>
+       <th>
+        Size
+       </th>
+       <th>
+        IID
+       </th>
+       <th>
+        crc32
+       </th>
+       </tr>
+      </thead>
+      <tfoot>
+      </tfoot>
+      <tbody>
+      </tbody>
+     </table>
+  
+    </form>
+

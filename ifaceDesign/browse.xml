@@ -1,0 +1,1079 @@
+<mockup version="1.0" skin="sketch" fontFace="Balsamiq Sans" measuredW="1162" measuredH="859" mockupW="1162" mockupH="859">
+  <controls>
+    <control controlID="44" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="47" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="1" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="70" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="2" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="71" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="3" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="83" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="4" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="84" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="5" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="104" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="6" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="105" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="7" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="206" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="8" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="207" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="9" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="208" controlTypeID="com.balsamiq.mockups::ButtonBar" x="39" y="74" w="274" h="27" measuredW="268" measuredH="27" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>-1</selectedIndex>
+        <text>Home%2C%20Browse%2C%20Visualize%2C%20Upload</text>
+      </controlProperties>
+    </control>
+    <control controlID="209" controlTypeID="com.balsamiq.mockups::ButtonBar" x="999" y="74" w="-1" h="-1" measuredW="163" measuredH="27" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>1</selectedIndex>
+        <text>Help%2C%20Login/Register</text>
+      </controlProperties>
+    </control>
+    <control controlID="210" controlTypeID="com.balsamiq.mockups::Paragraph" x="75" y="580" w="1051" h="72" measuredW="200" measuredH="80" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Nasz%20serwis%20wykorzystuje%20pliki%20cookies%20w%20celu%20umo%u017Cliwienia%20zarejestrowanym%20u%u017Cytkownikom%20serwisu%20zalogowania%20si%u0119.%20Analizujemy%20te%u017C%20aktywno%u015B%u0107%20u%u017Cytkownik%F3w%20korzystaj%u0105c%20z%20rozwi%u0105za%u0144%20zewn%u0119trznych%20dostawc%F3w.%20Aktualnie%20u%u017Cywamy%20Google%20Analytics%20%28dzia%u0142aj%u0105cego%20w%20oparciu%20o%20pliki%20cookie%29%20nie%20udost%u0119pniaj%u0105cego%20danych%20umo%u017Cliwiaj%u0105cych%20identyfikacj%u0119%20os%F3b.%20Prosimy%20o%20zapoznanie%20si%u0119%20ze%20szczeg%F3%u0142ami%20%5Bpolityki%20prywatno%u015Bci%20Google%20Analytics%5D.%20Je%u017Celi%20nie%20wyra%u017Casz%20zgody%20na%20przechowywanie%20informacji%20w%20Twoim%20telekomunikacyjnym%20urz%u0105dzeniu%20ko%u0144cowym%20%28%5BDz.U.%202012%20nr%200%20poz.%201445%202013.01.21%5D%29%2C%20zablokuj%20obs%u0142ug%u0119%20plik%F3w%20cookies%20w%20swojej%20przegl%u0105darce%20internetowej%20post%u0119puj%u0105c%20zgodnie%20z%20jej%20dokumentacj%u0105.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="211" controlTypeID="com.balsamiq.mockups::Title" x="172" y="129" w="-1" h="-1" measuredW="721" measuredH="43" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Welcome%20to%20the%20Brain%20Slices%20Repository%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="212" controlTypeID="com.balsamiq.mockups::Canvas" x="176" y="182" w="833" h="107" measuredW="100" measuredH="70" zOrder="14" locked="false" isInGroup="-1"/>
+    <control controlID="213" controlTypeID="com.balsamiq.mockups::Paragraph" x="183" y="190" w="819" h="90" measuredW="200" measuredH="80" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lorem%20ipsum%20dolor%20sit%20amet%2C%20consectetur%20adipisicing%20elit.%20Proin%20nibh%20augue%2C%20suscipit%20a%2C%20scelerisque%20sed%2C%20lacinia%20in%2C%20mi.%20Cras%20vel%20lorem.%20Etiam%20pellentesque%20aliquet%20tellus.%20Phasellus%20pharetra%20nulla%20ac%20diam.%20Quisque%20semper%20justo%20at%20risus.%20Donec%20venenatis%2C%20turpis%20vel%20hendrerit%20interdum%2C%20dui%20ligula%20ultricies%20purus%2C%20sed%20posuere%20libero%20dui%20id%20orci.%20Nam%20congue%2C%20pede%20vitae%20dapibus%20aliquet%2C%20elit%20magna%20vulputate%20arcu%2C%20vel%20tempus%20metus%20leo%20non%20est.%20Etiam%20sit%20amet%20lectus%20quis%20est%20congue%20mollis.%20Phasellus%20congue%20lacus%20eget%20neque.%20Phasellus%20ornare%2C%20ante%20vitae%20consectetuer%20consequat%2C%20purus%20sapien%20ultricies%20dolor%2C%20et%20mollis%20pede%20metus%20eget%20nisi.%20Praesent%20sodales%20velit%20quis%20augue.%20Cras%20suscipit%2C%20urna%20at%20aliquam%20rhoncus%2C%20urna%20quam%20viverra%20nisi%2C%20in%20interdum%20massa%20nibh%20nec%20erat.</text>
+      </controlProperties>
+    </control>
+    <control controlID="214" controlTypeID="com.balsamiq.mockups::HRule" x="48" y="565" w="1105" h="-1" measuredW="100" measuredH="10" zOrder="16" locked="false" isInGroup="-1"/>
+    <control controlID="215" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="216" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="18" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="217" controlTypeID="com.balsamiq.mockups::PointyButton" x="113" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="218" controlTypeID="com.balsamiq.mockups::Paragraph" x="298" y="300" w="709" h="260" measuredW="200" measuredH="80" zOrder="20" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lore%20ipsum%20dolor%20sit%20amet%2C%20%20id%20tempus%20tellus%20quam%20vitae%20ante.%20Curabitur%20tortor%20massa%2C%20ultricies%20nec%20placerat%20in%2C%20imperdiet%20vitae%20magna.%20Curabitur%20ultricies%20lacinia%20turpis%20sed%20commodo.%20Nulla%20vulputate%20dolor%20at%20ipsum%20dignissim%20condimentum.%20Ut%20adipiscing%20tellus%20vitae%20arcu%20pharetra%20sit%20amet%20sollicitudin%20purus%20convallis.%0A%20%0AMorbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id%2C%20faucibus%20eget%20nunc.%20Maecenas%20id%20erat%20cursus%20magna%20convallis%20cursus%20iaculis%20vitae%20leo.%0A%20%0AProin%20iaculis%20purus%20eu%20sem%20fermentum%20eu%20pharetra%20justo%20hendrerit.%20Proin%20at%20porttitor%20quam.%20Nullam%20nisl%20sapien%2C%20mollis%20vel%20dictum%20ut%2C%20fringilla%20eu%20risus.%20Praesent%20sagittis%20suscipit%20congue.%20Cras%20turpis%20lectus%2C%20dictum%20malesuada%20cursus%20nec%2C%20accumsan%20a%20lacus.%20Proin%20pretium%20fringilla%20pretium.%20Etiam%20quis%20nulla%20eros.%20Phasellus%20porttitor%20tincidunt%20mollis.%20Nam%20id%20tortor%20vel%20libero%20rhoncus%20pretium.%20Quisque%20varius%20odio%20eu%20nisl%20placerat%20ut%20interdum%20sapien%20egestas.%20Donec%20non%20sapien%20nisl.%20Aenean%20adipiscing%2C%20libero%20pretium%20varius%20molestie%2C%20leo%20nunc%20facilisis%20odio%2C%20ac%20tempus%20libero%20ante%20sit%20amet%20lectus.%20Sed%20aliquam%20neque%20vel%20elit%20pellentesque%20vitae%20eleifend%20magna%20mattis.%20Aliquam%20quis%20metus%20vitae%20nisl%20iaculis%20cursus.%20Ut%20nisi%20augue%2C%20bibendum%20eu%20tempor%20vel%2C%20elementum%20rhoncus%20justo.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="219" controlTypeID="com.balsamiq.mockups::ModalScreen" x="39" y="110" w="1123" h="549" measuredW="320" measuredH="240" zOrder="21" locked="false" isInGroup="-1"/>
+    <control controlID="220" controlTypeID="com.balsamiq.mockups::TitleWindow" x="398" y="274" w="334" h="208" measuredW="450" measuredH="400" zOrder="22" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Please%20enter%20your%20login%20information.</text>
+      </controlProperties>
+    </control>
+    <control controlID="221" controlTypeID="com.balsamiq.mockups::TextInput" x="524" y="306" w="181" h="-1" measuredW="41" measuredH="27" zOrder="23" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>user</text>
+      </controlProperties>
+    </control>
+    <control controlID="222" controlTypeID="com.balsamiq.mockups::TextInput" x="524" y="342" w="181" h="-1" measuredW="63" measuredH="27" zOrder="24" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>********</text>
+      </controlProperties>
+    </control>
+    <control controlID="223" controlTypeID="com.balsamiq.mockups::Button" x="524" y="375" w="-1" h="-1" measuredW="54" measuredH="27" zOrder="25" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login</text>
+      </controlProperties>
+    </control>
+    <control controlID="224" controlTypeID="com.balsamiq.mockups::Paragraph" x="415" y="412" w="305" h="37" measuredW="200" measuredH="80" zOrder="26" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Forgot%20your%20pasword%3F%20%5BGenerate%20a%20new%20password%5D.%0ADo%20not%20have%20an%20account%3F%20Please%20%5Bregister%5D.</text>
+      </controlProperties>
+    </control>
+    <control controlID="225" controlTypeID="com.balsamiq.mockups::Label" x="483" y="309" w="-1" h="-1" measuredW="34" measuredH="21" zOrder="27" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="226" controlTypeID="com.balsamiq.mockups::Label" x="458" y="343" w="-1" h="-1" measuredW="59" measuredH="21" zOrder="28" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Password%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="227" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="29" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="228" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="30" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="229" controlTypeID="com.balsamiq.mockups::ButtonBar" x="39" y="74" w="274" h="27" measuredW="268" measuredH="27" zOrder="31" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>0</selectedIndex>
+        <text>Home%2C%20Browse%2C%20Visualize%2C%20Upload</text>
+      </controlProperties>
+    </control>
+    <control controlID="230" controlTypeID="com.balsamiq.mockups::ButtonBar" x="999" y="74" w="-1" h="-1" measuredW="163" measuredH="27" zOrder="32" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>-1</selectedIndex>
+        <text>Login/Register%2C%20Help</text>
+      </controlProperties>
+    </control>
+    <control controlID="231" controlTypeID="com.balsamiq.mockups::Paragraph" x="75" y="580" w="1051" h="72" measuredW="200" measuredH="80" zOrder="33" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Nasz%20serwis%20wykorzystuje%20pliki%20cookies%20w%20celu%20umo%u017Cliwienia%20zarejestrowanym%20u%u017Cytkownikom%20serwisu%20zalogowania%20si%u0119.%20Analizujemy%20te%u017C%20aktywno%u015B%u0107%20u%u017Cytkownik%F3w%20korzystaj%u0105c%20z%20rozwi%u0105za%u0144%20zewn%u0119trznych%20dostawc%F3w.%20Aktualnie%20u%u017Cywamy%20Google%20Analytics%20%28dzia%u0142aj%u0105cego%20w%20oparciu%20o%20pliki%20cookie%29%20nie%20udost%u0119pniaj%u0105cego%20danych%20umo%u017Cliwiaj%u0105cych%20identyfikacj%u0119%20os%F3b.%20Prosimy%20o%20zapoznanie%20si%u0119%20ze%20szczeg%F3%u0142ami%20%5Bpolityki%20prywatno%u015Bci%20Google%20Analytics%5D.%20Je%u017Celi%20nie%20wyra%u017Casz%20zgody%20na%20przechowywanie%20informacji%20w%20Twoim%20telekomunikacyjnym%20urz%u0105dzeniu%20ko%u0144cowym%20%28%5BDz.U.%202012%20nr%200%20poz.%201445%202013.01.21%5D%29%2C%20zablokuj%20obs%u0142ug%u0119%20plik%F3w%20cookies%20w%20swojej%20przegl%u0105darce%20internetowej%20post%u0119puj%u0105c%20zgodnie%20z%20jej%20dokumentacj%u0105.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="232" controlTypeID="com.balsamiq.mockups::Title" x="172" y="129" w="-1" h="-1" measuredW="721" measuredH="43" zOrder="34" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Welcome%20to%20the%20Brain%20Slices%20Repository%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="233" controlTypeID="com.balsamiq.mockups::Canvas" x="176" y="182" w="833" h="107" measuredW="100" measuredH="70" zOrder="35" locked="false" isInGroup="-1"/>
+    <control controlID="234" controlTypeID="com.balsamiq.mockups::Paragraph" x="183" y="190" w="819" h="90" measuredW="200" measuredH="80" zOrder="36" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lorem%20ipsum%20dolor%20sit%20amet%2C%20consectetur%20adipisicing%20elit.%20Proin%20nibh%20augue%2C%20suscipit%20a%2C%20scelerisque%20sed%2C%20lacinia%20in%2C%20mi.%20Cras%20vel%20lorem.%20Etiam%20pellentesque%20aliquet%20tellus.%20Phasellus%20pharetra%20nulla%20ac%20diam.%20Quisque%20semper%20justo%20at%20risus.%20Donec%20venenatis%2C%20turpis%20vel%20hendrerit%20interdum%2C%20dui%20ligula%20ultricies%20purus%2C%20sed%20posuere%20libero%20dui%20id%20orci.%20Nam%20congue%2C%20pede%20vitae%20dapibus%20aliquet%2C%20elit%20magna%20vulputate%20arcu%2C%20vel%20tempus%20metus%20leo%20non%20est.%20Etiam%20sit%20amet%20lectus%20quis%20est%20congue%20mollis.%20Phasellus%20congue%20lacus%20eget%20neque.%20Phasellus%20ornare%2C%20ante%20vitae%20consectetuer%20consequat%2C%20purus%20sapien%20ultricies%20dolor%2C%20et%20mollis%20pede%20metus%20eget%20nisi.%20Praesent%20sodales%20velit%20quis%20augue.%20Cras%20suscipit%2C%20urna%20at%20aliquam%20rhoncus%2C%20urna%20quam%20viverra%20nisi%2C%20in%20interdum%20massa%20nibh%20nec%20erat.</text>
+      </controlProperties>
+    </control>
+    <control controlID="235" controlTypeID="com.balsamiq.mockups::HRule" x="48" y="565" w="1105" h="-1" measuredW="100" measuredH="10" zOrder="37" locked="false" isInGroup="-1"/>
+    <control controlID="236" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="38" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="237" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="39" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="238" controlTypeID="com.balsamiq.mockups::PointyButton" x="113" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="40" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="239" controlTypeID="com.balsamiq.mockups::Paragraph" x="298" y="300" w="709" h="260" measuredW="200" measuredH="80" zOrder="41" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lore%20ipsum%20dolor%20sit%20amet%2C%20%20id%20tempus%20tellus%20quam%20vitae%20ante.%20Curabitur%20tortor%20massa%2C%20ultricies%20nec%20placerat%20in%2C%20imperdiet%20vitae%20magna.%20Curabitur%20ultricies%20lacinia%20turpis%20sed%20commodo.%20Nulla%20vulputate%20dolor%20at%20ipsum%20dignissim%20condimentum.%20Ut%20adipiscing%20tellus%20vitae%20arcu%20pharetra%20sit%20amet%20sollicitudin%20purus%20convallis.%0A%20%0AMorbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id%2C%20faucibus%20eget%20nunc.%20Maecenas%20id%20erat%20cursus%20magna%20convallis%20cursus%20iaculis%20vitae%20leo.%0A%20%0AProin%20iaculis%20purus%20eu%20sem%20fermentum%20eu%20pharetra%20justo%20hendrerit.%20Proin%20at%20porttitor%20quam.%20Nullam%20nisl%20sapien%2C%20mollis%20vel%20dictum%20ut%2C%20fringilla%20eu%20risus.%20Praesent%20sagittis%20suscipit%20congue.%20Cras%20turpis%20lectus%2C%20dictum%20malesuada%20cursus%20nec%2C%20accumsan%20a%20lacus.%20Proin%20pretium%20fringilla%20pretium.%20Etiam%20quis%20nulla%20eros.%20Phasellus%20porttitor%20tincidunt%20mollis.%20Nam%20id%20tortor%20vel%20libero%20rhoncus%20pretium.%20Quisque%20varius%20odio%20eu%20nisl%20placerat%20ut%20interdum%20sapien%20egestas.%20Donec%20non%20sapien%20nisl.%20Aenean%20adipiscing%2C%20libero%20pretium%20varius%20molestie%2C%20leo%20nunc%20facilisis%20odio%2C%20ac%20tempus%20libero%20ante%20sit%20amet%20lectus.%20Sed%20aliquam%20neque%20vel%20elit%20pellentesque%20vitae%20eleifend%20magna%20mattis.%20Aliquam%20quis%20metus%20vitae%20nisl%20iaculis%20cursus.%20Ut%20nisi%20augue%2C%20bibendum%20eu%20tempor%20vel%2C%20elementum%20rhoncus%20justo.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="240" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="42" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="241" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="43" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="242" controlTypeID="com.balsamiq.mockups::ButtonBar" x="39" y="74" w="274" h="27" measuredW="268" measuredH="27" zOrder="44" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>-1</selectedIndex>
+        <text>Home%2C%20Browse%2C%20Visualize%2C%20Upload</text>
+      </controlProperties>
+    </control>
+    <control controlID="243" controlTypeID="com.balsamiq.mockups::ButtonBar" x="999" y="74" w="-1" h="-1" measuredW="163" measuredH="27" zOrder="45" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>0</selectedIndex>
+        <text>Login/Register%2C%20Help</text>
+      </controlProperties>
+    </control>
+    <control controlID="244" controlTypeID="com.balsamiq.mockups::Paragraph" x="75" y="580" w="1051" h="72" measuredW="200" measuredH="80" zOrder="46" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Nasz%20serwis%20wykorzystuje%20pliki%20cookies%20w%20celu%20umo%u017Cliwienia%20zarejestrowanym%20u%u017Cytkownikom%20serwisu%20zalogowania%20si%u0119.%20Analizujemy%20te%u017C%20aktywno%u015B%u0107%20u%u017Cytkownik%F3w%20korzystaj%u0105c%20z%20rozwi%u0105za%u0144%20zewn%u0119trznych%20dostawc%F3w.%20Aktualnie%20u%u017Cywamy%20Google%20Analytics%20%28dzia%u0142aj%u0105cego%20w%20oparciu%20o%20pliki%20cookie%29%20nie%20udost%u0119pniaj%u0105cego%20danych%20umo%u017Cliwiaj%u0105cych%20identyfikacj%u0119%20os%F3b.%20Prosimy%20o%20zapoznanie%20si%u0119%20ze%20szczeg%F3%u0142ami%20%5Bpolityki%20prywatno%u015Bci%20Google%20Analytics%5D.%20Je%u017Celi%20nie%20wyra%u017Casz%20zgody%20na%20przechowywanie%20informacji%20w%20Twoim%20telekomunikacyjnym%20urz%u0105dzeniu%20ko%u0144cowym%20%28%5BDz.U.%202012%20nr%200%20poz.%201445%202013.01.21%5D%29%2C%20zablokuj%20obs%u0142ug%u0119%20plik%F3w%20cookies%20w%20swojej%20przegl%u0105darce%20internetowej%20post%u0119puj%u0105c%20zgodnie%20z%20jej%20dokumentacj%u0105.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="245" controlTypeID="com.balsamiq.mockups::Title" x="172" y="129" w="-1" h="-1" measuredW="721" measuredH="43" zOrder="47" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Welcome%20to%20the%20Brain%20Slices%20Repository%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="246" controlTypeID="com.balsamiq.mockups::Canvas" x="176" y="182" w="833" h="107" measuredW="100" measuredH="70" zOrder="48" locked="false" isInGroup="-1"/>
+    <control controlID="247" controlTypeID="com.balsamiq.mockups::Paragraph" x="183" y="190" w="819" h="90" measuredW="200" measuredH="80" zOrder="49" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lorem%20ipsum%20dolor%20sit%20amet%2C%20consectetur%20adipisicing%20elit.%20Proin%20nibh%20augue%2C%20suscipit%20a%2C%20scelerisque%20sed%2C%20lacinia%20in%2C%20mi.%20Cras%20vel%20lorem.%20Etiam%20pellentesque%20aliquet%20tellus.%20Phasellus%20pharetra%20nulla%20ac%20diam.%20Quisque%20semper%20justo%20at%20risus.%20Donec%20venenatis%2C%20turpis%20vel%20hendrerit%20interdum%2C%20dui%20ligula%20ultricies%20purus%2C%20sed%20posuere%20libero%20dui%20id%20orci.%20Nam%20congue%2C%20pede%20vitae%20dapibus%20aliquet%2C%20elit%20magna%20vulputate%20arcu%2C%20vel%20tempus%20metus%20leo%20non%20est.%20Etiam%20sit%20amet%20lectus%20quis%20est%20congue%20mollis.%20Phasellus%20congue%20lacus%20eget%20neque.%20Phasellus%20ornare%2C%20ante%20vitae%20consectetuer%20consequat%2C%20purus%20sapien%20ultricies%20dolor%2C%20et%20mollis%20pede%20metus%20eget%20nisi.%20Praesent%20sodales%20velit%20quis%20augue.%20Cras%20suscipit%2C%20urna%20at%20aliquam%20rhoncus%2C%20urna%20quam%20viverra%20nisi%2C%20in%20interdum%20massa%20nibh%20nec%20erat.</text>
+      </controlProperties>
+    </control>
+    <control controlID="248" controlTypeID="com.balsamiq.mockups::HRule" x="48" y="565" w="1105" h="-1" measuredW="100" measuredH="10" zOrder="50" locked="false" isInGroup="-1"/>
+    <control controlID="249" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="51" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="250" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="52" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="251" controlTypeID="com.balsamiq.mockups::PointyButton" x="113" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="53" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="252" controlTypeID="com.balsamiq.mockups::Paragraph" x="298" y="300" w="709" h="260" measuredW="200" measuredH="80" zOrder="54" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lore%20ipsum%20dolor%20sit%20amet%2C%20%20id%20tempus%20tellus%20quam%20vitae%20ante.%20Curabitur%20tortor%20massa%2C%20ultricies%20nec%20placerat%20in%2C%20imperdiet%20vitae%20magna.%20Curabitur%20ultricies%20lacinia%20turpis%20sed%20commodo.%20Nulla%20vulputate%20dolor%20at%20ipsum%20dignissim%20condimentum.%20Ut%20adipiscing%20tellus%20vitae%20arcu%20pharetra%20sit%20amet%20sollicitudin%20purus%20convallis.%0A%20%0AMorbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id%2C%20faucibus%20eget%20nunc.%20Maecenas%20id%20erat%20cursus%20magna%20convallis%20cursus%20iaculis%20vitae%20leo.%0A%20%0AProin%20iaculis%20purus%20eu%20sem%20fermentum%20eu%20pharetra%20justo%20hendrerit.%20Proin%20at%20porttitor%20quam.%20Nullam%20nisl%20sapien%2C%20mollis%20vel%20dictum%20ut%2C%20fringilla%20eu%20risus.%20Praesent%20sagittis%20suscipit%20congue.%20Cras%20turpis%20lectus%2C%20dictum%20malesuada%20cursus%20nec%2C%20accumsan%20a%20lacus.%20Proin%20pretium%20fringilla%20pretium.%20Etiam%20quis%20nulla%20eros.%20Phasellus%20porttitor%20tincidunt%20mollis.%20Nam%20id%20tortor%20vel%20libero%20rhoncus%20pretium.%20Quisque%20varius%20odio%20eu%20nisl%20placerat%20ut%20interdum%20sapien%20egestas.%20Donec%20non%20sapien%20nisl.%20Aenean%20adipiscing%2C%20libero%20pretium%20varius%20molestie%2C%20leo%20nunc%20facilisis%20odio%2C%20ac%20tempus%20libero%20ante%20sit%20amet%20lectus.%20Sed%20aliquam%20neque%20vel%20elit%20pellentesque%20vitae%20eleifend%20magna%20mattis.%20Aliquam%20quis%20metus%20vitae%20nisl%20iaculis%20cursus.%20Ut%20nisi%20augue%2C%20bibendum%20eu%20tempor%20vel%2C%20elementum%20rhoncus%20justo.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="253" controlTypeID="com.balsamiq.mockups::ModalScreen" x="39" y="110" w="1123" h="549" measuredW="320" measuredH="240" zOrder="55" locked="false" isInGroup="-1"/>
+    <control controlID="254" controlTypeID="com.balsamiq.mockups::TitleWindow" x="398" y="274" w="334" h="208" measuredW="450" measuredH="400" zOrder="56" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Please%20enter%20your%20login%20information.</text>
+      </controlProperties>
+    </control>
+    <control controlID="255" controlTypeID="com.balsamiq.mockups::TextInput" x="524" y="306" w="181" h="-1" measuredW="41" measuredH="27" zOrder="57" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>user</text>
+      </controlProperties>
+    </control>
+    <control controlID="256" controlTypeID="com.balsamiq.mockups::TextInput" x="524" y="342" w="181" h="-1" measuredW="63" measuredH="27" zOrder="58" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>********</text>
+      </controlProperties>
+    </control>
+    <control controlID="257" controlTypeID="com.balsamiq.mockups::Button" x="524" y="375" w="-1" h="-1" measuredW="54" measuredH="27" zOrder="59" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login</text>
+      </controlProperties>
+    </control>
+    <control controlID="258" controlTypeID="com.balsamiq.mockups::Paragraph" x="415" y="412" w="305" h="37" measuredW="200" measuredH="80" zOrder="60" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Forgot%20your%20pasword%3F%20%5BGenerate%20a%20new%20password%5D.%0ADo%20not%20have%20an%20account%3F%20Please%20%5Bregister%5D.</text>
+      </controlProperties>
+    </control>
+    <control controlID="259" controlTypeID="com.balsamiq.mockups::Label" x="483" y="309" w="-1" h="-1" measuredW="34" measuredH="21" zOrder="61" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="260" controlTypeID="com.balsamiq.mockups::Label" x="458" y="343" w="-1" h="-1" measuredW="59" measuredH="21" zOrder="62" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Password%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="261" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="63" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="262" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="64" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="263" controlTypeID="com.balsamiq.mockups::ButtonBar" x="39" y="74" w="274" h="27" measuredW="268" measuredH="27" zOrder="65" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>2</selectedIndex>
+        <text>Home%2C%20Browse%2C%20Visualize%2C%20Upload</text>
+      </controlProperties>
+    </control>
+    <control controlID="264" controlTypeID="com.balsamiq.mockups::ButtonBar" x="999" y="74" w="-1" h="-1" measuredW="163" measuredH="27" zOrder="66" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>-1</selectedIndex>
+        <text>Login/Register%2C%20Help</text>
+      </controlProperties>
+    </control>
+    <control controlID="265" controlTypeID="com.balsamiq.mockups::Image" x="39" y="102" w="376" h="273" measuredW="77" measuredH="79" zOrder="67" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="266" controlTypeID="com.balsamiq.mockups::Image" x="39" y="375" w="376" h="284" measuredW="77" measuredH="79" zOrder="68" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="267" controlTypeID="com.balsamiq.mockups::PointyButton" x="906" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="69" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="268" controlTypeID="com.balsamiq.mockups::PointyButton" x="906" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="70" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="269" controlTypeID="com.balsamiq.mockups::PointyButton" x="907" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="71" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="270" controlTypeID="com.balsamiq.mockups::PointyButton" x="906" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="72" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="271" controlTypeID="com.balsamiq.mockups::PointyButton" x="906" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="73" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="272" controlTypeID="com.balsamiq.mockups::PointyButton" x="907" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="74" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="273" controlTypeID="com.balsamiq.mockups::PointyButton" x="906" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="75" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="274" controlTypeID="com.balsamiq.mockups::PointyButton" x="906" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="76" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="275" controlTypeID="com.balsamiq.mockups::PointyButton" x="907" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="77" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="276" controlTypeID="com.balsamiq.mockups::Image" x="786" y="102" w="375" h="273" measuredW="77" measuredH="79" zOrder="78" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="277" controlTypeID="com.balsamiq.mockups::Image" x="786" y="375" w="376" h="284" measuredW="77" measuredH="79" zOrder="79" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="278" controlTypeID="com.balsamiq.mockups::PointyButton" x="516" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="80" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="279" controlTypeID="com.balsamiq.mockups::PointyButton" x="516" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="81" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="280" controlTypeID="com.balsamiq.mockups::PointyButton" x="517" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="82" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="281" controlTypeID="com.balsamiq.mockups::PointyButton" x="516" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="83" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="282" controlTypeID="com.balsamiq.mockups::PointyButton" x="516" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="84" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="283" controlTypeID="com.balsamiq.mockups::PointyButton" x="517" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="85" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="284" controlTypeID="com.balsamiq.mockups::PointyButton" x="516" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="86" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="285" controlTypeID="com.balsamiq.mockups::PointyButton" x="516" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="87" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="286" controlTypeID="com.balsamiq.mockups::PointyButton" x="517" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="88" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="287" controlTypeID="com.balsamiq.mockups::Image" x="415" y="102" w="371" h="273" measuredW="77" measuredH="79" zOrder="89" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="288" controlTypeID="com.balsamiq.mockups::Image" x="415" y="375" w="372" h="284" measuredW="77" measuredH="79" zOrder="90" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="290" controlTypeID="com.balsamiq.mockups::TitleWindow" x="574" y="190" w="456" h="212" measuredW="450" measuredH="400" zOrder="91" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Control%20Panel%3B%20cursor%20at%3A%20%5C-6513.2%20um%2C%20%5C-5164.5%20um%20%5Bhide%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="291" controlTypeID="com.balsamiq.mockups::FieldSet" x="579" y="217" w="444" h="83" measuredW="200" measuredH="170" zOrder="92" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Visualisation%20parameters%20%5Bhide%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="292" controlTypeID="com.balsamiq.mockups::Button" x="824" y="236" w="-1" h="-1" measuredW="65" measuredH="27" zOrder="93" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Update</text>
+      </controlProperties>
+    </control>
+    <control controlID="293" controlTypeID="com.balsamiq.mockups::Label" x="589" y="234" w="-1" h="-1" measuredW="84" measuredH="21" zOrder="94" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Focus%20point%20X%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="294" controlTypeID="com.balsamiq.mockups::Label" x="749" y="237" w="-1" h="-1" measuredW="11" measuredH="21" zOrder="95" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Y%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="295" controlTypeID="com.balsamiq.mockups::TextInput" x="673" y="234" w="-1" h="-1" measuredW="65" measuredH="27" zOrder="96" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>1280%20um</text>
+      </controlProperties>
+    </control>
+    <control controlID="296" controlTypeID="com.balsamiq.mockups::TextInput" x="760" y="234" w="-1" h="-1" measuredW="61" measuredH="27" zOrder="97" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>640%20um</text>
+      </controlProperties>
+    </control>
+    <control controlID="297" controlTypeID="com.balsamiq.mockups::Label" x="589" y="267" w="-1" h="-1" measuredW="37" measuredH="21" zOrder="98" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Zoom%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="298" controlTypeID="com.balsamiq.mockups::HSlider" x="634" y="271" w="102" h="-1" measuredW="33" measuredH="11" zOrder="99" locked="false" isInGroup="-1"/>
+    <control controlID="299" controlTypeID="com.balsamiq.mockups::TextInput" x="744" y="266" w="59" h="-1" measuredW="22" measuredH="27" zOrder="100" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>8</text>
+      </controlProperties>
+    </control>
+    <control controlID="300" controlTypeID="com.balsamiq.mockups::Label" x="806" y="269" w="-1" h="-1" measuredW="10" measuredH="21" zOrder="101" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>x</text>
+      </controlProperties>
+    </control>
+    <control controlID="301" controlTypeID="com.balsamiq.mockups::ComboBox" x="897" y="237" w="-1" h="-1" measuredW="120" measuredH="24" zOrder="102" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>medium%20quality</text>
+      </controlProperties>
+    </control>
+    <control controlID="302" controlTypeID="com.balsamiq.mockups::Label" x="824" y="267" w="-1" h="-1" measuredW="83" measuredH="21" zOrder="103" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Transparency%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="303" controlTypeID="com.balsamiq.mockups::HSlider" x="915" y="272" w="102" h="-1" measuredW="33" measuredH="11" zOrder="104" locked="false" isInGroup="-1"/>
+    <control controlID="304" controlTypeID="com.balsamiq.mockups::FieldSet" x="582" y="303" w="439" h="50" measuredW="200" measuredH="170" zOrder="105" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Window%20grid%20parameters%20%5Bhide%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="305" controlTypeID="com.balsamiq.mockups::NumericStepper" x="596" y="316" w="53" h="-1" measuredW="41" measuredH="24" zOrder="106" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>3</text>
+      </controlProperties>
+    </control>
+    <control controlID="306" controlTypeID="com.balsamiq.mockups::Label" x="656" y="318" w="10" h="-1" measuredW="10" measuredH="21" zOrder="107" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>x</text>
+      </controlProperties>
+    </control>
+    <control controlID="307" controlTypeID="com.balsamiq.mockups::NumericStepper" x="672" y="316" w="55" h="-1" measuredW="42" measuredH="24" zOrder="108" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>2</text>
+      </controlProperties>
+    </control>
+    <control controlID="308" controlTypeID="com.balsamiq.mockups::ComboBox" x="732" y="316" w="118" h="-1" measuredW="86" measuredH="24" zOrder="109" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Grid%20view</text>
+      </controlProperties>
+    </control>
+    <control controlID="309" controlTypeID="com.balsamiq.mockups::CheckBox" x="915" y="317" w="-1" h="-1" measuredW="100" measuredH="22" zOrder="110" locked="false" isInGroup="-1">
+      <controlProperties>
+        <state>selected</state>
+        <text>Synchronized</text>
+      </controlProperties>
+    </control>
+    <control controlID="310" controlTypeID="com.balsamiq.mockups::Label" x="596" y="353" w="-1" h="-1" measuredW="115" measuredH="21" zOrder="111" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Image%20basket%20%5Bshow%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="311" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="112" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="312" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="113" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="313" controlTypeID="com.balsamiq.mockups::ButtonBar" x="39" y="74" w="274" h="27" measuredW="268" measuredH="27" zOrder="114" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>-1</selectedIndex>
+        <text>Home%2C%20Browse%2C%20Visualize%2C%20Upload</text>
+      </controlProperties>
+    </control>
+    <control controlID="314" controlTypeID="com.balsamiq.mockups::ButtonBar" x="999" y="74" w="-1" h="-1" measuredW="163" measuredH="27" zOrder="115" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>1</selectedIndex>
+        <text>Help%2C%20Login/Register</text>
+      </controlProperties>
+    </control>
+    <control controlID="315" controlTypeID="com.balsamiq.mockups::Paragraph" x="75" y="580" w="1051" h="72" measuredW="200" measuredH="80" zOrder="116" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Nasz%20serwis%20wykorzystuje%20pliki%20cookies%20w%20celu%20umo%u017Cliwienia%20zarejestrowanym%20u%u017Cytkownikom%20serwisu%20zalogowania%20si%u0119.%20Analizujemy%20te%u017C%20aktywno%u015B%u0107%20u%u017Cytkownik%F3w%20korzystaj%u0105c%20z%20rozwi%u0105za%u0144%20zewn%u0119trznych%20dostawc%F3w.%20Aktualnie%20u%u017Cywamy%20Google%20Analytics%20%28dzia%u0142aj%u0105cego%20w%20oparciu%20o%20pliki%20cookie%29%20nie%20udost%u0119pniaj%u0105cego%20danych%20umo%u017Cliwiaj%u0105cych%20identyfikacj%u0119%20os%F3b.%20Prosimy%20o%20zapoznanie%20si%u0119%20ze%20szczeg%F3%u0142ami%20%5Bpolityki%20prywatno%u015Bci%20Google%20Analytics%5D.%20Je%u017Celi%20nie%20wyra%u017Casz%20zgody%20na%20przechowywanie%20informacji%20w%20Twoim%20telekomunikacyjnym%20urz%u0105dzeniu%20ko%u0144cowym%20%28%5BDz.U.%202012%20nr%200%20poz.%201445%202013.01.21%5D%29%2C%20zablokuj%20obs%u0142ug%u0119%20plik%F3w%20cookies%20w%20swojej%20przegl%u0105darce%20internetowej%20post%u0119puj%u0105c%20zgodnie%20z%20jej%20dokumentacj%25%0Du0105.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="316" controlTypeID="com.balsamiq.mockups::Title" x="172" y="129" w="-1" h="-1" measuredW="721" measuredH="43" zOrder="117" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Welcome%20to%20the%20Brain%20Slices%20Repository%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="317" controlTypeID="com.balsamiq.mockups::Canvas" x="176" y="182" w="833" h="107" measuredW="100" measuredH="70" zOrder="118" locked="false" isInGroup="-1"/>
+    <control controlID="318" controlTypeID="com.balsamiq.mockups::Paragraph" x="183" y="190" w="819" h="90" measuredW="200" measuredH="80" zOrder="119" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lorem%20ipsum%20dolor%20sit%20amet%2C%20consectetur%20adipisicing%20elit.%20Proin%20nibh%20augue%2C%20suscipit%20a%2C%20scelerisque%20sed%2C%20lacinia%20in%2C%20mi.%20Cras%20vel%20lorem.%20Etiam%20pellentesque%20aliquet%20tellus.%20Phasellus%20pharetra%20nulla%20ac%20diam.%20Quisque%20semper%20justo%20at%20risus.%20Donec%20venenatis%2C%20turpis%20vel%20hendrerit%20interdum%2C%20dui%20ligula%20ultricies%20purus%2C%20sed%20posuere%20libero%20dui%20id%20orci.%20Nam%20congue%2C%20pede%20vitae%20dapibus%20aliquet%2C%20elit%20magna%20vulputate%20arcu%2C%20vel%20tempus%20metus%20leo%20non%20est.%20Etiam%20sit%20amet%20lectus%20quis%20est%20congue%20mollis.%20Phasellus%20congue%20lacus%20eget%20neque.%20Phasellus%20ornare%2C%20ante%20vitae%20consectetuer%20consequat%2C%20purus%20sapien%20ultricies%20dolor%2C%20et%20mollis%20pede%20metus%20eget%20nisi.%20Praesent%20sodales%20velit%20quis%20augue.%20Cras%20suscipit%2C%20urna%20at%20aliquam%20rhoncus%2C%20urna%20quam%20viverra%20nisi%2C%20in%20interdum%25%0D20massa%20nibh%20nec%20erat.</text>
+      </controlProperties>
+    </control>
+    <control controlID="319" controlTypeID="com.balsamiq.mockups::HRule" x="48" y="565" w="1105" h="-1" measuredW="100" measuredH="10" zOrder="120" locked="false" isInGroup="-1"/>
+    <control controlID="320" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="121" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="321" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="122" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="322" controlTypeID="com.balsamiq.mockups::PointyButton" x="113" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="123" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="323" controlTypeID="com.balsamiq.mockups::Paragraph" x="298" y="300" w="709" h="260" measuredW="200" measuredH="80" zOrder="124" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lore%20ipsum%20dolor%20sit%20amet%2C%20%20id%20tempus%20tellus%20quam%20vitae%20ante.%20Curabitur%20tortor%20massa%2C%20ultricies%20nec%20placerat%20in%2C%20imperdiet%20vitae%20magna.%20Curabitur%20ultricies%20lacinia%20turpis%20sed%20commodo.%20Nulla%20vulputate%20dolor%20at%20ipsum%20dignissim%20condimentum.%20Ut%20adipiscing%20tellus%20vitae%20arcu%20pharetra%20sit%20amet%20sollicitudin%20purus%20convallis.%0A%20%0AMorbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id%2C%20faucibus%20eget%20nunc.%20Maecenas%20id%20erat%20cursus%20magna%20convallis%25%0D20cursus%20iaculis%20vitae%20leo.%0A%20%0AProin%20iaculis%20purus%20eu%20sem%20fermentum%20eu%20pharetra%20justo%20hendrerit.%20Proin%20at%20porttitor%20quam.%20Nullam%20nisl%20sapien%2C%20mollis%20vel%20dictum%20ut%2C%20fringilla%20eu%20risus.%20Praesent%20sagittis%20suscipit%20congue.%20Cras%20turpis%20lectus%2C%20dictum%20malesuada%20cursus%20nec%2C%20accumsan%20a%20lacus.%20Proin%20pretium%20fringilla%20pretium.%20Etiam%20quis%20nulla%20eros.%20Phasellus%20porttitor%20tincidunt%20mollis.%20Nam%20id%20tortor%20vel%20libero%20rhoncus%20pretium.%20Quisque%20varius%20odio%20eu%20nisl%20placerat%20ut%20interdum%20sapien%20egestas.%20Donec%20non%20sapien%20nisl.%20Aenean%20adipiscing%2C%20libero%20pretium%20varius%20molestie%2C%20leo%20nunc%20facilisis%20odio%2C%20ac%20tempus%20libero%20ante%20sit%20amet%20lectus.%20Sed%20aliquam%20neque%20vel%20elit%20pellentesque%20vitae%20eleifend%20magna%20mattis.%20Aliquam%20quis%20metus%20vitae%20nisl%20iaculis%20cursus.%20Ut%20nisi%20augue%2C%20bibendum%20eu%20tempor%25%0D20vel%2C%20elementum%20rhoncus%20justo.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="324" controlTypeID="com.balsamiq.mockups::ModalScreen" x="39" y="123" w="1123" h="549" measuredW="320" measuredH="240" zOrder="125" locked="false" isInGroup="-1"/>
+    <control controlID="325" controlTypeID="com.balsamiq.mockups::TitleWindow" x="398" y="274" w="334" h="208" measuredW="450" measuredH="400" zOrder="126" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Please%20enter%20your%20login%20information.</text>
+      </controlProperties>
+    </control>
+    <control controlID="326" controlTypeID="com.balsamiq.mockups::TextInput" x="524" y="306" w="181" h="-1" measuredW="41" measuredH="27" zOrder="127" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>user</text>
+      </controlProperties>
+    </control>
+    <control controlID="327" controlTypeID="com.balsamiq.mockups::TextInput" x="524" y="342" w="181" h="-1" measuredW="63" measuredH="27" zOrder="128" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>********</text>
+      </controlProperties>
+    </control>
+    <control controlID="328" controlTypeID="com.balsamiq.mockups::Button" x="524" y="375" w="-1" h="-1" measuredW="54" measuredH="27" zOrder="129" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login</text>
+      </controlProperties>
+    </control>
+    <control controlID="329" controlTypeID="com.balsamiq.mockups::Paragraph" x="415" y="412" w="305" h="37" measuredW="200" measuredH="80" zOrder="130" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Forgot%20your%20pasword%3F%20%5BGenerate%20a%20new%20password%5D.%0ADo%20not%20have%20an%20account%3F%20Please%20%5Bregister%5D.</text>
+      </controlProperties>
+    </control>
+    <control controlID="330" controlTypeID="com.balsamiq.mockups::Label" x="483" y="309" w="-1" h="-1" measuredW="34" measuredH="21" zOrder="131" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="331" controlTypeID="com.balsamiq.mockups::Label" x="458" y="343" w="-1" h="-1" measuredW="59" measuredH="21" zOrder="132" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Password%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="332" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="133" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="333" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="134" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="334" controlTypeID="com.balsamiq.mockups::ButtonBar" x="39" y="74" w="274" h="27" measuredW="268" measuredH="27" zOrder="135" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>0</selectedIndex>
+        <text>Home%2C%20Browse%2C%20Visualize%2C%20Upload</text>
+      </controlProperties>
+    </control>
+    <control controlID="335" controlTypeID="com.balsamiq.mockups::ButtonBar" x="999" y="74" w="-1" h="-1" measuredW="163" measuredH="27" zOrder="136" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>-1</selectedIndex>
+        <text>Login/Register%2C%20Help</text>
+      </controlProperties>
+    </control>
+    <control controlID="336" controlTypeID="com.balsamiq.mockups::Paragraph" x="75" y="580" w="1051" h="72" measuredW="200" measuredH="80" zOrder="137" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Nasz%20serwis%20wykorzystuje%20pliki%20cookies%20w%20celu%20umo%u017Cliwienia%20zarejestrowanym%20u%u017Cytkownikom%20serwisu%20zalogowania%20si%u0119.%20Analizujemy%20te%u017C%20aktywno%u015B%u0107%20u%u017Cytkownik%F3w%20korzystaj%u0105c%20z%20rozwi%u0105za%u0144%20zewn%u0119trznych%20dostawc%F3w.%20Aktualnie%20u%u017Cywamy%20Google%20Analytics%20%28dzia%u0142aj%u0105cego%20w%20oparciu%20o%20pliki%20cookie%29%20nie%20udost%u0119pniaj%u0105cego%20danych%20umo%u017Cliwiaj%u0105cych%20identyfikacj%u0119%20os%F3b.%20Prosimy%20o%20zapoznanie%20si%u0119%20ze%20szczeg%F3%u0142ami%20%5Bpolityki%20prywatno%u015Bci%20Google%20Analytics%5D.%20Je%u017Celi%20nie%20wyra%u017Casz%20zgody%20na%20przechowywanie%20informacji%20w%20Twoim%20telekomunikacyjnym%20urz%u0105dzeniu%20ko%u0144cowym%20%28%5BDz.U.%202012%20nr%200%20poz.%201445%202013.01.21%5D%29%2C%20zablokuj%20obs%u0142ug%u0119%20plik%F3w%20cookies%20w%20swojej%20przegl%u0105darce%20internetowej%20post%u0119puj%u0105c%20zgodnie%20z%20jej%20dokumentacj%25%0Du0105.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="337" controlTypeID="com.balsamiq.mockups::Title" x="172" y="129" w="-1" h="-1" measuredW="721" measuredH="43" zOrder="138" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Welcome%20to%20the%20Brain%20Slices%20Repository%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="338" controlTypeID="com.balsamiq.mockups::Canvas" x="176" y="182" w="833" h="107" measuredW="100" measuredH="70" zOrder="139" locked="false" isInGroup="-1"/>
+    <control controlID="339" controlTypeID="com.balsamiq.mockups::Paragraph" x="183" y="190" w="819" h="90" measuredW="200" measuredH="80" zOrder="140" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lorem%20ipsum%20dolor%20sit%20amet%2C%20consectetur%20adipisicing%20elit.%20Proin%20nibh%20augue%2C%20suscipit%20a%2C%20scelerisque%20sed%2C%20lacinia%20in%2C%20mi.%20Cras%20vel%20lorem.%20Etiam%20pellentesque%20aliquet%20tellus.%20Phasellus%20pharetra%20nulla%20ac%20diam.%20Quisque%20semper%20justo%20at%20risus.%20Donec%20venenatis%2C%20turpis%20vel%20hendrerit%20interdum%2C%20dui%20ligula%20ultricies%20purus%2C%20sed%20posuere%20libero%20dui%20id%20orci.%20Nam%20congue%2C%20pede%20vitae%20dapibus%20aliquet%2C%20elit%20magna%20vulputate%20arcu%2C%20vel%20tempus%20metus%20leo%20non%20est.%20Etiam%20sit%20amet%20lectus%20quis%20est%20congue%20mollis.%20Phasellus%20congue%20lacus%20eget%20neque.%20Phasellus%20ornare%2C%20ante%20vitae%20consectetuer%20consequat%2C%20purus%20sapien%20ultricies%20dolor%2C%20et%20mollis%20pede%20metus%20eget%20nisi.%20Praesent%20sodales%20velit%20quis%20augue.%20Cras%20suscipit%2C%20urna%20at%20aliquam%20rhoncus%2C%20urna%20quam%20viverra%20nisi%2C%20in%20interdum%25%0D20massa%20nibh%20nec%20erat.</text>
+      </controlProperties>
+    </control>
+    <control controlID="340" controlTypeID="com.balsamiq.mockups::HRule" x="48" y="565" w="1105" h="-1" measuredW="100" measuredH="10" zOrder="141" locked="false" isInGroup="-1"/>
+    <control controlID="341" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="142" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="342" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="143" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="343" controlTypeID="com.balsamiq.mockups::PointyButton" x="113" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="144" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="344" controlTypeID="com.balsamiq.mockups::Paragraph" x="298" y="300" w="709" h="260" measuredW="200" measuredH="80" zOrder="145" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lore%20ipsum%20dolor%20sit%20amet%2C%20%20id%20tempus%20tellus%20quam%20vitae%20ante.%20Curabitur%20tortor%20massa%2C%20ultricies%20nec%20placerat%20in%2C%20imperdiet%20vitae%20magna.%20Curabitur%20ultricies%20lacinia%20turpis%20sed%20commodo.%20Nulla%20vulputate%20dolor%20at%20ipsum%20dignissim%20condimentum.%20Ut%20adipiscing%20tellus%20vitae%20arcu%20pharetra%20sit%20amet%20sollicitudin%20purus%20convallis.%0A%20%0AMorbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id%2C%20faucibus%20eget%20nunc.%20Maecenas%20id%20erat%20cursus%20magna%20convallis%25%0D20cursus%20iaculis%20vitae%20leo.%0A%20%0AProin%20iaculis%20purus%20eu%20sem%20fermentum%20eu%20pharetra%20justo%20hendrerit.%20Proin%20at%20porttitor%20quam.%20Nullam%20nisl%20sapien%2C%20mollis%20vel%20dictum%20ut%2C%20fringilla%20eu%20risus.%20Praesent%20sagittis%20suscipit%20congue.%20Cras%20turpis%20lectus%2C%20dictum%20malesuada%20cursus%20nec%2C%20accumsan%20a%20lacus.%20Proin%20pretium%20fringilla%20pretium.%20Etiam%20quis%20nulla%20eros.%20Phasellus%20porttitor%20tincidunt%20mollis.%20Nam%20id%20tortor%20vel%20libero%20rhoncus%20pretium.%20Quisque%20varius%20odio%20eu%20nisl%20placerat%20ut%20interdum%20sapien%20egestas.%20Donec%20non%20sapien%20nisl.%20Aenean%20adipiscing%2C%20libero%20pretium%20varius%20molestie%2C%20leo%20nunc%20facilisis%20odio%2C%20ac%20tempus%20libero%20ante%20sit%20amet%20lectus.%20Sed%20aliquam%20neque%20vel%20elit%20pellentesque%20vitae%20eleifend%20magna%20mattis.%20Aliquam%20quis%20metus%20vitae%20nisl%20iaculis%20cursus.%20Ut%20nisi%20augue%2C%20bibendum%20eu%20tempor%25%0D20vel%2C%20elementum%20rhoncus%20justo.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="345" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="146" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="346" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="147" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="347" controlTypeID="com.balsamiq.mockups::ButtonBar" x="39" y="74" w="274" h="27" measuredW="268" measuredH="27" zOrder="148" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>-1</selectedIndex>
+        <text>Home%2C%20Browse%2C%20Visualize%2C%20Upload</text>
+      </controlProperties>
+    </control>
+    <control controlID="348" controlTypeID="com.balsamiq.mockups::ButtonBar" x="999" y="74" w="-1" h="-1" measuredW="163" measuredH="27" zOrder="149" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>0</selectedIndex>
+        <text>Login/Register%2C%20Help</text>
+      </controlProperties>
+    </control>
+    <control controlID="349" controlTypeID="com.balsamiq.mockups::Paragraph" x="75" y="580" w="1051" h="72" measuredW="200" measuredH="80" zOrder="150" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Nasz%20serwis%20wykorzystuje%20pliki%20cookies%20w%20celu%20umo%u017Cliwienia%20zarejestrowanym%20u%u017Cytkownikom%20serwisu%20zalogowania%20si%u0119.%20Analizujemy%20te%u017C%20aktywno%u015B%u0107%20u%u017Cytkownik%F3w%20korzystaj%u0105c%20z%20rozwi%u0105za%u0144%20zewn%u0119trznych%20dostawc%F3w.%20Aktualnie%20u%u017Cywamy%20Google%20Analytics%20%28dzia%u0142aj%u0105cego%20w%20oparciu%20o%20pliki%20cookie%29%20nie%20udost%u0119pniaj%u0105cego%20danych%20umo%u017Cliwiaj%u0105cych%20identyfikacj%u0119%20os%F3b.%20Prosimy%20o%20zapoznanie%20si%u0119%20ze%20szczeg%F3%u0142ami%20%5Bpolityki%20prywatno%u015Bci%20Google%20Analytics%5D.%20Je%u017Celi%20nie%20wyra%u017Casz%20zgody%20na%20przechowywanie%20informacji%20w%20Twoim%20telekomunikacyjnym%20urz%u0105dzeniu%20ko%u0144cowym%20%28%5BDz.U.%202012%20nr%200%20poz.%201445%202013.01.21%5D%29%2C%20zablokuj%20obs%u0142ug%u0119%20plik%F3w%20cookies%20w%20swojej%20przegl%u0105darce%20internetowej%20post%u0119puj%u0105c%20zgodnie%20z%20jej%20dokumentacj%25%0Du0105.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="350" controlTypeID="com.balsamiq.mockups::Title" x="172" y="129" w="-1" h="-1" measuredW="721" measuredH="43" zOrder="151" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Welcome%20to%20the%20Brain%20Slices%20Repository%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="351" controlTypeID="com.balsamiq.mockups::Canvas" x="176" y="182" w="833" h="107" measuredW="100" measuredH="70" zOrder="152" locked="false" isInGroup="-1"/>
+    <control controlID="352" controlTypeID="com.balsamiq.mockups::Paragraph" x="183" y="190" w="819" h="90" measuredW="200" measuredH="80" zOrder="153" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lorem%20ipsum%20dolor%20sit%20amet%2C%20consectetur%20adipisicing%20elit.%20Proin%20nibh%20augue%2C%20suscipit%20a%2C%20scelerisque%20sed%2C%20lacinia%20in%2C%20mi.%20Cras%20vel%20lorem.%20Etiam%20pellentesque%20aliquet%20tellus.%20Phasellus%20pharetra%20nulla%20ac%20diam.%20Quisque%20semper%20justo%20at%20risus.%20Donec%20venenatis%2C%20turpis%20vel%20hendrerit%20interdum%2C%20dui%20ligula%20ultricies%20purus%2C%20sed%20posuere%20libero%20dui%20id%20orci.%20Nam%20congue%2C%20pede%20vitae%20dapibus%20aliquet%2C%20elit%20magna%20vulputate%20arcu%2C%20vel%20tempus%20metus%20leo%20non%20est.%20Etiam%20sit%20amet%20lectus%20quis%20est%20congue%20mollis.%20Phasellus%20congue%20lacus%20eget%20neque.%20Phasellus%20ornare%2C%20ante%20vitae%20consectetuer%20consequat%2C%20purus%20sapien%20ultricies%20dolor%2C%20et%20mollis%20pede%20metus%20eget%20nisi.%20Praesent%20sodales%20velit%20quis%20augue.%20Cras%20suscipit%2C%20urna%20at%20aliquam%20rhoncus%2C%20urna%20quam%20viverra%20nisi%2C%20in%20interdum%25%0D20massa%20nibh%20nec%20erat.</text>
+      </controlProperties>
+    </control>
+    <control controlID="353" controlTypeID="com.balsamiq.mockups::HRule" x="48" y="565" w="1105" h="-1" measuredW="100" measuredH="10" zOrder="154" locked="false" isInGroup="-1"/>
+    <control controlID="354" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="300" w="180" h="-1" measuredW="156" measuredH="27" zOrder="155" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Browse%20our%20brain%20slices</text>
+      </controlProperties>
+    </control>
+    <control controlID="355" controlTypeID="com.balsamiq.mockups::PointyButton" x="112" y="360" w="180" h="-1" measuredW="157" measuredH="27" zOrder="156" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Upload%20your%20brainslices</text>
+      </controlProperties>
+    </control>
+    <control controlID="356" controlTypeID="com.balsamiq.mockups::PointyButton" x="113" y="440" w="-1" h="-1" measuredW="179" measuredH="27" zOrder="157" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Create%20your%20own%20repository</text>
+      </controlProperties>
+    </control>
+    <control controlID="357" controlTypeID="com.balsamiq.mockups::Paragraph" x="298" y="300" w="709" h="260" measuredW="200" measuredH="80" zOrder="158" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Lore%20ipsum%20dolor%20sit%20amet%2C%20%20id%20tempus%20tellus%20quam%20vitae%20ante.%20Curabitur%20tortor%20massa%2C%20ultricies%20nec%20placerat%20in%2C%20imperdiet%20vitae%20magna.%20Curabitur%20ultricies%20lacinia%20turpis%20sed%20commodo.%20Nulla%20vulputate%20dolor%20at%20ipsum%20dignissim%20condimentum.%20Ut%20adipiscing%20tellus%20vitae%20arcu%20pharetra%20sit%20amet%20sollicitudin%20purus%20convallis.%0A%20%0AMorbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id%2C%20faucibus%20eget%20nunc.%20Maecenas%20id%20erat%20cursus%20magna%20convallis%25%0D20cursus%20iaculis%20vitae%20leo.%0A%20%0AProin%20iaculis%20purus%20eu%20sem%20fermentum%20eu%20pharetra%20justo%20hendrerit.%20Proin%20at%20porttitor%20quam.%20Nullam%20nisl%20sapien%2C%20mollis%20vel%20dictum%20ut%2C%20fringilla%20eu%20risus.%20Praesent%20sagittis%20suscipit%20congue.%20Cras%20turpis%20lectus%2C%20dictum%20malesuada%20cursus%20nec%2C%20accumsan%20a%20lacus.%20Proin%20pretium%20fringilla%20pretium.%20Etiam%20quis%20nulla%20eros.%20Phasellus%20porttitor%20tincidunt%20mollis.%20Nam%20id%20tortor%20vel%20libero%20rhoncus%20pretium.%20Quisque%20varius%20odio%20eu%20nisl%20placerat%20ut%20interdum%20sapien%20egestas.%20Donec%20non%20sapien%20nisl.%20Aenean%20adipiscing%2C%20libero%20pretium%20varius%20molestie%2C%20leo%20nunc%20facilisis%20odio%2C%20ac%20tempus%20libero%20ante%20sit%20amet%20lectus.%20Sed%20aliquam%20neque%20vel%20elit%20pellentesque%20vitae%20eleifend%20magna%20mattis.%20Aliquam%20quis%20metus%20vitae%20nisl%20iaculis%20cursus.%20Ut%20nisi%20augue%2C%20bibendum%20eu%20tempor%25%0D20vel%2C%20elementum%20rhoncus%20justo.%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="358" controlTypeID="com.balsamiq.mockups::ModalScreen" x="0" y="310" w="1123" h="549" measuredW="320" measuredH="240" zOrder="159" locked="false" isInGroup="-1"/>
+    <control controlID="359" controlTypeID="com.balsamiq.mockups::TitleWindow" x="398" y="274" w="334" h="208" measuredW="450" measuredH="400" zOrder="160" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Please%20enter%20your%20login%20information.</text>
+      </controlProperties>
+    </control>
+    <control controlID="360" controlTypeID="com.balsamiq.mockups::TextInput" x="524" y="306" w="181" h="-1" measuredW="41" measuredH="27" zOrder="161" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>user</text>
+      </controlProperties>
+    </control>
+    <control controlID="361" controlTypeID="com.balsamiq.mockups::TextInput" x="524" y="342" w="181" h="-1" measuredW="63" measuredH="27" zOrder="162" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>********</text>
+      </controlProperties>
+    </control>
+    <control controlID="362" controlTypeID="com.balsamiq.mockups::Button" x="524" y="375" w="-1" h="-1" measuredW="54" measuredH="27" zOrder="163" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login</text>
+      </controlProperties>
+    </control>
+    <control controlID="363" controlTypeID="com.balsamiq.mockups::Paragraph" x="415" y="412" w="305" h="37" measuredW="200" measuredH="80" zOrder="164" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Forgot%20your%20pasword%3F%20%5BGenerate%20a%20new%20password%5D.%0ADo%20not%20have%20an%20account%3F%20Please%20%5Bregister%5D.</text>
+      </controlProperties>
+    </control>
+    <control controlID="364" controlTypeID="com.balsamiq.mockups::Label" x="483" y="309" w="-1" h="-1" measuredW="34" measuredH="21" zOrder="165" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="365" controlTypeID="com.balsamiq.mockups::Label" x="458" y="343" w="-1" h="-1" measuredW="59" measuredH="21" zOrder="166" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Password%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="366" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="39" y="0" w="1123" h="686" measuredW="450" measuredH="400" zOrder="167" locked="true" isInGroup="-1">
+      <controlProperties>
+        <text>BrainSlices%0Ahttp%3A//brainslices.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="367" controlTypeID="com.balsamiq.mockups::Canvas" x="39" y="73" w="1123" h="29" measuredW="100" measuredH="70" zOrder="168" locked="true" isInGroup="-1">
+      <controlProperties>
+        <color>10066329</color>
+      </controlProperties>
+    </control>
+    <control controlID="368" controlTypeID="com.balsamiq.mockups::ButtonBar" x="39" y="74" w="274" h="27" measuredW="268" measuredH="27" zOrder="169" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>1</selectedIndex>
+        <text>Home%2C%20Browse%2C%20Visualize%2C%20Upload</text>
+      </controlProperties>
+    </control>
+    <control controlID="369" controlTypeID="com.balsamiq.mockups::ButtonBar" x="999" y="74" w="-1" h="-1" measuredW="163" measuredH="27" zOrder="170" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>-1</selectedIndex>
+        <text>Login/Register%2C%20Help</text>
+      </controlProperties>
+    </control>
+    <control controlID="370" controlTypeID="com.balsamiq.mockups::FieldSet" x="39" y="105" w="200" h="554" measuredW="200" measuredH="170" zOrder="171" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Filters</text>
+      </controlProperties>
+    </control>
+    <control controlID="371" controlTypeID="com.balsamiq.mockups::Button" x="172" y="619" w="-1" h="-1" measuredW="52" measuredH="27" zOrder="172" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Filter</text>
+      </controlProperties>
+    </control>
+    <control controlID="372" controlTypeID="com.balsamiq.mockups::FieldSet" x="48" y="119" w="184" h="112" measuredW="200" measuredH="170" zOrder="173" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Modality%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5B%5E%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="373" controlTypeID="com.balsamiq.mockups::CheckBoxGroup" x="62" y="140" w="-1" h="-1" measuredW="105" measuredH="83" zOrder="174" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>%5Bx%5D%20Blockface%0A%5Bx%5D%20Stained%20slice%0A%5Bx%5D%20X-ray%0A%5Bx%5D%20MRI</text>
+      </controlProperties>
+    </control>
+    <control controlID="374" controlTypeID="com.balsamiq.mockups::FieldSet" x="48" y="234" w="184" h="168" measuredW="200" measuredH="170" zOrder="175" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Staining</text>
+      </controlProperties>
+    </control>
+    <control controlID="375" controlTypeID="com.balsamiq.mockups::CheckBoxGroup" x="62" y="250" w="-1" h="-1" measuredW="157" measuredH="149" zOrder="176" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>%5Bx%5D%20Acetyl%20Cholinesterase%0A%5Bx%5D%20AChE%0A%5Bx%5D%20AChE%20%28Acetyl%0A%20%20%20%20%20%20%20Cholinesterase%29%0A%5B%20%5D%20Myelin%0A%5B%20%5D%20Nissl%0A%5B%20%5D%20Nissl%2010%20min</text>
+      </controlProperties>
+    </control>
+    <control controlID="376" controlTypeID="com.balsamiq.mockups::Link" x="62" y="402" w="-1" h="-1" measuredW="48" measuredH="19" zOrder="177" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Species</text>
+      </controlProperties>
+    </control>
+    <control controlID="377" controlTypeID="com.balsamiq.mockups::FieldSet" x="48" y="421" w="184" h="71" measuredW="200" measuredH="170" zOrder="178" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Thickness</text>
+      </controlProperties>
+    </control>
+    <control controlID="378" controlTypeID="com.balsamiq.mockups::CheckBox" x="58" y="435" w="-1" h="-1" measuredW="79" measuredH="22" zOrder="179" locked="false" isInGroup="-1">
+      <controlProperties>
+        <state>selected</state>
+        <text>More%20than</text>
+      </controlProperties>
+    </control>
+    <control controlID="379" controlTypeID="com.balsamiq.mockups::NumericStepper" x="152" y="434" w="68" h="-1" measuredW="59" measuredH="24" zOrder="180" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>3um</text>
+      </controlProperties>
+    </control>
+    <control controlID="380" controlTypeID="com.balsamiq.mockups::CheckBox" x="59" y="464" w="85" h="18" measuredW="79" measuredH="22" zOrder="181" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Less%20than</text>
+      </controlProperties>
+    </control>
+    <control controlID="381" controlTypeID="com.balsamiq.mockups::NumericStepper" x="152" y="460" w="67" h="-1" measuredW="41" measuredH="24" zOrder="182" locked="false" isInGroup="-1">
+      <controlProperties>
+        <state>disabled</state>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="382" controlTypeID="com.balsamiq.mockups::FieldSet" x="47" y="494" w="185" h="42" measuredW="200" measuredH="170" zOrder="183" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Protocol</text>
+      </controlProperties>
+    </control>
+    <control controlID="383" controlTypeID="com.balsamiq.mockups::SearchBox" x="61" y="506" w="156" h="-1" measuredW="126" measuredH="25" zOrder="184" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>frozen%20vibratome</text>
+      </controlProperties>
+    </control>
+    <control controlID="384" controlTypeID="com.balsamiq.mockups::Link" x="62" y="536" w="-1" h="-1" measuredW="67" measuredH="19" zOrder="185" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Description</text>
+      </controlProperties>
+    </control>
+    <control controlID="385" controlTypeID="com.balsamiq.mockups::Link" x="62" y="555" w="-1" h="-1" measuredW="26" measuredH="19" zOrder="186" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Size</text>
+      </controlProperties>
+    </control>
+    <control controlID="386" controlTypeID="com.balsamiq.mockups::Link" x="62" y="574" w="-1" h="-1" measuredW="62" measuredH="19" zOrder="187" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Resolution</text>
+      </controlProperties>
+    </control>
+    <control controlID="387" controlTypeID="com.balsamiq.mockups::FieldSet" x="249" y="111" w="440" h="506" measuredW="200" measuredH="170" zOrder="188" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Results</text>
+      </controlProperties>
+    </control>
+    <control controlID="389" controlTypeID="com.balsamiq.mockups::VerticalScrollBar" x="666" y="129" w="-1" h="481" measuredW="16" measuredH="100" zOrder="189" locked="false" isInGroup="-1"/>
+    <control controlID="393" controlTypeID="com.balsamiq.mockups::HRule" x="258" y="251" w="405" h="-1" measuredW="100" measuredH="10" zOrder="190" locked="false" isInGroup="-1"/>
+    <control controlID="394" controlTypeID="com.balsamiq.mockups::HRule" x="258" y="421" w="405" h="-1" measuredW="100" measuredH="10" zOrder="191" locked="false" isInGroup="-1"/>
+    <control controlID="395" controlTypeID="com.balsamiq.mockups::Button" x="543" y="619" w="-1" h="-1" measuredW="143" measuredH="27" zOrder="192" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Add%20to%20image%20basket</text>
+      </controlProperties>
+    </control>
+    <control controlID="396" controlTypeID="com.balsamiq.mockups::Button" x="824" y="619" w="-1" h="-1" measuredW="138" measuredH="27" zOrder="193" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Clear%20image%20basket</text>
+      </controlProperties>
+    </control>
+    <control controlID="399" controlTypeID="com.balsamiq.mockups::HRule" x="258" y="392" w="405" h="-1" measuredW="100" measuredH="10" zOrder="195" locked="false" isInGroup="-1"/>
+    <control controlID="400" controlTypeID="com.balsamiq.mockups::CheckBox" x="258" y="400" w="-1" h="-1" measuredW="400" measuredH="22" zOrder="196" locked="false" isInGroup="-1">
+      <controlProperties>
+        <state>up</state>
+        <text>Morbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lore%20in%20rutrum.%20Sed...</text>
+      </controlProperties>
+    </control>
+    <control controlID="403" controlTypeID="com.balsamiq.mockups::Button" x="970" y="388" w="-1" h="-1" measuredW="54" measuredH="27" zOrder="197" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login</text>
+      </controlProperties>
+    </control>
+    <control controlID="404" controlTypeID="com.balsamiq.mockups::Label" x="929" y="322" w="-1" h="-1" measuredW="34" measuredH="21" zOrder="198" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="405" controlTypeID="com.balsamiq.mockups::Label" x="904" y="356" w="-1" h="-1" measuredW="59" measuredH="21" zOrder="199" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Password%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="406" controlTypeID="com.balsamiq.mockups::Button" x="970" y="388" w="-1" h="-1" measuredW="54" measuredH="27" zOrder="200" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login</text>
+      </controlProperties>
+    </control>
+    <control controlID="407" controlTypeID="com.balsamiq.mockups::Label" x="929" y="322" w="-1" h="-1" measuredW="34" measuredH="21" zOrder="201" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Login%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="408" controlTypeID="com.balsamiq.mockups::Label" x="904" y="356" w="-1" h="-1" measuredW="59" measuredH="21" zOrder="202" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Password%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="409" controlTypeID="com.balsamiq.mockups::FieldSet" x="697" y="111" w="440" h="506" measuredW="200" measuredH="170" zOrder="203" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Image%20basket</text>
+      </controlProperties>
+    </control>
+    <control controlID="410" controlTypeID="com.balsamiq.mockups::Image" x="704" y="129" w="121" h="128" measuredW="77" measuredH="79" zOrder="204" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="411" controlTypeID="com.balsamiq.mockups::VerticalScrollBar" x="1114" y="129" w="-1" h="481" measuredW="16" measuredH="100" zOrder="205" locked="false" isInGroup="-1"/>
+    <control controlID="412" controlTypeID="com.balsamiq.mockups::Paragraph" x="835" y="129" w="277" h="147" measuredW="200" measuredH="80" zOrder="206" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Morbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id.%20%20%5Bmore%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="413" controlTypeID="com.balsamiq.mockups::Image" x="705" y="313" w="121" h="121" measuredW="77" measuredH="79" zOrder="207" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="414" controlTypeID="com.balsamiq.mockups::Image" x="707" y="484" w="121" h="120" measuredW="77" measuredH="79" zOrder="208" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="415" controlTypeID="com.balsamiq.mockups::HRule" x="705" y="295" w="405" h="-1" measuredW="100" measuredH="10" zOrder="209" locked="false" isInGroup="-1"/>
+    <control controlID="416" controlTypeID="com.balsamiq.mockups::HRule" x="705" y="468" w="405" h="-1" measuredW="100" measuredH="10" zOrder="210" locked="false" isInGroup="-1"/>
+    <control controlID="417" controlTypeID="com.balsamiq.mockups::Paragraph" x="835" y="311" w="277" h="147" measuredW="200" measuredH="80" zOrder="211" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Morbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id.%20%20%5Bmore%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="418" controlTypeID="com.balsamiq.mockups::Paragraph" x="835" y="482" w="277" h="123" measuredW="200" measuredH="80" zOrder="212" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Morbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus%20nibh%20odio%2C%20dictum%20vitae%20volutpat%20id.%20%20%5Bmore%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="419" controlTypeID="com.balsamiq.mockups::Button" x="712" y="262" w="-1" h="-1" measuredW="70" measuredH="27" zOrder="213" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Remove</text>
+      </controlProperties>
+    </control>
+    <control controlID="420" controlTypeID="com.balsamiq.mockups::Button" x="712" y="440" w="-1" h="-1" measuredW="70" measuredH="27" zOrder="214" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Remove</text>
+      </controlProperties>
+    </control>
+    <control controlID="421" controlTypeID="com.balsamiq.mockups::CheckBox" x="258" y="621" w="-1" h="-1" measuredW="75" measuredH="22" zOrder="215" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Select%20all</text>
+      </controlProperties>
+    </control>
+    <control controlID="422" controlTypeID="com.balsamiq.mockups::CallOut" x="929" y="66" w="-1" h="-1" measuredW="67" measuredH="39" zOrder="216" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Basket</text>
+      </controlProperties>
+    </control>
+    <control controlID="425" controlTypeID="__group__" x="259" y="123" w="405" h="129" measuredW="405" measuredH="129" zOrder="194" locked="false" isInGroup="-1">
+      <groupChildrenDescriptors>
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::Image" x="0" y="0" w="121" h="128" measuredW="77" measuredH="79" zOrder="0" locked="false" isInGroup="425">
+          <controlProperties>
+            <text/>
+          </controlProperties>
+        </control>
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::Paragraph" x="128" y="6" w="277" h="123" measuredW="200" measuredH="80" zOrder="1" locked="false" isInGroup="425">
+          <controlProperties>
+            <text>%20%20%20%20%20Morbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus...%20%20%5Bmore%5D</text>
+          </controlProperties>
+        </control>
+        <control controlID="2" controlTypeID="com.balsamiq.mockups::CheckBox" x="128" y="0" w="-1" h="-1" measuredW="20" measuredH="21" zOrder="2" locked="false" isInGroup="425">
+          <controlProperties>
+            <state>selected</state>
+            <text/>
+          </controlProperties>
+        </control>
+      </groupChildrenDescriptors>
+    </control>
+    <control controlID="427" controlTypeID="__group__" x="258" y="264" w="405" h="129" measuredW="405" measuredH="129" zOrder="220" locked="false" isInGroup="-1">
+      <groupChildrenDescriptors>
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::Image" x="0" y="0" w="121" h="128" measuredW="77" measuredH="79" zOrder="0" locked="false" isInGroup="427">
+          <controlProperties>
+            <text/>
+          </controlProperties>
+        </control>
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::Paragraph" x="128" y="6" w="277" h="123" measuredW="200" measuredH="80" zOrder="1" locked="false" isInGroup="427">
+          <controlProperties>
+            <text>%20%20%20%20%20Morbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus...%20%20%5Bmore%5D</text>
+          </controlProperties>
+        </control>
+        <control controlID="2" controlTypeID="com.balsamiq.mockups::CheckBox" x="128" y="0" w="-1" h="-1" measuredW="20" measuredH="21" zOrder="2" locked="false" isInGroup="427">
+          <controlProperties>
+            <state>selected</state>
+            <text/>
+          </controlProperties>
+        </control>
+      </groupChildrenDescriptors>
+    </control>
+    <control controlID="428" controlTypeID="com.balsamiq.mockups::CheckBox" x="258" y="574" w="-1" h="-1" measuredW="400" measuredH="22" zOrder="221" locked="false" isInGroup="-1">
+      <controlProperties>
+        <state>up</state>
+        <text>Morbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lore%20in%20rutrum.%20Sed...</text>
+      </controlProperties>
+    </control>
+    <control controlID="429" controlTypeID="com.balsamiq.mockups::HRule" x="258" y="565" w="405" h="-1" measuredW="100" measuredH="10" zOrder="222" locked="false" isInGroup="-1"/>
+    <control controlID="430" controlTypeID="com.balsamiq.mockups::HRule" x="258" y="598" w="405" h="-1" measuredW="100" measuredH="10" zOrder="223" locked="false" isInGroup="-1"/>
+    <control controlID="431" controlTypeID="com.balsamiq.mockups::Image" x="535" y="431" w="121" h="128" measuredW="77" measuredH="79" zOrder="217" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="432" controlTypeID="com.balsamiq.mockups::Paragraph" x="258" y="434" w="277" h="123" measuredW="200" measuredH="80" zOrder="218" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>%20%20%20%20%20Morbi%20id%20nulla%20odio.%20Aliquam%20ornare%20dignissim%20lorem%20in%20rutrum.%20Sed%20velit%20est%2C%20gravida%20et%20convallis%20vel%2C%20mattis%20eu%20ante.%20Maecenas%20laoreet%20mauris%20eget%20mauris%20porta%20ultrices.%20Fusce%20at%20risus%20eu%20nunc%20fringilla%20cursus.%20Donec%20risus%20lorem%2C%20eleifend%20vitae%20vulputate%20nec%2C%20suscipit%20et%20velit.%20Pellentesque%20vitae%20ipsum%20vel%20lorem%20laoreet%20posuere.%20Phasellus...%20%20%5Bmore%5D</text>
+      </controlProperties>
+    </control>
+    <control controlID="433" controlTypeID="com.balsamiq.mockups::CheckBox" x="258" y="428" w="-1" h="-1" measuredW="20" measuredH="21" zOrder="219" locked="false" isInGroup="-1">
+      <controlProperties>
+        <state>selected</state>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="434" controlTypeID="com.balsamiq.mockups::ButtonBar" x="415" y="619" w="-1" h="-1" measuredW="99" measuredH="27" zOrder="224" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>1</selectedIndex>
+        <text>Tiles%2C%20List</text>
+      </controlProperties>
+    </control>
+    <control controlID="435" controlTypeID="com.balsamiq.mockups::Label" x="364" y="622" w="-1" h="-1" measuredW="49" measuredH="21" zOrder="225" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>View%20as%3A</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>

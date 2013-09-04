@@ -1,0 +1,213 @@
+<html>
+ <head>
+  <title>Skrawki engine - test site.</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <link rel="icon" type="image/vnd.microsoft.icon" href="static/gfx/nut.ico"/>
+  <link rel="stylesheet" type="text/css" href="static/css/style.css" />
+  <script src="static/js/jquery.js" type="text/javascript"></script>
+  <script src="static/js/html5slider.js" type="text/javascript"></script>
+  <script src="static/js/common.js" type="text/javascript"></script>
+  <script src="static/js/layer_stack.js" type="text/javascript"></script>
+  <script src="static/js/tile_layer.js" type="text/javascript"></script>
+  <script src="static/js/outline_layer.js" type="text/javascript"></script>
+  <script src="static/js/draggable_div.js" type="text/javascript"></script>
+  <script src="static/js/image_manager.js" type="text/javascript"></script>
+  <script src="static/js/synchronized_stacks.js" type="text/javascript"></script>
+  <script type="text/javascript">
+
+var move = false;
+
+function startMove(event)
+{
+  move = true;
+}
+
+
+function processMove(event)
+{
+  if (move)
+  {
+    inspect();
+  }
+}
+
+function inspect()
+{
+  $('#x').val(stacks.stacks[0].focusPointX);
+  $('#y').val(stacks.stacks[0].focusPointY);
+}
+
+function stopMove(event)
+{
+  move = false;
+}
+
+
+function test()
+{
+  var x = $('#x').val();
+  var y = $('#y').val();
+
+  stacks.setFocusPoint(x, y);
+  stacks.update();
+  return false;
+}
+
+var stacks = null;
+var images = ['050',
+              '051',
+              '052',
+              '053',
+              '054',
+              '055'];
+
+function arrangeInterface()
+{
+	stacks.arrangeInterface();
+}
+
+function rearrangeInterface()
+{
+  var nx = $('#nx').val();
+  var ny = $('#ny').val();
+  var display = $('#display').val();
+  var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
+
+  stacks.rearrange(nx, ny, width);
+  stacks.arrangeInterface();
+}
+
+function compressStacks()
+{
+  var images = stacks.loadedImagesOrdered();
+  stacks.rearrange(1, 1);
+  for (var i = 0; i < images.length; i++)
+  {
+    if (!stacks.has(0, images[i]))
+    {
+      stacks.load(0, images[i], true);
+    }
+  }
+  stacks.arrangeInterface();
+  $('#nx').val(stacks.nx);
+  $('#ny').val(stacks.ny);
+}
+
+function decompressStacks()
+{
+  var images = stacks.loadedImagesOrdered();
+  var nx = $('#nx').val();
+  var ny = $('#ny').val();
+  var nxCor = nx * ny < images.length ?
+              parseInt(Math.ceil(images.length / ny)) :
+              nx;
+  var display = $('#display').val();
+  var width = display == 'matrix' ?
+              null :
+              parseInt(Math.max(100, 66 * nxCor / ny)) + '%';
+  stacks.unloadAll();
+  stacks.rearrange(nxCor, ny, width);
+  for (var i = 0; i < images.length; i++)
+  {
+    stacks.load(i, images[images.length - 1 - i], true);
+  }
+
+  stacks.arrangeInterface();
+  $('#nx').val(stacks.nx);
+  $('#ny').val(stacks.ny);
+}
+
+$(document).ready(function()
+{
+  var nx = $('#nx').val();
+  var ny = $('#ny').val();
+
+  stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
+                                          $('#controlPanel [name="synchronization"]:checked').length != 0,
+                                          $('#controlPanel [name="zoom"]').val(),
+                                          $('#x').val(), $('#y').val(),
+                                          null, null,
+                                          $('#controlPanel'),
+                                          true, true, false);
+
+  $('#sliceDisplay').bind('mousemove', processMove);
+  $('#sliceDisplay').bind('mousedown', startMove);
+  $('body').bind('mouseup', stopMove);
+  //$('#sliceDisplay').bind('mouseout', stopMove);
+
+  for (var z = 0; z < images.length; z++)
+  {
+    var id = images[z];
+    stacks.addTileLayer(id, 'images/' + id, 0, 'Slice no ' + id);
+  }
+
+  arrangeInterface();
+});
+
+  </script>
+
+ </head>    
+ <body style="margin: 0pt; height:100%;">
+  <div style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; overflow: hidden;">
+   <div id="sliceDisplay">
+   </div>
+   <div class="draggableDiv" id="controlPanel">
+    <div class="dragBar">
+     Control panel; cursor at: <span class="mouseX"></span>, <span class="mouseY"></span>
+     <div class="showDraggableDiv">
+      show
+     </div>
+     <div class="hideDraggableDiv" style="display: none;">
+      hide
+     </div>
+    </div>
+    <div class="draggableDivContent" style="display: none;">
+     <form onsubmit="return test();">
+      <label>X: <input type="text" id="x" value="0"></label> <label>Y: <input type="text" id="y" value="0"></label>
+      <input type="submit" value="Update">
+     </form>
+     <label>Zoom <input type="range" name="zoomLog" value="3" min="0" max="14" step="0.125"> <input type="text" name="zoom" value="8">x</label>
+     <label>Quality:
+      <select name="quality">
+       <option>low</option>
+       <option selected="selected">med</option>
+       <option>high</option>
+      </select>
+     </label><br>
+     <label>Transparency: <input type="range" max="1" min="0" step="0.1" name="transparency" value="0.2"></label><hr>
+     Grid parameters: <input id="nx" type="number" min="1" step="1" value="3" onchange="rearrangeInterface();">x<input id="ny" type="number" min="1" step="1" value="2" onchange="rearrangeInterface();"><br>
+     <input type="checkbox" name="synchronization" checked="checked"> synchronized
+     <label>Display:
+      <select id="display" onchange="rearrangeInterface();">
+       <option selected="selected">matrix</option>
+       <option>serial</option>
+      </select>
+     </label>
+     <button class="compressionButton" onclick="compressStacks();">Compress</button>
+     <button class="decompressionButton" onclick="decompressStacks();">Decompress</button>
+     <hr>
+     <table id="layersConsole">
+      <thead>
+       <tr>
+        <th>
+         Label
+        </th>
+        <th>
+         Download
+        </th>
+        <th>
+         Visible
+        </th>
+       </tr>
+      </thead>
+      <tfoot>
+      </tfoot>
+      <tbody class="layerList">
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>
+

@@ -1,0 +1,406 @@
+<html>
+ <head>
+  <title>Skrawki engine - test site.</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <link rel="icon" type="image/vnd.microsoft.icon" href="/static/gfx/nut.ico"/>
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+  <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
+  <script src="/static/js/jquery.js" type="text/javascript"></script>
+  <script src="/static/js/html5slider.js" type="text/javascript"></script>
+  <script src="/static/js/common.js" type="text/javascript"></script>
+  <script src="/static/js/layer_stack.js" type="text/javascript"></script>
+  <script src="/static/js/tile_layer.js" type="text/javascript"></script>
+  <script src="/static/js/outline_layer.js" type="text/javascript"></script>
+  <script src="/static/js/draggable_div.js" type="text/javascript"></script>
+  <script src="/static/js/image_manager.js" type="text/javascript"></script>
+  <script src="/static/js/synchronized_stacks.js" type="text/javascript"></script>
+  <script src="/static/js/main.js" type="text/javascript"></script>
+  <script type="text/javascript">
+
+var move = false;
+
+function startMove(event)
+{
+  move = true;
+}
+
+
+function processMove(event)
+{
+  if (move)
+  {
+    inspect();
+  }
+}
+
+function inspect()
+{//TODO
+  $('#x').val(stacks.stacks[0].focusPointX);
+  $('#y').val(stacks.stacks[0].focusPointY);
+}
+
+function stopMove(event)
+{
+  move = false;
+}
+
+
+function test()
+{
+  var x = $('#x').val();
+  var y = $('#y').val();
+
+  stacks.setFocusPoint(x, y);
+  stacks.update();
+  return false;
+}
+
+function rearrangeInterface()
+{
+  var nx = $('#nx').val();
+  var ny = $('#ny').val();
+  var display = $('#display').val();
+  var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
+
+  stacks.rearrange(nx, ny, width);
+  stacks.arrangeInterface();
+}
+
+function compressStacks()
+{
+  var images = stacks.loadedImagesOrdered();
+  stacks.rearrange(1, 1);
+  for (var i = 0; i < images.length; i++)
+  {
+    if (!stacks.has(0, images[i]))
+    {
+      stacks.load(0, images[i], true);
+    }
+  }
+  stacks.arrangeInterface();
+  $('#nx').val(stacks.nx);
+  $('#ny').val(stacks.ny);
+}
+
+function decompressStacks()
+{
+  var images = stacks.loadedImagesOrdered();
+  var nx = $('#nx').val();
+  var ny = $('#ny').val();
+  var nxCor = nx * ny < images.length ?
+              parseInt(Math.ceil(images.length / ny)) :
+              nx;
+  var display = $('#display').val();
+  var width = display == 'matrix' ?
+              null :
+              parseInt(Math.max(100, 66 * nxCor / ny)) + '%';
+  stacks.unloadAll();
+  stacks.rearrange(nxCor, ny, width);
+  for (var i = 0; i < images.length; i++)
+  {
+    stacks.load(i, images[images.length - 1 - i], true);
+  }
+
+  stacks.arrangeInterface();
+  $('#nx').val(stacks.nx);
+  $('#ny').val(stacks.ny);
+}
+
+function addLayer()
+{
+  var id = $('#id').val();
+  var z = $('#z').val();
+	stacks.addTileLayer(id, '/images/' + id, z, $('#id option:selected').html());
+  return false;
+}
+
+//TODO
+function addOutlineLayer()
+{
+  var id = 'Outline320'; //$('#id').val();
+  var z = $('#z').val();
+
+  stacks.stacks[0].loadOutlineLayer(id, '/outlines/wholeOutline/320.svg', z);
+
+	inspect(); 
+  return false;
+}
+
+function addTest()
+{
+  var id = $('#testSet').val();
+  var subset = $('#testSubset').val();
+  var z = $('#z').val();
+
+  stacks.addTileLayer(id + '___' + subset, '/testImages/' + id + '/' + subset, z, id + '___' + subset);
+  return false;
+}
+
+var testSubsets = null;
+var id2name = {};
+var stacks = null;
+
+$(document).ready(function()
+{
+  $('#userPanel').hide();
+  $('#registerDiv').hide();
+  $('#regeneratePasswordDiv').hide();
+  $('#registrationOkDiv').hide();
+  $('#logoutLink').hide();
+
+  loginConsole = new CLoginConsole($('#userPanel'), $('#loginLink'), $('#logoutLink'),
+                     function()
+                     {
+                       $('#logoutLink').text('Logout [' +
+                                             loginConsole.isLoggedAs() + ']');
+                     },
+                     null,
+                     null,
+                     function()
+                     {
+                       $('#loginDiv').show();
+                       $('#registerDiv').hide();
+                       $('.formErrorMessages').text('');
+                       $('#registerOkDiv').hide('');
+                       $('#regeneratePasswordDiv').hide('');
+                       $('.regenerateForm').val('');
+                     });
+
+  $('#registerButton').click(function() 
+        {
+            $('.loginForm').val('');
+            $('#loginDiv').hide();
+            $('#registerDiv').show();
+            $('.loginMessages').text('');
+            $('.formErrorMessages').text('');
+        });
+
+  $('#registerSubmit').click(function() 
+  {
+
+    $('.formErrorMessages').text('');
+    var permissionToGo = 1;
+    if ($('#newLogin').val() == '')
+    {
+      $('#newLoginFieldError').text('provide a login');
+      permissionToGo = 0;
+    }
+
+    if ($('#registerPassword').val() == '')
+    {
+      $('#newPasswordFieldError').text('provide a login');
+      permissionToGo = 0;
+    }
+
+    if ($('#confirmPassword').val() == '')
+    {
+      $('#confirmPasswordFieldError').text('confirm new password');
+      permissionToGo = 0;
+    }
+
+    if ($('#name').val() == '')
+    {
+      $('#nameFieldError').text('provide a name');
+      permissionToGo = 0;
+    }
+    if ($('#registerPassword').val() == '')
+    {
+      $('#newPasswordFieldError').text('provide a login');
+      permissionToGo = 0;
+    }
+    if ($('#eMail').val() == '')
+    {
+      $('#eMailFieldError').text('provide an e-mail');
+      permissionToGo = 0;
+    }
+
+    if (nPassword != cPassword)
+    {
+      $('#confirmPasswordFieldError').text("password and confirmation don't match");
+      permissionToGo = 0;
+    }
+
+    var login = $('#newLogin').val();
+    var nPassword = $('#registerPassword').val();
+    var cPassword = $('#confirmPassword').val();
+    var name = $('#name').val();
+    var eMail = $('#eMail').val();
+  
+    if (nPassword == cPassword)
+    {
+      loginConsole.ajax('/user/registerUser',
+                        function(response)
+                        {
+                          if (response.status)
+                          {
+                            $('#registerDiv').hide();
+                            $('#registrationOkDiv').show();
+                            $('.registerForm').val('');
+                          }
+                          else
+                          {
+                            alert(response.message);
+                          }
+                        },
+                        {
+                          login: login,
+                          password: nPassword,
+                          password2: cPassword,
+                          name: name,
+                          email: eMail
+                        });
+    } 
+  });
+
+  $('#backFromRegistrationOkDiv').click(function()
+    {
+      $('#registrationOkDiv').hide();
+      $('#loginDiv').show();
+    }
+  );
+
+  $('#backFromRegister').click(function()
+    {
+      $('.registerForm').val('');
+      $('#dontMatch').text('');
+      $('#registerDiv').hide();
+      $('#loginDiv').show();
+    }
+    );
+
+  $('#regeneratePasswordButton').click(function()
+  {
+    $('.loginForm').val('');
+    $('#loginDiv').hide();
+    $('.loginMessages').text('');
+    $('.formErrorMessages').text('');
+    $('#regeneratePasswordDiv').show();
+  });
+
+  $('#regenerateSubmit').click(function()
+  {
+    $('.regenerationFieldsErrors').text('');
+    var permissionToGo = 1;
+    if ($('#regenerateLogin').val() == ''){
+      $('#regenerateLoginError').text('login?');
+      permissionToGo = 0;
+    }
+
+    if ($('#regenerateEmail').val() == ''){
+      $('#regenerateEmailError').text('e-mail?');
+      permissionToGo = 0;
+    }
+
+    if (permissionToGo == 1)
+    {
+      alert('idzie!');
+      var login = $('#regenerateLogin').val();
+      var email = $('#regenerateEmail').val();
+
+      loginConsole.ajax('/user/regeneratePassword',
+                        function(response)
+                        {
+                          alert(response.message);
+                        },
+                        {
+                          login: login,
+                          email: email
+                        });
+    }
+
+  });
+
+
+  $('#backFromRegenerate').click(function()
+    {
+      $('.regenerateForm').val('');
+      $('#regeneratePasswordDiv').hide();
+      $('#loginDiv').show();
+    }
+    );
+
+/**********************************************/
+
+  var nx = 1;
+  var ny = 1;
+
+  stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
+                                          $('#controlPanel [name="synchronization"]:checked').length != 0,
+                                          $('#controlPanel [name="zoom"]').val(),
+                                          $('#x').val(), $('#y').val(),
+                                          null, null,
+                                          $('#controlPanel'),
+                                          false, false, false,
+                                          '/static/gfx');
+
+  $('#sliceDisplay').bind('mousemove', processMove);
+  $('#sliceDisplay').bind('mousedown', startMove);
+  $('body').bind('mouseup', stopMove);
+  //$('#sliceDisplay').bind('mouseout', stopMove);
+
+  loginConsole.ajax('/images/_allImages',
+                    function(data)
+                    {
+		                	for (var i in data.data)
+		                	{
+		                		$('select#id').append('<option value="' +
+                                              data.data[i][1] + '">' +
+                                              data.data[i][0] + '</option>');
+		                		id2name[data.data[i][1]] = data.data[i][0];
+		                	}
+                    });
+
+  $.ajax({
+    type: 'GET',
+    url: '/_testImages',
+    data: '',
+    dataType: 'json',
+    success: function(data)
+    {
+      testSubsets = data;
+
+      var testSets = [];
+      for (var id in data)
+      {
+        testSets.push(id);
+      }
+      testSets.sort();
+
+      var testSetOptions = '';
+      while (testSets.length > 0)
+      {
+        testSetOptions += '<option>' + testSets.shift() + '</option>';
+      }
+      $('#testSet').html(testSetOptions);
+      testSetChanged();
+    },
+    error: ajaxErrorHandler
+  });
+
+});
+
+function testSetChanged()
+{
+  var subsets = testSubsets[$('#testSet').val()].slice(0);
+  subsets.sort();
+  var testSubsetOptions = '';
+  while (subsets.length > 0)
+  {
+    testSubsetOptions += '<option>' + subsets.shift() + '</option>';
+  }
+  $('#testSubset').html(testSubsetOptions);
+}
+
+  </script>
+
+ </head>    
+ <body style="margin: 0pt; height:100%;">
+  <div style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; overflow: hidden;">
+   <div id="sliceDisplay">
+   </div>
+   <!--%controlPanel%-->
+  </div>
+  <!--%userPanel%-->
+ </body>
+</html>
+

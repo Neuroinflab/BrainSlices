@@ -1,0 +1,37 @@
+[/]
+request.show_tracebacks =  False
+tools.sessions.on = True
+tools.sessions.storage_type = "file"
+tools.sessions.storage_path = "${pwd}/server/sessions"
+tools.sessions.timeout = 61
+
+[/static]
+#tools.caching.on     =  True
+#tools.caching.delay  =  3600
+tools.staticdir.on   =  True
+tools.staticdir.dir  =  "${pwd}/server/static"
+tools.staticdir.content_types   = {'css': 'text/css',
+                                   'js': 'application/javascript',
+                                   'ico': 'image/x-icon', #image/vnd.microsoft.icon does not work, LOL!
+                                   'png': 'image/png'}
+tools.gzip.on                   = True
+tools.gzip.mime_types           = ['text/*', 'application/javascript']
+
+
+[/favicon.ico]
+tools.staticfile.on = True
+tools.staticfile.filename = "${pwd}/server/static/gfx/nut.ico"
+tools.staticfile.content_types  = {'ico': 'image/x-icon'} #image/vnd.microsoft.icon does not work, LOL!
+
+
+[/testImages]
+#tools.caching.on     =  True
+#tools.caching.delay  =  3600
+tools.staticdir.on   =  True
+tools.staticdir.dir  =  "${pwd}/server/testTiles"
+tools.staticdir.content_types   = {'json': 'application/json',
+                                   'jpg': 'image/jpeg',
+                                   'png': 'image/png'}
+tools.gzip.on                   = True
+tools.gzip.mime_types           = ['application/json']
+
