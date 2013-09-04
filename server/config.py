@@ -1,14 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
 import ConfigParser
 
 # requires python-psycopg2 package
 import psycopg2
 import psycopg2.extras
 
+configFile = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                          'brainslices.conf')
+
 config = ConfigParser.SafeConfigParser()
-config.read('brainslices.conf')
+config.read(configFile)
 
 BS_DB_NAME = config.get('SQL Database', 'name')
 BS_DB_USER = config.get('SQL Database', 'user')
