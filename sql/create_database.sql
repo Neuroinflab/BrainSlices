@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2013-08-30 16:16:11
+-- Created on: 2013-09-05 16:16:49
 -- Diagram Version: 
 -- =============================================================================
 
@@ -33,6 +33,7 @@ CREATE TABLE "images" (
 	"public_image_view" bool NOT NULL DEFAULT False,
 	"public_image_edit" bool NOT NULL DEFAULT False,
 	"public_image_annotate" bool NOT NULL DEFAULT False,
+	"public_image_outline" bool NOT NULL DEFAULT False,
 	CONSTRAINT "images_pkey" PRIMARY KEY("iid")
 )
 WITH (
@@ -240,6 +241,7 @@ CREATE TABLE "image_privileges" (
 	"gid" int4 NOT NULL,
 	"image_edit" bool NOT NULL DEFAULT False,
 	"image_annotate" bool NOT NULL DEFAULT False,
+	"image_outline" bool NOT NULL DEFAULT False,
 	PRIMARY KEY("iid","gid")
 )
 WITH (
@@ -267,6 +269,7 @@ CREATE TABLE "image_privileges_cache" (
 	"uid" int4 NOT NULL,
 	"image_edit" bool NOT NULL DEFAULT False,
 	"image_annotate" bool NOT NULL DEFAULT False,
+	"image_outline" bool NOT NULL DEFAULT False,
 	PRIMARY KEY("iid","gid","uid")
 )
 WITH (
