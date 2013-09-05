@@ -20,6 +20,9 @@
 #                                                                             #
 ###############################################################################
 
+echo "Default values are given in square braces: '[]'."
+echo "Please provide every variable with no default value."
+
 CURRENT_DIR=`pwd`
 read -p "Installation directory [$CURRENT_DIR]: " INSTALL_DIR
 if [ "$INSTALL_DIR" == "" ]
@@ -103,8 +106,16 @@ echo "name: $BS_DB_NAME" >> "$BS_CONFIG"
 echo "password: $BS_DB_PASSWORD" >> "$BS_CONFIG"
 echo "encoding: $BS_DB_ENCODING" >> "$BS_CONFIG"
 
-read -p 'Email host: ' BS_EMAIL_SERVER
-read -p 'Email port: ' BS_EMAIL_PORT
+read -p 'Email host [localhost]: ' BS_EMAIL_SERVER
+if [ "$BS_EMAIL_SERVER" == "" ]
+  then
+    BS_EMAIL_SERVER=localhost
+  fi
+read -p 'Email port [587]: ' BS_EMAIL_PORT
+if [ "$BS_EMAIL_PORT" == "" ]
+  then
+    BS_EMAIL_PORT=587
+  fi
 read -p 'Email login: ' BS_EMAIL_LOGIN
 read -s -p 'Email password: ' BS_EMAIL_PASSWORD
 echo
