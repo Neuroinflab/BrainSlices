@@ -1,4 +1,25 @@
 /* File: draggable_div.js */
+/*****************************************************************************\
+*                                                                             *
+*    This file is part of BrainSlices Software                                *
+*                                                                             *
+*    Copyright (C) 2012-2013 J. M. Kowalski                                   *
+*                                                                             *
+*    BrainSlices software is free software: you can redistribute it and/or    *
+*    modify it under the terms of the GNU General Public License as           *
+*    published by the Free Software Foundation, either version 3 of the       *
+*    License, or (at your option) any later version.                          *
+*                                                                             *
+*    BrainSlices software is distributed in the hope that it will be useful,  *
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+*    GNU General Public License for more details.                             *
+*                                                                             *
+*    You should have received a copy of the GNU General Public License        *
+*    along with BrainSlices software.                                         *
+*    If not, see http://www.gnu.org/licenses/.                                *
+*                                                                             *
+\*****************************************************************************/
 
 /*****************************************************************************\
  * Function: onKeyDown                                                       *
@@ -59,99 +80,99 @@ function onKeyDown(key, f)
 \*****************************************************************************/
 function CDraggableDiv($div)
 {
-	this.$div = $div;
+  this.$div = $div;
 
-	this.mouseMove = false;
-	this.x0 = null;
-	this.y0 = null;
+  this.mouseMove = false;
+  this.x0 = null;
+  this.y0 = null;
 
-	var thisInstance = this;
-
-	/**
-	 * Function: mouseDownHandler
-	 *
-	 * Start tracking of mouse movement.
-	 *************************************/
-	this.mouseDownHandler = function (event)
-	                        {
-	                        	if (!event)
-	                        	{
-	                        		event = window.event;
-	                        	}
-	                        	thisInstance.x0 = event.clientX;
-	                        	thisInstance.y0 = event.clientY;
-	                        	thisInstance.mouseMove = true;
-	                          thisInstance.$div.parent().bind('mousemove',
-														                                      thisInstance.mouseMoveHandler);
-	                        };
-	$div.find('.dragBar').bind('mousedown', this.mouseDownHandler);
-
-	/**
-	 * Function: mouseMoveHandler
-	 *
-	 * Update the window position according to the mouse movement.
-	 ***************************************************************/
-	this.mouseMoveHandler = function (event)
-		                      {
-		                      	if (!event)
-		                      	{
-		                      		event = window.event;
-		                      	}
-	
-	                          var mX = event.clientX;
-		                        var mY = event.clientY;
-	                          var offset = thisInstance.$div.offset();
-		                      	thisInstance.$div.css({'top': offset.top + mY - thisInstance.y0,
-		                                                  'left': offset.left + mX - thisInstance.x0,
-														                          'right': 'auto',
-														                          'bottom': 'auto'});
-		                        thisInstance.y0 = mY;
-		                        thisInstance.x0 = mX;
-		                      };
+  var thisInstance = this;
 
   /**
-	 * Function: mouseUpHandler
-	 *
-	 * Stop tracking of mouse movement.
-	 ************************************/
-	this.mouseUpHandler = function (event)
-	                      {
-													if (thisInstance.mouseMove)
-													{
-														thisInstance.$div.parent().unbind('mousemove',
-		                        	                                      thisInstance.mouseMoveHandler);
-													}
-	                        thisInstance.mouseMove = false;
-	                      };
-	$div.parent().bind('mouseup', this.mouseUpHandler);
+   * Function: mouseDownHandler
+   *
+   * Start tracking of mouse movement.
+   *************************************/
+  this.mouseDownHandler = function (event)
+                          {
+                            if (!event)
+                            {
+                              event = window.event;
+                            }
+                            thisInstance.x0 = event.clientX;
+                            thisInstance.y0 = event.clientY;
+                            thisInstance.mouseMove = true;
+                            thisInstance.$div.parent().bind('mousemove',
+                                                                  thisInstance.mouseMoveHandler);
+                          };
+  $div.find('.dragBar').bind('mousedown', this.mouseDownHandler);
 
   /**
-	 * Function: showContent
-	 *
-	 * Show the hidden content of the window.
-	 ******************************************/
-	this.showContent = function ()
-	{
-		thisInstance.$div.find('.draggableDivContent').show();
-		thisInstance.$div.find('.showDraggableDiv').hide();
-		thisInstance.$div.find('.hideDraggableDiv').show();
-	};
+   * Function: mouseMoveHandler
+   *
+   * Update the window position according to the mouse movement.
+   ***************************************************************/
+  this.mouseMoveHandler = function (event)
+                          {
+                            if (!event)
+                            {
+                              event = window.event;
+                            }
+  
+                            var mX = event.clientX;
+                            var mY = event.clientY;
+                            var offset = thisInstance.$div.offset();
+                            thisInstance.$div.css({'top': offset.top + mY - thisInstance.y0,
+                                                      'left': offset.left + mX - thisInstance.x0,
+                                                      'right': 'auto',
+                                                      'bottom': 'auto'});
+                            thisInstance.y0 = mY;
+                            thisInstance.x0 = mX;
+                          };
 
-	$div.find('.showDraggableDiv').bind('click', this.showContent);
+  /**
+   * Function: mouseUpHandler
+   *
+   * Stop tracking of mouse movement.
+   ************************************/
+  this.mouseUpHandler = function (event)
+                        {
+                          if (thisInstance.mouseMove)
+                          {
+                            thisInstance.$div.parent().unbind('mousemove',
+                                                                    thisInstance.mouseMoveHandler);
+                          }
+                          thisInstance.mouseMove = false;
+                        };
+  $div.parent().bind('mouseup', this.mouseUpHandler);
 
-	/**
-	 * Function: hideContent
-	 *
-	 * Hide the window content.
-	 ****************************/
-	this.hideContent = function ()
-	{
-		thisInstance.$div.find('.draggableDivContent').hide();
-		thisInstance.$div.find('.showDraggableDiv').show();
-		thisInstance.$div.find('.hideDraggableDiv').hide();
-	};
+  /**
+   * Function: showContent
+   *
+   * Show the hidden content of the window.
+   ******************************************/
+  this.showContent = function ()
+  {
+    thisInstance.$div.find('.draggableDivContent').show();
+    thisInstance.$div.find('.showDraggableDiv').hide();
+    thisInstance.$div.find('.hideDraggableDiv').show();
+  };
 
-	$div.find('.hideDraggableDiv').bind('click', this.hideContent);
+  $div.find('.showDraggableDiv').bind('click', this.showContent);
+
+  /**
+   * Function: hideContent
+   *
+   * Hide the window content.
+   ****************************/
+  this.hideContent = function ()
+  {
+    thisInstance.$div.find('.draggableDivContent').hide();
+    thisInstance.$div.find('.showDraggableDiv').show();
+    thisInstance.$div.find('.hideDraggableDiv').hide();
+  };
+
+  $div.find('.hideDraggableDiv').bind('click', this.hideContent);
 }
 
 /*****************************************************************************\
@@ -161,26 +182,26 @@ function CDraggableDiv($div)
 \*****************************************************************************/
 CDraggableDiv.prototype.destroy = function()
 {
-	if (this.$div != null)
-	{
-		this.$div.find('.dragBar').unbind('mousedown', this.mouseDownHandler);
-		this.mouseDownHandler = null;
+  if (this.$div != null)
+  {
+    this.$div.find('.dragBar').unbind('mousedown', this.mouseDownHandler);
+    this.mouseDownHandler = null;
 
-		this.$div.parent().unbind('mouseup', this.mouseUpHandler);
-		this.mouseUpHandler = null;
+    this.$div.parent().unbind('mouseup', this.mouseUpHandler);
+    this.mouseUpHandler = null;
 
-		if (this.mouseMove)
-		{
-			this.$div.parent().unbind('mousemove', this.mouseMoveHandler);
-		}
-		this.mouseMoveHandler = null;
+    if (this.mouseMove)
+    {
+      this.$div.parent().unbind('mousemove', this.mouseMoveHandler);
+    }
+    this.mouseMoveHandler = null;
 
-		this.$div.find('.showDraggableDiv').unbind('click', this.showContent);
-		this.showContent = null;
+    this.$div.find('.showDraggableDiv').unbind('click', this.showContent);
+    this.showContent = null;
 
-		this.$div.find('.hideDraggableDiv').unbind('click', this.hideContent);
-		this.hideContent = null;
-	}
+    this.$div.find('.hideDraggableDiv').unbind('click', this.hideContent);
+    this.hideContent = null;
+  }
 }
 
 
@@ -205,37 +226,37 @@ CDraggableDiv.prototype.destroy = function()
 \*****************************************************************************/
 function CCloseableDiv($div, onOpen, onClose)
 {
-	this.$div = $div;
-	this.onClose = onClose;
-	this.onOpen = onOpen;
+  this.$div = $div;
+  this.onClose = onClose;
+  this.onOpen = onOpen;
 
-	var thisInstance = this;
+  var thisInstance = this;
 
-	/**
-	 * Function: close
-	 *
-	 * Close the window.
-	 *********************/
-	this.close = function()
-	{
-		// the 'ESC' button handler is no longer necessary
-		$('body').unbind('keydown', thisInstance.closeByKey);
-		thisInstance.$div.hide();
+  /**
+   * Function: close
+   *
+   * Close the window.
+   *********************/
+  this.close = function()
+  {
+    // the 'ESC' button handler is no longer necessary
+    $('body').unbind('keydown', thisInstance.closeByKey);
+    thisInstance.$div.hide();
 
-		if (thisInstance.onClose != null)
-		{
-			thisInstance.onClose();
-		}
-	};
+    if (thisInstance.onClose != null)
+    {
+      thisInstance.onClose();
+    }
+  };
 
-	/**
-	 * Function: closeByKey
-	 *
-	 * Close the window on 'ESC' key down event.
-	 *********************************************/
-	this.closeByKey = onKeyDown(27, this.close);
+  /**
+   * Function: closeByKey
+   *
+   * Close the window on 'ESC' key down event.
+   *********************************************/
+  this.closeByKey = onKeyDown(27, this.close);
 
-	$div.find('.clickable_close').bind('click', this.close);
+  $div.find('.clickable_close').bind('click', this.close);
 }
 
 /*****************************************************************************\
@@ -245,13 +266,13 @@ function CCloseableDiv($div, onOpen, onClose)
 \*****************************************************************************/
 CCloseableDiv.prototype.open = function()
 {
-	if (this.onOpen != null)
-	{
-		this.onOpen();
-	}
+  if (this.onOpen != null)
+  {
+    this.onOpen();
+  }
 
-	this.$div.show();
-	$('body').bind('keydown', this.closeByKey);
+  this.$div.show();
+  $('body').bind('keydown', this.closeByKey);
 }
 
 /*****************************************************************************\
@@ -261,10 +282,10 @@ CCloseableDiv.prototype.open = function()
 \*****************************************************************************/
 CCloseableDiv.prototype.destroy = function()
 {
-	this.$div.find('.clickable_close').unbind('click', this.close);
-	this.close = null;
+  this.$div.find('.clickable_close').unbind('click', this.close);
+  this.close = null;
 
-	$('body').unbind('keydown', this.closeByKey);
-	this.closeByKey = null;
+  $('body').unbind('keydown', this.closeByKey);
+  this.closeByKey = null;
 }
 

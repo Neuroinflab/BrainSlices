@@ -1,7 +1,7 @@
 ###############################################################################
 #                                                                             #
 #    This file is part of Graphic Streaming Toolkit                           #
-#    (a detached part of Brainslices Software).                               #
+#    (a detached part of BrainSlices Software).                               #
 #                                                                             #
 #    Copyright (C) 2012-2013 Jakub M. Kowalski                                #
 #                                                                             #

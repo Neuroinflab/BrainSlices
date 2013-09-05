@@ -1,4 +1,25 @@
 /* File: main.js */
+/*****************************************************************************\
+*                                                                             *
+*    This file is part of BrainSlices Software                                *
+*                                                                             *
+*    Copyright (C) 2012-2013 J. M. Kowalski, J. Potworowski                   *
+*                                                                             *
+*    BrainSlices software is free software: you can redistribute it and/or    *
+*    modify it under the terms of the GNU General Public License as           *
+*    published by the Free Software Foundation, either version 3 of the       *
+*    License, or (at your option) any later version.                          *
+*                                                                             *
+*    BrainSlices software is distributed in the hope that it will be useful,  *
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+*    GNU General Public License for more details.                             *
+*                                                                             *
+*    You should have received a copy of the GNU General Public License        *
+*    along with BrainSlices software.                                         *
+*    If not, see http://www.gnu.org/licenses/.                                *
+*                                                                             *
+\*****************************************************************************/
 
 /*****************************************************************************\
  * Class: CLoginManager                                                      *
@@ -49,8 +70,8 @@ function CLoginManager(onlogin, onlogout, finalFunction)
                                            onlogout.slice(0) :
                                            [onlogout]);
 
-	this.destroyed = false;
-	this.awaiting = 0;
+  this.destroyed = false;
+  this.awaiting = 0;
   this.checkLogged(finalFunction);
 }
 
@@ -72,14 +93,14 @@ function CLoginManager(onlogin, onlogout, finalFunction)
 \*****************************************************************************/
 CLoginManager.prototype.ajaxAux = function(url, successHandler, data, errorHandler, type, options)
 {
-	var thisInstance = this;
-	if (!(this.destroyed))
-	{
-	  var ajaxData = {
-	    type: type == null ? 'POST' : type,
-	    url: url,
-	    dataType: 'json',
-	    error: errorHandler != null ?
+  var thisInstance = this;
+  if (!(this.destroyed))
+  {
+    var ajaxData = {
+      type: type == null ? 'POST' : type,
+      url: url,
+      dataType: 'json',
+      error: errorHandler != null ?
              errorHandler :
              function(xhr, textStatus, errorThrown)
              {
@@ -89,9 +110,9 @@ CLoginManager.prototype.ajaxAux = function(url, successHandler, data, errorHandl
                //errormsg += "Response text" + xhr.responseText 
                alert(errormsg);
              },
-	    success: successHandler,
-			complete: function(jqXHR, textStatus)
-			          {
+      success: successHandler,
+      complete: function(jqXHR, textStatus)
+                {
                   //notify the object about completion of the AJAX request
                   thisInstance.awaiting--;
 
@@ -102,20 +123,20 @@ CLoginManager.prototype.ajaxAux = function(url, successHandler, data, errorHandl
                     //object destruction
                     thisInstance.destroy();
                   }
-			          }
-		};
-	  
-	  if(options) $.extend(ajaxData, options); // Merge all other options passed as is
-	
-	  if (data != null)
-	  {
-	    ajaxData.data = data;
-	  }
-	
-		this.awaiting++;
+                }
+    };
+    
+    if(options) $.extend(ajaxData, options); // Merge all other options passed as is
+  
+    if (data != null)
+    {
+      ajaxData.data = data;
+    }
+  
+    this.awaiting++;
 
-	  return $.ajax(ajaxData);
-	}
+    return $.ajax(ajaxData);
+  }
 }
 
 /*****************************************************************************\
@@ -139,12 +160,12 @@ CLoginManager.prototype.ajaxAux = function(url, successHandler, data, errorHandl
 CLoginManager.prototype.ajax = function(url, successHandler, data, errorHandler, type, options)
 {
   var thisInstance = this;
-	return this.ajaxAux(url, 
+  return this.ajaxAux(url, 
                       function(response)
                       {
                         if (response.logged && thisInstance.logged != true)
                         {
-		                  		//thisInstance.logged = true;
+                          //thisInstance.logged = true;
                           thisInstance.checkLogged();
                         }
                         else if (!response.logged && thisInstance.logged != false)
@@ -235,14 +256,14 @@ CLoginManager.prototype.logoutHandler = function()
 \*****************************************************************************/
 CLoginManager.prototype.destroy = function()
 {
-	this.destroyed = true; //mark the object as destroyed
+  this.destroyed = true; //mark the object as destroyed
 
-	if (this.awaiting == 0)
-	{
+  if (this.awaiting == 0)
+  {
     //if there is no AJAX requests in progress destroy the object immediately
-  	this.onlogin = [];
-  	this.onlogout = [];
-	}
+    this.onlogin = [];
+    this.onlogout = [];
+  }
 }
 
 /*****************************************************************************\
@@ -314,7 +335,7 @@ CLoginManager.prototype.logout = function(finalFunction)
 \*****************************************************************************/
 CLoginManager.prototype.isLogged = function()
 {
-	return this.logged && this.loggedAs != null;
+  return this.logged && this.loggedAs != null;
 }
 
 /*****************************************************************************\
@@ -327,7 +348,7 @@ CLoginManager.prototype.isLogged = function()
 \*****************************************************************************/
 CLoginManager.prototype.isLoggedAs = function()
 {
-	return this.loggedAs;
+  return this.loggedAs;
 }
 
 
@@ -545,7 +566,7 @@ CLoginConsole.prototype.ajax = function(url, successHandler, data, errorHandler,
 \*****************************************************************************/
 CLoginConsole.prototype.isLogged = function()
 {
-	return this.loginManager.isLogged();
+  return this.loginManager.isLogged();
 }
 
 /*****************************************************************************\
@@ -555,19 +576,19 @@ CLoginConsole.prototype.isLogged = function()
 \*****************************************************************************/
 CLoginConsole.prototype.isLoggedAs = function()
 {
-	return this.loginManager.isLoggedAs();
+  return this.loginManager.isLoggedAs();
 }
 
 
 
 CLoginConsole.prototype.logged = function()
 {
-	alert('Obsolete method called - use isLogged instead!');
+  alert('Obsolete method called - use isLogged instead!');
   //return this.loginManager.logged;
 }
 
 CLoginConsole.prototype.loggedAs = function()
 {
-	alert('Obsolete method called - use isLoggedAs instead!');
+  alert('Obsolete method called - use isLoggedAs instead!');
   //return this.loginManager.loggedAs;
 }
