@@ -438,7 +438,7 @@ class TileBase(dbBase):
                    INSERT INTO images(iid, status, uid, filename,
                                       source_crc32, source_filesize,
                                       declared_size, bid)
-                   VALUES(%s, %s, %s, %s, %s, '00000000', 0, %s, %s);
+                   VALUES(%s, %s, %s, %s, '00000000', 0, %s, %s);
                    """, (iid, IMAGE_STATUS_RECEIVING, uid, filename,
                          declared_size, bid))
     return iid

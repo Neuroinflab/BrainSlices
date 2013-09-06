@@ -204,12 +204,19 @@ if [ "${NEW_DB::1}" == "y" ] || [ "${NEW_DB::1}" == "Y" ]
 read -p 'Reset the database? [y/N]: ' SETUP_DB
 if [ "${SETUP_DB::1}" == "y" ] || [ "${SETUP_DB::1}" == "Y" ]
   then
+    if [ "$BS_DB_USER" == "skwarki" ]
+      then
+        cp sql/create_database.sql sql/temp.sql
+      else
+        cat sql/create_database.sql | sed -e "s|skwarki|$BS_DB_USER|" > sql/temp.sql
+      fi
+
     if [ "$BS_DB_HOST" == "localhost" ]
       then
-        sudo su postgres -c "psql -f sql/create_database.sql $BS_DB_NAME"
+        sudo su postgres -c "psql -f sql/temp.sql $BS_DB_NAME"
       else
         getDbMaintenance
-        until psql -h $BS_DB_HOST -p $BS_DB_PORT -f sql/create_database.sql $BS_DB_NAME
+        until psql -h $BS_DB_HOST -p $BS_DB_PORT -f sql/temp.sql $BS_DB_NAME
           do
             getDbMaintenance
           done
