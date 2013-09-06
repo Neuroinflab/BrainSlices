@@ -140,7 +140,7 @@ getDbMaintenance()
 
 if [ "${NEW_DB_USER::1}" == "y" ] || [ "${NEW_DB_USER::1}" == "Y" ]
   then
-    if [ "$BS_DB_HOST" == "localhost"]
+    if [ "$BS_DB_HOST" == "localhost" ]
       then
         until sudo su postgres -c "psql -c \"CREATE ROLE $BS_DB_USER LOGIN PASSWORD '$BS_DB_PASSWORD'; \""
           do
@@ -181,18 +181,40 @@ getDb
 
 if [ "${NEW_DB::1}" == "y" ] || [ "${NEW_DB::1}" == "Y" ]
   then
-    until sudo su postgres -c "createdb -h $BS_DB_HOST -p $BS_DB_PORT -O $BS_DB_USER -E $BS_DB_ENCODING $BS_DB_NAME"
-      do
-        echo "An error has occured trying to create database $BS_DB_NAME"
-        echo "Please try again."
-        getDb
-      done
+    if [ "$BS_DB_HOST" == "localhost" ]
+      then
+        until sudo su postgres -c "createdb -O $BS_DB_USER -E $BS_DB_ENCODING $BS_DB_NAME"
+          do
+            echo "An error has occured trying to create database $BS_DB_NAME"
+            echo "Please try again."
+            getDb
+          done
+      else
+        getDbMaintenance
+        until createdb -h "$BS_DB_HOST" -p $BS_DB_PORT -u $DB_USER -O $BS_DB_USER -E $BS_DB_ENCODING $BS_DB_NAME
+          do
+            echo "An error has occured trying to create database $BS_DB_NAME"
+            echo "Please try again."
+            getDb
+            getDbMaintenance
+          done
+      fi
   fi
 
 read -p 'Reset the database? [y/N]: ' SETUP_DB
 if [ "${SETUP_DB::1}" == "y" ] || [ "${SETUP_DB::1}" == "Y" ]
   then
-    sudo su postgres -c "psql -h $BS_DB_HOST -p $BS_DB_PORT -f sql/create_database.sql $BS_DB_NAME"
+    if [ "$BS_DB_HOST" == "localhost" ]
+      then
+        sudo su postgres -c "psql -f sql/create_database.sql $BS_DB_NAME"
+      else
+        getDbMaintenance
+        until psql -h $BS_DB_HOST -p $BS_DB_PORT -f sql/create_database.sql $BS_DB_NAME
+          do
+            getDbMaintenance
+          done
+      fi
+  fi
 
 
 echo "host: $BS_DB_HOST" >> "$BS_CONFIG"
