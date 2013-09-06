@@ -306,7 +306,6 @@ echo "memory: $BS_TILER_MEMORY" >> "$BS_CONFIG"
 cd auxilaryScripts/imageProcessing
 make all
 cd ../..
-cd ..
 
 read -p 'Download example images? [y/N]: ' DOWNLOAD_BRAINMAPS
 if [ "${DOWNLOAD_BRAINMAPS::1}" == "y" ] || [ "${DOWNLOAD_BRAINMAPS::1}" == "Y" ]
