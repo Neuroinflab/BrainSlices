@@ -127,14 +127,37 @@ getDbUser
 #    echo
 #  done
 
+getDbMaintenance()
+{
+  echo "Please enter the database's maintenance role (existing one) you want to use"
+  echo "when creating new user. You might be asked to input role's password."
+  read -p "Maintenance role [postgres]: " DB_USER
+  if [ "$DB_USER" == "" ]
+    then
+      DB_USER=postgres
+    fi
+}
+
 if [ "${NEW_DB_USER::1}" == "y" ] || [ "${NEW_DB_USER::1}" == "Y" ]
   then
-    until sudo su postgres -c "psql -h $BS_DB_HOST -p $BS_DB_PORT -c \"CREATE ROLE $BS_DB_USER LOGIN PASSWORD '$BS_DB_PASSWORD'; \""
-      do
-        echo "An error has occured trying to create role $BS_DB_USER."
-        echo "Please try again."
-        getDbUser
-      done
+    if [ "$BS_DB_HOST" == "localhost"]
+      then
+        until sudo su postgres -c "psql -c \"CREATE ROLE $BS_DB_USER LOGIN PASSWORD '$BS_DB_PASSWORD'; \""
+          do
+            echo "An error has occured trying to create role $BS_DB_USER."
+            echo "Please try again."
+            getDbUser
+          done
+      else
+        getDbMaintenance
+        until psql -h "$BS_DB_HOST" -p $BS_DB_PORT -u $DB_USER -c "CREATE ROLE $BS_DB_USER LOGIN PASSWORD '$BS_DB_PASSWORD'; "
+          do
+            echo "An error has occured trying to create role $BS_DB_USER."
+            echo "Please try again."
+            getDbUser
+            getDbMaintenance
+          done
+      fi
   fi
 
 read -p 'Do you want to create a new database? [y/N]: ' NEW_DB
