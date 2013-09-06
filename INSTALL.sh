@@ -20,8 +20,34 @@
 #                                                                             #
 ###############################################################################
 
+askPassw ()
+{
+  local PASSWORD
+  read -s -p "Input $1: " PASSWORD
+  echo
+  read -s -p "Confirm $1: " ANS
+  echo
+  while [ "$PASSWORD" != "$ANS" ]
+    do
+      echo "Passwords do not match."
+      read -s -p "Database user'spassword: " PASSWORD
+      echo
+      read -s -p "Confirm database user's password: " ANS
+      echo
+    done
+}
+
+echo "Do you want to fetch required packages?"
+read -p "(Operation requires sudo privileges.) [y/N]: " FETCH_PACKAGES
+if [ "${FETCH_PACKAGES::1}" == "y" ] || [ "${FETCH_PACKAGES}" == "Y" ]
+  then
+    sudo apt-get install libmagick++-dev libboost-thread-dev libboost-system-dev python-cherrypy3 postgresql postgresql-client libssl-dev python-psycopg2
+  fi
+
+echo
 echo "Default values are given in square braces: '[]'."
 echo "Please provide every variable with no default value."
+echo
 
 CURRENT_DIR=`pwd`
 read -p "Installation directory [$CURRENT_DIR]: " INSTALL_DIR
@@ -54,6 +80,11 @@ if [ "$BS_PORT" == "" ]
 cat site.conf.template | sed -e "s|\${host}|$BS_HOST|; s|\${port}|$BS_PORT| " > "$INSTALL_DIR/server/site.conf"
 
 BS_CONFIG="$INSTALL_DIR/server/brainslices.conf"
+
+echo
+echo "Now it is time to configure database for your server. You can use existing"
+echo "database and user, or create new (sudo privileges required)."
+echo
 echo '[SQL Database]' > "$BS_CONFIG"
 read -p 'PostgreSQL database server host [localhost]: ' BS_DB_HOST
 if [ "$BS_DB_HOST" == "" ]
@@ -67,36 +98,78 @@ if [ "$BS_DB_PORT" == "" ]
     BS_DB_PORT=5432
   fi
 
-read -p 'PostgreSQL database user [skwarki]: ' BS_DB_USER
-if [ "$BS_DB_USER" == "" ]
+read -p 'Do you want to create a new database user? [y/N]: ' NEW_DB_USER
+
+getDbUser()
+{
+  read -p 'PostgreSQL database user [skwarki]: ' BS_DB_USER
+  if [ "$BS_DB_USER" == "" ]
+    then
+      BS_DB_USER=skwarki
+    fi
+  
+  askPassw "database user's password"
+  BS_DB_PASSWORD="$ANS"
+}
+
+getDbUser
+
+#read -s -p "Database user's password: " BS_DB_PASSWORD
+#echo
+#read -s -p "Confirm database user's password: " BS_DB_PASSWORD2
+#echo
+#while [ "$BS_DB_PASSWORD" != "$BS_DB_PASSWORD2" ]
+#  do
+#    echo "Passwords do not match."
+#    read -s -p "Database user'spassword: " BS_DB_PASSWORD
+#    echo
+#    read -s -p "Confirm database user's password: " BS_DB_PASSWORD2
+#    echo
+#  done
+
+if [ "${NEW_DB_USER::1}" == "y" ] || [ "${NEW_DB_USER::1}" == "Y" ]
   then
-    BS_DB_USER=skwarki
+    until sudo su postgres -c "psql -h $BS_DB_HOST -p $BS_DB_PORT -c \"CREATE ROLE $BS_DB_USER LOGIN PASSWORD '$BS_DB_PASSWORD'; \""
+      do
+        echo "An error has occured trying to create role $BS_DB_USER."
+        echo "Please try again."
+        getDbUser
+      done
   fi
 
-read -p 'PostgreSQL database name [CracklingsDB]: ' BS_DB_NAME
-if [ "$BS_DB_NAME" == "" ]
+read -p 'Do you want to create a new database? [y/N]: ' NEW_DB
+
+getDb()
+{
+  read -p 'PostgreSQL database name [CracklingsDB]: ' BS_DB_NAME
+  if [ "$BS_DB_NAME" == "" ]
+    then
+      BS_DB_NAME=CracklingsDB
+    fi
+
+  read -p 'PostgreSQL database encoding [UTF8]: ' BS_DB_ENCODING
+  if [ "$BS_DB_ENCODING" == "" ]
+    then
+      BS_DB_ENCODING=UTF8
+    fi
+}
+
+getDb
+
+if [ "${NEW_DB::1}" == "y" ] || [ "${NEW_DB::1}" == "Y" ]
   then
-    BS_DB_NAME=CracklingsDB
+    until sudo su postgres -c "createdb -h $BS_DB_HOST -p $BS_DB_PORT -O $BS_DB_USER -E $BS_DB_ENCODING $BS_DB_NAME"
+      do
+        echo "An error has occured trying to create database $BS_DB_NAME"
+        echo "Please try again."
+        getDb
+      done
   fi
 
-read -s -p 'PostgreSQL database password: ' BS_DB_PASSWORD
-echo
-read -s -p 'Confirm PostgreSQL database password: ' BS_DB_PASSWORD2
-echo
-while [ "$BS_DB_PASSWORD" != "$BS_DB_PASSWORD2" ]
-  do
-    echo "Passwords do not match."
-    read -s -p 'PostgreSQL database password: ' BS_DB_PASSWORD
-    echo
-    read -s -p 'Confirm PostgreSQL database password: ' BS_DB_PASSWORD2
-    echo
-  done
-
-read -p 'PostgreSQL database encoding [UTF8]: ' BS_DB_ENCODING
-if [ "$BS_DB_ENCODING" == "" ]
+read -p 'Reset the database? [y/N]: ' SETUP_DB
+if [ "${SETUP_DB::1}" == "y" ] || [ "${SETUP_DB::1}" == "Y" ]
   then
-    BS_DB_ENCODING=UTF8
-  fi
+    sudo su postgres -c "psql -h $BS_DB_HOST -p $BS_DB_PORT -f sql/create_database.sql $BS_DB_NAME"
 
 
 echo "host: $BS_DB_HOST" >> "$BS_CONFIG"
@@ -179,7 +252,7 @@ echo '[Tiler]' >> "$BS_CONFIG"
 echo "threads: $BS_TILER_THREADS" >> "$BS_CONFIG"
 echo "memory: $BS_TILER_MEMORY" >> "$BS_CONFIG"
 
-#sudo apt-get install libmagick++-dev libboost-thread-dev libboost-system-dev python-cherrypy3 postgresql postgresql-client libssl-dev python-psycopg2 
+
 #sudo su postgres
 #createuser -P skwarki
 #createdb -O skwarki CracklingsDB
@@ -187,22 +260,20 @@ echo "memory: $BS_TILER_MEMORY" >> "$BS_CONFIG"
 #exit
 cd auxilaryScripts/imageProcessing
 make all
-cd ..
-#ln -s ../server/database.py .
-#ln -s ../server/tileBase.py .
-#ln -s ../server/secrets.py .
+cd ../..
 cd ..
 
-read -p 'Download example images? [y/N]:' DOWNLOAD_BRAINMAPS
-if [ "${DOWNLOAD_BRAINMAPS::1}" == "y" ] || [ "${DOWNLOAD_BRAINMAPS::1}" == "Y" ]; then
-  UserID=`python auxilaryScripts/addUser.py -l admin -p password`
-  python auxilaryScripts/getBrainmapsTiles.py $UserID sourceImages
-  python auxilaryScripts/tileImage.py sourceImages/050.jpg -x 256 -y 256 -p 14.72 demo/images/050 -q 75 -X -7948.8 -Y -7728
-  python auxilaryScripts/tileImage.py sourceImages/051.jpg -x 256 -y 256 -p 14.72 demo/images/051 -q 75 -X -8390.4 -Y -7602.88
-  python auxilaryScripts/tileImage.py sourceImages/052.jpg -x 256 -y 256 -p 14.72 demo/images/052 -q 75 -X -8390.4 -Y -7529.28
-  python auxilaryScripts/tileImage.py sourceImages/053.jpg -x 256 -y 256 -p 14.72 demo/images/053 -q 75 -X -9494.4 -Y -7728
-  python auxilaryScripts/tileImage.py sourceImages/054.jpg -x 256 -y 256 -p 14.72 demo/images/054 -q 75 -X -8611.2 -Y -7529.28
-  python auxilaryScripts/tileImage.py sourceImages/055.jpg -x 256 -y 256 -p 14.72 demo/images/055 -q 75 -X -8390.4 -Y -7602.88
-fi
+read -p 'Download example images? [y/N]: ' DOWNLOAD_BRAINMAPS
+if [ "${DOWNLOAD_BRAINMAPS::1}" == "y" ] || [ "${DOWNLOAD_BRAINMAPS::1}" == "Y" ]
+  then
+    UserID=`python auxilaryScripts/addUser.py -l admin -p password`
+    python auxilaryScripts/getBrainmapsTiles.py $UserID sourceImages
+    python auxilaryScripts/tileImage.py sourceImages/050.jpg -x 256 -y 256 -p 14.72 demo/images/050 -q 75 -X -7948.8 -Y -7728
+    python auxilaryScripts/tileImage.py sourceImages/051.jpg -x 256 -y 256 -p 14.72 demo/images/051 -q 75 -X -8390.4 -Y -7602.88
+    python auxilaryScripts/tileImage.py sourceImages/052.jpg -x 256 -y 256 -p 14.72 demo/images/052 -q 75 -X -8390.4 -Y -7529.28
+    python auxilaryScripts/tileImage.py sourceImages/053.jpg -x 256 -y 256 -p 14.72 demo/images/053 -q 75 -X -9494.4 -Y -7728
+    python auxilaryScripts/tileImage.py sourceImages/054.jpg -x 256 -y 256 -p 14.72 demo/images/054 -q 75 -X -8611.2 -Y -7529.28
+    python auxilaryScripts/tileImage.py sourceImages/055.jpg -x 256 -y 256 -p 14.72 demo/images/055 -q 75 -X -8390.4 -Y -7602.88
+  fi
 cd demo
 ln -s ../server/static .

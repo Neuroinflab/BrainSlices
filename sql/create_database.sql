@@ -1,9 +1,11 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2013-09-05 16:16:49
+-- Created on: 2013-09-06 12:27:26
 -- Diagram Version: 
 -- =============================================================================
 
+
+DROP TABLE IF EXISTS "images" CASCADE;
 
 CREATE TABLE "images" (
 	"iid" SERIAL NOT NULL,
@@ -78,6 +80,8 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "images" TO "skwarki";
 
 
 
+DROP TABLE IF EXISTS "users" CASCADE;
+
 CREATE TABLE "users" (
 	"uid" SERIAL NOT NULL,
 	"login" text NOT NULL,
@@ -111,6 +115,8 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "users" TO "skwarki";
 
 
 
+DROP TABLE IF EXISTS "batches" CASCADE;
+
 CREATE TABLE "batches" (
 	"bid" SERIAL NOT NULL,
 	"uid" int4 NOT NULL,
@@ -134,6 +140,8 @@ ALTER TABLE "batches" OWNER TO "skwarki";GRANT ALL PRIVILEGES ON TABLE "batches"
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "batches" TO "skwarki";
 
 
+
+DROP TABLE IF EXISTS "properties" CASCADE;
 
 CREATE TABLE "properties" (
 	"iid" int4 NOT NULL,
@@ -160,6 +168,8 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "properties" TO "skwarki";
 
 
 
+DROP TABLE IF EXISTS "global_properties" CASCADE;
+
 CREATE TABLE "global_properties" (
 	"property_name" text NOT NULL,
 	"property_string" text NOT NULL,
@@ -180,6 +190,8 @@ GRANT ALL PRIVILEGES ON TABLE "global_properties" TO "postgres";
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "global_properties" TO "skwarki";
 
 
+
+DROP TABLE IF EXISTS "groups" CASCADE;
 
 CREATE TABLE "groups" (
 	"gid" SERIAL NOT NULL,
@@ -202,6 +214,8 @@ GRANT ALL PRIVILEGES ON TABLE "groups" TO "postgres";
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "groups" TO "skwarki";
 
 
+
+DROP TABLE IF EXISTS "members" CASCADE;
 
 CREATE TABLE "members" (
 	"gid" int4 NOT NULL,
@@ -236,6 +250,8 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "members" TO "skwarki";
 
 
 
+DROP TABLE IF EXISTS "image_privileges" CASCADE;
+
 CREATE TABLE "image_privileges" (
 	"iid" int4 NOT NULL,
 	"gid" int4 NOT NULL,
@@ -262,6 +278,8 @@ GRANT ALL PRIVILEGES ON TABLE "image_privileges" TO "postgres";
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "image_privileges" TO "skwarki";
 
 
+
+DROP TABLE IF EXISTS "image_privileges_cache" CASCADE;
 
 CREATE TABLE "image_privileges_cache" (
 	"iid" int4 NOT NULL,
