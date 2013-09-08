@@ -68,7 +68,6 @@ class UploadSlot(object):
     self.size = 0
 
   def write(self, data):
-#     print('Came to write')
     if not self.fh.closed:
       self.crc32 = zlib.crc32(data, self.crc32)
       self.size += len(data)
@@ -87,7 +86,7 @@ class UploadSlot(object):
   def finish(self, filename):
     '''
     Appends the slot data to file passed in bytes
-    Closes the slot which is must for chunk image upload 
+    Closes the slot which is must for image upload resume functionality 
     '''
     try:
       self.fh.flush()
@@ -375,35 +374,40 @@ class TileBase(dbBase):
     return UploadSlot
 
   @provideCursor
-  def checkDuplicateImages(self, uid, imageHash, cursor = None):
+  def getDuplicateImages(self, uid, imageHash, filesize, cursor = None):
     '''
-    Gets all duplicate images
+    Gets all duplicate images by comparing the source_md5 and file size
+    User must also privilege to view the image for it to be considered as a duplicate
     '''
     cursor.execute('''
-                    select iid from images 
-                    where status >= %s and 
-                    source_md5 = %s
-                    ''', (IMAGE_STATUS_RECEIVED, imageHash))
+                    select iid, declared_size from images 
+                    where source_md5 = %s and 
+                    status >= %s 
+                    ''', (imageHash, IMAGE_STATUS_RECEIVED))
     r = cursor.fetchall()
-    if r: return [str(row[0]) for row in r if self.hasPrivilege(uid, row[0])]
+    if r: return [str(row[0]) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
     return []
 
   @provideCursor
-  def checkBrokenImages(self, uid, imageHash, cursor = None):
+  def getBrokenImages(self, uid, imageHash, filesize, cursor = None):
     '''
-    Gets all images that are broken uploads
+    Gets all images that are broken uploads by comparing the source_md5
+    User must also privilege to view the image for it to be considered as a broken upload
     '''
     cursor.execute('''
-                    select iid from images 
-                    where status = %s and 
-                    source_md5 = %s
-                    ''', (IMAGE_STATUS_UPLOADING, imageHash))
+                    select iid, declared_size from images 
+                    where source_md5 = %s and 
+                    status in (%s, %s) 
+                    ''', (imageHash, IMAGE_STATUS_UPLOADING, IMAGE_STATUS_RECEIVING))
     r = cursor.fetchall()
-    if r: return [str(row[0]) for row in r if self.hasPrivilege(uid, row[0])]
+    if r: return [str(row[0]) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
     return []
   
   @provideCursor
   def createNewImageSlot(self, uid, imageHash, filename, file_size, bid, cursor = None):
+    '''
+    Inserts a new row in images table for new images to upload
+    '''
     cursor.execute("SELECT nextval('images_iid_seq');")
     iid = cursor.fetchone()[0]
     cursor.execute("""
@@ -506,9 +510,11 @@ class TileBase(dbBase):
   
   def saveSlotAndFinishUpload(self, slot, iid, action, actionOnIid):
     '''
-    Gets details of the image passed
-    Appends slot data to existing image (in case of resuming upload)
-    If image completely uploaded updates the DB and triggers tiling
+    Based on the action key passed, 
+    For Stop upload action: Removes the new row added for new image upload
+    For New image upload action: writes the byte data into sourceImage folder. If completely uploaded, triggers tiling
+    For resume image upload action: appends the byte data to passed destination / actionOnIid image
+    For new and resume uploads, source_filesize is updated depending on size of image in the file system
     '''
     if action is 's' or action is 'r':
       self.removeIid(iid)

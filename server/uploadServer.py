@@ -111,7 +111,6 @@ class UploadGenerator(Generator):
         slot = UploadSlot(self.uploadDir)
         slot.write(value)
       
-      print('Came to upload Field Storage')
       #XXX: redundant with upload().myFieldStorage.__del__
       try:
         iid = int(cherrypy.request.headers['IID'])
@@ -139,17 +138,16 @@ class UploadGenerator(Generator):
       
     return generateJson(summary, logged = True)
 
-  def getFilenamesOrCreateImageSlot(self, uid, request):
+  def createSlotAndGetBrokenDuplicateFiles(self, uid, request):
     '''
-    Gets the filename using the MD5 key
-    If file not found, creates a new upload slot and returns that 
+    Gets the list of broken and duplicate uploads for the file
+    Creates a new slot by inserting a new row in DB facilitating new uploads 
     '''
     bid = request['bid'] if 'bid' in request else None
-    broken = self.tileBase.checkBrokenImages(uid, request['filekey'])
-    duplicates = self.tileBase.checkDuplicateImages(uid, request['filekey'])
+    broken = self.tileBase.getBrokenImages(uid, request['filekey'], request['size'])
+    duplicates = self.tileBase.getDuplicateImages(uid, request['filekey'], request['size'])
     iid = self.tileBase.createNewImageSlot(uid, request['filekey'], request['filename'], request['size'], bid)
     data =  {'iid': iid, 'broken': broken, 'duplicates': duplicates}
-    print('Split Up {}'.format(data))
     return data
 
   @ensureLogged
@@ -214,39 +212,23 @@ class UploadServer(Server):
   def getBrokenDuplicatesAndCreateSlot(self, uid, request):
     '''
     Returns the list of broken and duplicate files found for the array of files passed.
-    For each file creates a new slot (row) in DB. Depending on the user's selection
+    For each file creates a new slot (row) in DB. Depending on the user's selection this new
     row is either retained or removed during upload call.
     '''
     images_path = self.tileBase.sourceDir
     data = {}
-#     print("Req File Details: {}. Class {}".format(request.files_details, request.files_details.__class__))
-#     return generateJson(data = "data", status = True, logged = True)
-
     for file in request.files_details:
-        types = self.generator.getFilenamesOrCreateImageSlot(uid, file)
+        types = self.generator.createSlotAndGetBrokenDuplicateFiles(uid, file)
         broken_amts = []
         for name in types['broken']: 
             broken_amts.append((name, self.getFilesize(os.path.join(images_path, name))))
         types['broken'] = broken_amts
         data[file['filename'].encode('base64').strip()] = types
-    print('Data {}'.format(data))
     return generateJson(data = data, status = True, logged = True)
-  
-  @cherrypy.expose
-  @serveContent(UploadImageWithFieldStorageRequest)
-  @ensureLogged
-  def createSlotForDuplicates(self, uid, request):
-    '''
-    Creates a upload slot for duplicate images. Calls methods for making new entry in DB
-    '''
-    files_details = simplejson.loads(request.files_details)
-    for file in files_details:
-        filenames = self.generator.createNewImageSlotForDuplicates(file)
-    return generateJson(data = '', status = True, logged = True)
 
   def getFilesize(self, file_path):
     '''
-    Returns the filesize if the file exists, else returns 0
+    Returns the file size if the file exists in file system, else returns 0
     '''
     if os.path.isfile(file_path):
       return int(os.path.getsize(file_path))
@@ -256,6 +238,10 @@ class UploadServer(Server):
   @cherrypy.config(**{'request.process_request_body': False})
   @serveContent()
   def upload(self):
+    '''
+    Uploads the image byte data passed as a stream. 
+    Overrides the default request processing of cherrypy facilitating resuming image upload
+    '''
     uid = cherrypy.session.get('userID')
     if uid == None:
       return generateJson(status = False,

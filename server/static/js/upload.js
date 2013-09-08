@@ -758,6 +758,9 @@ function CFileUploader($form)
 	var cFilesUploaded = 0; // has the count of files that are completely uploaded
 	var isUploadComplete = false;
 	
+	/*
+	 * Uploads the images in chunks. Facilitates a way to resume upload in case of any network failure
+	 */
 	function new_chunk_upload() {
 		files = filter_non_image_files(thisInstance.$form.find(':file')[0].files);
 		attach_progress_bars();
@@ -806,10 +809,6 @@ function CFileUploader($form)
 	 * MD5 hash of file contents. Optimized approach, as file is loaded into memory in chunks
 	 */ 
 	function calc_files_keys_and_trigger_upload() {
-//		files[0].key = '0e37e5dda470714d2d1945f23c5f5304'; // Save the hash as a property of the file
-//    	start_file_upload(files); // Triggers file upload
-//    	return;
-    	
     	var currentFile = 0;
     	var chunkSize = 1024 * 1024 * 20; // 20 MB chunks for generating MD5 hash key
     	$(files).each(function(i, file) {
@@ -855,6 +854,26 @@ function CFileUploader($form)
     	});
 	}
 	
+	/*
+	 * Returns an array of files details which are to be saved as meta data of the file
+	 */
+	function get_files_details(files) {
+		files_details = [];
+		$(files).each(function(i, file) { files_details.push(get_image_attributes(file)); });
+		return files_details;
+	}
+	
+	/*
+	 * Returns the attributes of the image file to be saved in the DB
+	 * This includes, "batch" name
+	 */
+	function get_image_attributes(file) {
+		var bid = $('.batch select').val();
+		data = {filekey: file.key, filename: file.name, size: file.size};
+		if (bid != 'None') data['bid'] = bid; 
+		return data;
+	}
+	
 	/* 
 	 * Checks the number of bytes uploaded of the passed files 
    	 * Sets the uploaded amount for the file object
@@ -882,7 +901,7 @@ function CFileUploader($form)
 	}
 	
 	/*
-	 * Creates the JQuery UI Dialog for taking user's action for doubtful images
+	 * Creates the JQuery UI Dialog for taking user's action for broken and duplicate images
 	 */
 	function form_dialog(data) {
 		var file_data;
@@ -959,6 +978,13 @@ function CFileUploader($form)
 			addUploadFileProperties(data);
 	}
 	
+	/*
+	 * Adds additional properties to file objects:
+	 * 1) Action: Which action to take based on user's choice from dialog. Valid Values: s (=> stop / cancel), n (=> new), r (=> resume)
+	 * 2) ActionOnIid: The above action on which image iid. This is valid only for resume upload action indicating broken image iid
+	 * 3) iid: iid of the new slot created for that particular file
+	 * 4) uploaded_amount: based on the action chosen by user, uploaded amount is filled either for resume or cancel or new
+	 */
 	function addUploadFileProperties(data) {
 		var cFiles = files.length;
 		var selected_radios = $("#dialog form").find("input:checked");
@@ -981,29 +1007,15 @@ function CFileUploader($form)
 		start_file_upload();
 	}
 	
+	/*
+	 * Triggers the upload process. Opens MAX_SIMULTANEOUS_UPLOADS threads for parallel uploads
+	 */
 	function start_file_upload() {
 		if(files.length == 0) do_upload_complete();
 		while(iCurrentFileForUpload < MAX_SIMULTANEOUS_UPLOADS && iCurrentFileForUpload < files.length)
 			upload_next_file(); 
 	}
 
-	function get_files_details(files) {
-		files_details = [];
-		$(files).each(function(i, file) { files_details.push(get_image_attributes(file)); });
-		return files_details;
-	}
-	
-	/*
-	 * Returns the attributes of the image file to be saved in the DB
-	 * This includes, "batch" name
-	 */
-	function get_image_attributes(file) {
-		var bid = $('.batch select').val();
-		data = {filekey: file.key, filename: file.name, size: file.size};
-		if (bid != 'None') data['bid'] = bid; 
-		return data;
-	}
-	
 	/*
 	 * Returns the form data containing the chunk of file to be uploaded
 	 */
@@ -1014,7 +1026,23 @@ function CFileUploader($form)
 	}
 	
 	/*
-	 * Uploads the file with progress bar
+	 * Returns the headers to passed in the upload AJAX request
+	 * These the same file attributes passed during check_upload_amount
+	 */
+	function get_headers(file) {
+//		file_properties=['name', 'size', 'type', 'lastModifiedDate', 'key'];
+		file_properties=['name','action', 'iid', 'actionOnIid'];
+		headers = {}
+		for(property in file)
+			if(file_properties.indexOf(property) >= 0)
+				headers[property.toUpperCase()] = file[property];
+		headers['Cache-Control'] = "no-cache";
+		return headers;
+	}
+	
+	/*
+	 * Uploads the file with progress bar. When upload is complete, triggers the next file 
+	 * upload maintaining the MAX_SIMULTANEOUS_UPLOADS constraint
 	 */
 	function upload_file(file) {
 		form_data = get_form_data(file);
@@ -1079,21 +1107,6 @@ function CFileUploader($form)
 		cFilesUploaded++;
 		alert('Upload Success!');
 		upload_next_file();
-	}
-	
-	/*
-	 * Returns the headers to passed in the upload AJAX request
-	 * These the same file attributes passed during check_upload_amount
-	 */
-	function get_headers(file) {
-//		file_properties=['name', 'size', 'type', 'lastModifiedDate', 'key'];
-		file_properties=['name','action', 'iid', 'actionOnIid'];
-		headers = {}
-		for(property in file)
-			if(file_properties.indexOf(property) >= 0)
-				headers[property.toUpperCase()] = file[property];
-		headers['Cache-Control'] = "no-cache";
-		return headers;
 	}
 	
 	/*

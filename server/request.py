@@ -86,7 +86,6 @@ class Request(object):
     #    self._invalid(", ".join(x[0] for x in values) + " are aliases of %s." % name)
     #  else:
     #    self._normalized[name] = values[0][1]
-    print("Raw {}\nType {}".format(self._raw, self._raw.__class__))
     self._normalized = dict(self._raw)
 
     # looks for the required arguments
