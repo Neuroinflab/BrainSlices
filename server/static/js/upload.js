@@ -764,6 +764,7 @@ function CFileUploader($form)
 	function new_chunk_upload() {
 		files = filter_non_image_files(thisInstance.$form.find(':file')[0].files);
 		attach_progress_bars();
+		$("#upload_status_message").hide().text("Preparing upload...").show();
 		isUploadComplete = false;
 		calc_files_keys_and_trigger_upload();
 	}
@@ -953,6 +954,7 @@ function CFileUploader($form)
 		}
 		
 		if(show_dialog) {
+			$("#upload_status_message").hide().text("Pick what to do...").show();
 			$("#dialog").html("").append(dialog_content).dialog({
 				modal: true,
 				buttons: [
@@ -1045,6 +1047,7 @@ function CFileUploader($form)
 	 * upload maintaining the MAX_SIMULTANEOUS_UPLOADS constraint
 	 */
 	function upload_file(file) {
+		$("#upload_status_message").hide().text("Completing... " + (cFilesUploaded+1) + " of " + files.length).show();
 		form_data = get_form_data(file);
 		headers = get_headers(file);
 		ajaxOptions = {headers: headers, cache : false, contentType : false, processData : false,
@@ -1053,15 +1056,16 @@ function CFileUploader($form)
 		            myXhr = $.ajaxSettings.xhr();
 		            if (myXhr.upload) // check if upload property exists 
 		            {
-		              myXhr.upload.addEventListener('progress', 
-	            		  function(e) {
-			            	  if (e.lengthComputable) {
-			            		  uploaded_amount = (file.uploaded_amount / file.size) + (e.loaded / e.total);
-			            		  set_progress(file, uploaded_amount);
-//			            		  if(uploaded_amount >= 1) do_file_upload_complete();
-			            	  }
-	              		  }, 
-	            		  false);
+		              if(file.action != 's')
+			              myXhr.upload.addEventListener('progress', 
+		            		  function(e) {
+				            	  if (e.lengthComputable) {
+				            		  uploaded_amount = (file.uploaded_amount / file.size) + (e.loaded / e.total);
+				            		  set_progress(file, uploaded_amount);
+	//			            		  if(uploaded_amount >= 1) do_file_upload_complete();
+				            	  }
+		              		  }, 
+		            		  false);
 		              myXhr.upload.addEventListener("load", 
 		            		  	function (e) {
 		            	  			do_file_upload_complete();	
@@ -1105,6 +1109,7 @@ function CFileUploader($form)
 	 */
 	function do_file_upload_complete(){
 		cFilesUploaded++;
+		$("#upload_status_message").hide().text("Completed " + cFilesUploaded + " of " + files.length).show();
 		alert('Upload Success!');
 		upload_next_file();
 	}
@@ -1123,6 +1128,7 @@ function CFileUploader($form)
 	 * Final function called after all uploads are completesd
 	 */
 	function do_upload_complete() {
+		$("#upload_status_message").hide().text("Upload complete!").show();
 		alert('All images uploaded');
 		$("form#upload")[0].reset();
 		iCurrentFileForUpload = 0;  // reset the index of current file being uploaded to zero
