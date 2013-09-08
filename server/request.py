@@ -27,7 +27,7 @@ from keyboard import keyboard
 import unittest
 from datetime import datetime
 
-import re
+import re, simplejson
 
 LOGIN_RE = re.compile('^[a-z0-9-+_.*]+$')
 EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
@@ -86,6 +86,7 @@ class Request(object):
     #    self._invalid(", ".join(x[0] for x in values) + " are aliases of %s." % name)
     #  else:
     #    self._normalized[name] = values[0][1]
+    print("Raw {}\nType {}".format(self._raw, self._raw.__class__))
     self._normalized = dict(self._raw)
 
     # looks for the required arguments
@@ -418,7 +419,7 @@ class UploadImageWithFieldStorageRequest(Request):
     if not Request._parse(self):
       return False
 
-    self._parseArgument('files_details')
+    self._parseArgument('files_details', None, simplejson.loads)
     
     return self.valid
 

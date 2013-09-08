@@ -211,15 +211,18 @@ class UploadServer(Server):
   @cherrypy.expose
   @serveContent(UploadImageWithFieldStorageRequest)
   @ensureLogged
-  def checkUploadOrCreateSlot(self, uid, request):
+  def getBrokenDuplicatesAndCreateSlot(self, uid, request):
     '''
-    Gets the file size already uploaded if found
-    else creates a new row in DB for upload
+    Returns the list of broken and duplicate files found for the array of files passed.
+    For each file creates a new slot (row) in DB. Depending on the user's selection
+    row is either retained or removed during upload call.
     '''
     images_path = self.tileBase.sourceDir
     data = {}
-    files_details = simplejson.loads(request.files_details)
-    for file in files_details:
+#     print("Req File Details: {}. Class {}".format(request.files_details, request.files_details.__class__))
+#     return generateJson(data = "data", status = True, logged = True)
+
+    for file in request.files_details:
         types = self.generator.getFilenamesOrCreateImageSlot(uid, file)
         broken_amts = []
         for name in types['broken']: 

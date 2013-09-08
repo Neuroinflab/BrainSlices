@@ -481,8 +481,8 @@ class TileBase(dbBase):
                          iid))
     if cursor.rowcount == 1:
       if finish and launch:
-#         pass
-        launchImageTiling(iid)
+        pass
+#         launchImageTiling(iid)
 
       return True
 

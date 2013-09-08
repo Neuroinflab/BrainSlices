@@ -864,9 +864,12 @@ function CFileUploader($form)
 		var files_details = get_files_details(files);
 		ajaxOptions = {async: false};
 		loginConsole.ajax(
-			'checkUploadOrCreateSlot', 
+			'getBrokenDuplicatesAndCreateSlot', 
 			function(response) {
-				form_dialog(response.data);
+				if(response.status)
+					form_dialog(response.data);
+				else
+					alert(response.message);
 			},
 			{files_details: JSON.stringify(files_details)},
 			function(data) {
