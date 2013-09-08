@@ -756,10 +756,12 @@ function CFileUploader($form)
 	 */
 	
 	var cFilesUploaded = 0; // has the count of files that are completely uploaded
+	var isUploadComplete = false;
 	
 	function new_chunk_upload() {
 		files = filter_non_image_files(thisInstance.$form.find(':file')[0].files);
 		attach_progress_bars();
+		isUploadComplete = false;
 		calc_files_keys_and_trigger_upload();
 	}
 	
@@ -793,7 +795,7 @@ function CFileUploader($form)
 	 */
 	function upload_next_file() {
 		total_files = files.length;
-		if(iCurrentFileForUpload < total_files)
+		if(!isUploadComplete && iCurrentFileForUpload < total_files)
 			upload_file(files[iCurrentFileForUpload++]); // Async method
 		if(cFilesUploaded == total_files)
 			do_upload_complete();
@@ -978,7 +980,7 @@ function CFileUploader($form)
 	
 	function start_file_upload() {
 		if(files.length == 0) do_upload_complete();
-//		while(iCurrentFileForUpload < MAX_SIMULTANEOUS_UPLOADS && iCurrentFileForUpload < files.length) // TODO Creating complications when trying to find out when all uploads have completed
+		while(iCurrentFileForUpload < MAX_SIMULTANEOUS_UPLOADS && iCurrentFileForUpload < files.length)
 			upload_next_file(); 
 	}
 
@@ -1025,10 +1027,24 @@ function CFileUploader($form)
 			            	  if (e.lengthComputable) {
 			            		  uploaded_amount = (file.uploaded_amount / file.size) + (e.loaded / e.total);
 			            		  set_progress(file, uploaded_amount);
-			            		  if(uploaded_amount >= 1) do_file_upload_complete();
+//			            		  if(uploaded_amount >= 1) do_file_upload_complete();
 			            	  }
 	              		  }, 
 	            		  false);
+		              myXhr.upload.addEventListener("load", 
+		            		  	function (e) {
+		            	  			do_file_upload_complete();	
+		              			}, false);
+		              myXhr.upload.addEventListener("error", function(e) {
+		            	  	alert('File Upload: Something went wrong.\nRetry');
+							console.error('File Upload: Error!');
+							throw 'File Upload: Something went wrong.\nRetry';
+		              }, false);
+		              myXhr.upload.addEventListener("abort", function(e) {
+		            	  	alert('File Upload: Aborted due to some reason.\nRetry');
+							console.error('File Upload: Aborted!');
+							throw 'File Upload: Aborted due to some reason.\nRetry';
+		              }, false);
 		            }
 		            return myXhr;
 		          }};
@@ -1046,6 +1062,7 @@ function CFileUploader($form)
 				{
 					alert('File Upload: Something went wrong.\nRetry');
 					console.error('File Upload: Error!');
+					throw 'File Upload: Something went wrong.\nRetry';
 				}
 			},
 			'POST', 
@@ -1093,5 +1110,7 @@ function CFileUploader($form)
 		alert('All images uploaded');
 		$("form#upload")[0].reset();
 		iCurrentFileForUpload = 0;  // reset the index of current file being uploaded to zero
+		cFilesUploaded = 0; // reset the total number of files uploaded
+		isUploadComplete = true; // flag that helps prevent some threads being calling upload function again
 	}
 }

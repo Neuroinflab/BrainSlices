@@ -397,7 +397,7 @@ class TileBase(dbBase):
                     select iid from images 
                     where status = %s and 
                     source_md5 = %s
-                    ''', (IMAGE_STATUS_RECEIVING, imageHash))
+                    ''', (IMAGE_STATUS_UPLOADING, imageHash))
     r = cursor.fetchall()
     if r: return [str(row[0]) for row in r if self.hasPrivilege(uid, row[0])]
     return []
@@ -407,9 +407,9 @@ class TileBase(dbBase):
     cursor.execute("SELECT nextval('images_iid_seq');")
     iid = cursor.fetchone()[0]
     cursor.execute("""
-                   INSERT INTO images(iid, uid, status, source_md5, filename, source_filesize, bid)
+                   INSERT INTO images(iid, uid, status, source_md5, filename, declared_size, bid)
                    VALUES(%s, %s, %s, %s, %s, %s, %s);
-                   """, (iid, uid, IMAGE_STATUS_RECEIVING, imageHash, filename, file_size, bid))
+                   """, (iid, uid, IMAGE_STATUS_UPLOADING, imageHash, filename, file_size, bid))
     return str(iid)
 
   @provideCursor
@@ -510,8 +510,6 @@ class TileBase(dbBase):
     Appends slot data to existing image (in case of resuming upload)
     If image completely uploaded updates the DB and triggers tiling
     '''
-    print('Came here: IID {} ACTION {} ACTIONIID'.format(iid, action, actionOnIid))
-    
     if action is 's' or action is 'r':
       self.removeIid(iid)
   
@@ -522,23 +520,24 @@ class TileBase(dbBase):
       filepath = os.path.join(self.sourceDir, "%s" % iid) 
       slot.finish(filepath)
     
-      existing_filesize = 0
+      filesystem_size = 0
       if os.path.isfile(filepath):
-        existing_filesize = int(os.path.getsize(filepath)) 
+        filesystem_size = int(os.path.getsize(filepath)) 
 
-      size = self.getSourceFileSize(iid)
-      print('Source filesize: {} - type {}. Existing filesize {} - type {}'.format(size, size.__class__, existing_filesize, existing_filesize.__class__))
-      if existing_filesize == size:  # Check the source_filesize in DB with existing filesize in FileSystem
-        self.writeUploadSlot(iid, slot.crc32, slot.size, True)
+      declared_size = self.getDeclaredFileSize(iid)
+      if filesystem_size == declared_size:  # Check the declared_filesize in DB with existing filesize in FileSystem
+        self.writeUploadSlot(iid, slot.crc32, declared_size, True)
+      else:
+        self.writeUploadSlot(iid, slot.crc32, filesystem_size, False)
     
     return iid
 
   @provideCursor
-  def getSourceFileSize(self, iid, cursor = None):
+  def getDeclaredFileSize(self, iid, cursor = None):
     '''
-    Returns the source filesize from DB
+    Returns the declared filesize from DB
     '''
-    cursor.execute('SELECT source_filesize from images where iid = %s', (iid,))
+    cursor.execute('SELECT declared_size from images where iid = %s', (iid,))
     return cursor.fetchone()[0]
   
   @provideCursor
