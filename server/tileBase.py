@@ -221,9 +221,9 @@ class TileBase(dbBase):
                      ORDER BY filename;
                      """, (IMAGE_STATUS_COMPLETED,
                            IMAGE_STATUS_COMPLETED,
+                           uid, uid,
                            IMAGE_STATUS_COMPLETED,
-                           IMAGE_STATUS_COMPLETED,
-                           uid, uid))
+                           IMAGE_STATUS_COMPLETED))
 
     else:
       cursor.execute("""
