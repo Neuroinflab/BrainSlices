@@ -382,8 +382,9 @@ class TileBase(dbBase):
     cursor.execute('''
                     select iid, declared_size from images 
                     where source_md5 = %s and 
-                    status >= %s 
-                    ''', (imageHash, IMAGE_STATUS_RECEIVED))
+                    ((status >= %s and uid = %s) or 
+                    (status = %s and uid <> %s)) 
+                    ''', (imageHash, IMAGE_STATUS_RECEIVED, uid, IMAGE_STATUS_ACCEPTED, uid))
     r = cursor.fetchall()
     if r: return [str(row[0]) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
     return []
