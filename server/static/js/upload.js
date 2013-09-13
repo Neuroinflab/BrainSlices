@@ -926,7 +926,7 @@ function CFileUploader($form)
 					var duplicate_image_iid = file_data.broken[j][0];
 					$(radio_buttons_div).append($("<input>").attr({type: "radio", name: file_data.iid, 
 						"data-action": 'r', "data-actioniid": duplicate_image_iid, value: file_data.broken[j][1]}));
-					$(radio_buttons_div).append($("<label />").text(duplicate_image_iid + " ("+percent_uploaded+"%)"));
+					$(radio_buttons_div).append($("<label />").text(file_data.broken[j][2] + " #" + duplicate_image_iid + " ("+percent_uploaded+"%)"));
 				}
 				$(dialog_content).append(radio_buttons_div);
 			}

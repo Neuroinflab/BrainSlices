@@ -220,8 +220,8 @@ class UploadServer(Server):
     for file in request.files_details:
         types = self.generator.createSlotAndGetBrokenDuplicateFiles(uid, file)
         broken_amts = []
-        for name in types['broken']: 
-            broken_amts.append((name, self.getFilesize(os.path.join(images_path, name))))
+        for (name, source_filename) in types['broken']: 
+            broken_amts.append((name, self.getFilesize(os.path.join(images_path, name)), source_filename))
         types['broken'] = broken_amts
         data[file['filename'].encode('base64').strip()] = types
     return generateJson(data = data, status = True, logged = True)

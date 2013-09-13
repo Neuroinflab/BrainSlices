@@ -396,12 +396,12 @@ class TileBase(dbBase):
     User must also privilege to view the image for it to be considered as a broken upload
     '''
     cursor.execute('''
-                    select iid, declared_size from images 
+                    select iid, declared_size, filename from images 
                     where source_md5 = %s and 
                     status in (%s, %s) 
                     ''', (imageHash, IMAGE_STATUS_UPLOADING, IMAGE_STATUS_RECEIVING))
     r = cursor.fetchall()
-    if r: return [str(row[0]) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
+    if r: return [(str(row[0]), row[2]) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
     return []
   
   @provideCursor
