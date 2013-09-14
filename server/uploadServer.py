@@ -266,19 +266,17 @@ class UploadServer(Server):
       def __del__(self):
         try:
           iid = int(cherrypy.request.headers['IID'])
-
         except:
           raise cherrypy.HTTPError("400 Bad request",
                                    "Bad value (%s) of IID field." % \
                                    cherrypy.request.headers['IID'])
-
         try:
           actioniid = int(cherrypy.request.headers['ACTIONONIID'])
-
         except:
           raise cherrypy.HTTPError("400 Bad request",
                                    "Bad value (%s) of ACTIONONIID field." % \
                                    cherrypy.request.headers['ACTIONONIID'])
+
         iid =  generator.tileBase.saveSlotAndFinishUpload(
                         self.slot, 
                         iid, 

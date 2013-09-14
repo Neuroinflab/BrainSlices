@@ -418,9 +418,31 @@ class UploadImageWithFieldStorageRequest(Request):
     if not Request._parse(self):
       return False
 
-    self._parseArgument('files_details', None, simplejson.loads)
+    self._parseArgument('files_details', UploadImageWithFieldStorageRequest.JSONValidator, simplejson.loads)
     
     return self.valid
+
+  @staticmethod
+  def JSONValidator(file_details):
+    '''
+    Validates the file_details JSON
+    Sample input: file_details:[{filekey: 23123132224, filename: abc.jpg, size: 2343}] or
+    Sample input: file_details:[{filekey: 23123132224, filename: abc.jpg, size: 2343, bid: 12}]
+    Returns true if the input data is in any of the above formats, else false
+    '''
+    try:
+      has_bid = False
+      if len(file_details) > 0: has_bid = 'bid' in file_details[0].keys() 
+      for file in file_details:
+        if not isinstance(file['filekey'], str) or len(file['filekey']) != 32: return False
+        if not isinstance(file['filename'], str) or len(file['filename'].strip()) == 0: return False
+        if not isinstance(file['size'], int) or file['size'] <= 0: return False
+        if not has_bid and 'bid' in file.keys(): return False
+        if has_bid and ('bid' not in file.keys() or not isinstance(file['bid'], int) or file['bid'] <= 0): return False
+    except:
+      return False
+  
+    return True
 
 
 class NewBatchRequest(Request):
