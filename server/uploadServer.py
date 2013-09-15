@@ -32,7 +32,7 @@ from server import jsonStd, generateJson, Server, serveContent, ensureLogged,\
                    Generator, useTemplate
 from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
-                    UploadImageWithFieldStorageRequest
+                    UploadImageWithFieldStorageRequest, GetImageStatusRequest
 
 
 class UploadGenerator(Generator):
@@ -150,6 +150,14 @@ class UploadGenerator(Generator):
     data =  {'iid': iid, 'broken': broken, 'duplicates': duplicates}
     return data
 
+  def getImagesStatuses(self, iids):
+    '''
+    Makes a DB call to get the status of each IID passed
+    Returns a hash of {iid: status}
+    '''
+    iids_statuses = self.tileBase.getImagesStatuses(iids)
+    return {entry[0]:entry[1] for entry in iids_statuses}
+
   @ensureLogged
   def uploadNewImage(self, uid, request):
     slot = self.tileBase.UploadSlot(uid, filename = request.filename,
@@ -225,6 +233,16 @@ class UploadServer(Server):
         types['broken'] = broken_amts
         data[file['filename'].encode('base64').strip()] = types
     return generateJson(data = data, status = True, logged = True)
+
+  @cherrypy.expose
+  @serveContent(GetImageStatusRequest)
+  @ensureLogged
+  def getImagesStatuses(self, uid, request):
+    '''
+    Returns the status of each iid passed. Bulk API
+    '''
+    iids_statuses = self.generator.getImagesStatuses(request.iids)
+    return generateJson(data = iids_statuses, status = True, logged = True)
 
   def getFilesize(self, file_path):
     '''

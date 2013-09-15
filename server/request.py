@@ -444,6 +444,16 @@ class UploadImageWithFieldStorageRequest(Request):
   
     return True
 
+class GetImageStatusRequest(Request):
+  _required = Request._required + ['iids']
+
+  def _parse(self):
+    if not Request._parse(self):
+      return False
+
+    self._parseArgument('iids', None, simplejson.loads)
+    
+    return self.valid
 
 class NewBatchRequest(Request):
   _required = Request._required + ['comment']

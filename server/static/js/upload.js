@@ -322,6 +322,8 @@ var CHUNK_SIZE = 1024 * 1024;
 
 var MAX_SIMULTANEOUS_UPLOADS = 3; // These many images will be uploaded simultaneously 
 var iCurrentFileForUpload = 0, files = null;
+var STATUS_MAP = {'6': 'COMPLETED', '1': 'RECEIVING', '0': 'UPLOADING', '3': 'PROCESSING', '2': 'RECEIVED', 
+		'-1': 'REMOVED', '4': 'IDENTIFIED', '7': 'ACCEPTED', '-2': 'ERROR', '5': 'TILED'}; // Hash map for the status of an image, taken directly from tileBase.py
 
 /*****************************************************************************\
  * Function: getSendNextChunkFunction                                        *
@@ -908,6 +910,7 @@ function CFileUploader($form)
 		var file_data;
 		var show_dialog = false;
 		var dialog_content = $("<form />"); // Very imp for "cancel" functionality of dialog to work
+		var duplicate_iids = [];
 		
 		for(var i = 0; i < files.length; i++) {
 			file_data = data[btoa(files[i].name)]; // TODO Requires latest browsers for base64 encoding
@@ -933,7 +936,23 @@ function CFileUploader($form)
 			
 			if(c_duplicates > 0) {
 				$(dialog_content).append($("<h4 />").text("Duplicate upload(s):").css("text-decoration", "underline"));
-				$(dialog_content).append($("<p />").append(file_data.duplicates.join(", ")));
+				var ul = $("<ul />");
+				var duplicate; var text; var status = 0; var image = null; var li;
+				for(var j = 0; j < c_duplicates; j++) {
+					duplicate = file_data.duplicates[j];
+					duplicate_iids.push(duplicate[0]);
+//					text = "#" + duplicate[0] + " " + duplicate[2] + " " + duplicate[3] + " " + STATUS_MAP[duplicate[1]];
+					text = "#" + duplicate[0] + " " + duplicate[2] + ". Status: ";
+					li = $("<li />").text(text)
+					$(li).append($("<span />").attr({"data-iid": duplicate[0]}).text(STATUS_MAP[duplicate[1]]));
+					$(li).append($("<a />").attr({title: 'Refresh status', "data-iid": duplicate[0]}).
+							addClass('refreshStatus lmargin10 link').text("Refresh"));
+					$(ul).append(li);
+				}
+				$(dialog_content).append($("<div />").append(ul));
+				
+				// Trigger Auto Refresh of status for every 20s
+				data['set_interval_id'] = setInterval(function() { refreshStatusForIids(duplicate_iids) }, 20*1000);
 			}
 			
 			if(c_broken > 0 || c_duplicates > 0) {
@@ -958,26 +977,70 @@ function CFileUploader($form)
 			$("#dialog").html("").append(dialog_content).dialog({
 				modal: true,
 				buttons: [
-				          	{ text: "Ok", click: function() {
-				          			addUploadFileProperties(data);
+				          	{ text: "OK", click: function() {
 				          			$(this).dialog("close");
 				          		}
 				          	},
 				          	{ text: "Cancel", click: function() { 
 				          			$(this).children("form")[0].reset();
-				          			addUploadFileProperties(data);
 				          			$(this).dialog("close");
 				          		}
 				          	}
 				          ],
 				closeText: "Cancel",
-				width: "auto",
+				minWidth: 600,
 				maxWidth: 840,
-				maxHeight: 540
+				maxHeight: 540,
+				close: function( event, ui ) {
+					clearInterval(data['set_interval_id']); // Clear the setInterval call
+					if(event.currentTarget && event.currentTarget.innerText == "Cancel") // When cross button is clicked TODO: A better way to detect when cross button on dialog is pressed 
+						$(this).children("form")[0].reset();
+					addUploadFileProperties(data);
+				}
 			});
 		}
 		else
 			addUploadFileProperties(data);
+		
+		refreshStatusForIids(duplicate_iids);
+	}
+
+	/*
+	 * Refresh the status of an image when clicked by making an AJAX call
+	 */
+	$(".refreshStatus").live("click", function() {
+		var iid = $(this).attr('data-iid');
+		refreshStatusForIids([iid]);
+	});
+	
+	/*
+	 * Refreshes the status of passed IIDs
+	 */
+	function refreshStatusForIids(iids) {
+		loginConsole.ajax(
+				'getImagesStatuses', 
+				function(response) {
+					if(response.status) {
+						var iid_status = response.data;
+						var span;
+						for(iid in iid_status) {
+							span = $("#dialog").find("span[data-iid='"+iid+"']");
+							$(span).text(STATUS_MAP[iid_status[iid]]);
+							$(span).parent("li").find("img").remove(); // Remove existing images if any
+							if(iid_status[iid] >= 6) {
+								$(span).parent("li").append(getThumbnail(iid));
+							}
+						}
+					}
+				},
+				{ 'iids': JSON.stringify(iids) }, null, 'POST', {async: false});
+	}
+	
+	/*
+	 * Returns image thumbnail object for the given iid
+	 */
+	function getThumbnail(iid) {
+		return $("<img />").attr({src: '../images/'+iid+'/tiles/0/0/0.jpg'}).addClass("polaroid-image");
 	}
 	
 	/*
@@ -988,6 +1051,7 @@ function CFileUploader($form)
 	 * 4) uploaded_amount: based on the action chosen by user, uploaded amount is filled either for resume or cancel or new
 	 */
 	function addUploadFileProperties(data) {
+		
 		var cFiles = files.length;
 		var selected_radios = $("#dialog form").find("input:checked");
 		for(var i = 0; i < cFiles; i++) {

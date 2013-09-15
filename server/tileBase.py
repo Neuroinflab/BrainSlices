@@ -380,13 +380,13 @@ class TileBase(dbBase):
     User must also privilege to view the image for it to be considered as a duplicate
     '''
     cursor.execute('''
-                    select iid, declared_size from images 
+                    select iid, declared_size, status, filename from images 
                     where source_md5 = %s and 
                     ((status >= %s and uid = %s) or 
                     (status = %s and uid <> %s)) 
                     ''', (imageHash, IMAGE_STATUS_RECEIVED, uid, IMAGE_STATUS_ACCEPTED, uid))
     r = cursor.fetchall()
-    if r: return [str(row[0]) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
+    if r: return [(str(row[0]), str(row[2]), row[3], imageHash) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
     return []
 
   @provideCursor
@@ -416,6 +416,15 @@ class TileBase(dbBase):
                    VALUES(%s, %s, %s, %s, %s, %s, %s);
                    """, (iid, uid, IMAGE_STATUS_UPLOADING, imageHash, filename, file_size, bid))
     return str(iid)
+
+  @provideCursor
+  def getImagesStatuses(self, iids, cursor = None):
+    '''
+    Returns a array of tuples of iid and status
+    '''
+    iids_str = ",".join([str(iid) for iid in iids])
+    cursor.execute("SELECT iid, status FROM images where iid in (" + iids_str + ")")
+    return cursor.fetchall()
 
   @provideCursor
   def hasPrivilege(self, uid, iid, cursor = None):
@@ -486,8 +495,8 @@ class TileBase(dbBase):
                          iid))
     if cursor.rowcount == 1:
       if finish and launch:
-        pass
-#         launchImageTiling(iid)
+#         pass
+        launchImageTiling(iid)
 
       return True
 
