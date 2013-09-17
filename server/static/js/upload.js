@@ -873,7 +873,7 @@ function CFileUploader($form)
 	function get_image_attributes(file) {
 		var bid = $('.batch select').val();
 		data = {filekey: file.key, filename: file.name, size: file.size};
-		if (bid != 'None') data['bid'] = bid; 
+		if (bid != 'None') data['bid'] = parseInt(bid); 
 		return data;
 	}
 	

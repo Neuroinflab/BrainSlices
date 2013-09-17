@@ -445,6 +445,9 @@ class TileBase(dbBase):
     '''
     Returns a array of tuples of iid and status
     '''
+    if len(iids) == 0:
+      return []
+
     iids_str = ",".join([str(iid) for iid in iids])
     cursor.execute("SELECT iid, status FROM images where iid in (" + iids_str + ")")
     return cursor.fetchall()

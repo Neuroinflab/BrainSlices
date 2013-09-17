@@ -31,6 +31,7 @@ import re, simplejson
 
 LOGIN_RE = re.compile('^[a-z0-9-+_.*]+$')
 EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
+#XXX: too restrictive validation
 
 def isstr(s):
   return type(s) is str or type(s) is unicode
@@ -434,11 +435,11 @@ class UploadImageWithFieldStorageRequest(Request):
       has_bid = False
       if len(file_details) > 0: has_bid = 'bid' in file_details[0].keys() 
       for file in file_details:
-        if not isinstance(file['filekey'], str) or len(file['filekey']) != 32: return False
-        if not isinstance(file['filename'], str) or len(file['filename'].strip()) == 0: return False
-        if not isinstance(file['size'], int) or file['size'] <= 0: return False
+        if not isinstance(file['filekey'], (str, unicode)) or len(file['filekey']) != 32: return False
+        if not isinstance(file['filename'], (str, unicode)) or len(file['filename'].strip()) == 0: return False
+        if not isinstance(file['size'], (int, long)) or file['size'] <= 0: return False
         if not has_bid and 'bid' in file.keys(): return False
-        if has_bid and ('bid' not in file.keys() or not isinstance(file['bid'], int) or file['bid'] <= 0): return False
+        if has_bid and ('bid' not in file.keys() or not isinstance(file['bid'], (int, long)) or file['bid'] <= 0): return False
     except:
       return False
   
