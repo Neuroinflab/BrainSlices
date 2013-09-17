@@ -102,4 +102,4 @@ if __name__ == '__main__':
     tb.acceptImage(uid, iid, imageRes,
                 -0.5 * tiler.imageWidth * imageRes,
                 -0.5 * tiler.imageHeight * imageRes)
-    tb.setPublicImagePrivileges(uid, iid, view = True)
+    tb.setPublicPrivileges(uid, iid, view = True)
