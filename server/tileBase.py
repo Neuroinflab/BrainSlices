@@ -553,7 +553,7 @@ class TileBase(dbBase):
     For new and resume uploads, source_filesize is updated depending on size of image in the file system
     '''
     if action is 's' or action is 'r':
-      self.removeIid(iid)
+      self.removeIids([iid])
   
     if action is 'r': 
       iid = actionOnIid
@@ -583,11 +583,12 @@ class TileBase(dbBase):
     return cursor.fetchone()[0]
   
   @provideCursor
-  def removeIid(self, iid, cursor = None):
+  def removeIids(self, iids, cursor = None):
     '''
-    Removes row with iid from DB
+    Removes rows with iids from DB
     '''
-    cursor.execute('DELETE from images where iid = %s', (iid,))  
+    iids_str = ','.join([str(iid) for iid in iids])
+    cursor.execute('DELETE from images where iid in ('+iids_str+')')  
 
   @provideCursor
   def acceptImage(self, uid, iids, imageRes, imageLeft = 0., imageTop = 0.,

@@ -150,6 +150,12 @@ class UploadGenerator(Generator):
     data =  {'iid': iid, 'broken': broken, 'duplicates': duplicates}
     return data
 
+  def removeInvalidBrokenUploads(self, iids):
+    '''
+    Removes invalid broken uploads, i.e. uploads with 0% complete
+    '''
+    if len(iids) > 0: self.tileBase.removeIids(iids)
+
   def getImagesStatuses(self, iids):
     '''
     Makes a DB call to get the status of each IID passed
@@ -227,9 +233,15 @@ class UploadServer(Server):
     data = {}
     for file in request.files_details:
         types = self.generator.createSlotAndGetBrokenDuplicateFiles(uid, file)
+        invalid_broken_uploads = [] # Uploads with uploaded_amount = 0
         broken_amts = []
         for (name, source_filename) in types['broken']: 
-            broken_amts.append((name, self.getFilesize(os.path.join(images_path, name)), source_filename))
+            uploaded_amount = self.getFilesize(os.path.join(images_path, name))
+            if uploaded_amount is 0: 
+                invalid_broken_uploads.append(name)
+            else:
+                broken_amts.append((name, uploaded_amount, source_filename))
+        self.generator.removeInvalidBrokenUploads(invalid_broken_uploads)
         types['broken'] = broken_amts
         data[file['filename'].encode('base64').strip()] = types
     return generateJson(data = data, status = True, logged = True)
