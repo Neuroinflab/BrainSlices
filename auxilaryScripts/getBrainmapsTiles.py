@@ -26,7 +26,7 @@ import subprocess
 
 from tileImageDB import imageTiler
 from uploadImage import uploadImage
-from acceptImage import acceptImage
+from acceptImage import acceptImage, tb
 
 data = [20, 23, 25, 28, 30, 33, 35, 38, 40, 43, 45, 48, 50, 51, 52, 53, 54, 55,
         56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
@@ -99,6 +99,7 @@ if __name__ == '__main__':
     tiler = imageTiler(iid)
     tiler.tileStack()
     imageRes = 14.72
-    acceptImage(uid, iid, imageRes,
+    tb.acceptImage(uid, iid, imageRes,
                 -0.5 * tiler.imageWidth * imageRes,
                 -0.5 * tiler.imageHeight * imageRes)
+    tb.setPublicImagePrivileges(uid, iid, view = True)

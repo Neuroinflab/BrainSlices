@@ -112,6 +112,29 @@ class TileBase(dbBase):
     self.UploadSlot = self.getUploadSlotClass()
 
   @provideCursor
+  def setPublicPrivileges(self, uid, iids, view = None, edit = None,
+                          annotate = None, outline = None, cursor = None):
+    if isinstance(iids, (int, long)):
+      iids = [iids]
+
+    change = [('public_image_%s' % k, v) \
+              for (k, v) in (('view', view),
+                             ('edit', edit),
+                             ('annotate', annotate),
+                             ('outline', outline)) if v != None]
+    fields, values = zip(*change)
+    data = [values + (iid, uid) for iid in iids]
+    update = ', '.join('%s = %%s' % k for k in fields)
+    query = """
+            UPDATE images
+            SET %s
+            WHERE iid = %%s AND uid = %%s;
+            """ % update
+    cursor.executemany(query, data)
+    return cursor.rowcount
+
+
+  @provideCursor
   def canViewImage(self, iid, uid = None, extraFields = '', cursor = None):
     cursor.execute("""
                    SELECT status, uid, public_image_view, public_image_edit %s
