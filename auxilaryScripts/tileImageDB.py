@@ -140,7 +140,7 @@ class imageTiler(object):
       self.invalid = pStdErr
       if processIdentify.returncode != 0:
 
-        tb.identificationFailed(self.iid, self.invalid)
+        tb.imageInvalid(self.iid, self.invalid)
 
         # remove source file
         if os.path.exists(self.source):

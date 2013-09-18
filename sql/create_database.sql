@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2013-09-06 12:27:26
+-- Created on: 2013-09-18 16:34:26
 -- Diagram Version: 
 -- =============================================================================
 
@@ -24,8 +24,8 @@ CREATE TABLE "images" (
 	"bid" int4,
 	"uid" int4,
 	"filename" text,
-	"source_filesize" int4,
-	"source_crc32" text,
+	"source_filesize" int4 DEFAULT 0,
+	"source_crc32" int4 DEFAULT 0,
 	"source_md5" text,
 	"source_meta" text,
 	"source_magick" text,

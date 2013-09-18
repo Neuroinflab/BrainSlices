@@ -325,7 +325,12 @@ class TileBase(dbBase):
 
     #TODO: check for batch existence???
 
-    return dict((x[0], x[1:]) for x in cursor.fetchall())
+    return dict((iid, (status, image_crc32, invalid,
+                       format(source_crc32 & 0xffffffff, '08x'),
+                       source_filesize, declared_size, filename)) \
+                for (iid, status, image_crc32, invalid, source_crc32,
+                     source_filesize, declared_size, filename) \
+                in cursor.fetchall())
 
   @provideCursor
   def closeBatch(self, uid, bid, comment = None, cursor = None):
@@ -444,9 +449,8 @@ class TileBase(dbBase):
     iid = cursor.fetchone()[0]
     cursor.execute("""
                    INSERT INTO images(iid, uid, status, source_md5, filename,
-                                      declared_size, bid,
-                                      source_filesize, source_crc32)
-                   VALUES(%s, %s, %s, %s, %s, %s, %s, 0, '00000000');
+                                      declared_size, bid)
+                   VALUES(%s, %s, %s, %s, %s, %s, %s);
                    """, (iid, uid, IMAGE_STATUS_UPLOADING, imageHash, filename, file_size, bid))
     return str(iid)
 
@@ -486,9 +490,8 @@ class TileBase(dbBase):
 
     cursor.execute("""
                    INSERT INTO images(iid, status, uid, filename,
-                                      source_crc32, source_filesize,
                                       declared_size, bid)
-                   VALUES(%s, %s, %s, %s, '00000000', 0, %s, %s);
+                   VALUES(%s, %s, %s, %s, %s, %s);
                    """, (iid, IMAGE_STATUS_RECEIVING, uid, filename,
                          declared_size, bid))
     return iid
@@ -516,8 +519,7 @@ class TileBase(dbBase):
                    WHERE iid = %s;
                    """, (iid,))
 
-    crc32, size, filename, todo = cursor.fetchone()
-    return int(crc32, 16), size, filename, todo
+    return cursor.fetchone()
 
   @provideCursor
   def updateUploadSlot(self, iid, crc32, size, finish = False, launch = True, cursor = None):
@@ -528,7 +530,7 @@ class TileBase(dbBase):
                    """, (iid,))
     if cursor.rowcount == 1:
       _size, _crc32 = cursor.fetchone()
-      crc32 = crc32_combine(int(_crc32, 16), crc32, size)
+      crc32 = crc32_combine(_crc32, crc32, size)
       size += _size
 
     cursor.execute("""
@@ -536,7 +538,7 @@ class TileBase(dbBase):
                    SET source_crc32 = %s, source_filesize = %s, status = %s,
                        upload_end = now()
                    WHERE iid = %s;
-                   """, (format(crc32 & 0xffffffff, "08x"), size,
+                   """, (ctypes.c_int32(crc32).value, size,
                          IMAGE_STATUS_RECEIVED if finish else IMAGE_STATUS_UPLOADING,
                          iid))
     if cursor.rowcount == 1:
@@ -555,7 +557,7 @@ class TileBase(dbBase):
                    SET source_crc32 = %s, source_filesize = %s, status = %s,
                        upload_end = now()
                    WHERE iid = %s;
-                   """, (format(crc32 & 0xffffffff, "08x"), size,
+                   """, (ctypes.c_int32(crc32).value, size,
                          IMAGE_STATUS_RECEIVED if finish else IMAGE_STATUS_UPLOADING,
                          iid))
     if cursor.rowcount == 1:
@@ -685,12 +687,6 @@ class TileBase(dbBase):
       return cursor.fetchone()
 
     raise KeyError("Source image #%d not found in processing queue." % iid)
-
-  def identificationFailed(self, iid, invalid, cursor = None):
-    """
-    An alias to C{self.L{imageInvalid}(iid, invalid, cursor = cursor)}
-    """
-    return self.imageInvalid(iid, invalid, cursor = cursor)
 
   @provideCursor
   def imageInvalid(self, iid, invalid, cursor = None):
