@@ -227,7 +227,7 @@ class TileBase(dbBase):
               'tileWidth': row[4],
               'tileHeight': row[5],
               'pixelSize': row[6],
-              'crc32': row[7],
+              'crc32': row[7], # previously was a hex string
               'md5': row[8]}
 
     return None
@@ -324,8 +324,10 @@ class TileBase(dbBase):
                      """, (uid,))
 
     #TODO: check for batch existence???
+    #TODO: send crc32 as int?
 
-    return dict((iid, (status, image_crc32, invalid,
+    return dict((iid, (status,
+                       format(image_crc32 & 0xffffffff, '08x') if image_crc32 != None else None, invalid,
                        format(source_crc32 & 0xffffffff, '08x'),
                        source_filesize, declared_size, filename)) \
                 for (iid, status, image_crc32, invalid, source_crc32,
@@ -715,7 +717,7 @@ class TileBase(dbBase):
                        source_magick = %s, image_md5 = %s
                    WHERE iid = %s;
                    """, (IMAGE_STATUS_IDENTIFIED, invalid, width, height,
-                         format(crc32 & 0xffffffff, "08x"), meta, magick, md5,
+                         ctypes.c_int32(crc32).value, meta, magick, md5,
                          iid))
     if cursor.rowcount != 1:
       raise KeyError("ERROR: Unable to mark image #%d as identified." % iid)
@@ -756,21 +758,24 @@ class TileBase(dbBase):
   def deduplicate(self, cursor = None):
     #XXX WARNING: should be executed only when there is no tiling in progress!
     cursor.execute("""
-                   SELECT image_crc32, image_md5
-                   FROM (SELECT image_crc32, image_md5, COUNT(*) AS n
+                   SELECT image_crc32, image_md5, image_width, image_height
+                   FROM (SELECT image_crc32, image_md5, image_width,
+                                image_height, COUNT(*) AS n
                          FROM images
                          WHERE image_md5 IS NOT NULL
                                AND image_crc32 IS NOT NULL
                                AND iid = fid
-                         GROUP BY image_crc32, image_md5) AS foo
+                         GROUP BY image_crc32, image_md5, image_width,
+                                  image_height) AS foo
                    WHERE n > 1;
                    """)
     rows = cursor.fetchall()
     for row in rows:
       cursor.execute("""
-                     SELECT fid, tile_width, tile_height
+                     SELECT DISTINCT fid, tile_width, tile_height
                      FROM images
-                     WHERE image_crc32 = %s AND image_md5 = %s
+                     WHERE image_crc32 = %s AND image_md5 = %s AND
+                           image_width = %s AND image_height = %s
                      ORDER BY fid;
                      """, row)
       suspected = cursor.fetchall()

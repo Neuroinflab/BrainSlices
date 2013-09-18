@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2013-09-18 16:34:26
+-- Created on: 2013-09-18 17:37:28
 -- Diagram Version: 
 -- =============================================================================
 
@@ -17,7 +17,7 @@ CREATE TABLE "images" (
 	"tile_width" int4,
 	"tile_height" int4,
 	"pixel_size" float4,
-	"image_crc32" text,
+	"image_crc32" int4,
 	"image_md5" text,
 	"invalid" text,
 	"status" int4 NOT NULL DEFAULT 0,

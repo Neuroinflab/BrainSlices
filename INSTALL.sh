@@ -114,19 +114,6 @@ getDbUser()
 
 getDbUser
 
-#read -s -p "Database user's password: " BS_DB_PASSWORD
-#echo
-#read -s -p "Confirm database user's password: " BS_DB_PASSWORD2
-#echo
-#while [ "$BS_DB_PASSWORD" != "$BS_DB_PASSWORD2" ]
-#  do
-#    echo "Passwords do not match."
-#    read -s -p "Database user'spassword: " BS_DB_PASSWORD
-#    echo
-#    read -s -p "Confirm database user's password: " BS_DB_PASSWORD2
-#    echo
-#  done
-
 getDbMaintenance()
 {
   echo "Please enter the database's maintenance role (existing one) you want to use"
@@ -305,19 +292,16 @@ echo "threads: $BS_TILER_THREADS" >> "$BS_CONFIG"
 echo "memory: $BS_TILER_MEMORY" >> "$BS_CONFIG"
 
 
-#sudo su postgres
-#createuser -P skwarki
-#createdb -O skwarki CracklingsDB
-#psql -f sql/create_database.sql CracklingsDB
-#exit
 cd auxilaryScripts/imageProcessing
 make all
 cd ../..
 
+DOWNLOAD_BRAINMAPS=No
+
 read -p 'Create service user? [Y/n]: ' SERVICE_USER_CREATE
 if [ "${SERVICE_USER_CREATE::1}" == "y" ] || [ "${SERVICE_USER_CREATE::1}" == "Y" ] || [ "$SERVICE_USER_CREATE" == "" ]
   then
-    read -p 'Service user login: [admin]' SERVICE_USER_LOGIN
+    read -p 'Service user login [admin]: ' SERVICE_USER_LOGIN
     if [ "$SERVICE_USER_LOGIN" == "" ]
       then
         SERVICE_USER_LOGIN=admin
@@ -326,18 +310,38 @@ if [ "${SERVICE_USER_CREATE::1}" == "y" ] || [ "${SERVICE_USER_CREATE::1}" == "Y
     askPassw "$SERVICE_USER_LOGIN password"
     UserID=`python auxilaryScripts/addUser.py -l $SERVICE_USER_LOGIN -p $ANS`
     
-    read -p 'Download example images? [y/N]: ' DOWNLOAD_BRAINMAPS
-    if [ "${DOWNLOAD_BRAINMAPS::1}" == "y" ] || [ "${DOWNLOAD_BRAINMAPS::1}" == "Y" ]
-      then
-        UserID=`python auxilaryScripts/addUser.py -l admin -p password`
-        python auxilaryScripts/getBrainmapsTiles.py $UserID sourceImages
-        python auxilaryScripts/tileImage.py sourceImages/050.jpg -x 256 -y 256 -p 14.72 demo/images/050 -q 75 -X -7948.8 -Y -7728
-        python auxilaryScripts/tileImage.py sourceImages/051.jpg -x 256 -y 256 -p 14.72 demo/images/051 -q 75 -X -8390.4 -Y -7602.88
-        python auxilaryScripts/tileImage.py sourceImages/052.jpg -x 256 -y 256 -p 14.72 demo/images/052 -q 75 -X -8390.4 -Y -7529.28
-        python auxilaryScripts/tileImage.py sourceImages/053.jpg -x 256 -y 256 -p 14.72 demo/images/053 -q 75 -X -9494.4 -Y -7728
-        python auxilaryScripts/tileImage.py sourceImages/054.jpg -x 256 -y 256 -p 14.72 demo/images/054 -q 75 -X -8611.2 -Y -7529.28
-        python auxilaryScripts/tileImage.py sourceImages/055.jpg -x 256 -y 256 -p 14.72 demo/images/055 -q 75 -X -8390.4 -Y -7602.88
-      fi
+    read -p 'Download example images for service? [y/N]: ' DOWNLOAD_BRAINMAPS
+
   fi
+
+if [ "${DOWNLOAD_BRAINMAPS::1}" == "y" ] || [ "${DOWNLOAD_BRAINMAPS::1}" == "Y" ]
+  then
+    python auxilaryScripts/getBrainmapsTiles.py $UserID sourceImages
+    OFFLINE_DEMO=Yes
+
+  else
+    read -p 'Download images for offline demo? [Y/n]: ' OFFLINE_DEMO
+    if [ "${OFFLINE_DEMO::1}" == "y" ] || [ "${OFFLINE_DEMO::1}" == "Y" ] || [ "$OFFLINE_DEMO" == "" ]
+      then
+        wget http://brainmaps.org/HBP-JPG/42/050.jpg -dc -O sourceImages/050.jpg
+        wget http://brainmaps.org/HBP-JPG/42/051.jpg -dc -O sourceImages/051.jpg
+        wget http://brainmaps.org/HBP-JPG/42/052.jpg -dc -O sourceImages/052.jpg
+        wget http://brainmaps.org/HBP-JPG/42/053.jpg -dc -O sourceImages/053.jpg
+        wget http://brainmaps.org/HBP-JPG/42/054.jpg -dc -O sourceImages/054.jpg
+        wget http://brainmaps.org/HBP-JPG/42/055.jpg -dc -O sourceImages/055.jpg
+      fi
+
+  fi
+
+if [ "${OFFLINE_DEMO::1}" == "y" ] || [ "${OFFLINE_DEMO::1}" == "Y" ] || [ "$OFFLINE_DEMO" == "" ]
+  then
+    python auxilaryScripts/tileImage.py sourceImages/050.jpg -x 256 -y 256 -p 14.72 demo/images/050 -q 75 -X -7948.8 -Y -7728
+    python auxilaryScripts/tileImage.py sourceImages/051.jpg -x 256 -y 256 -p 14.72 demo/images/051 -q 75 -X -8390.4 -Y -7602.88
+    python auxilaryScripts/tileImage.py sourceImages/052.jpg -x 256 -y 256 -p 14.72 demo/images/052 -q 75 -X -8390.4 -Y -7529.28
+    python auxilaryScripts/tileImage.py sourceImages/053.jpg -x 256 -y 256 -p 14.72 demo/images/053 -q 75 -X -9494.4 -Y -7728
+    python auxilaryScripts/tileImage.py sourceImages/054.jpg -x 256 -y 256 -p 14.72 demo/images/054 -q 75 -X -8611.2 -Y -7529.28
+    python auxilaryScripts/tileImage.py sourceImages/055.jpg -x 256 -y 256 -p 14.72 demo/images/055 -q 75 -X -8390.4 -Y -7602.88
+  fi
+
 cd demo
 ln -s ../server/static .
