@@ -32,6 +32,14 @@ import subprocess
 from database import provideCursor, dbBase
 
 
+import ctypes
+import ctypes.util
+_zlib = ctypes.cdll.LoadLibrary(ctypes.util.find_library('z'))
+assert _zlib._name, "Unable to load zlib with ctype"
+def crc32_combine(crc1, crc2, len2):
+  return 0xffffffff & _zlib.crc32_combine(crc1, crc2, len2)
+
+
 IMAGE_STATUS_UPLOADING = 0
 IMAGE_STATUS_RECEIVING = 1
 IMAGE_STATUS_RECEIVED = 2
@@ -435,8 +443,10 @@ class TileBase(dbBase):
     cursor.execute("SELECT nextval('images_iid_seq');")
     iid = cursor.fetchone()[0]
     cursor.execute("""
-                   INSERT INTO images(iid, uid, status, source_md5, filename, declared_size, bid)
-                   VALUES(%s, %s, %s, %s, %s, %s, %s);
+                   INSERT INTO images(iid, uid, status, source_md5, filename,
+                                      declared_size, bid,
+                                      source_filesize, source_crc32)
+                   VALUES(%s, %s, %s, %s, %s, %s, %s, 0, '00000000');
                    """, (iid, uid, IMAGE_STATUS_UPLOADING, imageHash, filename, file_size, bid))
     return str(iid)
 
@@ -510,6 +520,35 @@ class TileBase(dbBase):
     return int(crc32, 16), size, filename, todo
 
   @provideCursor
+  def updateUploadSlot(self, iid, crc32, size, finish = False, launch = True, cursor = None):
+    cursor.execute("""
+                   SELECT source_filesize, source_crc32
+                   FROM images
+                   WHERE iid = %s;
+                   """, (iid,))
+    if cursor.rowcount == 1:
+      _size, _crc32 = cursor.fetchone()
+      crc32 = crc32_combine(int(_crc32, 16), crc32, size)
+      size += _size
+
+    cursor.execute("""
+                   UPDATE images
+                   SET source_crc32 = %s, source_filesize = %s, status = %s,
+                       upload_end = now()
+                   WHERE iid = %s;
+                   """, (format(crc32 & 0xffffffff, "08x"), size,
+                         IMAGE_STATUS_RECEIVED if finish else IMAGE_STATUS_UPLOADING,
+                         iid))
+    if cursor.rowcount == 1:
+      if finish and launch:
+#         pass
+        launchImageTiling(iid)
+
+      return True
+
+    return False
+
+  @provideCursor
   def writeUploadSlot(self, iid, crc32, size, finish = False, launch = True, cursor = None):
     cursor.execute("""
                    UPDATE images
@@ -562,17 +601,20 @@ class TileBase(dbBase):
       filepath = os.path.join(self.sourceDir, "%s" % iid) 
       slot.finish(filepath)
     
-      filesystem_size = 0
+      filesystemSize = 0
       if os.path.isfile(filepath):
-        filesystem_size = int(os.path.getsize(filepath)) 
+        filesystemSize = int(os.path.getsize(filepath)) 
 
-      declared_size = self.getDeclaredFileSize(iid)
-      if filesystem_size == declared_size:  # Check the declared_filesize in DB with existing filesize in FileSystem
-        self.writeUploadSlot(iid, slot.crc32, declared_size, True)
-      else:
-        self.writeUploadSlot(iid, slot.crc32, filesystem_size, False)
-    
-    return iid
+      dbSize, declaredSize = self.getSourceFileSize(iid)
+      computedSize = dbSize + slot.size
+
+      if filesystemSize == computedSize:
+        self.updateUploadSlot(iid, slot.crc32, slot.size,
+                              computedSize == declaredSize)
+        return iid
+
+      self.imageInvalid(iid, "Filesystem size mismatches database size.")
+      return None
 
   @provideCursor
   def getDeclaredFileSize(self, iid, cursor = None):
@@ -581,6 +623,19 @@ class TileBase(dbBase):
     '''
     cursor.execute('SELECT declared_size from images where iid = %s', (iid,))
     return cursor.fetchone()[0]
+  
+  @provideCursor
+  def getSourceFileSize(self, iid, cursor = None):
+    '''
+    Returns the declared filesize from DB
+    '''
+    cursor.execute("""
+                   SELECT source_filesize, declared_size
+                   FROM images
+                   WHERE iid = %s;
+                   """, (iid,))
+    if cursor.rowcount == 1:
+      return cursor.fetchone()
   
   @provideCursor
   def removeIids(self, iids, cursor = None):
@@ -631,9 +686,23 @@ class TileBase(dbBase):
 
     raise KeyError("Source image #%d not found in processing queue." % iid)
 
-  @provideCursor
   def identificationFailed(self, iid, invalid, cursor = None):
-    # mark image as invalid
+    """
+    An alias to C{self.L{imageInvalid}(iid, invalid, cursor = cursor)}
+    """
+    return self.imageInvalid(iid, invalid, cursor = cursor)
+
+  @provideCursor
+  def imageInvalid(self, iid, invalid, cursor = None):
+    """
+    Mark image as invalid.
+
+    @param iid: Image identifier.
+    @type iid: int
+
+    @param invalid: Comment on image invalidity.
+    @type invalid: str or unicode
+    """
     cursor.execute("""
                    UPDATE images
                    SET status = %s, invalid = %s

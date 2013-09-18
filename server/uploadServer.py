@@ -106,6 +106,9 @@ class UploadGenerator(Generator):
       if isinstance(theFile.file, UploadSlot):
         slot = theFile.file
 
+        if hasattr(theFile, 'slot'):
+          del theFile.slot
+
       else:
         value = theFile.value
         slot = UploadSlot(self.uploadDir)
@@ -135,6 +138,8 @@ class UploadGenerator(Generator):
                       'iid': iid,
                       'size': slot.size,
                       'crc32': format(slot.crc32 & 0xffffffff, "08x")})
+
+
       
     return generateJson(summary, logged = True)
 
@@ -294,24 +299,25 @@ class UploadServer(Server):
         return self.slot
 
       def __del__(self):
-        try:
-          iid = int(cherrypy.request.headers['IID'])
-        except:
-          raise cherrypy.HTTPError("400 Bad request",
-                                   "Bad value (%s) of IID field." % \
-                                   cherrypy.request.headers['IID'])
-        try:
-          actioniid = int(cherrypy.request.headers['ACTIONONIID'])
-        except:
-          raise cherrypy.HTTPError("400 Bad request",
-                                   "Bad value (%s) of ACTIONONIID field." % \
-                                   cherrypy.request.headers['ACTIONONIID'])
+        if hasattr(self, 'slot'):
+          try:
+            iid = int(cherrypy.request.headers['IID'])
+          except:
+            raise cherrypy.HTTPError("400 Bad request",
+                                     "Bad value (%s) of IID field." % \
+                                     cherrypy.request.headers['IID'])
+          try:
+            actioniid = int(cherrypy.request.headers['ACTIONONIID'])
+          except:
+            raise cherrypy.HTTPError("400 Bad request",
+                                     "Bad value (%s) of ACTIONONIID field." % \
+                                     cherrypy.request.headers['ACTIONONIID'])
 
-        iid =  generator.tileBase.saveSlotAndFinishUpload(
-                        self.slot, 
-                        iid, 
-                        cherrypy.request.headers['ACTION'],
-                        actioniid)
+          iid =  generator.tileBase.saveSlotAndFinishUpload(
+                          self.slot, 
+                          iid, 
+                          cherrypy.request.headers['ACTION'],
+                          actioniid)
       
     formFields = myFieldStorage(fp=cherrypy.request.rfile,
                                 headers=cherrypy.request.headers,
