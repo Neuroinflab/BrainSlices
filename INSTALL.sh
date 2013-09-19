@@ -22,24 +22,94 @@
 
 askPassw ()
 {
+  if [ "$#" -eq "0" ] || [ "$#" -gt "2" ]
+    then
+      echo "ERROR: should be $0 <password owner> [<variable name>]"
+      return
+    fi
+
+  local VAR=ANS
+  if [ "$#" -gt "1" ]
+    then
+      VAR=$2
+    fi
+
   local PASSWORD
   read -s -p "Input $1: " PASSWORD
   echo
-  read -s -p "Confirm $1: " ANS
+  read -s -p "Confirm $1: " $VAR
   echo
-  while [ "$PASSWORD" != "$ANS" ]
+  while [ "$PASSWORD" != "${!VAR}" ]
     do
       echo "Passwords do not match."
-      read -s -p "Database user'spassword: " PASSWORD
+      read -s -p "Input $1: " PASSWORD
       echo
-      read -s -p "Confirm database user's password: " ANS
+      read -s -p "Confirm $1: " $VAR
       echo
     done
 }
 
-echo "Do you want to fetch required packages?"
-read -p "(Operation requires sudo privileges.) [y/N]: " FETCH_PACKAGES
-if [ "${FETCH_PACKAGES::1}" == "y" ] || [ "${FETCH_PACKAGES}" == "Y" ]
+askPrompt ()
+{
+  if [ "$#" -eq "0" ]
+    then
+      echo "ERROR: no prompt given"
+      return
+    fi
+
+  local PROMPT="$1: "
+  if [ "$#" -gt "1" ] && [ "$2" != "" ]
+    then
+      PROMPT="$1 [$2]: "
+    fi
+
+  local VAR=ANS
+  if [ "$#" -gt "2" ]
+    then
+      VAR=$3
+    fi
+
+  read -p "$PROMPT" $VAR
+  if [ "${!VAR}" == "" ] && [ "$#" -gt "1" ]
+    then
+      eval $VAR="$2"
+    fi
+}
+
+askBool ()
+{
+  if [ "$#" -eq "0" ]
+    then
+      echo "ERROR: should be $0 <prompt> [<defaults [y/N]> [<variable name>]]"
+      return
+    fi
+
+  local DEFAULT="N/y"
+  if [ "$#" -gt "1" ] && ( [ "${2::1}" == "y" ] || [ "${2::1}" == "Y" ] )
+    then
+      DEFAULT="Y/n"
+    fi
+
+  local VAR=ANS
+  if [ "$#" -gt "2" ]
+    then
+      VAR=$3
+    fi
+
+  askPrompt "$1" "$DEFAULT" $VAR
+
+  if [ "${!VAR::1}" == "y" ] || [ "${!VAR::1}" == "Y" ]
+    then
+      eval $VAR="Y"
+      return
+    fi
+
+  eval $VAR="N"
+  false
+}
+
+if askBool "Do you want to fetch required packages?
+(Operation requires sudo privileges.)" N #FETCH_PACKAGES
   then
     sudo apt-get install libmagick++-dev libboost-thread-dev libboost-system-dev python-cherrypy3 postgresql postgresql-client libssl-dev python-psycopg2
   fi
@@ -50,12 +120,7 @@ echo "Please provide every variable with no default value."
 echo
 
 CURRENT_DIR=`pwd`
-read -p "Installation directory [$CURRENT_DIR]: " INSTALL_DIR
-if [ "$INSTALL_DIR" == "" ]
-  then
-    INSTALL_DIR=$CURRENT_DIR
-  fi
-
+askPrompt "Installation directory" "$CURRENT_DIR" INSTALL_DIR
 cat app.conf.template | sed -e "s|\${pwd}|$INSTALL_DIR|" > "$INSTALL_DIR/server/app.conf"
 
 mkdir -p "$INSTALL_DIR/sourceImages"
@@ -66,17 +131,9 @@ mkdir -p "$INSTALL_DIR/server/uploadSlots"
 mkdir -p "$INSTALL_DIR/server/sourceImages"
 mkdir -p "$INSTALL_DIR/server/tilingLogs"
 
-read -p "BrainSlices host [localhost]: " BS_HOST
-if [ "$BS_HOST" == "" ]
-  then
-    BS_HOST=localhost
-  fi
+askPrompt "BrainSlices host" localhost BS_HOST
+askPrompt "BrainSlices port" 80 BS_PORT
 
-read -p "BrainSlices port [80]: " BS_PORT
-if [ "$BS_PORT" == "" ]
-  then
-    BS_PORT=80
-  fi
 cat site.conf.template | sed -e "s|\${host}|$BS_HOST|; s|\${port}|$BS_PORT| " > "$INSTALL_DIR/server/site.conf"
 
 BS_CONFIG="$INSTALL_DIR/server/brainslices.conf"
@@ -86,47 +143,27 @@ echo "Now it is time to configure database for your server. You can use existing
 echo "database and user, or create new (sudo privileges required)."
 echo
 echo '[SQL Database]' > "$BS_CONFIG"
-read -p 'PostgreSQL database server host [localhost]: ' BS_DB_HOST
-if [ "$BS_DB_HOST" == "" ]
-  then
-    BS_DB_HOST=localhost
-  fi
 
-read -p 'PostgreSQL database port [5432]: ' BS_DB_PORT
-if [ "$BS_DB_PORT" == "" ]
-  then
-    BS_DB_PORT=5432
-  fi
-
-read -p 'Do you want to create a new database user? [y/N]: ' NEW_DB_USER
+askPrompt "PostgreSQL database server host" localhost BS_DB_HOST
+askPrompt "PostgreSQL database port" 5432 BS_DB_PORT
 
 getDbUser()
 {
-  read -p 'PostgreSQL database user [skwarki]: ' BS_DB_USER
-  if [ "$BS_DB_USER" == "" ]
-    then
-      BS_DB_USER=skwarki
-    fi
-  
+  askPrompt "PostgreSQL database user" skwarki BS_DB_USER
   askPassw "database user's password"
   BS_DB_PASSWORD="$ANS"
 }
-
-getDbUser
 
 getDbMaintenance()
 {
   echo "Please enter the database's maintenance role (existing one) you want to use"
   echo "when creating new user. You might be asked to input role's password."
-  read -p "Maintenance role [postgres]: " DB_USER
-  if [ "$DB_USER" == "" ]
-    then
-      DB_USER=postgres
-    fi
+  askPrompt "Maintenance role" postgres DB_USER
 }
 
-if [ "${NEW_DB_USER::1}" == "y" ] || [ "${NEW_DB_USER::1}" == "Y" ]
+if askBool "Do you want to create a new database user?" N #NEW_DB_USER
   then
+    getDbUser
     if [ "$BS_DB_HOST" == "localhost" ]
       then
         until sudo su postgres -c "psql -c \"CREATE ROLE $BS_DB_USER LOGIN PASSWORD '$BS_DB_PASSWORD'; \""
@@ -145,9 +182,10 @@ if [ "${NEW_DB_USER::1}" == "y" ] || [ "${NEW_DB_USER::1}" == "Y" ]
             getDbMaintenance
           done
       fi
-  fi
 
-read -p 'Do you want to create a new database? [y/N]: ' NEW_DB
+  else
+    getDbUser
+  fi
 
 getDb()
 {
@@ -164,10 +202,9 @@ getDb()
     fi
 }
 
-getDb
-
-if [ "${NEW_DB::1}" == "y" ] || [ "${NEW_DB::1}" == "Y" ]
+if askBool "Do you want to create a new database?" N #NEW_DB
   then
+    getDb
     if [ "$BS_DB_HOST" == "localhost" ]
       then
         until sudo su postgres -c "createdb -O $BS_DB_USER -E $BS_DB_ENCODING $BS_DB_NAME"
@@ -186,14 +223,17 @@ if [ "${NEW_DB::1}" == "y" ] || [ "${NEW_DB::1}" == "Y" ]
             getDbMaintenance
           done
       fi
+
+  else
+    getDb
   fi
 
-read -p 'Reset the database? [y/N]: ' SETUP_DB
-if [ "${SETUP_DB::1}" == "y" ] || [ "${SETUP_DB::1}" == "Y" ]
+if askBool "Reset the database?" N SETUP_DB
   then
     if [ "$BS_DB_USER" == "skwarki" ]
       then
         cp sql/create_database.sql sql/temp.sql
+
       else
         cat sql/create_database.sql | sed -e "s|skwarki|$BS_DB_USER|" > sql/temp.sql
       fi
@@ -201,6 +241,7 @@ if [ "${SETUP_DB::1}" == "y" ] || [ "${SETUP_DB::1}" == "Y" ]
     if [ "$BS_DB_HOST" == "localhost" ]
       then
         sudo su postgres -c "psql -f sql/temp.sql $BS_DB_NAME"
+
       else
         getDbMaintenance
         until psql -h $BS_DB_HOST -p $BS_DB_PORT -f sql/temp.sql $BS_DB_NAME
@@ -218,39 +259,12 @@ echo "name: $BS_DB_NAME" >> "$BS_CONFIG"
 echo "password: $BS_DB_PASSWORD" >> "$BS_CONFIG"
 echo "encoding: $BS_DB_ENCODING" >> "$BS_CONFIG"
 
-read -p 'Email host [localhost]: ' BS_EMAIL_SERVER
-if [ "$BS_EMAIL_SERVER" == "" ]
-  then
-    BS_EMAIL_SERVER=localhost
-  fi
-read -p 'Email port [587]: ' BS_EMAIL_PORT
-if [ "$BS_EMAIL_PORT" == "" ]
-  then
-    BS_EMAIL_PORT=587
-  fi
-read -p 'Email login: ' BS_EMAIL_LOGIN
-read -s -p 'Email password: ' BS_EMAIL_PASSWORD
-echo
-read -s -p 'Confirm email password: ' BS_EMAIL_PASSWORD2
-echo
-while [ "$BS_EMAIL_PASSWORD" != "$BS_EMAIL_PASSWORD2" ]
-  do
-    echo "Passwords do not match."
-    read -s -p 'Email password: ' BS_EMAIL_PASSWORD
-    echo
-    read -s -p 'Confirm email password: ' BS_EMAIL_PASSWORD2
-    echo
-  done
-read -p "Email address [$BS_EMAIL_LOGIN@$BS_EMAIL_SERVER]: " BS_EMAIL_ADDRESS
-if [ "$BS_EMAIL_ADDRESS" == "" ]
-  then
-    BS_EMAIL_ADDRESS="$BS_EMAIL_LOGIN@$BS_EMAIL_SERVER"
-  fi
-read -p 'Email encoding [utf-8]: ' BS_EMAIL_ENCODING
-if [ "$BS_EMAIL_ENCODING" == "" ]
-  then
-    BS_EMAIL_ENCODING=utf-8
-  fi
+askPrompt "Email host" localhost BS_EMAIL_SERVER
+askPrompt "Email port" 587 BS_EMAIL_PORT
+askPrompt "Email login" "" BS_EMAIL_LOGIN
+askPassw "email password" BS_EMAIL_PASSWORD
+askPrompt "Email address" "$BS_EMAIL_LOGIN@$BS_EMAIL_SERVER" BS_EMAIL_ADDRESS
+askPrompt "Email encoding" "utf-8" BS_EMAIL_ENCODING
 
 echo  >> "$BS_CONFIG"
 echo '[Email]' >> "$BS_CONFIG"
@@ -267,22 +281,20 @@ if [ "$BS_PORT" == "80" ]
   else
     BS_SERVER="$BS_HOST:$BS_PORT"
   fi
-read -p "Service host and port for external users [$BS_SERVER]: " BS_SERVICE_SERVER
-if [ "$BS_SERVICE_SERVER" == "" ]
-  then
-    BS_SERVICE_SERVER="$BS_SERVER"
-  fi
+
+askPrompt "Service host and port for external users" "$BS_SERVER" BS_SERVICE_SERVER
 echo  >> "$BS_CONFIG"
 echo '[Service]' >> "$BS_CONFIG"
 echo "server: $BS_SERVICE_SERVER" >> "$BS_CONFIG"
 
-read -p 'Tiler threads [1]: ' BS_TILER_THREADS
-if [ "$BS_TILER_THREADS" == "" ] || [ "$BS_TILER_THREADS" -lt "1" ]
+askPrompt "Tiler threads" 1 BS_TILER_THREADS
+if [ "$BS_TILER_THREADS" -lt "1" ]
   then
     BS_TILER_THREADS=1
   fi
-read -p 'Tiler memory [536870912] : ' BS_TILER_MEMORY
-if [ "$BS_TILER_MEMORY" == "" ] || [ "$BS_TILER_MEMORY" -lt "0" ]
+
+askPrompt "Tiler memory" 536870912 BS_TILER_MEMORY
+if [ "$BS_TILER_MEMORY" -lt "0" ]
   then
     BS_TILER_MEMORY=536870912
   fi
@@ -296,32 +308,28 @@ cd auxilaryScripts/imageProcessing
 make all
 cd ../..
 
-DOWNLOAD_BRAINMAPS=No
+DOWNLOAD_BRAINMAPS=N
 
-read -p 'Create service user? [Y/n]: ' SERVICE_USER_CREATE
-if [ "${SERVICE_USER_CREATE::1}" == "y" ] || [ "${SERVICE_USER_CREATE::1}" == "Y" ] || [ "$SERVICE_USER_CREATE" == "" ]
+#read -p 'Create service user? [Y/n]: ' SERVICE_USER_CREATE
+#if [ "${SERVICE_USER_CREATE::1}" == "y" ] || [ "${SERVICE_USER_CREATE::1}" == "Y" ] || [ "$SERVICE_USER_CREATE" == "" ]
+
+if askBool "Create service user?" Y SERVICE_USER_CREATE
   then
-    read -p 'Service user login [admin]: ' SERVICE_USER_LOGIN
-    if [ "$SERVICE_USER_LOGIN" == "" ]
-      then
-        SERVICE_USER_LOGIN=admin
-      fi
-
+    askPrompt "Service user login" admin SERVICE_USER_LOGIN
     askPassw "$SERVICE_USER_LOGIN password"
     UserID=`python auxilaryScripts/addUser.py -l $SERVICE_USER_LOGIN -p $ANS`
-    
-    read -p 'Download example images for service? [y/N]: ' DOWNLOAD_BRAINMAPS
+
+    askBool "Download example images for service?" N DOWNLOAD_BRAINMAPS
 
   fi
 
-if [ "${DOWNLOAD_BRAINMAPS::1}" == "y" ] || [ "${DOWNLOAD_BRAINMAPS::1}" == "Y" ]
+if [ "$DOWNLOAD_BRAINMAPS" == "Y" ]
   then
     python auxilaryScripts/getBrainmapsTiles.py $UserID sourceImages
-    OFFLINE_DEMO=Yes
+    OFFLINE_DEMO=Y
 
   else
-    read -p 'Download images for offline demo? [Y/n]: ' OFFLINE_DEMO
-    if [ "${OFFLINE_DEMO::1}" == "y" ] || [ "${OFFLINE_DEMO::1}" == "Y" ] || [ "$OFFLINE_DEMO" == "" ]
+    if askBool "Download images for offline demo?" Y OFFLINE_DEMO
       then
         wget http://brainmaps.org/HBP-JPG/42/050.jpg -dc -O sourceImages/050.jpg
         wget http://brainmaps.org/HBP-JPG/42/051.jpg -dc -O sourceImages/051.jpg
@@ -333,7 +341,8 @@ if [ "${DOWNLOAD_BRAINMAPS::1}" == "y" ] || [ "${DOWNLOAD_BRAINMAPS::1}" == "Y" 
 
   fi
 
-if [ "${OFFLINE_DEMO::1}" == "y" ] || [ "${OFFLINE_DEMO::1}" == "Y" ] || [ "$OFFLINE_DEMO" == "" ]
+echo od $OFFLINE_DEMO
+if [ "$OFFLINE_DEMO" == "Y" ]
   then
     python auxilaryScripts/tileImage.py sourceImages/050.jpg -x 256 -y 256 -p 14.72 demo/images/050 -q 75 -X -7948.8 -Y -7728
     python auxilaryScripts/tileImage.py sourceImages/051.jpg -x 256 -y 256 -p 14.72 demo/images/051 -q 75 -X -8390.4 -Y -7602.88
