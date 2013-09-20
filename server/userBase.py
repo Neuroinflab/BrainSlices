@@ -89,13 +89,43 @@ class UserBase(dbBase):
                              FROM users
                              WHERE login = %s;
                              """, (login,))
-  
-  def loginUser(self, login, password = None):
+ 
+  @provideCursor
+  def loginUser(self, login, password = None, cursor = None):
     '''Returns user ID for a given login if given password matches. Returns None if given password doesn't match'''
-    row = self.__getUserRow(login, password)
-    if row == None:
+    query = """
+    SELECT uid, salt, %s
+    FROM users
+    WHERE login = %%s AND user_enabled AND first_login_date IS NOT NULL;
+    """
+    algs, devs = zip(*HashAlgorithms.items())
+    cursor.execute(query % (', '.join(algs)), (login,))
+    if cursor.rowcount != 1:
       return None
-    return row['uid']
+
+    row = cursor.fetchone()
+    uid, salt = row[:2]
+    setAlgs = []
+    setDevs = []
+    for alg, dev, hsh in zip(algs, devs, row[2:]):
+      if hsh is None:
+        setAlgs.append(alg)
+        setDevs.append(dev)
+
+      else:
+        if not dev.checkHash(login, password, salt, hsh):
+          return None
+
+    toSet = ['last_login_date = now()'] + ["%s = %%s" % alg for alg in setAlgs]
+    data = [dev.generateHash(login, password, salt) for dev in setDevs] + [uid]
+
+    query = """
+            UPDATE users
+            SET %s
+            WHERE uid = %%s
+            """ % (', '.join(toSet))
+    cursor.execute(query, data)
+    return uid
 
   def getUserLogin(self, uid, password = None):
     row = self.__getUserRowById(uid, password)
