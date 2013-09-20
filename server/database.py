@@ -133,7 +133,7 @@ class dbBase(object):
     @param value: default return value
     @type value: any
 
-    @param unwrap: True if only first firld of a row has to be returned, False
+    @param unwrap: True if only first field of a row has to be returned, False
                    otherwise.
     @type unwrap: bool
 
@@ -145,7 +145,10 @@ class dbBase(object):
             any otherwise
     """
     cursor.execute(query, data)
-    value = cursor.fetchone()
+    if cursor.rowcount == 1:
+      value = cursor.fetchone()
+      if unwrap:
+        return value[0]
 
     return value
   

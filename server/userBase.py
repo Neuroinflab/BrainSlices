@@ -82,8 +82,15 @@ class UserBase(dbBase):
   @provideCursor
   def __getUserRowById(self, uid, password = None, cursor = None):
     return  self.__getUserRowByColumn('uid', uid, password)
+
+  def getUserID(self, login):
+    return self._getOneValue("""
+                             SELECT uid
+                             FROM users
+                             WHERE login = %s;
+                             """, (login,))
   
-  def getUserId(self, login, password = None):
+  def loginUser(self, login, password = None):
     '''Returns user ID for a given login if given password matches. Returns None if given password doesn't match'''
     row = self.__getUserRow(login, password)
     if row == None:
@@ -204,7 +211,8 @@ class UserBase(dbBase):
 
   @provideCursor
   def deleteUser(self, login, password, cursor = None):
-    if not self.getUserId == None:
+    #TODO: WTF??? why testing method to be None?
+    if not self.loginUser == None:
       delete_command = 'DELETE FROM users WHERE login = %(login)s'
       data = {'login': login}
       cursor.execute(delete_command, data)

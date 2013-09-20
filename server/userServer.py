@@ -53,7 +53,7 @@ class UserGenerator(Generator):
   def login(self, request):
     login = request.login
     password = request.password
-    uid = self.userBase.getUserId(login, password)
+    uid = self.userBase.loginUser(login, password)
     if uid != None:
       request.session['userID'] = uid
       message = 'logged in'

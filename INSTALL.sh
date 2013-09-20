@@ -202,7 +202,7 @@ getDb()
     fi
 }
 
-if askBool "Do you want to create a new database?" N #NEW_DB
+if askBool "Do you want to create a new database?" N NEW_DB
   then
     getDb
     if [ "$BS_DB_HOST" == "localhost" ]
@@ -228,8 +228,10 @@ if askBool "Do you want to create a new database?" N #NEW_DB
     getDb
   fi
 
-if askBool "Reset the database?" N SETUP_DB
+SETUP_DB=N
+if [ "$NEW_DB" == "Y" ] || askBool "Reset the database?" N
   then
+    SETUP_DB=Y
     if [ "$BS_DB_USER" == "skwarki" ]
       then
         cp sql/create_database.sql sql/temp.sql
@@ -308,23 +310,37 @@ cd auxilaryScripts/imageProcessing
 make all
 cd ../..
 
-DOWNLOAD_BRAINMAPS=N
+UserID=
 
-#read -p 'Create service user? [Y/n]: ' SERVICE_USER_CREATE
-#if [ "${SERVICE_USER_CREATE::1}" == "y" ] || [ "${SERVICE_USER_CREATE::1}" == "Y" ] || [ "$SERVICE_USER_CREATE" == "" ]
-
-if askBool "Create service user?" Y SERVICE_USER_CREATE
+if [ "$NEW_DB" == "N" ] || [ "$SETUP_DB" == "Y" ]
   then
-    askPrompt "Service user login" admin SERVICE_USER_LOGIN
-    askPassw "$SERVICE_USER_LOGIN password"
-    UserID=`python auxilaryScripts/addUser.py -l $SERVICE_USER_LOGIN -p $ANS`
-
-    askBool "Download example images for service?" N DOWNLOAD_BRAINMAPS
-
+    if askBool "Create a service user?" Y SERVICE_USER_CREATE
+      then
+        askPrompt "Service user login" admin SERVICE_USER_LOGIN
+        askPassw "$SERVICE_USER_LOGIN password" SERVICE_USER_PASSWORD
+        until UserID=`python auxilaryScripts/addUser.py -l "$SERVICE_USER_LOGIN" -p "$SERVICE_USER_PASSWORD"`
+          do
+            echo "An error has occured. Please try again."
+            askPrompt "Service user login" "$SERVICE_USER_LOGIN" SERVICE_USER_LOGIN
+            askPassw "$SERVICE_USER_LOGIN password" SERVICE_USER_PASSWORD
+          done
+    
+      fi
   fi
 
-if [ "$DOWNLOAD_BRAINMAPS" == "Y" ]
+# old database or new user created
+if ( [ "$SETUP_DB" == "N" ] || [ "$SERVICE_USER_CREATE" == "Y" ] ) && askBool "Download example images for service?" N DOWNLOAD_BRAINMAPS
   then
+    if [ "$UserID" == "" ]
+      then
+        askPrompt "Service user login" admin SERVICE_USER_LOGIN
+        until UserID=`python auxilaryScripts/getUser.py -l "$SERVICE_USER_LOGIN"`
+          do
+            echo "An error has occured. Please try again."
+            askPrompt "Service user login" "$SERVICE_USER_LOGIN" SERVICE_USER_LOGIN
+          done
+      fi
+
     python auxilaryScripts/getBrainmapsTiles.py $UserID sourceImages
     OFFLINE_DEMO=Y
 
@@ -341,7 +357,6 @@ if [ "$DOWNLOAD_BRAINMAPS" == "Y" ]
 
   fi
 
-echo od $OFFLINE_DEMO
 if [ "$OFFLINE_DEMO" == "Y" ]
   then
     python auxilaryScripts/tileImage.py sourceImages/050.jpg -x 256 -y 256 -p 14.72 demo/images/050 -q 75 -X -7948.8 -Y -7728
