@@ -189,17 +189,8 @@ if askBool "Do you want to create a new database user?" N #NEW_DB_USER
 
 getDb()
 {
-  read -p 'PostgreSQL database name [CracklingsDB]: ' BS_DB_NAME
-  if [ "$BS_DB_NAME" == "" ]
-    then
-      BS_DB_NAME=CracklingsDB
-    fi
-
-  read -p 'PostgreSQL database encoding [UTF8]: ' BS_DB_ENCODING
-  if [ "$BS_DB_ENCODING" == "" ]
-    then
-      BS_DB_ENCODING=UTF8
-    fi
+  askPrompt "PostgreSQL database name" "skwarki" BS_DB_NAME
+  askPrompt "PostgreSQL database encoding" "UTF8" BS_DB_ENCODING
 }
 
 if askBool "Do you want to create a new database?" N NEW_DB
@@ -369,3 +360,5 @@ if [ "$OFFLINE_DEMO" == "Y" ]
 
 cd demo
 ln -s ../server/static .
+
+chmod 600 "$BS_CONFIG"
