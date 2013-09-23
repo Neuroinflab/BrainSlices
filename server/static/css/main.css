@@ -20,7 +20,7 @@ div.overlay
   top:0px;
   bottom:0px;
   right:0px;
-  z-index:3000;
+  z-index:90;
   background:rgba(0,0,0,0.1);
   text-align:center;
 }

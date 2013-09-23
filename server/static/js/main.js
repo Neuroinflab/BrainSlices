@@ -474,13 +474,59 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton, onlogin, 
   
   this.loginManager = new CLoginManager(onlogin, onlogout, finalFunction);
 
-  this.closeManager = new CCloseableDiv($controlPanel, null,
-                                        function()
-                                        {
-                                          thisInstance.$controlPanel.find('.loginForm').val('');
-                                          onClose();
+  $controlPanel.dialog({
+    autoOpen: false,
+    height: 'auto',//300,
+    width: 'auto',//300,
+    modal: true,
+    draggable: false,
+    resizable: false,
+    position: {my: "center bottom",
+               at: "center center",
+               of: window},
+//    buttons: {
+//      "Login": function()
+//               {
+//                 var login = $form.find('input[name="login"]').val();
+//                 var password = $form.find('input[name="password"]').val();
+//
+//                 thisInstance.$controlPanel.find('.formErrorMessages').text('');
+//                 var permissionToGo = 1;
+//
+//                 if (login == '')
+//                 {
+//                   thisInstance.$controlPanel.find('.loginFieldError').text('enter a login');
+//                   permissionToGo = 0;
+//                 }
+//
+//                 if (password == '')
+//                 {
+//                   thisInstance.$controlPanel.find('.passwordFieldError').text('enter a password');
+//                   permissionToGo = 0;
+//                 }
+//
+//                 if (permissionToGo == 1)
+//                 {
+//                   thisInstance.login(login, password);
+//                 }
+//                 return false;
+//               }
+//      },
+    close: function()
+           {
+             thisInstance.$controlPanel.find('.loginForm').val('');
+             onClose();
+           }
+    });
+   
 
-                                        });
+  //this.closeManager = new CCloseableDiv($controlPanel, null,
+  //                                      function()
+  //                                      {
+  //                                        thisInstance.$controlPanel.find('.loginForm').val('');
+  //                                        onClose();
+
+  //                                      });
 }
 
 /*****************************************************************************\
@@ -490,7 +536,8 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton, onlogin, 
 \*****************************************************************************/
 CLoginConsole.prototype.showPanel = function()
 {
-  this.closeManager.open();
+  this.$controlPanel.dialog( 'open' );
+  //this.closeManager.open();
 }
 
 /*****************************************************************************\
@@ -504,7 +551,8 @@ CLoginConsole.prototype.destroy = function()
 //events awaiting
 //TODO: provide some kind of control (like in CLoginManager)
   this.loginManager.destroy();
-  this.closeManager.destroy();
+  this.$controlPanel.dialog( 'destroy' );
+//  this.closeManager.destroy();
 
   this.$panelShowButton.unbind('click',  this.panelShowButtonHandler);
   this.panelShowButtonHandler = null;
@@ -530,7 +578,8 @@ CLoginConsole.prototype.login = function(login, password)
   this.loginManager.login(login, password,
                           function(response)
                           {
-                            thisInstance.closeManager.close();
+                            //thisInstance.closeManager.close();
+                            thisInstance.$controlPanel.dialog( 'close' );
                           },
                           function(response)
                           {
