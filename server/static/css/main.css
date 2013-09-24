@@ -1,20 +1,37 @@
+*
+{
+  font-family: Helvetica, sans-serif;
+}
+
 div.modalwin
 {
   height:20xm;
   width:30em; 
   display: inline-block;
   text-align: left; 
-  padding: 40px 20px 20px;
-  border:2px solid ;
+  padding: 20px 20px 20px;
+  border: 2px solid #CCC;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
   font-size: 14px;
   z-index: 101;
-  background:#fff;
+  background: #fff;
+  color: #7F7F7F;
+  position: relative;
+}
+
+img.clickable_close
+{
+  position: absolute;
+  right: 10px;
+  top: 10px;
 }
 
 div.overlay
 {
   padding-top: 10%;
-
   position: absolute;
   left:0px;
   top:0px;
@@ -28,4 +45,18 @@ div.overlay
 .formErrorMessages
 {
   color: red;
+}
+
+select, input, textarea
+{ 
+  padding: 5px;
+  border: solid 1px #E5E5E5;
+  outline: 0;
+  /*font: normal 1.1em/100% Verdana, Tahoma, sans-serif;*/
+  font: normal 13px/100% Verdana, Tahoma, sans-serif;
+  background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+  background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+  box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
