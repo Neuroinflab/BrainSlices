@@ -160,7 +160,6 @@ $(document).ready(function()
                      {
                        $('#loginDiv').show();
                        $('#registerDiv').hide();
-                       $('.formErrorMessages').text('');
                        $('#registerOkDiv').hide('');
                        $('#regeneratePasswordDiv').hide('');
                        $('.regenerateForm').val('');
@@ -175,58 +174,60 @@ $(document).ready(function()
             $('.formErrorMessages').text('');
         });
 
-  $('#registerSubmit').click(function() 
+  $('form[name="registerForm"]').bind('submit',
+  function() 
   {
+    var login = $.trim($('#newLogin').val());
+    var nPassword = $('#registerPassword').val();
+    var cPassword = $('#confirmPassword').val();
+    var name = $.trim($('#name').val());
+    var eMail = $.trim($('#eMail').val());
 
-    $('.formErrorMessages').text('');
-    var permissionToGo = 1;
-    if ($('#newLogin').val() == '')
+    $('form[name="registerForm"] .formErrorMessages').hide().text('');
+    var permissionToGo = true;
+    if (login == '')
     {
-      $('#newLoginFieldError').text('provide a login');
-      permissionToGo = 0;
-    }
-
-    if ($('#registerPassword').val() == '')
-    {
-      $('#newPasswordFieldError').text('provide a login');
-      permissionToGo = 0;
-    }
-
-    if ($('#confirmPassword').val() == '')
-    {
-      $('#confirmPasswordFieldError').text('confirm new password');
-      permissionToGo = 0;
+      $('#newLoginFieldError').show().text('provide a login');
+      permissionToGo = false;
     }
 
-    if ($('#name').val() == '')
+    if (nPassword == '')
     {
-      $('#nameFieldError').text('provide a name');
-      permissionToGo = 0;
+      $('#newPasswordFieldError').show().text('provide a password');
+      permissionToGo = false;
     }
-    if ($('#registerPassword').val() == '')
+
+    if (cPassword == '')
     {
-      $('#newPasswordFieldError').text('provide a login');
-      permissionToGo = 0;
+      $('#confirmPasswordFieldError').show().text('confirm the password');
+      permissionToGo = false;
     }
-    if ($('#eMail').val() == '')
+
+    if (name == '')
     {
-      $('#eMailFieldError').text('provide an e-mail');
-      permissionToGo = 0;
+      $('#nameFieldError').show().text('provide a name');
+      permissionToGo = false;
     }
 
     if (nPassword != cPassword)
     {
-      $('#confirmPasswordFieldError').text("password and confirmation don't match");
-      permissionToGo = 0;
+      $('#confirmPasswordFieldError').show().text("passwords do not match");
+      permissionToGo = false;
     }
 
-    var login = $('#newLogin').val();
-    var nPassword = $('#registerPassword').val();
-    var cPassword = $('#confirmPassword').val();
-    var name = $('#name').val();
-    var eMail = $('#eMail').val();
-  
-    if (nPassword == cPassword)
+    if (eMail.match(/.+@.+/) == null)
+    {
+      $('#eMailFieldError').show().text('provide a valid e-mail address');
+      permissionToGo = false;
+    }
+    else if (eMail.match(/^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$/) == null && permissionToGo)
+    {
+      permissionToGo = confirm("Provided e-mail address is very unusual:\n" + eMail + ".\n"
+                               + "Do you want to continue with it?");
+    }
+
+
+    if (permissionToGo)
     {
       loginConsole.ajax('/user/registerUser',
                         function(response)
@@ -249,7 +250,8 @@ $(document).ready(function()
                           name: name,
                           email: eMail
                         });
-    } 
+    }
+    return false;
   });
 
   $('#backFromRegistrationOkDiv').click(function()

@@ -30,8 +30,8 @@ from datetime import datetime
 import re, simplejson
 
 LOGIN_RE = re.compile('^[a-z0-9-+_.*]+$')
-EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
-#XXX: too restrictive validation
+#EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
+EMAIL_RE = re.compile('^.+@.+$')
 
 def isstr(s):
   return type(s) is str or type(s) is unicode

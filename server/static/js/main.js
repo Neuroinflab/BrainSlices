@@ -433,18 +433,18 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton, onlogin, 
     var login = $form.find('input[name="login"]').val();
     var password = $form.find('input[name="password"]').val();
 
-    thisInstance.$controlPanel.find('.formErrorMessages').text('');
+    thisInstance.$controlPanel.find('.formErrorMessages').hide().text('');
     var permissionToGo = 1;
 
     if (login == '')
     {
-      thisInstance.$controlPanel.find('.loginFieldError').text('enter a login');
+      thisInstance.$controlPanel.find('.loginFieldError').show().text('enter a login');
       permissionToGo = 0;
     }
 
     if (password == '')
     {
-      thisInstance.$controlPanel.find('.passwordFieldError').text('enter a password');
+      thisInstance.$controlPanel.find('.passwordFieldError').show().text('enter a password');
       permissionToGo = 0;
     }
 
@@ -478,8 +478,11 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton, onlogin, 
                                         function()
                                         {
                                           thisInstance.$controlPanel.find('.loginForm').val('');
-                                          onClose();
-
+                                          thisInstance.$controlPanel.find('.formErrorMessages').hide().text('');
+                                          if (onClose != null)
+                                          {
+                                            onClose();
+                                          }
                                         });
 }
 
@@ -534,7 +537,7 @@ CLoginConsole.prototype.login = function(login, password)
                           },
                           function(response)
                           {
-                            alert(response.message);
+                            thisInstance.$controlPanel.find('.badPass').show().text(response.message);
                           });
 }
 
