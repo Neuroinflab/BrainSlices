@@ -33,3 +33,17 @@ function escapeHTML(s)
 {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
+
+function validEmail(email, question)
+{
+  if (email.match(/^.+@.+$/) == null)
+  {
+    return false;
+  }
+
+  if (question != null && email.match(/^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$/) == null)
+  {
+    return confirm(question);
+  }
+  return true;
+}

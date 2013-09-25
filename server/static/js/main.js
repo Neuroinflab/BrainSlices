@@ -430,7 +430,7 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton, onlogin, 
    *****************************************************/
   this.loginButtonHandler = function()
   {
-    var login = $form.find('input[name="login"]').val();
+    var login = $form.find('input[name="login"]').val().trim();
     var password = $form.find('input[name="password"]').val();
 
     thisInstance.$controlPanel.find('.formErrorMessages').hide().text('');

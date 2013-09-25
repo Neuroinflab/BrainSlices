@@ -28,7 +28,7 @@
        </form>
       </div>
 
-      <div id = "registerDiv" >
+      <div id="registerDiv">
        <form name="registerForm" class="form">
         <p>Please fill out the form below in order to create your BrainSlices account.</p>
         <div>
@@ -65,23 +65,45 @@
          <label class="left">&nbsp;</label>
          <input id="registerSubmit" type="submit" value="Register"/>
         </div>
-        <a id="backFromRegister" href="javascript:void(0)">back to login form</a>
+        <p id="registrationError" class="formErrorMessages" style="display: none;"></p>
+        <p>
+         Back to the <a id="backFromRegister" href="javascript:void(0)">login form</a>.
+        </p>
        </form>
       </div>
 
-      <div id = "regeneratePasswordDiv">
-        Login: <input id = "regenerateLogin" class = "regenerateForm" type = "text">
-        <m id = "regenerateLoginError" class = "regenerationFieldsErrors"></m>
-        <br> Email: <input id = "regenerateEmail" class = "regenerateForm" type = "text">
-        <m id = "regenerateEmailError" class = "regenerationFieldsErrors"></m>
-        <br><input id = "regenerateSubmit" type="button" value="Regenerate password"/>     
-        <br><a id = "backFromRegenerate" href = 'javascript:void(0)'>back to login form</a>
+      <div id="regeneratePasswordDiv">
+       <form name="regeneratePasswordForm" class="form">
+        <p>Please enter your login and email:</p>
+        <div>
+         <label for="login" class="left">Login:</label>
+         <input id="regenerateLogin" class="regenerateForm" type="text" name="login">
+        </div>
+        <p id="regenerateLoginError" class="formErrorMessages" style="display: none;"></p>
+
+        <div>
+         <label for="email" class="left">Email:</label>
+         <input id="regenerateEmail" class="regenerateForm" type="text" name="email">
+        </div>
+        <p id="regenerateEmailError" class="formErrorMessages" style="display: none;"></p>
+
+        <div>
+         <label class="left">&nbsp;</label>
+         <input id="regenerateSubmit" type="submit" value="Regenerate password">
+        </div>
+        <p id="regenerationError" class="formErrorMessages" style="display: none;"></p>
+        <p>
+         Back to the <a id = "backFromRegenerate" href = 'javascript:void(0)'>login form</a>.
+        </p>
+       </form>
       </div>
 
-      <div id = "registrationOkDiv">
-        <p id ="registrationOkMessage">An e-mail has been sent to you. Click the link
-        contained in the e-mail to confirm this registration</p>
-        <a id = "backFromRegistrationOkDiv" href = 'javascript:void(0)'>back</a>
+      <div id="successDiv">
+       <p>
+        An e-mail has been sent to you. Click the link
+        contained in the e-mail to confirm this registration.
+       </p>
+       <!--<a id="backFromRegistrationOkDiv" href = 'javascript:void(0)'>back</a>-->
       </div>
   
     </div>
