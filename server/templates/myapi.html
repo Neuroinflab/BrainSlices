@@ -185,33 +185,33 @@ $(document).ready(function()
 
     $('form[name="registerForm"] .formErrorMessages').hide().text('');
     var permissionToGo = true;
-    if (login == '')
+    if (!validLogin(login))
     {
-      $('#newLoginFieldError').show().text('provide a login');
+      $('#newLoginFieldError').show().text('Provide a valid login.');
       permissionToGo = false;
     }
 
     if (nPassword == '')
     {
-      $('#newPasswordFieldError').show().text('provide a password');
+      $('#newPasswordFieldError').show().text('Provide a password.');
       permissionToGo = false;
     }
 
     if (cPassword == '')
     {
-      $('#confirmPasswordFieldError').show().text('confirm the password');
+      $('#confirmPasswordFieldError').show().text('Confirm the password.');
       permissionToGo = false;
     }
 
     if (name == '')
     {
-      $('#nameFieldError').show().text('provide a name');
+      $('#nameFieldError').show().text('Provide a name.');
       permissionToGo = false;
     }
 
     if (nPassword != cPassword)
     {
-      $('#confirmPasswordFieldError').show().text("passwords do not match");
+      $('#confirmPasswordFieldError').show().text("Passwords do not match.");
       permissionToGo = false;
     }
 
@@ -222,7 +222,7 @@ $(document).ready(function()
                     + "- do you want to continue with it?" :
                     null))
     {
-      $('#eMailFieldError').show().text('provide a valid e-mail address');
+      $('#eMailFieldError').show().text('Provide a valid e-mail address.');
       permissionToGo = false;
     }
 
@@ -234,7 +234,7 @@ $(document).ready(function()
                           if (response.status)
                           {
                             $('#registerDiv').hide();
-                            $('#successDiv p').text('A confirmation e-mail has been sent to you. Click a link contained in the e-mail to confirm the registration.')
+                            $('#successDiv p').html('A confirmation e-mail has been sent to you. Click a link contained in the e-mail to confirm the registration.')
                             $('#successDiv').show();
                             $('.registerForm').val('');
                           }
@@ -288,8 +288,8 @@ $(document).ready(function()
     var email = $('#regenerateEmail').val().trim();
 
     var permissionToGo = true;
-    if (login == ''){
-      $('#regenerateLoginError').show().text('provide a login');
+    if (!validLogin(login)){
+      $('#regenerateLoginError').show().text('Provide a valid login.');
       permissionToGo = false;
     }
 
@@ -300,7 +300,7 @@ $(document).ready(function()
                     + "- do you want to continue with it?" :
                     null))
     {
-      $('#regenerateEmailError').show().text('provide a valid e-mail address');
+      $('#regenerateEmailError').show().text('Provide a valid e-mail address.');
       permissionToGo = false;
     }
 
@@ -314,13 +314,13 @@ $(document).ready(function()
                           if (response.status)
                           {
                             $('#regeneratePasswordDiv').hide();
-                            $('#successDiv p').text(response.message);
+                            $('#successDiv p').html(response.message);
                             $('#successDiv').show();
                             $('.regenerateForm').val('');
                           }
                           else
                           {
-                            $('#regenerationError').show().text(response.message);
+                            $('#regenerationError').show().html(response.message);
                           }
                         },
                         {

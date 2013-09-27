@@ -434,21 +434,21 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton, onlogin, 
     var password = $form.find('input[name="password"]').val();
 
     thisInstance.$controlPanel.find('.formErrorMessages').hide().text('');
-    var permissionToGo = 1;
+    var permissionToGo = true;
 
-    if (login == '')
+    if (!validLogin(login))
     {
-      thisInstance.$controlPanel.find('.loginFieldError').show().text('enter a login');
-      permissionToGo = 0;
+      thisInstance.$controlPanel.find('.loginFieldError').show().text('Enter a valid login.');
+      permissionToGo = false;
     }
 
     if (password == '')
     {
-      thisInstance.$controlPanel.find('.passwordFieldError').show().text('enter a password');
-      permissionToGo = 0;
+      thisInstance.$controlPanel.find('.passwordFieldError').show().text('Enter a password.');
+      permissionToGo = false;
     }
 
-    if (permissionToGo == 1)
+    if (permissionToGo)
     {
       thisInstance.login(login, password);
     }

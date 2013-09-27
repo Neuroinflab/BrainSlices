@@ -190,7 +190,9 @@ class Request(object):
     self.reason.append(reason)
   
   def _invalidArg(self, name, value):
-    self._invalid("Invalid value of argument %s: %s" % (name, value))
+    self._invalid(("Invalid value of argument %s" % name) + \
+                  ('.' if name in self._secret \
+                   else (": %s" % value)))
   
   def _getDefault(self, key):
     val = self._normalized.get(key)
@@ -270,33 +272,54 @@ class Request(object):
 #                    User Requests                      #
 #########################################################
 
-class LoginRequest(Request):
-  _required = Request._required + ['login', 'password']
-  _secret = Request._secret | frozenset(['password'])
-  
+class LoginRequestAux(Request):
+  _required = Request._required + ['login']
+
   def _parse(self):
     if not Request._parse(self):
       return False
     
-    self._parseArgument('login', transformation = lambda x: x.strip().lower(),
-                                 condition = lambda x: re.match(LOGIN_RE, x) != None)
-    self._parseArgument('password')
+    self._parseArgument('login', lambda x: re.match(LOGIN_RE, x) != None,
+                        lambda x: x.strip().lower())
     return self.valid
 
 
-class RegisterRequest(LoginRequest):
-  _required = LoginRequest._required + ['email', 'password2', 'name']
-  _secret = LoginRequest._secret | frozenset(['password2'])
+class LoginRequest(LoginRequestAux):
+  _required = LoginRequestAux._required + ['password']
+  _secret = LoginRequestAux._secret | frozenset(['password'])
+  
+  def _parse(self):
+    if not LoginRequestAux._parse(self):
+      return False
+    
+    self._parseArgument('password', lambda x: len(x) > 0)
+    return self.valid
+
+
+class RegeneratePasswordRequest(LoginRequestAux):
+  _required = LoginRequestAux._required + ['email']
+  
+  def _parse(self):
+    if not LoginRequestAux._parse(self):
+      return False
+
+    self._parseArgument('email', lambda x: re.match(EMAIL_RE, x) != None,
+                        lambda x: x.strip())
+
+    return self.valid
+
+
+class RegisterRequest(RegeneratePasswordRequest):
+  _required = RegeneratePasswordRequest._required + ['password', 'password2', 'name']
+  _secret = RegeneratePasswordRequest._secret | frozenset(['password', 'password2'])
 
   def _parse(self):
-    if not LoginRequest._parse(self):
+    if not RegeneratePasswordRequest._parse(self):
       return False
   
-    self._parseArgument('password2')
-    self._parseArgument('name', transformation = lambda x: x.strip(),
-                                 condition = lambda x: x != '')
-    self._parseArgument('email', transformation = lambda x: x.strip().lower(),
-                                 condition = lambda x: re.match(EMAIL_RE, x) != None)
+    self._parseArgument('password', lambda x: len(x) > 0)
+    self._parseArgument('password2', lambda x: len(x) > 0)
+    self._parseArgument('name', lambda x: len(x) > 0, lambda x: x.strip())
 
     if not self.valid:
       return False
@@ -307,41 +330,30 @@ class RegisterRequest(LoginRequest):
     return self.valid
 
 
-class RegeneratePasswordRequest(Request):
-	_required = Request._required + ['login', 'email']
-	
-	def _parse(self):
-		if not Request._parse(self):
-			return False
-		self._parseArgument('login')
-		self._parseArgument('email', transformation = lambda x: x.strip().lower(),
-		                             condition = lambda x: re.match(EMAIL_RE, x) != None)
 
-		return self.valid
-
-class ChangePasswordRegenerateRequest(Request):
-	_required = Request._required + ['confirmId', 'login', 'npass']
-
-	def _parse(self):
-		if not Request._parse(self):
-			return False
-		self._parseArgument('confirmId')
-		self._parseArgument('login')
-		self._parseArgument('npass')
-
-		return self.valid
-		
-
-class ConfirmRegistrationRequest(Request):
-  _required = Request._required + ['login', 'id']
+class ChangePasswordRegenerateRequest(LoginRequestAux):
+  _required = LoginRequestAux._required + ['confirmId', 'npass']
 
   def _parse(self):
-    if not Request._parse(self):
+    if not LoginRequestAux._parse(self):
       return False
 
-    self._parseArgument('login')
+    self._parseArgument('confirmId')
+    self._parseArgument('npass')
+
+    return self.valid
+    
+
+class ConfirmRegistrationRequest(LoginRequestAux):
+  _required = Request._required + ['id']
+
+  def _parse(self):
+    if not LoginRequestAux._parse(self):
+      return False
+
     self._parseArgument('id')
-    #TODO: return???
+
+    return self.valid
 
 
 class LogoutRequest(Request):
@@ -359,10 +371,17 @@ class ChangePasswordRequest(Request):
     if not Request._parse(self):
       return False
 
-    self._parseArgument('oldPassword')
-    self._parseArgument('newPassword')
-    self._parseArgument('passwordRetype')
-    #TODO: return???
+    self._parseArgument('oldPassword', lambda x: len(x) > 0)
+    self._parseArgument('newPassword', lambda x: len(x) > 0)
+    self._parseArgument('passwordRetype', lambda x: len(x) > 0)
+
+    if not self.valid:
+      return False
+
+    if self.newPassword != self.passwordRetype:
+      self._invalid("Passwords don't match.")
+
+    return self.valid
 
 
 #########################################################
@@ -601,55 +620,76 @@ class test_Request(unittest.TestCase):
       self.assertTrue(len(req.reason) > 0)
 
 
+class test_LoginRequestAux(test_Request):
+  _testClass = LoginRequestAux
+  _validTests = [(([], {'login' : 'reksio'}, {}), 
+                       {'login' : 'reksio'}, LoginRequestAux),
+
+                 (([], {'login' : 'Reksio'}, {}), 
+                       {'login' : 'reksio'}, LoginRequestAux),
+
+                 (([], {'login' : ' REKSIO*_* '}, {}), 
+                       {'login' : 'reksio*_*'}, LoginRequestAux)]
+                  
+  _invalidTests = [([], {'login' : 'reksio%'}, {}),
+                   ([], {'login' : 'reks IO%'}, {}),
+                   ([], {'login' : ' '}, {})]
+
+
+
 class test_LoginRequest(test_Request):
   _testClass = LoginRequest
-  _validTests = [(([], {'login' : 'reksio', 'password' : 'reksio'}, {}), 
-                       {'login' : 'reksio', 'password' : 'reksio'}, LoginRequest),
-
-                 (([], {'login' : 'Reksio', 'password' : 'reksio'}, {}), 
-                       {'login' : 'reksio', 'password' : 'reksio'}, LoginRequest),
-
-                 (([], {'login' : ' REKSIO*_*  ', 'password' : 'reksio'}, {}), 
+  _validTests = [(([], {'login' : ' REKSIO*_*  ', 'password' : 'reksio'}, {}), 
                        {'login' : 'reksio*_*', 'password' : 'reksio'}, LoginRequest)]
                   
-  _invalidTests = [([], {'login' : 'dwojcik%', 'password' : 'reksio'}, {})
-                  ,([], {'login' : 'dwoj cik%', 'password' : 'reksio'}, {})]
+  _invalidTests = [([], {'login' : '', 'password' : 'reksio'}, {})
+                  ,([], {'login' : 'reks io', 'password' : 'reksio'}, {})]
+
 
 class test_RegisterRequest(test_Request):
   _testClass = RegisterRequest
-  _validTests = [(([], {'login' : 'reksio', 'password' : 'reksio', 'email' : 'R.eks-io@gmail.com'
-                        , 'name' : 'REKS', 'password2' : 'reksio'}, {}), 
-                      {'login' : 'reksio', 'password' : 'reksio', 'email' : 'r.eks-io@gmail.com'
-                        , 'name' : 'REKS', 'password2' : 'reksio'}, LoginRequest),
+  _validTests = [(([], {'login' : 'reksio', 'password' : 'reksio',
+                        'email' : 'R.eks-io@gmail.com', 'name' : 'REKS',
+                        'password2' : 'reksio'}, {}), 
+                  {'login' : 'reksio', 'password' : 'reksio',
+                   'email' : 'R.eks-io@gmail.com', 'name' : 'REKS',
+                   'password2' : 'reksio'}, RegisterRequest),
 
-                 (([], {'login' : 'reksio', 'password' : 'reksio', 'email' : ' reksio@gmail.com'
-                        , 'name' : 'REKS ', 'password2' : 'reksio'}, {}), 
-                      {'login' : 'reksio', 'password' : 'reksio', 'email' : 'reksio@gmail.com'
-                        , 'name' : 'REKS', 'password2' : 'reksio'}, LoginRequest),
+                 (([], {'login' : 'reksio', 'password' : 'reksio',
+                        'email' : ' "reksio "@gmail.com', 'name' : 'REKS ',
+                        'password2' : 'reksio'}, {}), 
+                  {'login' : 'reksio', 'password' : 'reksio',
+                   'email' : '"reksio "@gmail.com', 'name' : 'REKS',
+                   'password2' : 'reksio'}, RegisterRequest),
 
-                 (([], {'login' : 'reksio', 'password' : 'reksio', 'email' : ' reksio@gmail.com'
-                        , 'name' : 'REKS ', 'password2' : 'reksio'}, {}), 
-                      {'login' : 'reksio', 'password' : 'reksio', 'email' : 'reksio@gmail.com'
-                        , 'name' : 'REKS', 'password2' : 'reksio'}, LoginRequest),
+                 (([], {'login' : 'reksio', 'password' : 'reksio',
+                        'email' : ' reksio@gmail.com', 'name' : 'REKS ',
+                        'password2' : 'reksio'}, {}), 
+                  {'login' : 'reksio', 'password' : 'reksio',
+                   'email' : 'reksio@gmail.com', 'name' : 'REKS',
+                   'password2' : 'reksio'}, RegisterRequest),
 
-  
-                 (([], {'login' : 'reksio', 'password' : 'reksio', 'email' : ' reksio@gmail.com'
-                        , 'name' : 'REKS ', 'password2' : 'reksio'}, {}), 
-                      {'login' : 'reksio', 'password' : 'reksio', 'email' : 'reksio@gmail.com'
-                        , 'name' : 'REKS', 'password2' : 'reksio'}, LoginRequest)                     
-  ]
+                 (([], {'login' : 'reksio', 'password' : 'reksio',
+                        'email' : ' reksio@gmail.com', 'name' : 'REKS ',
+                        'password2' : 'reksio'}, {}), 
+                  {'login' : 'reksio', 'password' : 'reksio',
+                   'email' : 'reksio@gmail.com', 'name' : 'REKS',
+                   'password2' : 'reksio'}, RegisterRequest)]
 
-  _invalidTests = [([], {'login' : 'reksio', 'password' : 'reksio', 'email' : 'reksio.gmail.com'
-                        , 'name' : 'REKS', 'password2' : 'reksio'}, {}), 
+  _invalidTests = [([], {'login' : 'reksio', 'password' : 'reksio',
+                         'email' : 'reksio.gmail.com', 'name' : 'REKS',
+                         'password2' : 'reksio'}, {}), 
 
-                      ([], {'login' : 'reksio', 'password' : 'reksio', 'email' : 'reksio@gmail.com'
-                        , 'name' : 'REKS', 'password2' : 'reksioO'}, {}),
+                   ([], {'login' : 'reksio', 'password' : 'reksio',
+                         'email' : 'reksio@gmail.com' , 'name' : 'REKS',
+                         'password2' : 'reksioO'}, {}),
                       
-                      ([], {'login' : 'reksio', 'password' : 'reksio', 'email' : 'reksio@gmail.com'
-                        , 'name' : '', 'password2' : 'reksio'}, {})
-                      ] 
-
-
+                   ([], {'login' : 'reksio', 'password' : 'reksio',
+                         'email' : 'reksio@gmail.com', 'name' : ' ',
+                         'password2' : 'reksio'}, {}),
+                   ([], {'login' : 'rek$io', 'password' : 'reksio',
+                         'email' : 'reksio@gmail.com', 'name' : 'i',
+                         'password2' : 'reksio'}, {})] 
 
 
 class test_ImageRequest(test_Request):

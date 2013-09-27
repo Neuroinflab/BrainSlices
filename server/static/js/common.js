@@ -47,3 +47,8 @@ function validEmail(email, question)
   }
   return true;
 }
+
+function validLogin(login)
+{
+  return login.match(/^[a-z0-9-+_.*]+$/i) != null;
+}

@@ -89,6 +89,16 @@ class UserBase(dbBase):
                              FROM users
                              WHERE login = %s;
                              """, (login,))
+
+  def getUserEnabled(self, identifier):
+    return self._getOneValue("""
+                             SELECT user_enabled
+                             FROM users
+                             WHERE %s = %%s;
+                             """ % ('login' \
+                                    if isinstance(identifier, (str, unicode)) \
+                                    else 'uid'),
+                             (identifier,))
  
   @provideCursor
   def loginUser(self, login, password = None, cursor = None):
@@ -177,21 +187,41 @@ class UserBase(dbBase):
     cursor.execute('UPDATE users SET confirmation_sent = now() WHERE login = %s;', (login,))
 
   @provideCursor
-  def confirmRegistration(self, login, confirmId, cursor = None):
-    select_command = "SELECT login, salt, uid FROM users where login = '%s'" % login
-    cursor.execute(select_command);
-    # XXX: Jest bardzo niejasne, co tu sie dzieje...
-    # TODO: uproscic
-    l = []
-    for v in cursor:
-      l.append(v)
-    #print(l)
-    l = l[0]
-    if confirmId == hashlib.md5(l[0] + str(l[1])).hexdigest():
-      cursor.execute('UPDATE users SET first_login_date = now(), last_login_date = now() WHERE login = %s;', (login,))
-      return l[2]
-    else:
-      return False
+  def confirmRegistration(self, login, confirmId, cursor=None):
+    row = self._getOneRow("""
+                          SELECT salt, uid, first_login_date
+                          FROM users
+                          WHERE login = %s;
+                          """, (login,), cursor=cursor)
+    if row != None:
+      salt, uid, firstLogin = row
+      if confirmId == hashlib.md5(login + str(salt)).hexdigest():
+        cursor.execute("""
+                       UPDATE users
+                       SET last_login_date = now()%s
+                       WHERE uid = %%s;
+                       """ % (', first_login_date = now()' \
+                              if firstLogin is None \
+                              else ''),
+                       (uid,))
+        return uid
+
+    return False
+#    select_command = "SELECT login, salt, uid FROM users where login = '%s'" % login
+#    cursor.execute(select_command);
+#    # XXX: Jest bardzo niejasne, co tu sie dzieje...
+#    # TODO: uproscic
+#    l = []
+#    for v in cursor:
+#      l.append(v)
+#    #print(l)
+#    l = l[0]
+#    if confirmId == hashlib.md5(l[0] + str(l[1])).hexdigest():
+#      cursor.execute('UPDATE users SET first_login_date = now(), last_login_date = now() WHERE login = %s;', (login,))
+#      return l[2]
+#
+#    else:
+#      return False
 
   @provideCursor
   def changePassword(self, uid, oldPassword, newPassword, cursor = None):
@@ -277,18 +307,12 @@ class UserBase(dbBase):
       l.append(v)
     return l[0][0]
 
-  @provideCursor
-  def getSalt(self, login, email, cursor = None):
-    select_command = 'SELECT salt FROM users WHERE login = %(login)s and email = %(email)s'
-    data = {'login': login, 'email': email}
-    cursor.execute(select_command, data)
-    l = []
-    for v in cursor:
-      l.append(v)
-    if len(l)>0:
-      return l[0][0] 
-    else:
-      return None
+  def getSalt(self, login, email):
+    return self._getOneValue("""
+                             SELECT salt
+                             FROM users
+                             WHERE login = %s AND email = %s AND user_enabled;
+                             """, (login, email))
 
   @provideCursor
   def addGroup(self, group_name, group_administrator, group_description, cursor = None):

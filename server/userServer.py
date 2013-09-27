@@ -59,7 +59,9 @@ class UserGenerator(Generator):
       message = 'logged in'
 
     else:
-      message = 'incorrect login or password'
+      message = 'Incorrect login or password.'
+      if self.userBase.getUserEnabled(login) == False:
+        message = 'Account disabled.'
 
     return generateJson(data = login, 
                         status = uid != None, 
@@ -122,22 +124,28 @@ class UserGenerator(Generator):
       mail = eMails.sendRegenerationEmail(request, salt) #napisac sendRegenerationEmail!
       if mail == True:
         status = True
-        message = 'regeneration link sent'
+        message = """Password regeneration e&#8209;mail has been sent to your e&#8209;mail.
+To complete the regeneration process please check your
+e&#8209;mail box and follow instructions in the e&#8209;mail."""
 
       else:
         status = False
         errorKey = mail[email][0]
         if errorKey in smtpErrors.keys():
           status = False
-          message = 'smtp error: ' + smtpErrors[errorKey]
+          message = 'SMTP error: ' + smtpErrors[errorKey]
 
         else:
           status = False
-          message = "there was a problem with sending the confirmation e-mail, please contact admin."
+          message = """Some problem occured sending the confirmation
+e&#8209;mail, please contact the administrator."""
 
     else:
       status = False
-      message = "Bad login or E-mail"
+      message = "Bad login or e-mail address."
+      if self.userBase.getUserEnabled(login) == False:
+        message = "The account is disabled."
+
     return generateJson(data = login, status = status, message = message)
 
   @useTemplate('userPanel')
@@ -148,6 +156,7 @@ class UserGenerator(Generator):
     if uid:
       request.session['userID'] = uid
       return [], [('<!--%modeHere%--!>', 'regeneration'), ("'confirmIdForRegenerateHere'", confirmId), ("'loginForRegenerateHere'", login)]
+
     else:
       status = False
       message = 'confirmation failed'
@@ -161,14 +170,12 @@ class UserGenerator(Generator):
     if changeSuccess == True:
       status = True
       message = 'password regenerated'
+
     else:
       status = False
       message = 'Failed to regenerate password'
-    
+
     return generateJson(data = login, status = status, message = message)
-      
-
-
 
   @useTemplate('userPanel')
   def confirmRegistration(self, request):
