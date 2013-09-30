@@ -92,11 +92,15 @@ class UserGenerator(Generator):
     salt = random.randint(0, 2**31)
     success = self.userBase.registerUser(login, password, email, name, salt)
     if success == True:
-      mail = eMails.sendConfirmationEmail(request, salt)
+      confirmID = self.userBase.getConfirmID(login)
+      mail = eMails.sendConfirmationEmail(request, confirmID)
       if mail == True:
         self.userBase.confirmationSent(login)
         status = True
-        message = 'confirmation sent'
+        message = """Registration confirmation e-mail has been sent to your
+e&#8209;mail.<br/>
+To complete registration process please check your e&#8209;mail box and follow
+instructions in the e&#8209;mail."""
       
       else:
         status = False
@@ -117,34 +121,35 @@ class UserGenerator(Generator):
     return generateJson(data = login, status = status, message = message)
 
   def regeneratePassword(self, request):
+    status = False
+    message = """No match for login and e&#8209;mail addres pair found in the
+database. Please note, that we consider e&#8209;mail address to be case-sensitive."""
     login = request.login
     email = request.email
-    salt = self.userBase.getSalt(login, email) #napisac getSalt
-    if salt != None:
-      mail = eMails.sendRegenerationEmail(request, salt) #napisac sendRegenerationEmail!
-      if mail == True:
-        status = True
-        message = """Password regeneration e&#8209;mail has been sent to your e&#8209;mail.
+    row = self.userBase.getEmailInformation(login)
+    if row != None:
+      email_, name, enabled = row
+      if email_ == email:
+        if enabled:
+          confirmID = self.userBase.getConfirmID(login)
+          mail = eMails.sendRegenerationEmail(request, name, confirmID)
+          if mail == True:
+            status = True
+            message = """Password regeneration e&#8209;mail has been sent to your e&#8209;mail.
 To complete the regeneration process please check your
 e&#8209;mail box and follow instructions in the e&#8209;mail."""
 
-      else:
-        status = False
-        errorKey = mail[email][0]
-        if errorKey in smtpErrors.keys():
-          status = False
-          message = 'SMTP error: ' + smtpErrors[errorKey]
+          else:
+            errorKey = mail[email][0]
+            if errorKey in smtpErrors.keys():
+              message = 'SMTP error: ' + smtpErrors[errorKey]
 
-        else:
-          status = False
-          message = """Some problem occured sending the confirmation
+            else:
+              message = """Some problem occured sending the confirmation
 e&#8209;mail, please contact the administrator."""
 
-    else:
-      status = False
-      message = "Bad login or e-mail address."
-      if self.userBase.getUserEnabled(login) == False:
-        message = "The account is disabled."
+        else:
+          message = "The account is disabled."
 
     return generateJson(data = login, status = status, message = message)
 

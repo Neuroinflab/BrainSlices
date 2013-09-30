@@ -234,7 +234,7 @@ $(document).ready(function()
                           if (response.status)
                           {
                             $('#registerDiv').hide();
-                            $('#successDiv p').html('A confirmation e-mail has been sent to you. Click a link contained in the e-mail to confirm the registration.')
+                            $('#successDiv p').html(response.message)
                             $('#successDiv').show();
                             $('.registerForm').val('');
                           }

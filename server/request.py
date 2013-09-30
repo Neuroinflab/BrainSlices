@@ -23,7 +23,6 @@
 """
 G{importgraph}
 """
-from keyboard import keyboard
 import unittest
 from datetime import datetime
 
@@ -43,12 +42,15 @@ def encodeValue(value, binary):
 
   return value.encode(encoding)
 
+
 class Request(object):
-  _required = []
+  _required = frozenset()
   _optional = {}
   _pathargs = []
   _binary = frozenset()
   _secret = frozenset()
+  _atoms = {}
+  _constraints = {}
   
   def __init__(self, args, kwargs, headers = {}, session = None):
     self.time = datetime.now()
@@ -251,6 +253,7 @@ class Request(object):
 
     except:
       self._invalidArg(argument, valueString)
+      return False
 
     return True
 
@@ -258,6 +261,17 @@ class Request(object):
     """
     @return: False if invalid, otherwise True
     """
+    for argument, (condition, transformation) in self._atoms.items():
+      self._parseArgument(argument, condition, transformation)
+
+    if not self.valid:
+      return False
+
+    for constraint in self._constraints.values():
+      message = constraint(self)
+      if message != None:
+        self._invalid(message)
+
     return self.valid
   
   def getFullRequest(self):
@@ -267,37 +281,135 @@ class Request(object):
     else:
       raise ValueError, (self.reason, self._raw)
 
+  @classmethod
+  def extend(cls, name, docstring="", pathargs = [], required = frozenset(),
+             optional = {}, secret = frozenset(), binary = frozenset(),
+             atoms = {}, constraints = {}, parents=[]):
+    parents = (cls,) + tuple(parents)
+    path = []
+    required = set([required]) \
+               if isinstance(required, (str, unicode)) \
+               else set(required)
+    secret = set([secret]) \
+             if isinstance(secret, (str, unicode)) \
+             else set(secret)
+    binary = set([binary]) \
+             if isinstance(binary, (str, unicode)) \
+             else set(binary)
+    optionalTmp = {}
+    atomsTmp = {}
+    constraintsTmp = {}
+
+    for parent in parents:
+      path.extend(x for x in parent._pathargs if x not in path)
+      required |= parent._required
+      secret |= parent._secret
+      binary |= parent._binary
+
+    for parent in reversed(parents):
+      optionalTmp.update(parent._optional)
+      atomsTmp.update(parent._atoms)
+      constraintsTmp.update(parent._constraints)
+
+    optionalTmp.update(optional)
+    atomsTmp.update(atoms)
+    constraintsTmp.update(constraints)
+    path.extend(x for x in pathargs if x not in path)
+
+    return type(name, parents,
+                {
+                  '__doc__': docstring,
+                  '_pathargs': tuple(path),
+                  '_required': frozenset(required),
+                  '_secret': frozenset(secret),
+                  '_binary': frozenset(binary),
+                  '_optional': optionalTmp,
+                  '_atoms': atomsTmp,
+                  '_constraints': constraintsTmp
+                })
+
+
+
 
 #########################################################
 #                    User Requests                      #
 #########################################################
 
-class LoginRequestAux(Request):
-  _required = Request._required + ['login']
+PasswordRequest = Request.extend('PasswordRequest',
+"""
+A virtual class introducing password argument parsing.
+""",
+required = 'password',
+secret = 'password',
+atoms = {'password': (lambda x: len(x) > 0, None)})
+
+#class PasswordRequest(Request):
+#  _required = Request._required | frozenset(['password'])
+#  _secret = Request._secret | frozenset(['password'])
+#
+#  def _parse(self):
+#    if not Request._parse(self):
+#      return False
+#
+#    self._parseArgument('password', lambda x: len(x) > 0)
+#
+#    return self.valid
+
+
+class DoublePasswordRequest(PasswordRequest):
+  _required = PasswordRequest._required | frozenset(['password2'])
+  _secret = PasswordRequest._secret | frozenset(['password2'])
 
   def _parse(self):
-    if not Request._parse(self):
+    if not PasswordRequest._parse(self):
       return False
-    
-    self._parseArgument('login', lambda x: re.match(LOGIN_RE, x) != None,
-                        lambda x: x.strip().lower())
+
+    self._parseArgument('password2', lambda x: len(x) > 0)
+
+    if self.password != self.password2:
+      self._invalid("Passwords don't match.")
+
     return self.valid
 
 
-class LoginRequest(LoginRequestAux):
-  _required = LoginRequestAux._required + ['password']
-  _secret = LoginRequestAux._secret | frozenset(['password'])
-  
-  def _parse(self):
-    if not LoginRequestAux._parse(self):
-      return False
-    
-    self._parseArgument('password', lambda x: len(x) > 0)
-    return self.valid
+LoginRequestAux = Request.extend('LoginRequestAux',
+"""
+A virtual class introducing login argument parsing.
+""",
+required = 'login',
+atoms = {'login': (lambda x: re.match(LOGIN_RE, x) != None,
+                   lambda x: x.strip().lower())})
+
+#class LoginRequestAux(Request):
+#  _required = Request._required | frozenset(['login'])
+#
+#  def _parse(self):
+#    if not Request._parse(self):
+#      return False
+#    
+#    self._parseArgument('login', lambda x: re.match(LOGIN_RE, x) != None,
+#                        lambda x: x.strip().lower())
+#    return self.valid
+
+LoginRequest = LoginRequestAux.extend('LoginRequest',
+"""
+A class for login request.
+""",
+parents = [PasswordRequest])
+#class LoginRequest(LoginRequestAux):
+#  _required = LoginRequestAux._required | frozenset(['password'])
+#  _secret = LoginRequestAux._secret | frozenset(['password'])
+#  
+#  def _parse(self):
+#    if not LoginRequestAux._parse(self):
+#      return False
+#    
+#    self._parseArgument('password', lambda x: len(x) > 0)
+#    return self.valid
 
 
 class RegeneratePasswordRequest(LoginRequestAux):
-  _required = LoginRequestAux._required + ['email']
+  _required = LoginRequestAux._required | frozenset(['email'])
   
   def _parse(self):
     if not LoginRequestAux._parse(self):
@@ -309,8 +421,20 @@ class RegeneratePasswordRequest(LoginRequestAux):
     return self.valid
 
 
+class ChangePasswordRegenerateRequest(DoublePasswordRequest):
+  _required = DoublePasswordRequest._required | frozenset(['confirmId'])
+
+  def _parse(self):
+    if not DoublePasswordRequest._parse(self):
+      return False
+
+    self._parseArgument('confirmId', lambda x: len(x) > 0)
+
+    return self.valid
+    
+
 class RegisterRequest(RegeneratePasswordRequest):
-  _required = RegeneratePasswordRequest._required + ['password', 'password2', 'name']
+  _required = RegeneratePasswordRequest._required | frozenset(['password', 'password2', 'name'])
   _secret = RegeneratePasswordRequest._secret | frozenset(['password', 'password2'])
 
   def _parse(self):
@@ -330,22 +454,8 @@ class RegisterRequest(RegeneratePasswordRequest):
     return self.valid
 
 
-
-class ChangePasswordRegenerateRequest(LoginRequestAux):
-  _required = LoginRequestAux._required + ['confirmId', 'npass']
-
-  def _parse(self):
-    if not LoginRequestAux._parse(self):
-      return False
-
-    self._parseArgument('confirmId')
-    self._parseArgument('npass')
-
-    return self.valid
-    
-
 class ConfirmRegistrationRequest(LoginRequestAux):
-  _required = Request._required + ['id']
+  _required = Request._required | frozenset(['id'])
 
   def _parse(self):
     if not LoginRequestAux._parse(self):
@@ -365,7 +475,8 @@ class LoggedRequest(Request):
 
 
 class ChangePasswordRequest(Request):
-  _required = Request._required + ['oldPassword', 'newPassword', 'passwordRetype']
+  _required = Request._required | frozenset(['oldPassword', 'newPassword', 'passwordRetype'])
+  _secret = Request._secret | frozenset(['oldPassword', 'newPassword', 'passwordRetype'])
 
   def _parse(self):
     if not Request._parse(self):
@@ -391,7 +502,7 @@ class ChangePasswordRequest(Request):
 #TODO: tests
 
 class UploadDataRequest(Request):
-  _required = Request._required + ['data']
+  _required = Request._required | frozenset(['data'])
   _binary = Request._binary | frozenset(['data'])
 
   def _parse(self):
@@ -404,7 +515,7 @@ class UploadDataRequest(Request):
 
 
 class ContinueImageUploadRequest(UploadDataRequest):
-  _required = UploadDataRequest._required + ['iid', 'offset']
+  _required = UploadDataRequest._required | frozenset(['iid', 'offset'])
 
   def _parse(self):
     if not UploadDataRequest._parse(self):
@@ -417,7 +528,7 @@ class ContinueImageUploadRequest(UploadDataRequest):
 
 
 class UploadNewImageRequest(UploadDataRequest):
-  _required = UploadDataRequest._required + ['filename', 'size']
+  _required = UploadDataRequest._required | frozenset(['filename', 'size'])
   _optional = dict(UploadDataRequest._optional)
   _optional.update({'bid': None})
 
@@ -432,7 +543,7 @@ class UploadNewImageRequest(UploadDataRequest):
     return self.valid
 
 class UploadImageWithFieldStorageRequest(Request):
-  _required = Request._required + ['files_details']
+  _required = Request._required | frozenset(['files_details'])
 
   def _parse(self):
     if not Request._parse(self):
@@ -465,7 +576,7 @@ class UploadImageWithFieldStorageRequest(Request):
     return True
 
 class GetImageStatusRequest(Request):
-  _required = Request._required + ['iids']
+  _required = Request._required | frozenset(['iids'])
 
   def _parse(self):
     if not Request._parse(self):
@@ -476,7 +587,7 @@ class GetImageStatusRequest(Request):
     return self.valid
 
 class NewBatchRequest(Request):
-  _required = Request._required + ['comment']
+  _required = Request._required | frozenset(['comment'])
 
   def _parse(self):
     if not Request._parse(self):

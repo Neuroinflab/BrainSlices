@@ -45,7 +45,7 @@ function showPersonalDataDiv()
 }
 
 
-$('document').ready(function()
+$(function()
 {
 
   $('#userPanel').hide();
@@ -61,17 +61,21 @@ $('document').ready(function()
     var mode = 'normal';
   }
 
-  if (mode == 'normal'){
+  if (mode == 'normal')
+  {
     $('#helloMessage').text('Not logged in');
-  } else if (mode == 'confirmation'){
+  }
+  else if (mode == 'confirmation')
+  {
     $('#logoutLink').show();
     $('#loginLink').hide();
     $('#helloMessage').text('Logged in')
-  } else if(mode == 'regeneration'){
+  }
+  else if (mode == 'regeneration')
+  {
     $('#welcomeDiv').hide();
     $('#regeneratePasswordFinalDiv').show();
   }
-
 
   $('#welcomeLink').click(function()
   {
@@ -230,11 +234,11 @@ $('document').ready(function()
       permissionToGo = 0;
     }
 
-    var login = /*encodeURIComponent(*/$('#newLogin').val()/*)*/;
-    var nPassword =  /*encodeURIComponent(*/$('#registerPassword').val()/*)*/;
-    var cPassword =  /*encodeURIComponent(*/$('#confirmPassword').val()/*)*/;
-    var name = /*encodeURIComponent(*/$('#name').val()/*)*/;
-    var eMail = /*encodeURIComponent(*/$('#eMail').val()/*)*/;
+    var login = $('#newLogin').val();
+    var nPassword =  $('#registerPassword').val();
+    var cPassword =  $('#confirmPassword').val();
+    var name = $('#name').val();
+    var eMail = $('#eMail').val();
   
     if (nPassword == cPassword)
     {
@@ -259,29 +263,6 @@ $('document').ready(function()
                           name: name,
                           email: eMail
                         });
-//        $.ajax({
-//          type: 'POST',
-//          url: 'registerUser',
-//          data: 'login='+login+'&password='+nPassword+'&password2='+cPassword+'&name='+name+'&email='+eMail,
-//          dataType: 'json',
-//          success: function(data)
-//          {
-//            if (data.status == true)
-//            {
-//              $('#registerDiv').hide();
-//              $('#registrationOkDiv').show();
-//              $('.registerForm').val('');
-//            }
-//            else
-//            {
-//            /*  $('#newLoginFieldError').text(data.message);*/
-//            alert(data.message);
-//            }
-//
-//          },
-//          error: ajaxErrorHandler
-//        });
-    
     } 
       
   });
@@ -328,8 +309,8 @@ $('document').ready(function()
     if (permissionToGo == 1)
     {
       alert('idzie!');
-      var login = /*encodeURIComponent(*/$('#regenerateLogin').val()/*)*/;
-      var email = /*encodeURIComponent(*/$('#regenerateEmail').val()/*)*/;
+      var login = $('#regenerateLogin').val();
+      var email = $('#regenerateEmail').val();
 
       loginConsole.ajax('regeneratePassword',
                         function(response)
@@ -340,60 +321,41 @@ $('document').ready(function()
                           login: login,
                           email: email
                         });
-
-//      $.ajax({
-//        type: 'POST',
-//        url: 'regeneratePassword',
-//        data: 'login='+login+'&email='+email,
-//        dataType: 'json',
-//        success: function(data)
-//        {
-//          if (data.status == true)
-//          {
-//            alert(data.message);
-//          }
-//          else
-//          {
-//            alert(data.message);
-//          }
-//        },
-//        error: ajaxErrorHandler
-//
-//      });
     }
-
   }
   );
 
   $('#regenerateFinalise').click(function()
   {
-    var npass = encodeURIComponent($('#regeneratePassword').val());
-    alert(npass);
-    var npassRetype =  encodeURIComponent($('#regeneratePasswordRetype').val());
-    var permissionToGo = 1;
+    var npass = $('#regeneratePassword').val();
+    var npassRetype = $('#regeneratePasswordRetype').val();
+    var permissionToGo = true;
     
     $('#regeneratePasswordFieldError').text('');
     $('#regeneratePasswordiRetypeFieldError').text('');
 
-    if (npass != npassRetype){
+    if (npass != npassRetype)
+    {
       $('#regeneratePasswordFieldError').text("Passwords don't match");
-      permissionToGo = 0;
+      permissionToGo = false;
     }
 
-    if (npass = ''){
+    if (npass = '')
+    {
       $('#regeneratePasswordFieldError').text("enter a password");
-      permissionToGo = 0;
+      permissionToGo = false;
     }
 
-    if (npassRetype = ''){
+    if (npassRetype = '')
+    {
       $('#regeneratePasswordFieldError').text("Retype");
-      permissionToGo = 0;
+      permissionToGo = false;
     }
     
-    if (permissionToGo == 1){
+    if (permissionToGo)
+    {
       var confirmId = $('#confirmIdForRegenerate').val(); 
       var login = $('#loginForRegenerate').val();
-      var npass = /*encodeURIComponent(*/$('#regeneratePassword').val()/*)*/;
 
       loginConsole.ajax('changePasswordRegenerate',
                         function(response)
@@ -403,28 +365,10 @@ $('document').ready(function()
                         {
                           login: login,
                           confirmId: confirmId,
-                          npass: npass
+                          password: npass,
+                          password2: npassRetype
                         });
 
-//      $.ajax({
-//        type: 'POST',
-//        url: 'changePasswordRegenerate',
-//        data: 'login='+login+'&confirmId='+confirmId+'&npass='+npass,
-//        dataType: 'json',
-//        success: function(data)
-//        {
-//          if (data.status == true)
-//          {
-//            alert(data.message);
-//          }
-//          else
-//          {
-//            alert(data.message);
-//          }
-//        },
-//        error: ajaxErrorHandler
-//        
-//        });
     }
 
   }

@@ -307,6 +307,26 @@ class UserBase(dbBase):
       l.append(v)
     return l[0][0]
 
+  def getEmailInformation(self, login):
+    return self._getOneRow("""
+                           SELECT email, name, user_enabled
+                           FROM users
+                           WHERE login = %s;
+                           """, (login,))
+
+
+  def getConfirmID(self, login):
+    row = self._getOneRow("""
+                          SELECT salt, md5, last_login_date
+                          FROM users
+                          WHERE login = %s;
+                          """, (login,))
+    if row == None:
+      return None
+
+    salt, md5, last = row
+    return hashlib.md5(login + str(salt) + md5 + str(last)).hexdigest()
+
   def getSalt(self, login, email):
     return self._getOneValue("""
                              SELECT salt
