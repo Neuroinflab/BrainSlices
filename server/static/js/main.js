@@ -87,11 +87,10 @@ function CLoginManager(onlogin, onlogout, finalFunction)
  *   data - Optional data for the AJAX request.                              *
  *   errorHandler - An optional handler of the AJAX request execution error. *
  *   type - An HTTP method of the request. 'POST' by default. String.        *
- *                                                                           *
- * TODO:                                                                     *
- *   Extend the method to accept other necessary jQuery's ajax arguments.    *
+ *   options - Any other jQuery.ajax options.                                *
 \*****************************************************************************/
-CLoginManager.prototype.ajaxAux = function(url, successHandler, data, errorHandler, type, options)
+CLoginManager.prototype.ajaxAux = function(url, successHandler, data,
+                                           errorHandler, type, options)
 {
   var thisInstance = this;
   if (!(this.destroyed))
@@ -153,9 +152,7 @@ CLoginManager.prototype.ajaxAux = function(url, successHandler, data, errorHandl
  *   data - Optional data for the AJAX request.                              *
  *   errorHandler - An optional handler of the AJAX request execution error. *
  *   type - An HTTP method of the request. 'POST' by default. String.        *
- *                                                                           *
- * TODO:                                                                     *
- *   Extend the method to accept other necessary jQuery's ajax arguments.    *
+ *   options - Any other jQuery.ajax options.                                *
 \*****************************************************************************/
 CLoginManager.prototype.ajax = function(url, successHandler, data, errorHandler, type, options)
 {
@@ -387,8 +384,8 @@ CLoginManager.prototype.isLoggedAs = function()
  *   onClose - A trigger to be executed when the login panel window is       *
  *             closed. function or null or undefined                         *
 \*****************************************************************************/
-function CLoginConsole($controlPanel, $panelShowButton, $logoutButton, onlogin, onlogout,
-                       finalFunction, onClose)
+function CLoginConsole($controlPanel, $panelShowButton, $logoutButton,
+                       onlogin, onlogout, finalFunction, onClose)
 {
   this.$controlPanel = $controlPanel;
 
@@ -555,11 +552,13 @@ CLoginConsole.prototype.logout = function()
  * Method: ajax                                                              *
  *                                                                           *
  * An alias to loginManager.ajax>(url, successHandler, data, errorHandler,   *
- *                                type); see <CLoginManager.ajax>.           *
+ *                                type, options); see <CLoginManager.ajax>.  *
 \*****************************************************************************/
-CLoginConsole.prototype.ajax = function(url, successHandler, data, errorHandler, type, options)
+CLoginConsole.prototype.ajax = function(url, successHandler, data, errorHandler,
+                                        type, options)
 {
-  return this.loginManager.ajax(url, successHandler, data, errorHandler, type, options);
+  return this.loginManager.ajax(url, successHandler, data, errorHandler,
+                                type, options);
 }
 
 /*****************************************************************************\
@@ -594,4 +593,328 @@ CLoginConsole.prototype.loggedAs = function()
 {
   alert('Obsolete method called - use isLoggedAs instead!');
   //return this.loginManager.loggedAs;
+}
+
+/*****************************************************************************\
+ * Class: CUserPanel                                                         *
+ *                                                                           *
+ * A class of objects that                                                   *
+ *   - store and monitors information about session state at client side,    *
+ *   - handle logging in, user registration and password regeneration.       *
+ *                                                                           *
+ * Attributes:                                                               *
+ *   $controlPanel - A jQuery object representing the login panel window.    *
+ *   panelShowButtonHandler - See <panelShowButtonHandler>. function         *
+ *   $panelShowButton - A jQuery object representing the login button.       *
+ *   loginManager - A <CLoginConsoler> object monitoring the session state   *
+ *                  and handling control panel display.                      *
+ *****************************************************************************
+ * Constructor: CUserPanel                                                   *
+ *                                                                           *
+ * Parameters:                                                               *
+ *   $controlPanel - A jQuery object representing the login panel window.    *
+ *   $panelShowButton - A jQuery object representing the login button.       *
+ *   $logoutButton - A jQuery object representing the logout button.         *
+ *   onlogin - Trigger(s) to be executed when the state changes to logged    *
+ *             (both after login and instantation of the object).            *
+ *             function or Array of functions or null or undefined           *
+ *   onlogout - Trigger(s) to be executed when the state changes to not      *
+ *              logged (both after logout and instantation of the object).   *
+ *              function or Array of functions or null or undefined          *
+ *   finalFunction - A trigger to be executed when the state of session is   *
+ *                   known (after login and instantation of the object).     *
+ *                   function or null or undefined                           *
+ *   onClose - A trigger to be executed when the login panel window is       *
+ *             closed. function or null or undefined                         *
+\*****************************************************************************/
+function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
+                    onlogin, onlogout, finalFunction, onClose)
+{
+  this.$controlPanel = $controlPanel;
+
+  var thisInstance = this;
+  var $registerForm = $controlPanel.find('form[name="registerForm"]');
+  var $regenerateForm = $controlPanel.find('form[name="regeneratePasswordForm"]');
+  var $success = $controlPanel.find('p.success');
+
+  this.showRegisterForm = function()
+  {
+    //TODO: regenerationForm cleanup?
+    $controlPanel.find('form[name="loginForm"]').hide();
+    $controlPanel.find('.loginForm').val('');
+    $controlPanel.find('.formErrorMessages').text('');
+    $registerForm.show();
+  };
+
+  $controlPanel.find('.showRegisterFormButton').bind('click', this.showRegisterForm);
+
+  this.submitRegisterForm = function()
+  {
+    var login = $registerForm.find('input[name="login"]').val().trim();
+    var password = $registerForm.find('input[name="password"]').val();
+    var password2 = $registerForm.find('input[name="password2"]').val();
+    var name = $registerForm.find('input[name="name"]').val().trim();
+    var email = $registerForm.find('input[name="email"]').val().trim();
+
+    $registerForm.find('.formErrorMessages').hide().text('');
+
+    var permissionToGo = true;
+    if (!validLogin(login))
+    {
+      $registerForm.find('.loginFieldError').show().text('Provide a valid login.');
+      permissionToGo = false;
+    }
+
+    if (password == '')
+    {
+      $registerForm.find('.passwordFieldError').show().text('Provide a password.');
+      permissionToGo = false;
+    }
+
+    if (password != password2)
+    {
+      $registerForm.find('.password2FieldError').show().text("Passwords do not match.");
+      permissionToGo = false;
+    }
+    else if (password2 == '')
+    {
+      $registerForm.find('.password2FieldError').show().text('Confirm the password.');
+      permissionToGo = false;
+    }
+
+    if (name == '')
+    {
+      $registerForm.find('.nameFieldError').show().text('Provide a name.');
+      permissionToGo = false;
+    }
+
+
+    if (!validEmail(email,
+                    permissionToGo ?
+                    "Provided e-mail address is very unusual:\n"
+                    + email + "\n"
+                    + "- do you want to continue with it?" :
+                    null))
+    {
+      $registerForm.find('.emailFieldError').show().text('Provide a valid e-mail address.');
+      permissionToGo = false;
+    }
+
+    if (permissionToGo)
+    {
+      loginConsole.ajax('/user/registerUser',
+                        function(response)
+                        {
+                          if (response.status)
+                          {
+                            $registerForm.hide();
+                            $success.html(response.message).show();
+                            //$success.show();
+                            $registerForm.find('.registerForm').val('');
+                          }
+                          else
+                          {
+                            $registerForm.find('.submitError').show().text(response.message);
+                          }
+                        },
+                        {
+                          login: login,
+                          password: password,
+                          password2: password2,
+                          name: name,
+                          email: email
+                        });
+    }
+
+    return false;
+  }
+
+  $registerForm.bind('submit', this.submitRegisterForm);
+
+  this.showLoginForm = function()
+  {
+    //this.$controlPanel.find('.loginForm').val('');
+    $registerForm.find('.registerForm').val('');
+    $registerForm.hide();
+    $regenerateForm.find('.regenerateForm').val('');
+    $regenerateForm.hide();
+    $controlPanel.find('form[name="loginForm"]').show();
+  };
+
+  $controlPanel.find('.showLoginFormButton').bind('click', this.showLoginForm);
+
+  this.showRegeneratePasswordForm = function()
+  {
+    //TODO: register form cleanup?
+    $controlPanel.find('.loginForm').val('');
+    $controlPanel.find('form[name="loginForm"]').hide();
+    $controlPanel.find('.loginMessages').text('');
+    $controlPanel.find('.formErrorMessages').text('');
+    $regenerateForm.show();
+  };
+
+  $controlPanel.find('.showRegeneratePasswordFormButton').bind('click', this.showRegeneratePasswordForm);
+
+  this.submitRegeneratePasswordForm = function()
+  {
+    $regenerateForm.find('.formErrorMessages').hide().text('');
+    var login = $regenerateForm.find('input[name="login"]').val().trim();
+    var email = $regenerateForm.find('input[name="email"]').val().trim();
+
+    var permissionToGo = true;
+    if (!validLogin(login))
+    {
+      $regenerateForm.find('.loginFieldError').show().text('Provide a valid login.');
+      permissionToGo = false;
+    }
+
+    if (!validEmail(email,
+                    permissionToGo ?
+                    "Provided e-mail address is very unusual:\n"
+                    + email + "\n"
+                    + "- do you want to continue with it?" :
+                    null))
+    {
+      $regenerateForm.find('emailFieldError').show().text('Provide a valid e-mail address.');
+      permissionToGo = false;
+    }
+
+    if (permissionToGo)
+    {
+      loginConsole.ajax('/user/regeneratePassword',
+                        function(response)
+                        {
+                          if (response.status)
+                          {
+                            $regenerateForm.hide();
+                            $success.html(response.message).show();
+                            $regenerateForm.find('.regenerateForm').val('');
+                          }
+                          else
+                          {
+                            $regenerateForm.find('.submitError').show().html(response.message);
+                          }
+                        },
+                        {
+                          login: login,
+                          email: email
+                        });
+    }
+
+    return false;
+  }
+
+  $regenerateForm.bind('submit', this.submitRegeneratePasswordForm);
+
+  onlogin = onlogin == null ? [] : (onlogin instanceof Array ?
+                                    onlogin.slice(0) : [onlogin]);
+  onlogin.push(function()
+  {
+    $logoutButton.text('Logout [' + thisInstance.isLoggedAs() + ']');
+  });
+
+  this.loginManager = new CLoginConsole($controlPanel, $panelShowButton,
+                                        $logoutButton, onlogin, onlogout,
+                                        finalFunction,
+                                        function()
+                                        {
+                                          $controlPanel.find('form[name="loginForm"]').show();
+                                          $registerForm.hide();
+                                          $regenerateForm.hide();
+                                          $success.hide();
+                                          //XXX: is this necessary?
+                                          $controlPanel.find('.regenerateForm').val('');
+                                          $controlPanel.find('.registerForm').val('');
+                                          if (onClose != null)
+                                          {
+                                            onClose();
+                                          }
+                                        });
+}
+
+/*****************************************************************************\
+ * Method: showPanel                                                         *
+ *                                                                           *
+ * An alias to loginManager.showPanel(); see <CUserPanel.showPanel>.         *
+\*****************************************************************************/
+CUserPanel.prototype.showPanel = function()
+{
+  this.loginManager.showPanel();
+}
+
+/*****************************************************************************\
+ * Destructor: destroy                                                       *
+ *                                                                           *
+ * Prepare the object for being disposed.                                    *
+\*****************************************************************************/
+CUserPanel.prototype.destroy = function()
+{
+//warning: it can be dangerous to destroy the object if there are any async
+//events awaiting
+//TODO: provide some kind of control (like in CLoginManager)
+  this.loginManager.destroy();
+  this.$controlPanel.find('.showRegisterFormButton').unbind('click', this.showRegisterForm);
+  this.showRegisterForm = null;
+  this.$controlPanel.find('form[name="registerForm"]').unbind('submit', this.submitRegisterForm);
+  this.submitRegisterForm = null;
+  this.$controlPanel.find('.showLoginFormButton').unbind('click', this.showLoginForm);
+  this.showLoginForm = null;
+
+  this.$controlPanel.find('.showRegeneratePasswordFormButton').unbind('click', this.showRegeneratePasswordForm);
+  this.showRegeneratePasswordForm = null;
+
+  this.$controlPanel.find('form[name="regeneratePasswordForm"]').unbind('submit', this.submitRegeneratePasswordForm);
+  this.submitRegeneratePasswordForm = null;
+}
+
+/*****************************************************************************\
+ * Method: login                                                             *
+ *                                                                           *
+ * An alias to loginManager.login(); see <CUserPanel.login>.                 *
+\*****************************************************************************/
+CUserPanel.prototype.login = function(login, password)
+{
+  this.loginManager.login(login, password)
+}
+
+/*****************************************************************************\
+ * Method: logout                                                            *
+ *                                                                           *
+ * An alias to loginManager.logout(); see <CUserPanel.logout>.               *
+\*****************************************************************************/
+CUserPanel.prototype.logout = function()
+{
+  this.loginManager.logout();
+}
+
+/*****************************************************************************\
+ * Method: ajax                                                              *
+ *                                                                           *
+ * An alias to loginManager.ajax>(url, successHandler, data, errorHandler,   *
+ *                                type, options); see <CUserPanel.ajax>.     *
+\*****************************************************************************/
+CUserPanel.prototype.ajax = function(url, successHandler, data, errorHandler,
+                                     type, options)
+{
+  return this.loginManager.ajax(url, successHandler, data, errorHandler, type, options);
+}
+
+/*****************************************************************************\
+ * Method: isLogged                                                          *
+ *                                                                           *
+ * An alias to loginManager.isLogged(); see <CUserPanel.isLogged>.           *
+\*****************************************************************************/
+CUserPanel.prototype.isLogged = function()
+{
+  return this.loginManager.isLogged();
+}
+
+/*****************************************************************************\
+ * Method: isLoggedAs                                                        *
+ *                                                                           *
+ * An alias to loginManager.isLoggedAs(); see <CUserPanel.isLoggedAs>.       *
+\*****************************************************************************/
+CUserPanel.prototype.isLoggedAs = function()
+{
+  return this.loginManager.isLoggedAs();
 }
