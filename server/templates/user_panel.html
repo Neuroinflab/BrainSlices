@@ -3,50 +3,55 @@
     <link rel="stylesheet" type="text/css" href="../static/css/main.css">
     <script src="/static/js/common.js" type="text/javascript"></script>
     <script src="/static/js/jquery.js" type="text/javascript"></script>
-    <script src = "/static/js/draggable_div.js" type="text/javascript"></script>
-    <script src = "/static/js/main.js" type="text/javascript"></script>
-    <script src = "/static/js/user_panel_template.js" type="text/javascript"></script>
+    <script src="/static/js/draggable_div.js" type="text/javascript"></script>
+    <script src="/static/js/main.js" type="text/javascript"></script>
+    <script src="/static/js/user_panel_template.js" type="text/javascript"></script>
     <script>
       var mode = <!--%modeHere%--!>;
     </script>
   </head>
   <body>
-    <a href = 'javascript:void(0)' id = "logoutLink">logout</a>
-    <a href = 'javascript:void(0)' id = "loginLink">login</a>
-    
-    <p id = "helloMessage">Not logged in</p>
-    <div id = 'chooseSection'>
-      <a href = 'javascript:void(0)' id = welcomeLink>welcome</a>|
-      <a href = 'javascript:void(0)' id = personalDataLink>personal data</a>
-    </div>
+   <a href="javascript:void(0)" id="logoutLink">logout</a>
+   <a href="javascript:void(0)" id="loginLink">login</a>
+   
+   <p id="helloMessage">Not logged in</p>
+   <div id="chooseSection">
+     <a href="javascript:void(0)" id="welcomeLink">welcome</a> |
+     <a href="javascript:void(0)" id="personalDataLink">personal data</a>
+   </div>
 
-    <div id = 'welcomeDiv'>
-      This is a welcome section.<br>
-      Bla bla bla. 
-    </div>
-    <div id = 'personalDataDiv'>
-      This is the personal data section
-      <a href = 'javascript:void(0)' id = 'changePassword'>Change Password (click to show)</a>
-      <div id = 'changePasswordDiv' style ='display: none;'>
-        Old Password: <input id = "oldPassword" class = "personalDataVals" type = "password">
-        <m id = "oldPasswordFieldError"></m><br>
-        New Password: <input id = "newPassword" class = "personalDataVals" type = "password"> 
-        <m id = "newPasswordFieldError" class = "personalDataVals"></m><br>
-        Retype new password: <input id = "newPasswordRetype" class = "personalDataVals" type = "password"> 
-        <br>
-        <input id = "changePasswordButton" type = "button" value = "change!"/>
-      </div>
-    </div>
+   <div id="welcomeDiv">
+     This is a welcome section.<br>
+     Bla bla bla. 
+   </div>
 
-      <div id = "regeneratePasswordFinalDiv">
-        New password: <input id = "regeneratePassword" type = "password">
-        <m id = "regeneratePasswordFieldError"></m>
-        <br>Retype new password: <input id = "regeneratePasswordRetype" type = "password">
-        <m id = "regeneratePasswordRetypeFieldError"></m>
-        <br><input id = "regenerateFinalise" type = "button" value = "Regenerate Password">
-        <input id = "confirmIdForRegenerate" type = "hidden" value = 'confirmIdForRegenerateHere'>
-        <input id = "loginForRegenerate" type = "hidden" value = 'loginForRegenerateHere'>
-      </div>
+   <div id="personalDataDiv" style ="display: none;">
+     This is the personal data section
+     <a href="javascript:void(0)" id="changePassword">Change Password (click to show)</a>
+     <div id="changePasswordDiv" style ="display: none;">
+       Old Password: <input id="oldPassword" class="personalDataVals" type="password">
+       <m id="oldPasswordFieldError"></m><br>
+       New Password: <input id="newPassword" class="personalDataVals" type="password"> 
+       <m id="newPasswordFieldError" class="personalDataVals"></m><br>
+       Retype new password: <input id="newPasswordRetype" class="personalDataVals" type="password"> 
+       <br>
+       <input id="changePasswordButton" type="button" value = "Change password"/>
+     </div>
+   </div>
+
+   <div id="regeneratePasswordFinalDiv" style ="display: none;">
+     New password: <input id="regeneratePassword" type="password">
+     <m id="regeneratePasswordFieldError"></m>
+     <br>Retype new password: <input id="regeneratePasswordRetype" type="password">
+     <m id="regeneratePasswordRetypeFieldError"></m>
+     <br><input id="regenerateFinalise" type="button" value="Regenerate Password">
+     <input id="confirmIdForRegenerate" type="hidden" value="confirmIdForRegenerateHere">
+     <input id="loginForRegenerate" type="hidden" value="loginForRegenerateHere">
+   </div>
+
+   <div id="regeneratePasswordFail" style="display: none;">
+    Sorry, the confirmation code is improper.
+   </div>
 
    <!--%userPanel%-->
   </body>

@@ -47,18 +47,15 @@ function showPersonalDataDiv()
 
 $(function()
 {
-
   $('#userPanel').hide();
   $('#registerDiv').hide();
   $('#regeneratePasswordDiv').hide();
   $('#registrationOkDiv').hide();
-  $('#logoutLink').hide();
-  $('#personalDataDiv').hide();
-  $('#regeneratePasswordFinalDiv').hide();
+  //$('#logoutLink').hide();
 
   if (!mode)
   {
-    var mode = 'normal';
+    mode = 'normal';
   }
 
   if (mode == 'normal')
@@ -67,14 +64,23 @@ $(function()
   }
   else if (mode == 'confirmation')
   {
-    $('#logoutLink').show();
-    $('#loginLink').hide();
+    //$('#logoutLink').show();
+    //$('#loginLink').hide();
     $('#helloMessage').text('Logged in')
   }
   else if (mode == 'regeneration')
   {
     $('#welcomeDiv').hide();
     $('#regeneratePasswordFinalDiv').show();
+  }
+  else if (mode == 'regeneration failed')
+  {
+    $('#welcomeDiv').hide();
+    $('#regeneratePasswordFail').show();
+  }
+  else
+  {
+    alert(mode);
   }
 
   $('#welcomeLink').click(function()
@@ -101,9 +107,9 @@ $(function()
 
   $('#changePasswordButton').click(function()
   {     
-    var oldpass = /*encodeURIComponent(*/$('#oldPassword').val()/*)*/;
-    var npass = /*encodeURIComponent(*/$('#newPassword').val()/*)*/;
-    var npassRetype = /*encodeURIComponent(*/$('#newPasswordRetype').val()/*)*/;
+    var oldpass = $('#oldPassword').val();
+    var npass = $('#newPassword').val();
+    var npassRetype = $('#newPasswordRetype').val();
 
     if (npass != npassRetype)
     {
@@ -129,26 +135,6 @@ $(function()
                           newPassword: npass,
                           passwordRetype: npassRetype
                         });
-
-      /*$.ajax({
-        type: 'POST',
-        url: 'changePassword', 
-        data: 'oldPassword='+oldpass+'&newPassword='+npass+'&passwordRetype='+npassRetype,
-        dataType: 'json',
-        success: function(data)
-        {
-          if (data.status == true)
-          {
-            alert('password changed!');
-            changePasswordHide();
-          } else
-          {
-            alert(data.message);
-          }
-        },
-        error: ajaxErrorHandler
-      }
-      );*/
     }
   }
   );
