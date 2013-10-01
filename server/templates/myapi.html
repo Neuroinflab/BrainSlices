@@ -140,7 +140,7 @@ var testSubsets = null;
 var id2name = {};
 var stacks = null;
 
-$(document).ready(function()
+$(function()
 {
   $('#userPanel').hide();
   $('#registerDiv').hide();
@@ -166,13 +166,13 @@ $(document).ready(function()
                      });
 
   $('#registerButton').click(function() 
-        {
-            $('.loginForm').val('');
-            $('#loginDiv').hide();
-            $('#registerDiv').show();
-            $('.loginMessages').text('');
-            $('.formErrorMessages').text('');
-        });
+  {
+    $('.loginForm').val('');
+    $('#loginDiv').hide();
+    $('#registerDiv').show();
+    $('.loginMessages').text('');
+    $('.formErrorMessages').text('');
+  });
 
   $('form[name="registerForm"]').bind('submit',
   function() 
@@ -256,20 +256,18 @@ $(document).ready(function()
   });
 
   $('#backFromRegistrationOkDiv').click(function()
-    {
-      $('#successDiv').hide();
-      $('#loginDiv').show();
-    }
-  );
+  {
+    $('#successDiv').hide();
+    $('#loginDiv').show();
+  });
 
   $('#backFromRegister').click(function()
-    {
-      $('.registerForm').val('');
-      $('#dontMatch').text('');
-      $('#registerDiv').hide();
-      $('#loginDiv').show();
-    }
-    );
+  {
+    $('.registerForm').val('');
+    $('#dontMatch').text('');
+    $('#registerDiv').hide();
+    $('#loginDiv').show();
+  });
 
   $('#regeneratePasswordButton').click(function()
   {
@@ -288,7 +286,8 @@ $(document).ready(function()
     var email = $('#regenerateEmail').val().trim();
 
     var permissionToGo = true;
-    if (!validLogin(login)){
+    if (!validLogin(login))
+    {
       $('#regenerateLoginError').show().text('Provide a valid login.');
       permissionToGo = false;
     }
@@ -334,12 +333,11 @@ $(document).ready(function()
 
 
   $('#backFromRegenerate').click(function()
-    {
-      $('.regenerateForm').val('');
-      $('#regeneratePasswordDiv').hide();
-      $('#loginDiv').show();
-    }
-    );
+  {
+    $('.regenerateForm').val('');
+    $('#regeneratePasswordDiv').hide();
+    $('#loginDiv').show();
+  });
 
 /**********************************************/
 

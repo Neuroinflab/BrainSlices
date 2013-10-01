@@ -160,7 +160,7 @@ e&#8209;mail, please contact the administrator."""
     if uid:
       request.session['userID'] = uid
       confirmId = self.userBase.getConfirmID(login)
-      return [], [('<!--%modeHere%--!>', 'regeneration'), ("'confirmIdForRegenerateHere'", confirmId), ("'loginForRegenerateHere'", login)]
+      return [('confirmIdForRegenerateHere', confirmId), ('loginForRegenerateHere', login)], [('<!--%modeHere%--!>', 'regeneration')]
 
     else:
       return [], [('<!--%modeHere%--!>', 'regeneration failed')]

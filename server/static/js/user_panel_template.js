@@ -50,7 +50,7 @@ $(function()
   $('#userPanel').hide();
   $('#registerDiv').hide();
   $('#regeneratePasswordDiv').hide();
-  $('#registrationOkDiv').hide();
+  $('#successDiv').hide();
   //$('#logoutLink').hide();
 
   if (!mode)
@@ -90,55 +90,6 @@ $(function()
   }
   );
 
-  $('#changePassword').click(function()
-  {
-    if ($('#changePasswordDiv').is(":visible")){
-      $('#changePasswordDiv').hide();
-      $('#changePassword').text('Change Password (click to show)');
-      $('.personalDataVals').text('');
-      $('.personalDataVals').val('');
-    } else {
-
-      $('#changePasswordDiv').show();
-      $('#changePassword').text('Change Password (click to hide)');
-    }
-  }
-  );
-
-  $('#changePasswordButton').click(function()
-  {     
-    var oldpass = $('#oldPassword').val();
-    var npass = $('#newPassword').val();
-    var npassRetype = $('#newPasswordRetype').val();
-
-    if (npass != npassRetype)
-    {
-      $('#newPasswordFieldError').text("Passwords don't match");
-    }
-    else
-    {
-      loginConsole.ajax('changePassword',
-                        function(data)
-                        {
-                          if (data.status == true)
-                          {
-                            alert('password changed!');
-                            changePasswordHide();
-                          }
-                          else
-                          {
-                            alert(data.message);
-                          }
-                        },
-                        {
-                          oldPassword: oldpass,
-                          newPassword: npass,
-                          passwordRetype: npassRetype
-                        });
-    }
-  }
-  );
-
   loginConsole = new CLoginConsole($('#userPanel'), $('#loginLink'), $('#logoutLink'),
                      function()
                      {
@@ -158,88 +109,88 @@ $(function()
                      {
                        $('#loginDiv').show();
                        $('#registerDiv').hide();
-                       $('.formErrorMessages').text('');
-                       $('#registerOkDiv').hide('');
+                       $('.formErrorMessages').text(''); //XXX: is necessary?
+                       $('#successDiv').hide('');
                        $('#regeneratePasswordDiv').hide('');
                        $('.regenerateForm').val('');
                      });
 
   $('#registerButton').click(function() 
-        {
-            $('.loginForm').val('');
-            $('#loginDiv').hide();
-            $('#registerDiv').show();
-            $('.loginMessages').text('');
-            $('.formErrorMessages').text('');
-        });
-
-
-
-  $('#registerSubmit').click(function() 
   {
-
+    $('.loginForm').val('');
+    $('#loginDiv').hide();
+    $('#registerDiv').show();
+    $('.loginMessages').text('');
     $('.formErrorMessages').text('');
-    var permissionToGo = 1;
-    if ($('#newLogin').val() == '')
+  });
+
+  $('form[name="registerForm"]').bind('submit',
+  function() 
+  {
+    var login = $('#newLogin').val().trim();
+    var nPassword = $('#registerPassword').val();
+    var cPassword = $('#confirmPassword').val();
+    var name = $('#name').val().trim();
+    var eMail = $('#eMail').val().trim();
+
+    $('form[name="registerForm"] .formErrorMessages').hide().text('');
+    var permissionToGo = true;
+    if (!validLogin(login))
     {
-      $('#newLoginFieldError').text('provide a login');
-      permissionToGo = 0;
+      $('#newLoginFieldError').show().text('Provide a valid login.');
+      permissionToGo = false;
     }
 
-    if ($('#registerPassword').val() == '')
+    if (nPassword == '')
     {
-      $('#newPasswordFieldError').text('provide a login');
-      permissionToGo = 0;
+      $('#newPasswordFieldError').show().text('Provide a password.');
+      permissionToGo = false;
     }
 
-    if ($('#confirmPassword').val() == '')
+    if (cPassword == '')
     {
-      $('#confirmPasswordFieldError').text('confirm new password');
-      permissionToGo = 0;
+      $('#confirmPasswordFieldError').show().text('Confirm the password.');
+      permissionToGo = false;
     }
 
-    if ($('#name').val() == '')
+    if (name == '')
     {
-      $('#nameFieldError').text('provide a name');
-      permissionToGo = 0;
-    }
-    if ($('#registerPassword').val() == '')
-    {
-      $('#newPasswordFieldError').text('provide a login');
-      permissionToGo = 0;
-    }
-    if ($('#eMail').val() == '')
-    {
-      $('#eMailFieldError').text('provide an e-mail');
-      permissionToGo = 0;
+      $('#nameFieldError').show().text('Provide a name.');
+      permissionToGo = false;
     }
 
     if (nPassword != cPassword)
     {
-      $('#confirmPasswordFieldError').text("password and confirmation don't match");
-      permissionToGo = 0;
+      $('#confirmPasswordFieldError').show().text("Passwords do not match.");
+      permissionToGo = false;
     }
 
-    var login = $('#newLogin').val();
-    var nPassword =  $('#registerPassword').val();
-    var cPassword =  $('#confirmPassword').val();
-    var name = $('#name').val();
-    var eMail = $('#eMail').val();
-  
-    if (nPassword == cPassword)
+    if (!validEmail(eMail,
+                    permissionToGo ?
+                    "Provided e-mail address is very unusual:\n"
+                    + eMail + "\n"
+                    + "- do you want to continue with it?" :
+                    null))
     {
-      loginConsole.ajax('registerUser',
+      $('#eMailFieldError').show().text('Provide a valid e-mail address.');
+      permissionToGo = false;
+    }
+
+    if (permissionToGo)
+    {
+      loginConsole.ajax('/user/registerUser',
                         function(response)
                         {
                           if (response.status)
                           {
                             $('#registerDiv').hide();
-                            $('#registrationOkDiv').show();
+                            $('#successDiv p').html(response.message)
+                            $('#successDiv').show();
                             $('.registerForm').val('');
                           }
                           else
                           {
-                            alert(response.message);
+                            $('#registrationError').show().text(response.message);
                           }
                         },
                         {
@@ -249,25 +200,24 @@ $(function()
                           name: name,
                           email: eMail
                         });
-    } 
-      
+    }
+
+    return false;
   });
 
   $('#backFromRegistrationOkDiv').click(function()
-    {
-      $('#registrationOkDiv').hide();
-      $('#loginDiv').show();
-    }
-  );
+  {
+    $('#successDiv').hide();
+    $('#loginDiv').show();
+  });
 
   $('#backFromRegister').click(function()
-    {
-      $('.registerForm').val('');
-      $('#dontMatch').text('');
-      $('#registerDiv').hide();
-      $('#loginDiv').show();
-    }
-    );
+  {
+    $('.registerForm').val('');
+    $('#dontMatch').text('');
+    $('#registerDiv').hide();
+    $('#loginDiv').show();
+  });
 
   $('#regeneratePasswordButton').click(function()
   {
@@ -278,63 +228,139 @@ $(function()
     $('#regeneratePasswordDiv').show();
   });
 
-  $('#regenerateSubmit').click(function()
+  $('form[name="regeneratePasswordForm"]').bind('submit',
+  function()
   {
-    $('.regenerationFieldsErrors').text('');
-    var permissionToGo = 1;
-    if ($('#regenerateLogin').val() == ''){
-      $('#regenerateLoginError').text('login?');
-      permissionToGo = 0;
-    }
+    $('form[name="regeneratePasswordForm"] .formErrorMessages').hide().text('');
+    var login = $('#regenerateLogin').val().trim();
+    var email = $('#regenerateEmail').val().trim();
 
-    if ($('#regenerateEmail').val() == ''){
-      $('#regenerateEmailError').text('e-mail?');
-      permissionToGo = 0;
-    }
-
-    if (permissionToGo == 1)
+    var permissionToGo = true;
+    if (!validLogin(login))
     {
-      alert('idzie!');
-      var login = $('#regenerateLogin').val();
-      var email = $('#regenerateEmail').val();
+      $('#regenerateLoginError').show().text('Provide a valid login.');
+      permissionToGo = false;
+    }
 
-      loginConsole.ajax('regeneratePassword',
+    if (!validEmail(email,
+                    permissionToGo ?
+                    "Provided e-mail address is very unusual:\n"
+                    + email + "\n"
+                    + "- do you want to continue with it?" :
+                    null))
+    {
+      $('#regenerateEmailError').show().text('Provide a valid e-mail address.');
+      permissionToGo = false;
+    }
+
+    if (permissionToGo)
+    {
+
+
+      loginConsole.ajax('/user/regeneratePassword',
                         function(response)
                         {
-                          alert(response.message);
+                          if (response.status)
+                          {
+                            $('#regeneratePasswordDiv').hide();
+                            $('#successDiv p').html(response.message);
+                            $('#successDiv').show();
+                            $('.regenerateForm').val('');
+                          }
+                          else
+                          {
+                            $('#regenerationError').show().html(response.message);
+                          }
                         },
                         {
                           login: login,
                           email: email
                         });
     }
-  }
-  );
+
+    return false;
+  });
+
+  $('#backFromRegenerate').click(function()
+    {
+      $('.regenerateForm').val('');
+      $('#regeneratePasswordDiv').hide();
+      $('#loginDiv').show();
+    });
+
+/**********************************************/
+
+  $('#changePassword').click(function()
+  {
+    if ($('#changePasswordDiv').is(":visible")){
+      $('#changePasswordDiv').hide();
+      $('#changePassword').text('Change Password (click to show)');
+      $('.personalDataVals').text('');
+      $('.personalDataVals').val('');
+    } else {
+
+      $('#changePasswordDiv').show();
+      $('#changePassword').text('Change Password (click to hide)');
+    }
+  });
+
+  $('#changePasswordButton').click(function()
+  {     
+    var oldPassword = $('#oldPassword').val();
+    var newPassword = $('#newPassword').val();
+    var passwordRetype = $('#newPasswordRetype').val();
+
+    if (newPassword != passwordRetype)
+    {
+      $('#newPasswordFieldError').text("Passwords don't match");
+    }
+    else
+    {
+      loginConsole.ajax('changePassword',
+                        function(data)
+                        {
+                          if (data.status == true)
+                          {
+                            alert('password changed!');
+                            changePasswordHide();
+                          }
+                          else
+                          {
+                            alert(data.message);
+                          }
+                        },
+                        {
+                          oldPassword: oldPassword,
+                          newPassword: newPassword,
+                          passwordRetype: passwordRetype
+                        });
+    }
+  });
 
   $('#regenerateFinalise').click(function()
   {
-    var npass = $('#regeneratePassword').val();
-    var npassRetype = $('#regeneratePasswordRetype').val();
+    var password = $('#regeneratePassword').val();
+    var password2 = $('#regeneratePasswordRetype').val();
     var permissionToGo = true;
     
     $('#regeneratePasswordFieldError').text('');
     $('#regeneratePasswordiRetypeFieldError').text('');
 
-    if (npass != npassRetype)
+    if (password != password2)
     {
-      $('#regeneratePasswordFieldError').text("Passwords don't match");
+      $('#regeneratePasswordFieldError').text("Passwords do not match.");
       permissionToGo = false;
     }
 
-    if (npass == '')
+    if (password == '')
     {
-      $('#regeneratePasswordFieldError').text("enter a password");
+      $('#regeneratePasswordFieldError').text("Provide a new password.");
       permissionToGo = false;
     }
 
-    if (npassRetype == '')
+    if (password2 == '')
     {
-      $('#regeneratePasswordFieldError').text("Retype");
+      $('#regeneratePasswordFieldError').text("Confirm the password.");
       permissionToGo = false;
     }
     
@@ -351,22 +377,12 @@ $(function()
                         {
                           login: login,
                           confirm: confirmId,
-                          password: npass,
-                          password2: npassRetype
+                          password: password,
+                          password2: password2
                         });
 
     }
 
-  }
-  );
-
-  $('#backFromRegenerate').click(function()
-    {
-      $('.regenerateForm').val('');
-      $('#regeneratePasswordDiv').hide();
-      $('#loginDiv').show();
-    }
-    );
-
+  });
 
 });
