@@ -89,8 +89,7 @@ class UserGenerator(Generator):
     password = request.password
     name = request.name
     email = request.email
-    salt = random.randint(0, 2**31)
-    success = self.userBase.registerUser(login, password, email, name, salt)
+    success = self.userBase.registerUser(login, password, email, name)
     if success == True:
       confirmID = self.userBase.getConfirmID(login)
       mail = eMails.sendConfirmationEmail(request, confirmID)
@@ -156,21 +155,20 @@ e&#8209;mail, please contact the administrator."""
   @useTemplate('userPanel')
   def confirmPasswordRegeneration(self, request):
     login = request.login
-    confirmId = request.id
+    confirmId = request.confirm
     uid = self.userBase.confirmRegistration(login, confirmId)
     if uid:
       request.session['userID'] = uid
+      confirmId = self.userBase.getConfirmID(login)
       return [], [('<!--%modeHere%--!>', 'regeneration'), ("'confirmIdForRegenerateHere'", confirmId), ("'loginForRegenerateHere'", login)]
 
     else:
-      status = False
-      message = 'confirmation failed'
-      return generateJson(data=login, status=status, message=message)
+      return [], [('<!--%modeHere%--!>', 'regeneration failed')]
 
   def changePasswordRegenerate(self, request):
-    confirmId = request.confirmId
+    confirmId = request.confirm
     login = request.login
-    npass = request.npass
+    npass = request.password
     changeSuccess = self.userBase.changePasswordRegenerate(confirmId, login, npass)
     if changeSuccess == True:
       status = True
@@ -185,7 +183,7 @@ e&#8209;mail, please contact the administrator."""
   @useTemplate('userPanel')
   def confirmRegistration(self, request):
     login = request.login
-    confirmId = request.id
+    confirmId = request.confirm
     uid = self.userBase.confirmRegistration(login, confirmId)
     if uid:
       status = True

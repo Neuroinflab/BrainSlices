@@ -340,13 +340,13 @@ $(function()
       permissionToGo = false;
     }
 
-    if (npass = '')
+    if (npass == '')
     {
       $('#regeneratePasswordFieldError').text("enter a password");
       permissionToGo = false;
     }
 
-    if (npassRetype = '')
+    if (npassRetype == '')
     {
       $('#regeneratePasswordFieldError').text("Retype");
       permissionToGo = false;
@@ -364,7 +364,7 @@ $(function()
                         },
                         {
                           login: login,
-                          confirmId: confirmId,
+                          confirm: confirmId,
                           password: npass,
                           password2: npassRetype
                         });

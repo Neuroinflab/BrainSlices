@@ -83,12 +83,14 @@ class UserBase(dbBase):
   def __getUserRowById(self, uid, password = None, cursor = None):
     return  self.__getUserRowByColumn('uid', uid, password)
 
-  def getUserID(self, login):
+  def getUserID(self, login, cursor=None):
     return self._getOneValue("""
                              SELECT uid
                              FROM users
                              WHERE login = %s;
-                             """, (login,))
+                             """,
+                             (login,),
+                             cursor=cursor)
 
   def getUserEnabled(self, identifier):
     return self._getOneValue("""
@@ -162,8 +164,9 @@ class UserBase(dbBase):
     return row
     
   @provideCursor
-  def registerUser(self, login, password, email, name, salt, cursor = None, registrationValid =  7*24*60*60):
+  def registerUser(self, login, password, email, name, cursor = None, registrationValid =  7*24*60*60):
     '''Stores a user in DB'''
+    salt = random.randint(0, 2**31)
     row = self.__makeRow(login, password, email, name, salt)
     l = row.keys()
     db_columns = ', '.join(l)
@@ -188,23 +191,17 @@ class UserBase(dbBase):
 
   @provideCursor
   def confirmRegistration(self, login, confirmId, cursor=None):
-    row = self._getOneRow("""
-                          SELECT salt, uid, first_login_date
-                          FROM users
-                          WHERE login = %s;
-                          """, (login,), cursor=cursor)
-    if row != None:
-      salt, uid, firstLogin = row
-      if confirmId == hashlib.md5(login + str(salt)).hexdigest():
-        cursor.execute("""
-                       UPDATE users
-                       SET last_login_date = now()%s
-                       WHERE uid = %%s;
-                       """ % (', first_login_date = now()' \
-                              if firstLogin is None \
-                              else ''),
-                       (uid,))
-        return uid
+    confirmId2 = self.getConfirmID(login, cursor = cursor)
+    if confirmId == confirmId2:
+      cursor.execute("""
+                     UPDATE users
+                     SET last_login_date = now(),
+                         first_login_date = CASE
+                            WHEN first_login_date IS NULL THEN now()
+                            ELSE first_login_date END
+                     WHERE login = %s;
+                     """, (login,))
+      return self.getUserID(login, cursor = cursor)
 
     return False
 #    select_command = "SELECT login, salt, uid FROM users where login = '%s'" % login
@@ -224,50 +221,44 @@ class UserBase(dbBase):
 #      return False
 
   @provideCursor
-  def changePassword(self, uid, oldPassword, newPassword, cursor = None):
-    '''Changes users password in DB if passwords match. Does nothing if passwords don't match'''    
+  def changePassword(self, uid, oldPassword, newPassword, cursor=None):
+    '''Changes users password in DB if passwords match. Does nothing if passwords don't match'''
     row = self.__getUserRowByColumn('uid', uid, oldPassword)
-    if not row == None:
-      login = row['login']
-      data = {}
-      for alg, device in HashAlgorithms.iteritems():
-        data[alg] = device.generateHash(login, newPassword, row['salt'])
-      
-      base = '%s =%%(%s)s'
-      insertions = ', '.join(base % (x,x) for x in data.keys())
-      update_command = 'UPDATE users SET %s WHERE login = %%(login)s;' % insertions
-      data['login'] = login
-      cursor.execute(update_command, data)
-      return True
-    else:
+    if row == None:
       return False
+
+    return self.changePasswordAux(uid, newPassword, cursor=cursor)
+
+  def changePasswordAux(self, identifier, newPassword, cursor=None):
+    login = identifier
+    if isinstance(identifier, (int, long)):
+      login = self._getOneValue("""
+                                SELECT login
+                                FROM users
+                                WHERE uid = %s;
+                                """, (identifier,),
+                                cursor = cursor)
+      if login == None:
+        return False
+
+    salt = random.randint(0, 2**31)
+    algs, devs = zip(*HashAlgorithms.items())
+    hashes = tuple(dev.generateHash(login, newPassword, salt) for dev in devs)
+    query = """
+            UPDATE users
+            SET %s, salt = %%s
+            WHERE login = %%s;
+            """ % (', '.join("%s = %%s" % alg for alg in algs))
+    cursor.execute(query, hashes + (salt, login))
+    return cursor.rowcount == 1
 
   @provideCursor
-  def changePasswordRegenerate(self, confirmId, login, npass, cursor = None):
-    row = self.__getUserRowByColumn('login', login)
-    select_command = "SELECT login, salt FROM users WHERE login = %(login)s"
-    data = {'login': login}
-    cursor.execute(select_command, data)
-    l = []
-    for v in cursor:
-      l.append(v)
+  def changePasswordRegenerate(self, confirmId, login, npass, cursor=None):
+    confirmId2 = self.getConfirmID(login, cursor=cursor)
+    if confirmId == confirmId2:
+      return self.changePasswordAux(login, npass, cursor=cursor)
 
-    l = l[0]
-    salt = l[1]
-    #sprawdzic, czy confirmId jest dobry
-    if confirmId == hashlib.md5(l[0] + str(l[1])).hexdigest():
-      data = {}
-      for alg, device in HashAlgorithms.iteritems():
-        data[alg] = device.generateHash(login, npass, salt)
-
-      base = '%s =%%(%s)s'
-      insertions = ', '.join(base % (x,x) for x in data.keys())
-      update_command = 'UPDATE users SET %s WHERE login = %%(login)s;' %insertions
-      data['login'] = login
-      cursor.execute(update_command, data)
-      return True
-    else:
-      return False
+    return False
 
   @provideCursor
   def deleteUser(self, login, password, cursor = None):
@@ -314,13 +305,13 @@ class UserBase(dbBase):
                            WHERE login = %s;
                            """, (login,))
 
-
-  def getConfirmID(self, login):
+  def getConfirmID(self, login, cursor=None):
     row = self._getOneRow("""
                           SELECT salt, md5, last_login_date
                           FROM users
                           WHERE login = %s;
-                          """, (login,))
+                          """, (login,),
+                          cursor=cursor)
     if row == None:
       return None
 

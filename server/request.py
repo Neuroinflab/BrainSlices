@@ -343,33 +343,15 @@ required = 'password',
 secret = 'password',
 atoms = {'password': (lambda x: len(x) > 0, None)})
 
-#class PasswordRequest(Request):
-#  _required = Request._required | frozenset(['password'])
-#  _secret = Request._secret | frozenset(['password'])
-#
-#  def _parse(self):
-#    if not Request._parse(self):
-#      return False
-#
-#    self._parseArgument('password', lambda x: len(x) > 0)
-#
-#    return self.valid
 
-
-class DoublePasswordRequest(PasswordRequest):
-  _required = PasswordRequest._required | frozenset(['password2'])
-  _secret = PasswordRequest._secret | frozenset(['password2'])
-
-  def _parse(self):
-    if not PasswordRequest._parse(self):
-      return False
-
-    self._parseArgument('password2', lambda x: len(x) > 0)
-
-    if self.password != self.password2:
-      self._invalid("Passwords don't match.")
-
-    return self.valid
+DoublePasswordRequest = PasswordRequest.extend('DoublePasswordRequest',
+"""
+A virtual class introducing password confirmation.
+""",
+required = 'password2',
+secret = 'password2',
+atoms = {'password2': (lambda x: len(x) > 0, None)},
+constraints = {'passwordsMatches': lambda x: "Passwords don't match." if x.password != x.password2 else None})
 
 
 LoginRequestAux = Request.extend('LoginRequestAux',
@@ -380,90 +362,59 @@ required = 'login',
 atoms = {'login': (lambda x: re.match(LOGIN_RE, x) != None,
                    lambda x: x.strip().lower())})
 
-#class LoginRequestAux(Request):
-#  _required = Request._required | frozenset(['login'])
-#
-#  def _parse(self):
-#    if not Request._parse(self):
-#      return False
-#    
-#    self._parseArgument('login', lambda x: re.match(LOGIN_RE, x) != None,
-#                        lambda x: x.strip().lower())
-#    return self.valid
 
 LoginRequest = LoginRequestAux.extend('LoginRequest',
 """
 A class for login request.
 """,
 parents = [PasswordRequest])
-#class LoginRequest(LoginRequestAux):
-#  _required = LoginRequestAux._required | frozenset(['password'])
-#  _secret = LoginRequestAux._secret | frozenset(['password'])
-#  
-#  def _parse(self):
-#    if not LoginRequestAux._parse(self):
-#      return False
-#    
-#    self._parseArgument('password', lambda x: len(x) > 0)
-#    return self.valid
 
 
-class RegeneratePasswordRequest(LoginRequestAux):
-  _required = LoginRequestAux._required | frozenset(['email'])
-  
-  def _parse(self):
-    if not LoginRequestAux._parse(self):
-      return False
-
-    self._parseArgument('email', lambda x: re.match(EMAIL_RE, x) != None,
-                        lambda x: x.strip())
-
-    return self.valid
+EmailRequest = Request.extend('EmailRequest',
+"""
+A virtual class introducing e-mail argument parsing.
+""",
+required = 'email',
+atoms = {'email': (lambda x: re.match(EMAIL_RE, x) != None,
+                   lambda x: x.strip())})
 
 
-class ChangePasswordRegenerateRequest(DoublePasswordRequest):
-  _required = DoublePasswordRequest._required | frozenset(['confirmId'])
-
-  def _parse(self):
-    if not DoublePasswordRequest._parse(self):
-      return False
-
-    self._parseArgument('confirmId', lambda x: len(x) > 0)
-
-    return self.valid
-    
-
-class RegisterRequest(RegeneratePasswordRequest):
-  _required = RegeneratePasswordRequest._required | frozenset(['password', 'password2', 'name'])
-  _secret = RegeneratePasswordRequest._secret | frozenset(['password', 'password2'])
-
-  def _parse(self):
-    if not RegeneratePasswordRequest._parse(self):
-      return False
-  
-    self._parseArgument('password', lambda x: len(x) > 0)
-    self._parseArgument('password2', lambda x: len(x) > 0)
-    self._parseArgument('name', lambda x: len(x) > 0, lambda x: x.strip())
-
-    if not self.valid:
-      return False
-
-    if self.password != self.password2:
-      self._invalid("Passwords don't match.")
-
-    return self.valid
+RegeneratePasswordRequest = LoginRequestAux.extend('RegeneratePasswordRequest',
+"""
+A class for password regeneration request.
+""",
+parents = [EmailRequest])
 
 
-class ConfirmRegistrationRequest(LoginRequestAux):
-  _required = Request._required | frozenset(['id'])
+ConfirmIdRequest = Request.extend('ConfirmIdRequest',
+"""
+A virtual class parsing confirmation ID.
+""",
+required = 'confirm',
+atoms = {'confirm': (lambda x: len(x) > 0, None)})
 
-  def _parse(self):
-    if not LoginRequestAux._parse(self):
-      return False
 
-    self._parseArgument('id')
+ChangePasswordRegenerateRequest = DoublePasswordRequest.extend('ChangePasswordRegenerateRequest',
+"""
+A class for changing password when regenerating it.
+""",
+parents = [ConfirmIdRequest, LoginRequestAux])
+ 
 
-    return self.valid
+RegisterRequest = RegeneratePasswordRequest.extend('RegisterRequest',
+"""
+A class for registration request.
+""",
+required = 'name',
+atoms = {'name': (lambda x: len(x) > 0, lambda x: x.strip())},
+parents = [DoublePasswordRequest])
+
+
+ConfirmRegistrationRequest = LoginRequestAux.extend('ConfirmRegistrationRequest',
+"""
+A class for registration confirmation request.
+""",
+parents = [ConfirmIdRequest])
 
 
 class LogoutRequest(Request):

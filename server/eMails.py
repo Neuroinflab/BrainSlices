@@ -32,7 +32,7 @@ from config import BS_EMAIL_PASSWORD, BS_EMAIL_SERVER, BS_EMAIL_PORT,\
                    BS_EMAIL_ENCODING
 
 #registration templates
-CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?login=%s;id=%s'
+CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?login=%s&confirm=%s'
 
 REGISTRATION_EMAIL_SUBJECT = 'BrainSlices account registration'
 
@@ -42,7 +42,7 @@ in BrainSlices:
 %(link)s '''
 
 #regeneration templates
-REGENERATION_LINK_TEMPLATE = 'http://%s/user/confirmPasswordRegeneration?login=%s;id=%s'
+REGENERATION_LINK_TEMPLATE = 'http://%s/user/confirmPasswordRegeneration?login=%s&confirm=%s'
  
 REGENERATION_EMAIL_SUBJECT = 'BrainsSlices password regeneration'
 
