@@ -40,8 +40,15 @@ function showLoginPanel()
 
 function showPersonalDataDiv()
 {
-  $('#welcomeDiv').hide();
-  $('#personalDataDiv').show();
+  if (loginConsole.isLogged())
+  {
+    $('#welcomeDiv').hide();
+    $('#personalDataDiv').show();
+  }
+  else
+  {
+    loginConsole.showPanel(showPersonalDataDiv);
+  }
 }
 
 
@@ -83,22 +90,20 @@ $(function()
   {
     $('#welcomeDiv').show();
     personalDataDivHide();
-  }
-  );
+  });
+
+  $('#personalDataLink').bind('click', showPersonalDataDiv);
+
 
   loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
                      function()
                      {
                        $('#helloMessage').text('Logged as ' + loginConsole.isLoggedAs());
-                       $('#personalDataLink').unbind('click', showLoginPanel);
-                       $('#personalDataLink').bind('click', showPersonalDataDiv);
                      },
                      function()
                      {
                        $('#helloMessage').text('Not logged in');
                        personalDataDivHide();
-                       $('#personalDataLink').unbind('click', showPersonalDataDiv);
-                       $('#personalDataLink').bind('click', showLoginPanel);
                      },
                      null,
                      function()

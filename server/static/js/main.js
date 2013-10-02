@@ -365,6 +365,8 @@ CLoginManager.prototype.isLoggedAs = function()
  *   loginManager - A <CLoginManager> object monitoring the session state.   *
  *   closeManager - A <CCloseableDiv> object managing the login panel window *
  *                  opening and closing.                                     *
+ *   onLogin - A function to be called when successfully logged in with GUI  *
+ *             (being erased after control panel is closed).                 *
  *****************************************************************************
  * Constructor: CLoginConsole                                                *
  *                                                                           *
@@ -387,6 +389,7 @@ CLoginManager.prototype.isLoggedAs = function()
 function CLoginConsole($controlPanel, $panelShowButton, $logoutButton,
                        onlogin, onlogout, finalFunction, onClose)
 {
+  this.onLogin = null;
   this.$controlPanel = $controlPanel;
 
   var thisInstance = this;
@@ -447,7 +450,7 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton,
 
     if (permissionToGo)
     {
-      thisInstance.login(login, password);
+      thisInstance.login(login, password, thisInstance.onLogin);
     }
     return false;
   }
@@ -476,6 +479,7 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton,
                                         {
                                           thisInstance.$controlPanel.find('.loginForm').val('');
                                           thisInstance.$controlPanel.find('.formErrorMessages').hide().text('');
+                                          thisInstance.onLogin = null;
                                           if (onClose != null)
                                           {
                                             onClose();
@@ -487,9 +491,14 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton,
  * Method: showPanel                                                         *
  *                                                                           *
  * Show the login panel window.                                              *
+ *                                                                           *
+ * Parameters:                                                               *
+ *   onLogin - A function to be called when successfully logged in with GUI  *
+ *             (being erased after control panel is closed).                 *
 \*****************************************************************************/
-CLoginConsole.prototype.showPanel = function()
+CLoginConsole.prototype.showPanel = function(onLogin)
 {
+  this.onLogin = onLogin;
   this.closeManager.open();
 }
 
@@ -505,6 +514,7 @@ CLoginConsole.prototype.destroy = function()
 //TODO: provide some kind of control (like in CLoginManager)
   this.loginManager.destroy();
   this.closeManager.destroy();
+  this.onLogin = null;
 
   this.$panelShowButton.unbind('click',  this.panelShowButtonHandler);
   this.panelShowButtonHandler = null;
@@ -522,18 +532,28 @@ CLoginConsole.prototype.destroy = function()
  * Parameters:                                                               *
  *   login - An user's login. String                                         *
  *   password - An user's password. String                                   *
+ *   onSuccess - An optional handler of successfull login. function          *
+ *   onFailure - An optional handler of unsuccessfull login. function        *
 \*****************************************************************************/
-CLoginConsole.prototype.login = function(login, password)
+CLoginConsole.prototype.login = function(login, password, onSuccess, onFailure)
 {
   var thisInstance = this;
 
   this.loginManager.login(login, password,
                           function(response)
                           {
+                            if (onSuccess != null)
+                            {
+                              onSuccess(response);
+                            }
                             thisInstance.closeManager.close();
                           },
                           function(response)
                           {
+                            if (onFailure != null)
+                            {
+                              onFailure(response);
+                            }
                             thisInstance.$controlPanel.find('.badPass').show().text(response.message);
                           });
 }
@@ -835,11 +855,11 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
 /*****************************************************************************\
  * Method: showPanel                                                         *
  *                                                                           *
- * An alias to loginManager.showPanel(); see <CUserPanel.showPanel>.         *
+ * An alias to loginManager.showPanel(onLogin); see <CUserPanel.showPanel>.  *
 \*****************************************************************************/
-CUserPanel.prototype.showPanel = function()
+CUserPanel.prototype.showPanel = function(onLogin)
 {
-  this.loginManager.showPanel();
+  this.loginManager.showPanel(onLogin);
 }
 
 /*****************************************************************************\
@@ -870,11 +890,12 @@ CUserPanel.prototype.destroy = function()
 /*****************************************************************************\
  * Method: login                                                             *
  *                                                                           *
- * An alias to loginManager.login(); see <CUserPanel.login>.                 *
+ * An alias to loginManager.login(login, password, onSuccess, onFailure);    *
+ * see <CUserPanel.login>.                                                   *
 \*****************************************************************************/
-CUserPanel.prototype.login = function(login, password)
+CUserPanel.prototype.login = function(login, password, onSuccess, onFailure)
 {
-  this.loginManager.login(login, password)
+  this.loginManager.login(login, password, onSuccess, onFailure);
 }
 
 /*****************************************************************************\
