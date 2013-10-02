@@ -115,7 +115,8 @@ instructions in the e&#8209;mail."""
 
     else:
       status = False
-      message = "Couldn't register user"
+      message = success if isinstance(success, (str, unicode)) \
+                else "Unable to register user (unknown error)."
 
     return generateJson(data = login, status = status, message = message)
 

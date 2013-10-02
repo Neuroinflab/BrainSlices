@@ -168,9 +168,9 @@ class UserBase(dbBase):
     '''Stores a user in DB'''
     salt = random.randint(0, 2**31)
     row = self.__makeRow(login, password, email, name, salt)
-    l = row.keys()
-    db_columns = ', '.join(l)
-    db_values = ', '.join('%%(%s)s' % x for x in l)
+    columns = row.keys()
+    db_columns = ', '.join(columns)
+    db_values = ', '.join('%%(%s)s' % x for x in columns)
     template = "INSERT INTO users(%s) VALUES (%s);"
     insert_command = template %(db_columns, db_values)
     cursor.execute('DELETE FROM users WHERE first_login_date IS NULL AND extract(epoch from now() - confirmation_sent)/(3600*24)>%s;', (registrationValid,))
@@ -179,9 +179,16 @@ class UserBase(dbBase):
       return cursor.rowcount == 1
       
     except psycopg2.IntegrityError:
-      print('login already exists')
-      return False
+      cursor.execute("SELECT 1 FROM users WHERE login = %s LIMIT 1", (login,))
+      if cursor.rowcount == 1:
+        return "Login %s is already registered in the database." % login
     
+      cursor.execute("SELECT 1 FROM users WHERE email = %s LIMIT 1", (email,))
+      if cursor.rowcount == 1:
+        return "E-mail address %s is already registered in the database." % email
+
+      return False
+
     except:
       return None
 
@@ -204,21 +211,6 @@ class UserBase(dbBase):
       return self.getUserID(login, cursor = cursor)
 
     return False
-#    select_command = "SELECT login, salt, uid FROM users where login = '%s'" % login
-#    cursor.execute(select_command);
-#    # XXX: Jest bardzo niejasne, co tu sie dzieje...
-#    # TODO: uproscic
-#    l = []
-#    for v in cursor:
-#      l.append(v)
-#    #print(l)
-#    l = l[0]
-#    if confirmId == hashlib.md5(l[0] + str(l[1])).hexdigest():
-#      cursor.execute('UPDATE users SET first_login_date = now(), last_login_date = now() WHERE login = %s;', (login,))
-#      return l[2]
-#
-#    else:
-#      return False
 
   @provideCursor
   def changePassword(self, uid, oldPassword, newPassword, cursor=None):

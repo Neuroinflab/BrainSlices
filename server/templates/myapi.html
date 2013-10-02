@@ -142,73 +142,9 @@ var stacks = null;
 
 $(function()
 {
-  $('#userPanel').hide();
-  $('#registerDiv').hide();
-  $('#regeneratePasswordDiv').hide();
-  $('#successDiv').hide();
-  $('#logoutLink').hide();
+  //$('#logoutLink').hide();
 
   loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'));
-
-/*  $('#backFromRegistrationOkDiv').click(function()
-  {
-    $('#successDiv').hide();
-    $('#loginDiv').show();
-  });*/
-
-
-/*  $('form[name="regeneratePasswordForm"]').bind('submit',
-  function()
-  {
-    $('form[name="regeneratePasswordForm"] .formErrorMessages').hide().text('');
-    var login = $('#regenerateLogin').val().trim();
-    var email = $('#regenerateEmail').val().trim();
-
-    var permissionToGo = true;
-    if (!validLogin(login))
-    {
-      $('#regenerateLoginError').show().text('Provide a valid login.');
-      permissionToGo = false;
-    }
-
-    if (!validEmail(email,
-                    permissionToGo ?
-                    "Provided e-mail address is very unusual:\n"
-                    + email + "\n"
-                    + "- do you want to continue with it?" :
-                    null))
-    {
-      $('#regenerateEmailError').show().text('Provide a valid e-mail address.');
-      permissionToGo = false;
-    }
-
-    if (permissionToGo)
-    {
-
-
-      loginConsole.ajax('/user/regeneratePassword',
-                        function(response)
-                        {
-                          if (response.status)
-                          {
-                            $('#regeneratePasswordDiv').hide();
-                            $('#successDiv p').html(response.message);
-                            $('#successDiv').show();
-                            $('.regenerateForm').val('');
-                          }
-                          else
-                          {
-                            $('#regenerationError').show().html(response.message);
-                          }
-                        },
-                        {
-                          login: login,
-                          email: email
-                        });
-    }
-
-    return false;
-  });*/
 
 
 /**********************************************/

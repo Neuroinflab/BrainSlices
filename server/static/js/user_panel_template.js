@@ -47,10 +47,6 @@ function showPersonalDataDiv()
 
 $(function()
 {
-  $('#userPanel').hide();
-  $('#registerDiv').hide();
-  $('#regeneratePasswordDiv').hide();
-  $('#successDiv').hide();
   //$('#logoutLink').hide();
 
   if (!mode)
@@ -90,7 +86,7 @@ $(function()
   }
   );
 
-  loginConsole = new CLoginConsole($('#userPanel'), $('#loginLink'), $('#logoutLink'),
+  loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
                      function()
                      {
                        $('#helloMessage').text('Logged as ' + loginConsole.isLoggedAs());
@@ -107,186 +103,9 @@ $(function()
                      null,
                      function()
                      {
-                       $('#loginDiv').show();
-                       $('#registerDiv').hide();
                        $('.formErrorMessages').text(''); //XXX: is necessary?
-                       $('#successDiv').hide('');
-                       $('#regeneratePasswordDiv').hide('');
-                       $('.regenerateForm').val('');
                      });
 
-  $('#registerButton').click(function() 
-  {
-    $('.loginForm').val('');
-    $('#loginDiv').hide();
-    $('#registerDiv').show();
-    $('.loginMessages').text('');
-    $('.formErrorMessages').text('');
-  });
-
-  $('form[name="registerForm"]').bind('submit',
-  function() 
-  {
-    var login = $('#newLogin').val().trim();
-    var nPassword = $('#registerPassword').val();
-    var cPassword = $('#confirmPassword').val();
-    var name = $('#name').val().trim();
-    var eMail = $('#eMail').val().trim();
-
-    $('form[name="registerForm"] .formErrorMessages').hide().text('');
-    var permissionToGo = true;
-    if (!validLogin(login))
-    {
-      $('#newLoginFieldError').show().text('Provide a valid login.');
-      permissionToGo = false;
-    }
-
-    if (nPassword == '')
-    {
-      $('#newPasswordFieldError').show().text('Provide a password.');
-      permissionToGo = false;
-    }
-
-    if (cPassword == '')
-    {
-      $('#confirmPasswordFieldError').show().text('Confirm the password.');
-      permissionToGo = false;
-    }
-
-    if (name == '')
-    {
-      $('#nameFieldError').show().text('Provide a name.');
-      permissionToGo = false;
-    }
-
-    if (nPassword != cPassword)
-    {
-      $('#confirmPasswordFieldError').show().text("Passwords do not match.");
-      permissionToGo = false;
-    }
-
-    if (!validEmail(eMail,
-                    permissionToGo ?
-                    "Provided e-mail address is very unusual:\n"
-                    + eMail + "\n"
-                    + "- do you want to continue with it?" :
-                    null))
-    {
-      $('#eMailFieldError').show().text('Provide a valid e-mail address.');
-      permissionToGo = false;
-    }
-
-    if (permissionToGo)
-    {
-      loginConsole.ajax('/user/registerUser',
-                        function(response)
-                        {
-                          if (response.status)
-                          {
-                            $('#registerDiv').hide();
-                            $('#successDiv p').html(response.message)
-                            $('#successDiv').show();
-                            $('.registerForm').val('');
-                          }
-                          else
-                          {
-                            $('#registrationError').show().text(response.message);
-                          }
-                        },
-                        {
-                          login: login,
-                          password: nPassword,
-                          password2: cPassword,
-                          name: name,
-                          email: eMail
-                        });
-    }
-
-    return false;
-  });
-
-  $('#backFromRegistrationOkDiv').click(function()
-  {
-    $('#successDiv').hide();
-    $('#loginDiv').show();
-  });
-
-  $('#backFromRegister').click(function()
-  {
-    $('.registerForm').val('');
-    $('#dontMatch').text('');
-    $('#registerDiv').hide();
-    $('#loginDiv').show();
-  });
-
-  $('#regeneratePasswordButton').click(function()
-  {
-    $('.loginForm').val('');
-    $('#loginDiv').hide();
-    $('.loginMessages').text('');
-    $('.formErrorMessages').text('');
-    $('#regeneratePasswordDiv').show();
-  });
-
-  $('form[name="regeneratePasswordForm"]').bind('submit',
-  function()
-  {
-    $('form[name="regeneratePasswordForm"] .formErrorMessages').hide().text('');
-    var login = $('#regenerateLogin').val().trim();
-    var email = $('#regenerateEmail').val().trim();
-
-    var permissionToGo = true;
-    if (!validLogin(login))
-    {
-      $('#regenerateLoginError').show().text('Provide a valid login.');
-      permissionToGo = false;
-    }
-
-    if (!validEmail(email,
-                    permissionToGo ?
-                    "Provided e-mail address is very unusual:\n"
-                    + email + "\n"
-                    + "- do you want to continue with it?" :
-                    null))
-    {
-      $('#regenerateEmailError').show().text('Provide a valid e-mail address.');
-      permissionToGo = false;
-    }
-
-    if (permissionToGo)
-    {
-
-
-      loginConsole.ajax('/user/regeneratePassword',
-                        function(response)
-                        {
-                          if (response.status)
-                          {
-                            $('#regeneratePasswordDiv').hide();
-                            $('#successDiv p').html(response.message);
-                            $('#successDiv').show();
-                            $('.regenerateForm').val('');
-                          }
-                          else
-                          {
-                            $('#regenerationError').show().html(response.message);
-                          }
-                        },
-                        {
-                          login: login,
-                          email: email
-                        });
-    }
-
-    return false;
-  });
-
-  $('#backFromRegenerate').click(function()
-    {
-      $('.regenerateForm').val('');
-      $('#regeneratePasswordDiv').hide();
-      $('#loginDiv').show();
-    });
 
 /**********************************************/
 
