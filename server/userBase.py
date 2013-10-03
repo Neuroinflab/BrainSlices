@@ -164,7 +164,7 @@ class UserBase(dbBase):
     return row
     
   @provideCursor
-  def registerUser(self, login, password, email, name, cursor = None, registrationValid =  7*24*60*60):
+  def registerUser(self, login, password, email, name, registrationValid =  7*24*60*60, cursor = None):
     '''Stores a user in DB'''
     salt = random.randint(0, 2**31)
     row = self.__makeRow(login, password, email, name, salt)

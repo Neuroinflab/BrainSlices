@@ -50,6 +50,8 @@ if __name__ == '__main__':
                     dest='email', default='', help='user e-mail address')
   parser.add_option('-n', '--name', action='store', type='string',
                     dest='name', default='', help='user real name')
+  parser.add_option('-q', '--quiet', action='store_false', dest='verbose',
+                    default=True, help='do not print error mesages')
   options, args = parser.parse_args()
 
   if len(args) > 0 or options.login == None or options.password == None:
@@ -58,13 +60,16 @@ if __name__ == '__main__':
 
   ub = UserBase(db)
   login = options.login.lower()
-  salt = random.randint(0, 2**31)
-  if not ub.registerUser(login, options.password, options.email,
-                         options.name, salt):
+  result = ub.registerUser(login, options.password, options.email,
+                           options.name)
+  if result != True:
+    if options.verbose:
+      print result
+
     exit(1)
 
   ub.confirmationSent(login)
 
-  confirmId = hashlib.md5(login + str(salt)).hexdigest()
+  confirmId = ub.getConfirmID(login)
   print ub.confirmRegistration(login, confirmId)
 

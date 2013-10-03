@@ -309,7 +309,7 @@ if [ "$NEW_DB" == "N" ] || [ "$SETUP_DB" == "Y" ]
       then
         askPrompt "Service user login" admin SERVICE_USER_LOGIN
         askPassw "$SERVICE_USER_LOGIN password" SERVICE_USER_PASSWORD
-        until UserID=`python auxilaryScripts/addUser.py -l "$SERVICE_USER_LOGIN" -p "$SERVICE_USER_PASSWORD"`
+        until UserID=`python auxilaryScripts/addUser.py -l "$SERVICE_USER_LOGIN" -p "$SERVICE_USER_PASSWORD" -q`
           do
             echo "An error has occured. Please try again."
             askPrompt "Service user login" "$SERVICE_USER_LOGIN" SERVICE_USER_LOGIN

@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2013-09-18 17:37:28
+-- Created on: 2013-10-03 15:54:41
 -- Diagram Version: 
 -- =============================================================================
 
@@ -100,6 +100,13 @@ CREATE TABLE "users" (
 	"user_enabled" bool DEFAULT True,
 	"last_login_date" timestamp,
 	"first_login_date" timestamp,
+	"confirm_md5" text,
+	"confirm_sha1" text,
+	"confirm_bcrypt10" text,
+	"confirm_sha224" text,
+	"confirm_sha256" text,
+	"confirm_sha384" text,
+	"confirm_sha512" text,
 	CONSTRAINT "users_pkey" PRIMARY KEY("uid"),
 	CONSTRAINT "user_login" UNIQUE("login"),
 	CONSTRAINT "user_email" UNIQUE("email")

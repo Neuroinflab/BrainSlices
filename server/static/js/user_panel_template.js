@@ -81,14 +81,10 @@ $(function()
   }
   else if (mode == 'confirmation')
   {
-    //$('#logoutLink').show();
-    //$('#loginLink').hide();
     $('#helloMessage').text('Logged in')
   }
   else if (mode == 'regeneration')
   {
-    //$('#welcomeDiv').hide();
-    //$('#regeneratePasswordFinalDiv').show();
     loginConsole.showRegeneratePasswordFinalForm(login, confirmId);
   }
   else if (mode == 'regeneration failed')
@@ -108,12 +104,6 @@ $(function()
   });
 
   $('#personalDataLink').bind('click', showPersonalDataDiv);
-
-
-
-
-
-/**********************************************/
 
   $('#changePassword').click(function()
   {
@@ -137,7 +127,7 @@ $(function()
 
     if (newPassword != passwordRetype)
     {
-      $('#newPasswordFieldError').text("Passwords don't match");
+      $('#newPasswordFieldError').text("Passwords do not match.");
     }
     else
     {
@@ -161,53 +151,5 @@ $(function()
                         });
     }
   });
-
-/*  $('#regenerateFinalise').click(function()
-  {
-    var password = $('#regeneratePassword').val();
-    var password2 = $('#regeneratePasswordRetype').val();
-    var permissionToGo = true;
-    
-    $('#regeneratePasswordFieldError').text('');
-    $('#regeneratePasswordiRetypeFieldError').text('');
-
-    if (password != password2)
-    {
-      $('#regeneratePasswordFieldError').text("Passwords do not match.");
-      permissionToGo = false;
-    }
-
-    if (password == '')
-    {
-      $('#regeneratePasswordFieldError').text("Provide a new password.");
-      permissionToGo = false;
-    }
-
-    if (password2 == '')
-    {
-      $('#regeneratePasswordFieldError').text("Confirm the password.");
-      permissionToGo = false;
-    }
-    
-    if (permissionToGo)
-    {
-      var confirmId = $('#confirmIdForRegenerate').val(); 
-      var login = $('#loginForRegenerate').val();
-
-      loginConsole.ajax('changePasswordRegenerate',
-                        function(response)
-                        {
-                          alert(response.message);
-                        },
-                        {
-                          login: login,
-                          confirm: confirmId,
-                          password: password,
-                          password2: password2
-                        });
-
-    }
-
-  });*/
 
 });
