@@ -135,9 +135,8 @@ database. Please note, that we consider e&#8209;mail address to be case-sensitiv
           mail = eMails.sendRegenerationEmail(request, name, confirmID)
           if mail == True:
             status = True
-            message = """Password regeneration e&#8209;mail has been sent to your e&#8209;mail.
-To complete the regeneration process please check your
-e&#8209;mail box and follow instructions in the e&#8209;mail."""
+            message = """Password regeneration e&#8209;mail has been sent to your e&#8209;mail address.
+To complete the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail."""
 
           else:
             errorKey = mail[email][0]
@@ -157,11 +156,12 @@ e&#8209;mail, please contact the administrator."""
   def confirmPasswordRegeneration(self, request):
     login = request.login
     confirmId = request.confirm
+    #TODO: simplify!!!
     uid = self.userBase.confirmRegistration(login, confirmId)
     if uid:
-      request.session['userID'] = uid
+      #request.session['userID'] = uid
       confirmId = self.userBase.getConfirmID(login)
-      return [('confirmIdForRegenerateHere', confirmId), ('loginForRegenerateHere', login)], [('<!--%modeHere%--!>', 'regeneration')]
+      return [('<!--%confirmHere%--!>', confirmId), ('<!--%loginHere%--!>', login)], [('<!--%modeHere%--!>', 'regeneration')]
 
     else:
       return [], [('<!--%modeHere%--!>', 'regeneration failed')]
@@ -172,14 +172,16 @@ e&#8209;mail, please contact the administrator."""
     npass = request.password
     changeSuccess = self.userBase.changePasswordRegenerate(confirmId, login, npass)
     if changeSuccess == True:
+      request.session['userID'] = self.userBase.getUserID(login)
       status = True
       message = 'password regenerated'
 
     else:
+      request.session['userID'] = None
       status = False
       message = 'Failed to regenerate password'
 
-    return generateJson(data = login, status = status, message = message)
+    return generateJson(data = login, status = status, message = message, logged = status)
 
   @useTemplate('userPanel')
   def confirmRegistration(self, request):

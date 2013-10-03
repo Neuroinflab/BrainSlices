@@ -653,15 +653,17 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
   this.$controlPanel = $controlPanel;
 
   var thisInstance = this;
+  var $loginForm = $controlPanel.find('form[name="loginForm"]');
   var $registerForm = $controlPanel.find('form[name="registerForm"]');
   var $regenerateForm = $controlPanel.find('form[name="regeneratePasswordForm"]');
-  var $success = $controlPanel.find('p.success');
+  var $regenerateFinalForm = $controlPanel.find('form[name="regeneratePasswordFinalForm"]');
+  var $success = $controlPanel.find('div>p.success');
 
   this.showRegisterForm = function()
   {
     //TODO: regenerationForm cleanup?
-    $controlPanel.find('form[name="loginForm"]').hide();
-    $controlPanel.find('.loginForm').val('');
+    $loginForm.hide();
+    $loginForm.find('.loginForm').val('');
     $controlPanel.find('.formErrorMessages').text('');
     $registerForm.show();
   };
@@ -729,7 +731,6 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                           {
                             $registerForm.hide();
                             $success.html(response.message).show();
-                            //$success.show();
                             $registerForm.find('.registerForm').val('');
                           }
                           else
@@ -747,7 +748,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
     }
 
     return false;
-  }
+  };
 
   $registerForm.bind('submit', this.submitRegisterForm);
 
@@ -758,7 +759,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
     $registerForm.hide();
     $regenerateForm.find('.regenerateForm').val('');
     $regenerateForm.hide();
-    $controlPanel.find('form[name="loginForm"]').show();
+    $loginForm.show();
   };
 
   $controlPanel.find('.showLoginFormButton').bind('click', this.showLoginForm);
@@ -766,8 +767,8 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
   this.showRegeneratePasswordForm = function()
   {
     //TODO: register form cleanup?
-    $controlPanel.find('.loginForm').val('');
-    $controlPanel.find('form[name="loginForm"]').hide();
+    $loginForm.find('.loginForm').val('');
+    $loginForm.hide();
     $controlPanel.find('.loginMessages').text('');
     $controlPanel.find('.formErrorMessages').text('');
     $regenerateForm.show();
@@ -807,8 +808,9 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                           if (response.status)
                           {
                             $regenerateForm.hide();
-                            $success.html(response.message).show();
-                            $regenerateForm.find('.regenerateForm').val('');
+                            //$success.html(response.message).show();
+                            thisInstance.showRegeneratePasswordFinalForm(login);
+                            //$regenerateForm.find('.regenerateForm').val('');
                           }
                           else
                           {
@@ -826,6 +828,87 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
 
   $regenerateForm.bind('submit', this.submitRegeneratePasswordForm);
 
+  this.showRegeneratePasswordFinalForm = function(login, confirm)
+  {
+    //TODO: register form cleanup?
+    $loginForm.find('.loginForm').val('');
+    $loginForm.hide();
+    $controlPanel.find('.loginMessages').text('');
+    $regenerateForm.find('.regenerateForm').val('');
+    $regenerateForm.hide();
+    $controlPanel.find('.formErrorMessages').text('');
+    $regenerateFinalForm.find('input[name="login"]').val(login);
+    if (confirm != null)
+    {
+      thisInstance.showPanel();
+      $regenerateFinalForm.find('input[name="confirm"]').val(confirm);
+    }
+    $regenerateFinalForm.show();
+  };
+
+  this.submitRegeneratePasswordFinalForm = function()
+  {
+    $regenerateFinalForm.find('.formErrorMessages').hide().text('');
+
+    var login = $regenerateFinalForm.find('input[name="login"]').val().trim();
+    var password = $regenerateFinalForm.find('input[name="password"]').val();
+    var password2 = $regenerateFinalForm.find('input[name="password2"]').val();
+    var confirm = $regenerateFinalForm.find('input[name="confirm"]').val().trim();
+    var permissionToGo = true;
+
+    if (password == '')
+    {
+      $regenerateFinalForm.find('.passwordFieldError').show().text('Provide a password.');
+      permissionToGo = false;
+    }
+
+    if (password != password2)
+    {
+      $regenerateFinalForm.find('.password2FieldError').show().text("Passwords do not match.");
+      permissionToGo = false;
+    }
+    else if (password2 == '')
+    {
+      $regenerateFinalForm.find('.password2FieldError').show().text('Confirm the password.');
+      permissionToGo = false;
+    }
+
+    if (confirm == '')
+    {
+      $regenerateFinalForm.find('.confirmFieldError').show().text('Provide a confirmation string (sent to you in an e-mail).');
+      permissionToGo = false;
+    }
+
+    if (permissionToGo)
+    {
+      thisInstance.ajax('changePasswordRegenerate',
+                        function(response)
+                        {
+                          if (response.status)
+                          {
+                            $regenerateFinalForm.hide();
+                            $success.html(response.message).show();
+                            $regenerateFinalForm.find('.registerForm').val('');
+                          }
+                          else
+                          {
+                            $regenerateFinalForm.find('.submitError').show().text(response.message);
+                          }
+                        },
+                        {
+                          login: login,
+                          confirm: confirm,
+                          password: password,
+                          password2: password2
+                        });
+
+    }
+
+    return false;
+  }
+
+  $regenerateFinalForm.bind('submit', this.submitRegeneratePasswordFinalForm);
+
   onlogin = onlogin == null ? [] : (onlogin instanceof Array ?
                                     onlogin.slice(0) : [onlogin]);
   onlogin.push(function()
@@ -838,7 +921,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                                         finalFunction,
                                         function()
                                         {
-                                          $controlPanel.find('form[name="loginForm"]').show();
+                                          $loginForm.show();
                                           $registerForm.hide();
                                           $regenerateForm.hide();
                                           $success.hide();
@@ -885,6 +968,11 @@ CUserPanel.prototype.destroy = function()
 
   this.$controlPanel.find('form[name="regeneratePasswordForm"]').unbind('submit', this.submitRegeneratePasswordForm);
   this.submitRegeneratePasswordForm = null;
+
+  this.showRegeneratePasswordFinalForm = null;
+
+  this.$controlPanel.find('form[name="regeneratePasswordFinalForm"]').unbind('submit', this.submitRegeneratePasswordFinalForm);
+  this.submitRegeneratePasswordFinalForm = null;
 }
 
 /*****************************************************************************\

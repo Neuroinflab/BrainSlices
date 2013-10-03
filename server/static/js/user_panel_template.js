@@ -54,7 +54,21 @@ function showPersonalDataDiv()
 
 $(function()
 {
-  //$('#logoutLink').hide();
+  loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
+                     function()
+                     {
+                       $('#helloMessage').text('Logged as ' + loginConsole.isLoggedAs());
+                     },
+                     function()
+                     {
+                       $('#helloMessage').text('Not logged in');
+                       personalDataDivHide();
+                     },
+                     null,
+                     function()
+                     {
+                       $('.formErrorMessages').text(''); //XXX: is necessary?
+                     });
 
   if (!mode)
   {
@@ -73,8 +87,9 @@ $(function()
   }
   else if (mode == 'regeneration')
   {
-    $('#welcomeDiv').hide();
-    $('#regeneratePasswordFinalDiv').show();
+    //$('#welcomeDiv').hide();
+    //$('#regeneratePasswordFinalDiv').show();
+    loginConsole.showRegeneratePasswordFinalForm(login, confirmId);
   }
   else if (mode == 'regeneration failed')
   {
@@ -95,21 +110,7 @@ $(function()
   $('#personalDataLink').bind('click', showPersonalDataDiv);
 
 
-  loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
-                     function()
-                     {
-                       $('#helloMessage').text('Logged as ' + loginConsole.isLoggedAs());
-                     },
-                     function()
-                     {
-                       $('#helloMessage').text('Not logged in');
-                       personalDataDivHide();
-                     },
-                     null,
-                     function()
-                     {
-                       $('.formErrorMessages').text(''); //XXX: is necessary?
-                     });
+
 
 
 /**********************************************/
@@ -161,7 +162,7 @@ $(function()
     }
   });
 
-  $('#regenerateFinalise').click(function()
+/*  $('#regenerateFinalise').click(function()
   {
     var password = $('#regeneratePassword').val();
     var password2 = $('#regeneratePasswordRetype').val();
@@ -207,6 +208,6 @@ $(function()
 
     }
 
-  });
+  });*/
 
 });

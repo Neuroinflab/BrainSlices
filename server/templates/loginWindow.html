@@ -92,6 +92,39 @@
      </p>
     </form>
 
+    <form name="regeneratePasswordFinalForm" class="form" style="display: none;">
+     <p class="success" style="display: none;">
+      Password regeneration e&#8209;mail has been sent to your e&#8209;mail
+      address. To complete the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail.
+     </p>
+
+     <div>
+      <label for="confirm" class="left">Confirmation string:</label>
+      <input class="registerForm" type="text" name="confirm">
+     </div>
+     <p class="confirmFieldError formErrorMessages" style="display: none;"></p>
+
+     <div>
+      <label for="password" class="left">New password:</label>
+      <input class="registerForm" type="password" name="password">
+     </div>
+     <p class="passwordFieldError formErrorMessages" style="display: none;"></p>
+
+     <div>
+      <label for="password2" class="left">Confirm password:</label>
+      <input class="registerForm" type="password" name="password2">
+     </div>
+     <p class="password2FieldError formErrorMessages" style="display: none;"></p>
+
+     <div>
+      <input type="hidden" name="login">
+      <label class="left">&nbsp;</label>
+      <input type="submit" value="Change password">
+     </div>
+
+     <p class="submitError formErrorMessages" style="display: none;"></p>
+    </form>
+
     <p class="success" style="display: none;">
      An e-mail has been sent to you. Click the link
      contained in the e-mail to confirm this registration.
