@@ -24,7 +24,7 @@
 import os
 import cherrypy
 import eMails
-import random
+import base64
 
 
 from template import templateEngine
@@ -89,32 +89,29 @@ class UserGenerator(Generator):
     password = request.password
     name = request.name
     email = request.email
+    status = False
     success = self.userBase.registerUser(login, password, email, name)
     if success == True:
-      confirmID = self.userBase.getConfirmID(login)
-      mail = eMails.sendConfirmationEmail(request, confirmID)
-      if mail == True:
-        self.userBase.confirmationSent(login)
-        status = True
-        message = """Registration confirmation e-mail has been sent to your
-e&#8209;mail.<br/>
-To complete registration process please check your e&#8209;mail box and follow
-instructions in the e&#8209;mail."""
-      
-      else:
-        status = False
-        errorKey = mail[email][0]
-        if errorKey in smtpErrors.keys():
-          status = False
-          message = 'smtp error: ' + smtpErrors[errorKey]
-          self.userBase.deleteUser(login, password)
-
+      message = "Account crearted however there was a problem with sending the confirmation e-mail, please contact admin."
+      rawID = self.userBase.newConfirmationID(login)
+      if rawID:
+        confirmID = base64.urlsafe_b64encode(rawID)
+        mail = eMails.sendConfirmationEmail(request, confirmID)
+        if mail == True:
+          self.userBase.confirmationSent(login)
+          status = True
+          message = """Registration confirmation e-mail has been sent to your
+  e&#8209;mail.<br/>
+  To complete registration process please check your e&#8209;mail box and follow
+  instructions in the e&#8209;mail."""
+        
         else:
-          status = False
-          message = "Account crearted however there was a problem with sending the confirmation e-mail, please contact admin."
+          errorKey = mail[email][0]
+          if errorKey in smtpErrors.keys():
+            message = 'smtp error: ' + smtpErrors[errorKey]
+            self.userBase.deleteUser(login, password)
 
     else:
-      status = False
       message = success if isinstance(success, (str, unicode)) \
                 else "Unable to register user (unknown error)."
 
@@ -131,21 +128,21 @@ database. Please note, that we consider e&#8209;mail address to be case-sensitiv
       email_, name, enabled = row
       if email_ == email:
         if enabled:
-          confirmID = self.userBase.getConfirmID(login)
-          mail = eMails.sendRegenerationEmail(request, name, confirmID)
-          if mail == True:
-            status = True
-            message = """Password regeneration e&#8209;mail has been sent to your e&#8209;mail address.
-To complete the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail."""
-
-          else:
-            errorKey = mail[email][0]
-            if errorKey in smtpErrors.keys():
-              message = 'SMTP error: ' + smtpErrors[errorKey]
+          message = """Some problem occured sending the confirmation
+e&#8209;mail, please contact the administrator."""
+          rawID = self.userBase.newConfirmationID(login)
+          if rawID:
+            confirmID = base64.urlsafe_b64encode(rawID)
+            mail = eMails.sendRegenerationEmail(request, name, confirmID)
+            if mail == True:
+              status = True
+              message = """Password regeneration e&#8209;mail has been sent to your e&#8209;mail address.
+To complet  e the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail."""
 
             else:
-              message = """Some problem occured sending the confirmation
-e&#8209;mail, please contact the administrator."""
+              errorKey = mail[email][0]
+              if errorKey in smtpErrors.keys():
+                message = 'SMTP error: ' + smtpErrors[errorKey]
 
         else:
           message = "The account is disabled."
@@ -155,48 +152,51 @@ e&#8209;mail, please contact the administrator."""
   @useTemplate('userPanel')
   def confirmPasswordRegeneration(self, request):
     login = request.login
-    confirmId = request.confirm
+    rawId = request.confirm
     #TODO: simplify!!!
-    uid = self.userBase.confirmRegistration(login, confirmId)
-    if uid:
+    uid = self.userBase.checkConfirmationID(login, rawId)
+    if uid != None:
       #request.session['userID'] = uid
-      confirmId = self.userBase.getConfirmID(login)
-      return [('<!--%confirmHere%--!>', confirmId), ('<!--%loginHere%--!>', login)], [('<!--%modeHere%--!>', 'regeneration')]
+      rawId = self.userBase.newConfirmationID(login)
+      if rawId:
+        confirmID = base64.urlsafe_b64encode(rawId)
+        return ([('<!--%confirmHere%--!>', confirmID),
+                 ('<!--%loginHere%--!>', login)],
+                [('<!--%modeHere%--!>', 'regeneration')])
 
-    else:
-      return [], [('<!--%modeHere%--!>', 'regeneration failed')]
+    return [], [('<!--%modeHere%--!>', 'regeneration failed')]
 
   def changePasswordRegenerate(self, request):
     confirmId = request.confirm
     login = request.login
     npass = request.password
-    changeSuccess = self.userBase.changePasswordRegenerate(confirmId, login, npass)
-    if changeSuccess == True:
-      request.session['userID'] = self.userBase.getUserID(login)
+    uid = self.userBase.changePasswordRegenerate(confirmId, login, npass)
+    if uid:
       status = True
       message = 'password regenerated'
 
     else:
-      request.session['userID'] = None
       status = False
       message = 'Failed to regenerate password'
 
+    request.session['userID'] = uid
     return generateJson(data = login, status = status, message = message, logged = status)
 
   @useTemplate('userPanel')
   def confirmRegistration(self, request):
     login = request.login
     confirmId = request.confirm
-    uid = self.userBase.confirmRegistration(login, confirmId)
+    uid = self.userBase.checkConfirmationID(login, confirmId)
     if uid:
-      status = True
-      message = 'registration confirmed'
+      #status = True
+      mode = 'confirmation'
       request.session['userID'] = uid
-    else:
-      status = False
-      message = 'confirmation failed'
 
-    return [], [('<!--%modeHere%--!>', 'confirmation')]
+    else:
+      #status = False
+      mode = 'confirmation failed'
+
+    return [], [('<!--%modeHere%--!>', mode)]
 
   @useTemplate('userPanel')
   def index(self):

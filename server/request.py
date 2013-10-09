@@ -27,6 +27,7 @@ import unittest
 from datetime import datetime
 
 import re, simplejson
+import base64
 
 LOGIN_RE = re.compile('^[a-z0-9-+_.*]+$')
 #EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
@@ -391,7 +392,8 @@ ConfirmIdRequest = Request.extend('ConfirmIdRequest',
 A virtual class parsing confirmation ID.
 """,
 required = 'confirm',
-atoms = {'confirm': (lambda x: len(x) > 0, None)})
+atoms = {'confirm': (lambda x: len(x) > 0,
+                     lambda x: base64.urlsafe_b64decode(x))})
 
 
 ChangePasswordRegenerateRequest = DoublePasswordRequest.extend('ChangePasswordRegenerateRequest',

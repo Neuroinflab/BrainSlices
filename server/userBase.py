@@ -24,6 +24,8 @@
 import psycopg2
 import random
 import hashlib
+import os
+import base64
 
 from keyboard import keyboard
 from authentication import HashAlgorithms
@@ -246,11 +248,10 @@ class UserBase(dbBase):
 
   @provideCursor
   def changePasswordRegenerate(self, confirmId, login, npass, cursor=None):
-    confirmId2 = self.getConfirmID(login, cursor=cursor)
-    if confirmId == confirmId2:
-      return self.changePasswordAux(login, npass, cursor=cursor)
-
-    return False
+    uid = self.checkConfirmationID(login, confirmId, cursor=cursor)
+    if uid:
+      if self.changePasswordAux(login, npass, cursor=cursor):
+        return uid
 
   @provideCursor
   def deleteUser(self, login, password, cursor = None):
@@ -296,6 +297,63 @@ class UserBase(dbBase):
                            FROM users
                            WHERE login = %s;
                            """, (login,))
+
+  @provideCursor
+  def newConfirmationID(self, login, cursor=None):
+    row = self._getOneRow("""
+                          SELECT salt, last_login_date
+                          FROM users
+                          WHERE login = %s;
+                          """, (login,),
+                          cursor=cursor)
+    if row == None:
+      return None
+
+    salt, last = row
+    rawID = os.urandom(12)
+    hashId = rawID + str(last)
+    algs, devs = zip(*HashAlgorithms.items())
+    hashes = tuple(dev.generateHash(login, hashId, salt) for dev in devs)
+    query = """
+            UPDATE users
+            SET %s
+            WHERE login = %%s;
+            """ % (', '.join("confirm_%s = %%s" % alg for alg in algs))
+    cursor.execute(query, hashes + (login,))
+    if cursor.rowcount == 1:
+      return rawID
+
+  @provideCursor
+  def checkConfirmationID(self, login, rawID, cursor=None):
+    query = """
+            SELECT uid, salt, last_login_date, %s
+            FROM users
+            WHERE login = %%s AND user_enabled;
+            """
+    algs, devs = zip(*HashAlgorithms.items())
+    row = self._getOneRow(query % (', '.join('confirm_%s' % alg for alg in algs)),
+                          (login,),
+                          cursor=cursor)
+    if row == None:
+      return None
+
+    uid, salt, last = row[:3]
+    hashId = rawID + str(last)
+    for dev, hsh in zip(devs, row[3:]):
+      if hsh != None and not dev.checkHash(login, hashId, salt, hsh):
+        return None
+
+    query = """
+            UPDATE users
+            SET %s, last_login_date = now(),
+                first_login_date = CASE
+                   WHEN first_login_date IS NULL THEN now()
+                   ELSE first_login_date END
+            WHERE login = %%s;
+            """ % (', '.join("confirm_%s = NULL" % alg for alg in algs))
+    cursor.execute(query, (login,))
+    if cursor.rowcount == 1:
+      return uid
 
   def getConfirmID(self, login, cursor=None):
     row = self._getOneRow("""
