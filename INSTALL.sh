@@ -72,7 +72,7 @@ askPrompt ()
   read -p "$PROMPT" $VAR
   if [ "${!VAR}" == "" ] && [ "$#" -gt "1" ]
     then
-      eval $VAR="$2"
+      eval $VAR=\"$2\"
     fi
 }
 
@@ -276,9 +276,13 @@ if [ "$BS_PORT" == "80" ]
   fi
 
 askPrompt "Service host and port for external users" "$BS_SERVER" BS_SERVICE_SERVER
+askPrompt "Official server name" "" BS_SERVICE_NAME 
+askPrompt "Signature for BrainSlices e-mails" "$BS_SERVICE_NAME team" BS_SERVICE_SIGNATURE
 echo  >> "$BS_CONFIG"
 echo '[Service]' >> "$BS_CONFIG"
 echo "server: $BS_SERVICE_SERVER" >> "$BS_CONFIG"
+echo "name: $BS_SERVICE_NAME" >> "$BS_CONFIG"
+echo "signature: $BS_SERVICE_SIGNATURE" >> "$BS_CONFIG"
 
 askPrompt "Tiler threads" 1 BS_TILER_THREADS
 if [ "$BS_TILER_THREADS" -lt "1" ]

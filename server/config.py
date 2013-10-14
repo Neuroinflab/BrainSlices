@@ -50,6 +50,8 @@ BS_EMAIL_ADDRESS = config.get('Email', 'address')
 BS_EMAIL_ENCODING = config.get('Email', 'encoding')
 
 BS_SERVICE_SERVER = config.get('Service', 'server')
+BS_SERVICE_NAME = config.get('Service', 'name')
+BS_SERVICE_SIGNATURE = config.get('Service', 'signature')
 
 BS_TILER_THREADS = config.getint('Tiler', 'threads')
 BS_TILER_MEMORY = config.getint('Tiler', 'memory')

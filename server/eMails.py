@@ -28,27 +28,38 @@ import email.utils as eutils
 from email.mime.text import MIMEText
 from datetime import datetime
 from config import BS_EMAIL_PASSWORD, BS_EMAIL_SERVER, BS_EMAIL_PORT,\
-                   BS_EMAIL_LOGIN, BS_EMAIL_ADDRESS, BS_SERVICE_SERVER,\
-                   BS_EMAIL_ENCODING
+                   BS_EMAIL_LOGIN, BS_EMAIL_ADDRESS, BS_EMAIL_ENCODING, \
+                   BS_SERVICE_SERVER, BS_SERVICE_NAME, BS_SERVICE_SIGNATURE
+
+
+BS_EMAIL_FROM = ("%s<%s>" % (BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)).encode(BS_EMAIL_ENCODING)
 
 #registration templates
-CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?login=%s&confirm=%s'
+CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
 
-REGISTRATION_EMAIL_SUBJECT = 'BrainSlices account registration'
+REGISTRATION_EMAIL_SUBJECT = '%s account registration' % BS_SERVICE_NAME
 
-REGISTRATION_EMAIL_TEMPLATE = '''Dear %(name)s,
-please click the link below to confirm your account registration (%(login)s)
-in BrainSlices:
-%(link)s '''
+REGISTRATION_EMAIL_TEMPLATE = '''Dear %%(name)s,
+please follow the link below to confirm your account registration (%%(login)s)
+in %s:
+%%(link)s
+
+Sincerely yours,
+%s''' % (BS_SERVICE_NAME, BS_SERVICE_SIGNATURE)
 
 #regeneration templates
-REGENERATION_LINK_TEMPLATE = 'http://%s/user/confirmPasswordRegeneration?login=%s&confirm=%s'
+REGENERATION_LINK_TEMPLATE = 'http://%s/user/confirmPasswordRegeneration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
  
-REGENERATION_EMAIL_SUBJECT = 'BrainsSlices password regeneration'
+REGENERATION_EMAIL_SUBJECT = '%s password regeneration' % BS_SERVICE_NAME
 
-REGENERATION_EMAIL_TEMPLATE = '''Dear %(name)s,
-please click the link below to regenerate your account password (%(login)s) in BrainSlices:
-%(link)s'''
+REGENERATION_EMAIL_TEMPLATE = '''Dear %%(name)s,
+please follow the link below to regenerate your account password (%%(login)s) in %s:
+%%(link)s
+or enter the following confirmation key manually:
+%%(key)s
+
+Sincerely yours,
+%s''' % (BS_SERVICE_NAME, BS_SERVICE_SIGNATURE)
 
 
 def sendConfirmationEmail(request, confirmId):
@@ -60,19 +71,20 @@ def sendConfirmationEmail(request, confirmId):
 def sendConfirmationEmailAux(name, email, login, confirmId):
   emailAdress = "%s<%s>" % (name, email)
   #now = datetime.now().strftime('%Y.%m.%d %H:%M:%S') #XXX: not used
-  confirmationLink = CONFIRMATION_LINK_TEMPLATE % (BS_SERVICE_SERVER, login, confirmId)
+  confirmationLink = CONFIRMATION_LINK_TEMPLATE % (confirmId, login)
 
   #prepare email
   templateDict = {'name': name, 
                   'login': login, 
-                  'link': confirmationLink}
+                  'link': confirmationLink,
+                  'key': confirmId}
 
   content = REGISTRATION_EMAIL_TEMPLATE % templateDict
   customerMsg = MIMEText(content.encode(BS_EMAIL_ENCODING),
                          'plain',
                          BS_EMAIL_ENCODING)
   customerMsg['Subject'] = REGISTRATION_EMAIL_SUBJECT
-  customerMsg['From'] = BS_EMAIL_ADDRESS
+  customerMsg['From'] = BS_EMAIL_FROM
   customerMsg['To'] = emailAdress.encode(BS_EMAIL_ENCODING)
   customerMsg['Date'] = eutils.formatdate()
   
@@ -101,19 +113,20 @@ def sendRegenerationEmail(request, name, confirmId):
 
 def sendRegenerationEmailAux(email, name, login, confirmId):
   emailAdress = "%s<%s>" % (name, email)
-  regenerationLink = REGENERATION_LINK_TEMPLATE % (BS_SERVICE_SERVER, login, confirmId)
+  regenerationLink = REGENERATION_LINK_TEMPLATE % (confirmId, login)
 
   #prepare email
   templateDict = {'login': login, 
                   'link': regenerationLink,
-                  'name': name}
+                  'name': name,
+                  'key': confirmId}
 
   content = REGENERATION_EMAIL_TEMPLATE % templateDict
   customerMsg = MIMEText(content.encode(BS_EMAIL_ENCODING),
                          'plain',
                          BS_EMAIL_ENCODING)
   customerMsg['Subject'] = REGENERATION_EMAIL_SUBJECT
-  customerMsg['From'] = BS_EMAIL_ADDRESS
+  customerMsg['From'] = BS_EMAIL_FROM
   customerMsg['To'] = emailAdress.encode(BS_EMAIL_ENCODING)
   customerMsg['Date'] = eutils.formatdate()
   
