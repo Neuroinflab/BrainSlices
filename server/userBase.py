@@ -147,26 +147,7 @@ class UserBase(dbBase):
     cursor.execute('UPDATE users SET confirmation_sent = now() WHERE login = %s;', (login,))
 
   @provideCursor
-  def changePassword(self, uid, oldPassword, newPassword, cursor=None):
-    '''Changes users password in DB if passwords match. Does nothing if passwords don't match'''
-    login = self.checkPassword(uid, oldPassword, record=False, cursor=cursor)
-    if login == None:
-      return False
-
-    return self.changePasswordAux(uid, newPassword, cursor=cursor)
-
-  def changePasswordAux(self, identifier, newPassword, cursor=None):
-    login = identifier
-    if isinstance(identifier, (int, long)):
-      login = self._getOneValue("""
-                                SELECT login
-                                FROM users
-                                WHERE uid = %s;
-                                """, (identifier,),
-                                cursor = cursor)
-      if login == None:
-        return False
-
+  def changePassword(self, login, newPassword, cursor=None):
     salt = random.randint(0, 2**31)
     algs, devs = zip(*HashAlgorithms.items())
     hashes = tuple(dev.generateHash(login, newPassword, salt) for dev in devs)
@@ -177,13 +158,6 @@ class UserBase(dbBase):
             """ % (', '.join("%s = %%s" % alg for alg in algs))
     cursor.execute(query, hashes + (salt, login))
     return cursor.rowcount == 1
-
-  @provideCursor
-  def changePasswordRegenerate(self, confirmId, login, npass, cursor=None):
-    uid = self.checkConfirmationID(login, confirmId, cursor=cursor)
-    if uid:
-      if self.changePasswordAux(login, npass, cursor=cursor):
-        return uid
 
   @provideCursor
   def deleteUser(self, login, password, cursor = None):

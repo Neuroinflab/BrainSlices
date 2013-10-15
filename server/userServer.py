@@ -170,17 +170,19 @@ To complet  e the regeneration process please check your e&#8209;mail box and fo
     confirmId = request.confirm
     login = request.login
     npass = request.password
-    uid = self.userBase.changePasswordRegenerate(confirmId, login, npass)
+    status = False
+    message = 'Failed to regenerate the password.'
+    uid = self.userBase.checkConfirmationID(login, confirmId)
     if uid:
-      status = True
-      message = 'password regenerated'
-
-    else:
-      status = False
-      message = 'Failed to regenerate password'
+      if self.userBase.changePassword(login, npass):
+        status = True
+        message = 'Password regenerated successfuly.'
 
     request.session['userID'] = uid
-    return generateJson(data = login, status = status, message = message, logged = status)
+    return generateJson(data = login,
+                        status = status,
+                        message = message,
+                        logged = status)
 
   @useTemplate('userPanel')
   def confirmRegistration(self, request):
@@ -203,19 +205,16 @@ To complet  e the regeneration process please check your e&#8209;mail box and fo
     return [], [('<!--%modeHere%--!>', 'normal')]
 
   def changePassword(self, request):
-    #print(request)
     uid = request.session.get('userID')
     oldPassword = request.oldPassword
     newPassword = request.newPassword
-    passwordRetype = request.passwordRetype
-    success = self.userBase.changePassword(uid, oldPassword, newPassword)
-    if success:
-      status = True
-      message = 'password changed'
-
-    else:
-      status = False
-      message = 'password change failed'
+    status = False
+    message = "Unable to change the password."
+    login = self.userBase.checkPassword(uid, oldPassword, record=False)
+    if login != None:
+      if self.userBase.changePassword(login, newPassword):
+        status = True
+        message = 'Password changed successfully.'
 
     return generateJson(data = uid,
                         status = status,
