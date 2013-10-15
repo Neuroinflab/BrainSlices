@@ -193,15 +193,13 @@ class UserBase(dbBase):
       data = {'login': login}
       cursor.execute(delete_command, data)
 
-  @provideCursor
   def getUserLogin(self, uid, cursor = None):
-    select_command = 'SELECT login FROM users WHERE uid = %(uid)s'
-    data = {'uid': uid}
-    cursor.execute(select_command, data)
-    l = []
-    for v in cursor:
-      l.append(v)
-    return l[0][0]
+    return self._getOneValue("""
+                             SELECT login
+                             FROM users
+                             WHERE uid = %s;
+                             """, (uid,),
+                             cursor = cursor)
 
   def getEmailInformation(self, login):
     return self._getOneRow("""
@@ -267,25 +265,8 @@ class UserBase(dbBase):
     if cursor.rowcount == 1:
       return uid
 
-  def getConfirmID(self, login, cursor=None):
-    row = self._getOneRow("""
-                          SELECT salt, md5, last_login_date
-                          FROM users
-                          WHERE login = %s;
-                          """, (login,),
-                          cursor=cursor)
-    if row == None:
-      return None
 
-    salt, md5, last = row
-    return hashlib.md5(login + str(salt) + md5 + str(last)).hexdigest()
-
-  def getSalt(self, login, email):
-    return self._getOneValue("""
-                             SELECT salt
-                             FROM users
-                             WHERE login = %s AND email = %s AND user_enabled;
-                             """, (login, email))
+# TODO: refactoring
 
   @provideCursor
   def addGroup(self, group_name, group_administrator, group_description, cursor = None):
