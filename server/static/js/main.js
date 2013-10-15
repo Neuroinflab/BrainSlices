@@ -843,6 +843,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
   this.showRegeneratePasswordFinalForm = function(login, confirm)
   {
     $regenerateForm.hide();
+    $loginForm.hide();
     $controlPanel.find('.formErrorMessages').text('');
     $regenerateFinalForm.find('.formField').val('');
     $regenerateFinalForm.find('input[name="login"]').val(login);

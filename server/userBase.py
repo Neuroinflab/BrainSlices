@@ -37,54 +37,7 @@ from database import provideCursor, handlePgException, provideDictCursor, dbBase
 #      co trzeba usunac / poprawic
 
 class UserBase(dbBase):
-  @provideDictCursor
-  def __getUserRowByColumn(self, columnName, columnVal, password = None, cursor = None):
-    '''
-    Return all fields in DB for a given login if given password matches.
-    Return None if given password doesn't match.
-    Set every unset hash if password match.
-    '''
-    #TODO: zmmienic to ponizej, poki co nie wiem jak nazwe kolumny przekazac madrzej
-    if columnName in('uid', 'login'):
-      query = "select * from users where %s = %%s" %columnName 
-    else:
-      return None
-
-    data = (columnVal,)
-    row = self._getOneDict(query, data, cursor = cursor)
-
-    toSet = {}
-    if not row == None:
-      login = row['login']
-      for alg, device in HashAlgorithms.iteritems():
-        if row[alg] == None:
-          toSet[alg] = device
-
-        else:
-          if not device.checkHash(login, password, row['salt'], row[alg]):
-            return None
-
-      if toSet != {}:
-        data = {'login': login}
-        salt = row['salt']
-
-        for alg, device in toSet.iteritems():
-          data[alg] = device.generateHash(login, password, salt)
-
-        query = 'UPDATE users SET %s where login = %%(login)s;' % \
-                ', '.join('%s = %%(%s)s' % (alg, alg) for alg in toSet)
-        cursor.execute(query, data)
-
-      return row
-
-  @provideCursor
-  def __getUserRow(self, login, password = None, cursor = None):
-    return self.__getUserRowByColumn('login', login, password)
-
-  @provideCursor
-  def __getUserRowById(self, uid, password = None, cursor = None):
-    return  self.__getUserRowByColumn('uid', uid, password)
-
+  #XXX: not used
   def getUserID(self, login, cursor=None):
     return self._getOneValue("""
                              SELECT uid
@@ -103,25 +56,27 @@ class UserBase(dbBase):
                                     if isinstance(identifier, (str, unicode)) \
                                     else 'uid'),
                              (identifier,))
- 
+
   @provideCursor
-  def loginUser(self, login, password = None, cursor = None):
-    '''Returns user ID for a given login if given password matches. Returns None if given password doesn't match'''
+  def checkPassword(self, identifier, password, record = True, cursor = None):
     query = """
-    SELECT uid, salt, %s
+    SELECT login, uid, salt, %s
     FROM users
-    WHERE login = %%s AND user_enabled AND first_login_date IS NOT NULL;
+    WHERE %s = %%s AND user_enabled AND first_login_date IS NOT NULL;
     """
     algs, devs = zip(*HashAlgorithms.items())
-    cursor.execute(query % (', '.join(algs)), (login,))
+    cursor.execute(query % (', '.join(algs),
+                            'login' if isinstance(identifier, (str, unicode))\
+                            else 'uid'),
+                   (identifier,))
     if cursor.rowcount != 1:
       return None
 
     row = cursor.fetchone()
-    uid, salt = row[:2]
+    login, uid, salt = row[:3]
     setAlgs = []
     setDevs = []
-    for alg, dev, hsh in zip(algs, devs, row[2:]):
+    for alg, dev, hsh in zip(algs, devs, row[3:]):
       if hsh is None:
         setAlgs.append(alg)
         setDevs.append(dev)
@@ -130,52 +85,45 @@ class UserBase(dbBase):
         if not dev.checkHash(login, password, salt, hsh):
           return None
 
-    toSet = ['last_login_date = now()'] + ["%s = %%s" % alg for alg in setAlgs]
-    data = [dev.generateHash(login, password, salt) for dev in setDevs] + [uid]
+    toSet = ['last_login_date = now()'] if record else []
+    toSet += ["%s = %%s" % alg for alg in setAlgs]
+    if len(toSet) > 0:
+      data = [dev.generateHash(login, password, salt) for dev in setDevs] + [uid]
+  
+      query = """
+              UPDATE users
+              SET %s
+              WHERE uid = %%s
+              """ % (', '.join(toSet))
+      cursor.execute(query, data)
 
-    query = """
-            UPDATE users
-            SET %s
-            WHERE uid = %%s
-            """ % (', '.join(toSet))
-    cursor.execute(query, data)
-    return uid
+    return uid if isinstance(identifier, (str, unicode)) else login
 
-  def getUserLogin(self, uid, password = None):
-    row = self.__getUserRowById(uid, password)
-
-
-
+  #XXX: not used
   @provideCursor
   def userRegistered(self, login, cursor = None):
     query = "SELECT login FROM users WHERE login = %s;"
     cursor.execute(query, (login.lower(),))
     return cursor.rowcount == 1
 
-  def __makeRow(self, login, password, email, name, salt):
-    '''Given a login and password prepares a dictionairy of fields ready to insert into DB (with all available hashes).
-    Used in registerUser'''
-    row = {}
-    row['login'] = login
-    row['salt'] = salt
-    row['email'] = email
-    row['name'] = name
-    for alg, device in HashAlgorithms.iteritems():
-      row[alg] = device.generateHash(login, password, row['salt'])
-
-    return row
-    
   @provideCursor
-  def registerUser(self, login, password, email, name, registrationValid =  7*24*60*60, cursor = None):
+  def registerUser(self, login, password, email, name, registrationValid =  7, cursor = None):
     '''Stores a user in DB'''
     salt = random.randint(0, 2**31)
-    row = self.__makeRow(login, password, email, name, salt)
+    row = {'login': login,
+           'salt': salt,
+           'email': email,
+           'name': name}
+
+    for alg, device in HashAlgorithms.iteritems():
+      row[alg] = device.generateHash(login, password, salt)
+
     columns = row.keys()
     db_columns = ', '.join(columns)
     db_values = ', '.join('%%(%s)s' % x for x in columns)
     template = "INSERT INTO users(%s) VALUES (%s);"
     insert_command = template %(db_columns, db_values)
-    cursor.execute('DELETE FROM users WHERE first_login_date IS NULL AND extract(epoch from now() - confirmation_sent)/(3600*24)>%s;', (registrationValid,))
+    cursor.execute('DELETE FROM users WHERE first_login_date IS NULL AND extract(epoch from now() - confirmation_sent)/(3600*24) > %s;', (registrationValid,))
     try:
       cursor.execute(insert_command, row)
       return cursor.rowcount == 1
@@ -199,26 +147,10 @@ class UserBase(dbBase):
     cursor.execute('UPDATE users SET confirmation_sent = now() WHERE login = %s;', (login,))
 
   @provideCursor
-  def confirmRegistration(self, login, confirmId, cursor=None):
-    confirmId2 = self.getConfirmID(login, cursor = cursor)
-    if confirmId == confirmId2:
-      cursor.execute("""
-                     UPDATE users
-                     SET last_login_date = now(),
-                         first_login_date = CASE
-                            WHEN first_login_date IS NULL THEN now()
-                            ELSE first_login_date END
-                     WHERE login = %s;
-                     """, (login,))
-      return self.getUserID(login, cursor = cursor)
-
-    return False
-
-  @provideCursor
   def changePassword(self, uid, oldPassword, newPassword, cursor=None):
     '''Changes users password in DB if passwords match. Does nothing if passwords don't match'''
-    row = self.__getUserRowByColumn('uid', uid, oldPassword)
-    if row == None:
+    login = self.checkPassword(uid, oldPassword, record=False, cursor=cursor)
+    if login == None:
       return False
 
     return self.changePasswordAux(uid, newPassword, cursor=cursor)
@@ -260,26 +192,6 @@ class UserBase(dbBase):
       delete_command = 'DELETE FROM users WHERE login = %(login)s'
       data = {'login': login}
       cursor.execute(delete_command, data)
-
-  @provideCursor    
-  def getUserList(self, cursor = None):
-    cursor.execute('SELECT login FROM users');
-    l = []
-    for v in cursor:
-      l.append(v)
-
-    return l
-
-  @provideCursor
-  def getUserRow(self, login, cursor = None):
-    select_command = 'SELECT login, confirmation_sent, registration_date, user_enabled, last_login_date, first_login_date FROM users WHERE login = %(login)s'
-    data = {'login': login}
-    cursor.execute(select_command, data)
-    l = []
-    for v in cursor:
-      l.append(v)
-
-    return l
 
   @provideCursor
   def getUserLogin(self, uid, cursor = None):
