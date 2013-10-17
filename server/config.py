@@ -41,6 +41,7 @@ BS_DB_PORT = config.getint('SQL Database', 'port')
 BS_DB_PASSWORD = config.get('SQL Database', 'password', raw = True)
 BS_DB_ENCODING = config.get('SQL Database', 'encoding')
 BS_DB_ISOLATION_LEVEL = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
+BS_DB_CONNECTIONS_MAX = 30
 
 BS_EMAIL_SERVER = config.get('Email', 'host')
 BS_EMAIL_PORT = config.getint('Email', 'port')

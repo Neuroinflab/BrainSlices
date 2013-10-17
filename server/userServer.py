@@ -190,12 +190,10 @@ To complet  e the regeneration process please check your e&#8209;mail box and fo
     confirmId = request.confirm
     uid = self.userBase.checkConfirmationID(login, confirmId)
     if uid:
-      #status = True
       mode = 'confirmation'
       request.session['userID'] = uid
 
     else:
-      #status = False
       mode = 'confirmation failed'
 
     return [], [('<!--%modeHere%--!>', mode)]

@@ -27,7 +27,7 @@ from cherrypy.lib import static
 
 # Importowanie wszystkiego jest niebezpieczne (w sensie nieeleganckie),
 # importujemy tylko to, czego uzywamy
-from database import db
+from database import db, dbPool
 from userBase import UserBase
 from tileBase import TileBase
 
@@ -67,7 +67,7 @@ class WebService(Server):
     tileDir = os.path.join(servicePath, 'tiles')
     sourceDir = os.path.join(servicePath, 'sourceImages')
     tileBase = TileBase(db, tileDir, sourceDir)
-    userBase = UserBase(db)
+    userBase = UserBase(db, dbPool)
 
     self.images = TileServer(tileBase)
     self.outlines = OutlineServer(os.path.join(servicePath, 'outlines'))

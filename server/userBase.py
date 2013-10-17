@@ -27,9 +27,9 @@ import hashlib
 import os
 import base64
 
-from keyboard import keyboard
 from authentication import HashAlgorithms
-from database import provideCursor, handlePgException, provideDictCursor, dbBase
+from database import provideCursor, handlePgException, provideConnection,\
+                     dbBase, UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 
 
 #TODO: dokumentacja w formacie epydoc, "meaningfull names" dla zmiennych,
@@ -240,123 +240,186 @@ class UserBase(dbBase):
       return uid
 
 
-# TODO: refactoring
-
   @provideCursor
-  def addGroup(self, group_name, group_administrator, group_description, cursor = None):
-    insert_command = """INSERT INTO groups(group_name, group_administrator, group_description)
-                        VALUES (%s, %s, %s)"""
-    row = (group_name, group_administrator, group_description)
+  def addGroup(self, uid, name, description = "", cursor = None):
+    """
+    Define a new privilege group.
+
+    @param uid: Identifier of user being owner of the group.
+    @type uid: int
+
+    @param name: Name of the group.
+    @type name: str or unicode
+
+    @param description: Description of the group.
+    @type description: str or unicode
+
+    @return: Group identifier.
+    @rtype: int
+
+    @raise ValueError: Group for L{uid}, L{name} pair already defined.
+
+    @raise KeyError: User #L{uid} not found.
+    """
+    query = """
+            INSERT INTO groups(group_name, group_administrator, group_description)
+            VALUES (%s, %s, %s);
+            """
     try:
-      cursor.execute(insert_command, row)
+      cursor.execute(query, (name, uid, description))
+
     except psycopg2.IntegrityError as e:
-      handlePgException(e)
+      if e.pgcode == '23505':
+        raise ValueError('Group %s of %d already exists.' % (name, uid))
+
+      if e.pgcode == '23503':
+        raise KeyError('User #%d does not exist.' % uid)
+
+      raise
+
     else:
-      select_command = """SELECT gid FROM groups where group_name = %s and group_administrator = %s"""
-      cursor.execute(select_command, (group_name, group_administrator))
-      l = []
-      for v in cursor:
-        l.append(v)
-      return l[0][0]
+      return self._getOneValue("""
+                               SELECT gid
+                               FROM groups
+                               WHERE group_name = %s
+                                     AND group_administrator = %s;
+                               """,
+                               (name, uid),
+                               cursor = cursor)
 
   @provideCursor
   def deleteGroup(self, gid, cursor = None):
-    
-    data = {'gid':gid}
-    try:
-      delete_from_groups = """DELETE FROM groups WHERE gid = %(gid)s"""
-      cursor.execute(delete_from_groups, data) 
-
-      delete_from_image_privileges = """DELETE FROM image_privileges WHERE gid = %(gid)s"""
-      cursor.execute(delete_from_image_privileges, (data))
-
-      delete_from_members = """DELETE FROM members WHERE gid = %(gid)s"""
-      cursor.execute(delete_from_members, (data))   
-       
-      delete_from_image_privileges_cache = """DELETE FROM image_privileges_cache WHERE gid = %(gid)s"""
-      cursor.execute(delete_from_image_privileges_cache, data)
-
-      return True
-    except:
-    	return False
+    cursor.execute("DELETE FROM image_privileges_cache WHERE gid = %s;", (gid,))
+    cursor.execute("DELETE FROM image_privileges WHERE gid = %s;", (gid,))
+    cursor.execute("DELETE FROM members WHERE gid = %s", (gid,))
+    cursor.execute("DELETE FROM groups WHERE gid = %s;", (gid,))
 
   @provideCursor
   def addGroupMember(self, uid, gid, member_add = False, member_del = False, cursor = None):
-    
-    #add to  members
-    insert_command = "INSERT INTO"\
-    " members(gid, uid, member_add, member_del) "\
-    "VALUES (%s, %s, %s, %s)"\
-    
-    data = (gid, uid, member_add, member_del)
+    """
+    Add a new member to the group.
+    """
     try:
-      cursor.execute(insert_command, data)
+      cursor.execute("""
+                     INSERT INTO members(gid, uid, member_add, member_del)
+                     VALUES (%s, %s, %s, %s);
+                     """,
+                     (gid, uid, member_add, member_del))
+
     except psycopg2.IntegrityError as e:
-      handlePgException(e)
+      if e.pgcode == '23505':
+        raise ValueError('User #%d is already a member of a group #%d.'\
+                         % (uid, gid))
+
+      if e.pgcode == '23503':
+        if 'users' in e.pgerror:
+          raise KeyError('User #%d does not exist.' % uid)
+
+        if 'groups' in e.pgerror:
+          raise KeyError('Group #%d does not exist.' % gid)
+
+        raise KeyError('User #%d or group # %d do not exist.' % (uid, gid))
+
+      raise
 
     #add to image_privilleges_cache
-    insert_command = \
-    "INSERT INTO" \
-    "  image_privileges_cache"\
-    "(SELECT iid, a.gid, uid, image_edit, image_annotate from image_privileges a join members b on a.gid = b.gid where b.uid = %s and b.gid = %s)"
-    data = (uid, gid)
-    cursor.execute(insert_command, data)
-      
+    cursor.execute("""
+                   INSERT INTO image_privileges_cache(iid, gid, uid,
+                               image_edit, image_annotate, image_outline)
+                   SELECT iid, gid, uid,
+                          image_edit, image_annotate, image_outline
+                   FROM image_privileges NATURAL JOIN members
+                   WHERE uid = %s AND gid = %s;
+                   """,
+                   (uid, gid))
         
   @provideCursor
   def deleteGroupMember(self, uid, gid, cursor = None):
+    cursor.execute("""
+                   DELETE FROM image_privileges_cache
+                   WHERE uid = %s AND gid = %s;
+                   """,
+                   (uid, gid))
+    cursor.execute("DELETE FROM members WHERE uid = %s AND gid = %s;",
+                   (uid, gid))
 
-    #delete from members
-    delete_command = """DELETE FROM members WHERE uid = %(uid)s and gid = %(gid)s"""
-    data = {'uid':uid, 'gid':gid}
-    cursor.execute(delete_command, data)
-
-    #delete from image_privileges_cache
-    delete_command = """DELETE FROM image_privileges_cache where uid = %(uid)s and gid = %(gid)s"""
-    cursor.execute(delete_command, data)
-
-  @provideCursor
-  def addImagePrivilege(self, iid, gid, image_edit, image_annotate, cursor = None):
-
-    #check if the group already has privileges to this image
-    select_command = """SELECT * FROM image_privileges WHERE iid = %s AND gid = %s"""
-    data = (iid, gid)
-    cursor.execute(select_command, data)
-    l = []
-    for v in cursor:
-      l.append(v)
-
-    # if yes, 
-    if len(l)>0:
-      #then update table image_privileges
-      update_command = """UPDATE image_privileges SET image_edit = %s, image_annotate = %s WHERE iid = %s and gid = %s"""
-      data = (image_edit, image_annotate, iid, gid)
-      cursor.execute(update_command, data)
-
-    # and update table images_privileges_cached
-      update_command = """UPDATE image_privileges_cache SET image_edit = %s, image_annotate = %s WHERE iid = %s and gid = %s"""
-      data = (image_edit, image_annotate, iid, gid)
-      cursor.execute(update_command, data)
-    
-    #if not
-    else:
-      #insert into image_privileges
-      insert_command = """INSERT INTO image_privileges(iid, gid, image_edit, image_annotate) VALUES (%s, %s, %s, %s)"""
-      data = (iid, gid, image_edit, image_annotate)
+#TODO: refactoring
+  @provideConnection()
+  def addImagePrivilege(self, iid, gid, image_edit = False,
+                        image_annotate = False, image_outline = False,
+                        db = None, cursor = None):
+    success = False
+    while not success:
       try:
-        cursor.execute(insert_command, data)
-      except psycopg2.IntegrityError as e:
-        handlePgException(e)
+        cursor.execute("""
+                       INSERT INTO image_privileges(iid, gid, image_edit,
+                                                    image_annotate,
+                                                    image_outline)
+                       VALUES (%s, %s, %s, %s, %s);
+                       """,
+                       (iid, gid, image_edit, image_annotate, image_outline))
 
-      #insert into image_privileges_cache
-      insert_command = \
-      "INSERT INTO image_privileges_cache "\
-      "(SELECT iid, a.gid, b.uid, image_edit, image_annotate from image_privileges a join members b on a.gid = b.gid where iid = %s and a.gid = %s)"
-      data = (iid, gid)
-      try:
-        cursor.execute(insert_command, data)
       except psycopg2.IntegrityError as e:
-        handlePgException(e)
+        if e.pgcode == UNIQUE_VIOLATION: # privilege exists
+          cursor.execute("""
+                         UPDATE image_privileges SET image_edit = %s,
+                                                     image_annotate = %s,
+                                                     image_outline = %s
+                         WHERE iid = %s AND gid = %s;
+                         """,
+                         (image_edit, image_annotate, image_outline, iid, gid))
+          success = cursor.rowcount == 1
+
+        else:
+          raise
+
+      else:
+        success = True
+
+      # Privilege set for image
+
+      # a window where a new member (and its cached privilege) can be added
+      # or member/privilege removed
+
+      cached = False
+      while not cached:
+        try:
+          cursor.execute("""
+                         INSERT INTO image_privileges_cache(iid, gid, uid,
+                                     image_edit, image_annotate, image_outline)
+                         SELECT iid, gid, uid, image_edit, image_annotate,
+                                image_outline
+                         FROM image_privileges NATURAL JOIN members
+                         WHERE iid = %s AND gid = %s
+                         EXCEPT
+                         SELECT iid, gid, uid, image_edit, image_annotate, image_outline
+                         FROM image_privileges_cache
+                         WHERE iid = %s AND gid = %s;
+                         """,
+                         (iid, gid))
+        except psycopg2.IntegrityError as e:
+          if e.pgcode not in (UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION):
+            # image/member pair privilege not present nor image removed from
+            # group in meanwhile nor member removed from group in meanwhile
+            # - so unknown error
+            raise
+
+        else:
+          cached = True
+
+
+        #tu powinno być jakies SELECT FOR SHARE aby przyblokowac wywolanie konkurencyjne grzebiace w cache
+        #i chyba najlepiej caly update przeprowadzic niezaleznie od wstawienia
+        cursor.execute("""
+                       UPDATE image_privileges_cache SET image_edit = %s,
+                                                         image_annotate = %s,
+                                                         image_outline = %s
+                       WHERE iid = %s AND gid = %s;
+                       """,
+                       (image_edit, image_annotate, image_outline, iid, gid))
+
+      else:
+        raise
 
   @provideCursor
   def grantGroupPrivilegesToUser(self, uid, gid, members_add, members_del, cursor = None):

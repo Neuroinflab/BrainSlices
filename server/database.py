@@ -24,9 +24,13 @@
 # requires python-psycopg2 package
 import psycopg2
 import psycopg2.extras
+import psycopg2.pool
+from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
+from psycopg2.extensions import TransactionRollbackError
 
 from config import BS_DB_PASSWORD, BS_DB_NAME, BS_DB_USER, BS_DB_HOST,\
-                   BS_DB_PORT, BS_DB_ISOLATION_LEVEL, BS_DB_ENCODING
+                   BS_DB_PORT, BS_DB_ISOLATION_LEVEL, BS_DB_ENCODING,\
+                   BS_DB_CONNECTIONS_MAX
 
 db = psycopg2.connect(database=BS_DB_NAME,
                       user=BS_DB_USER,
@@ -35,6 +39,38 @@ db = psycopg2.connect(database=BS_DB_NAME,
                       port=BS_DB_PORT)
 db.set_isolation_level(BS_DB_ISOLATION_LEVEL)
 db.set_client_encoding(BS_DB_ENCODING)
+dbPool = psycopg2.pool.ThreadedConnectionPool(1, BS_DB_CONNECTIONS_MAX,
+                                              database=BS_DB_NAME,
+                                              user=BS_DB_USER,
+                                              password=BS_DB_PASSWORD,
+                                              host=BS_DB_HOST,
+                                              port=BS_DB_PORT)
+
+def provideConnection(isolationLevel=psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE):
+  def decorator(function):
+    def toBeExecuted(self, *args, **kwargs):
+      newConnection = 'connection' not in kwargs
+      if newConnection:
+        db = self._dbPool.getconn()
+        db.set_isolation_level(isolationLevel)
+        db.set_client_encoding(BS_DB_ENCODING)
+        cursor = db.cursor()
+        kwargs['db'] = db
+        kwargs['cursor'] = cursor
+
+      try:
+        result = function(self, *args, **kwargs)
+
+      finally:
+        if newConnection:
+          cursor.close()
+          self._dbPool.putconn(db)
+
+      return result
+
+    return toBeExecuted
+
+  return decorator
 
 pg_exceptions_dict = {
   """ERROR:  duplicate key value violates unique constraint "groups_name_administrator"\n""":
@@ -59,6 +95,8 @@ pg_exceptions_dict = {
   (KeyError, 'trying to add privilege to nonexistent image')
   }
 
+#TODO: integrate with provideConnection???
+# - discard _db attribute, use db global variable instead???
 def provideCursor(function):
   """
   Provide function with cursor if not given.
@@ -110,14 +148,16 @@ def handlePgException(e):
 
   for key in pg_exceptions_dict:
     if key in e.pgerror:
-      raise pg_exceptions_dict[key][0](pg_exceptions_dict[key][1])
+      exc = pg_exceptions_dict[key]
+      raise exc[0](exc[1])
 
   raise Exception('unidentified database error: '+e.pgerror)
 
 
 class dbBase(object):
-  def __init__(self, db):
-    self._db = db
+  def __init__(self, db = db, dbPool = dbPool):
+    self._db = db,
+    self._dbPool = dbPool
 
   @provideCursor #epydoc warning because of the decorator
   def _getOneRow(self, query, data = (), value = None, cursor = None, unwrap = False):

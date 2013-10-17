@@ -29,10 +29,7 @@ from webService import WebService
 
 directoryName = os.path.abspath(os.path.dirname(__file__))
 
-from database import db
 # possible redundancy!!! TODO: think about instance instead of class
-from userBase import UserBase
-from tileBase import TileBase
 
 
 if __name__ == '__main__':
