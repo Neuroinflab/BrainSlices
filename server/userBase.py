@@ -29,7 +29,8 @@ import base64
 
 from authentication import HashAlgorithms
 from database import provideCursor, handlePgException, provideConnection,\
-                     dbBase, UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
+                     dbBase, UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION,\
+                     TransactionRollbackError
 
 
 #TODO: dokumentacja w formacie epydoc, "meaningfull names" dla zmiennych,
@@ -348,78 +349,80 @@ class UserBase(dbBase):
   def addImagePrivilege(self, iid, gid, image_edit = False,
                         image_annotate = False, image_outline = False,
                         db = None, cursor = None):
-    success = False
-    while not success:
-      try:
+    cached = False
+    while not cached:
+      success = False
+      while not success:
         cursor.execute("""
-                       INSERT INTO image_privileges(iid, gid, image_edit,
-                                                    image_annotate,
-                                                    image_outline)
-                       VALUES (%s, %s, %s, %s, %s);
-                       """,
-                       (iid, gid, image_edit, image_annotate, image_outline))
-
-      except psycopg2.IntegrityError as e:
-        if e.pgcode == UNIQUE_VIOLATION: # privilege exists
-          cursor.execute("""
-                         UPDATE image_privileges SET image_edit = %s,
-                                                     image_annotate = %s,
-                                                     image_outline = %s
-                         WHERE iid = %s AND gid = %s;
-                         """,
-                         (image_edit, image_annotate, image_outline, iid, gid))
-          success = cursor.rowcount == 1
-
-        else:
-          raise
-
-      else:
-        success = True
-
-      # Privilege set for image
-
-      # a window where a new member (and its cached privilege) can be added
-      # or member/privilege removed
-
-      cached = False
-      while not cached:
-        try:
-          cursor.execute("""
-                         INSERT INTO image_privileges_cache(iid, gid, uid,
-                                     image_edit, image_annotate, image_outline)
-                         SELECT iid, gid, uid, image_edit, image_annotate,
-                                image_outline
-                         FROM image_privileges NATURAL JOIN members
-                         WHERE iid = %s AND gid = %s
-                         EXCEPT
-                         SELECT iid, gid, uid, image_edit, image_annotate, image_outline
-                         FROM image_privileges_cache
-                         WHERE iid = %s AND gid = %s;
-                         """,
-                         (iid, gid))
-        except psycopg2.IntegrityError as e:
-          if e.pgcode not in (UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION):
-            # image/member pair privilege not present nor image removed from
-            # group in meanwhile nor member removed from group in meanwhile
-            # - so unknown error
-            raise
-
-        else:
-          cached = True
-
-
-        #tu powinno być jakies SELECT FOR SHARE aby przyblokowac wywolanie konkurencyjne grzebiace w cache
-        #i chyba najlepiej caly update przeprowadzic niezaleznie od wstawienia
-        cursor.execute("""
-                       UPDATE image_privileges_cache SET image_edit = %s,
-                                                         image_annotate = %s,
-                                                         image_outline = %s
+                       UPDATE image_privileges SET image_edit = %s,
+                                                   image_annotate = %s,
+                                                   image_outline = %s
                        WHERE iid = %s AND gid = %s;
                        """,
                        (image_edit, image_annotate, image_outline, iid, gid))
+        success = cursor.rowcount == 1
+        if not success:
+          try:
+            cursor.execute("""
+                           INSERT INTO image_privileges(iid, gid, image_edit,
+                                                        image_annotate,
+                                                        image_outline)
+                           VALUES (%s, %s, %s, %s, %s);
+                           """,
+                           (iid, gid, image_edit, image_annotate, image_outline))
+          except TransactionRollbackError:
+            db.rollback()
+  
+          except psycopg2.IntegrityError as e:
+            db.rollback()
+            if e.pgcode != UNIQUE_VIOLATION:
+              raise
+  
+          else:
+            success = True
+  
+      # Privilege set for image
+  
+      # a window where a new member (and its cached privilege) can be added
+      # or member/privilege removed
+
+      try:
+        cursor.execute("""
+                       WITH updated_rows AS
+                         ( UPDATE image_privileges_cache
+                           SET image_edit = %s,
+                               image_annotate = %s,
+                               image_outline = %s
+                           WHERE iid = %s AND gid = %s
+                           RETURNING *
+                         )
+                       INSERT INTO image_privileges_cache(iid, gid, uid,
+                                   image_edit, image_annotate, image_outline)
+                       SELECT iid, gid, uid, image_edit, image_annotate,
+                              image_outline
+                       FROM image_privileges NATURAL JOIN members
+                       WHERE iid = %s AND gid = %s
+                       EXCEPT
+                       SELECT *
+                       FROM updated_rows;
+                       """,
+                       (image_edit, image_annotate, image_outline, iid, gid,
+                        iid, gid))
+      except psycopg2.IntegrityError as e:
+        db.rollback()
+        success = False
+        if e.pgcode not in (UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION):
+          # image/member pair privilege not present nor image removed from
+          # group in meanwhile nor member removed from group in meanwhile
+          # - so unknown error
+          raise
+
+      except TransactionRollbackError:
+        db.rollback()
+        success = False
 
       else:
-        raise
+        cached = True
 
   @provideCursor
   def grantGroupPrivilegesToUser(self, uid, gid, members_add, members_del, cursor = None):
