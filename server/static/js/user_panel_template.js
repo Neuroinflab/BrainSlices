@@ -85,7 +85,10 @@ $(function()
   }
   else if (mode == 'regeneration')
   {
-    loginConsole.showRegeneratePasswordFinalForm(login, confirmId);
+    loginConsole.showRegeneratePasswordFinalForm(
+      login,
+      'Your identity has been confirmed. Provide a new password, please.',
+      confirmId);
   }
   else if (mode == 'regeneration failed')
   {

@@ -100,10 +100,10 @@ class UserGenerator(Generator):
         if mail == True:
           self.userBase.confirmationSent(login)
           status = True
-          message = """Registration confirmation e-mail has been sent to your
-  e&#8209;mail.<br/>
-  To complete registration process please check your e&#8209;mail box and follow
-  instructions in the e&#8209;mail."""
+          message = """Registration confirmation e-mail has been sent to your e&#8209;mail.
+To complete registration process please check your e&#8209;mail box and follow
+
+instructions in the e&#8209;mail."""
         
         else:
           errorKey = mail[email][0]
@@ -137,7 +137,7 @@ e&#8209;mail, please contact the administrator."""
             if mail == True:
               status = True
               message = """Password regeneration e&#8209;mail has been sent to your e&#8209;mail address.
-To complet  e the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail."""
+To complete the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail."""
 
             else:
               errorKey = mail[email][0]

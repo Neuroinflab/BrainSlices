@@ -93,7 +93,7 @@
     </form>
 
     <form name="regeneratePasswordFinalForm" class="form" style="display: none;">
-     <p class="success" style="display: none;">
+     <p class="success">
       Password regeneration e&#8209;mail has been sent to your e&#8209;mail
       address. To complete the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail.
      </p>
@@ -123,6 +123,24 @@
      </div>
 
      <p class="submitError formErrorMessages" style="display: none;"></p>
+    </form>
+
+    <form name="confirmationForm" action="/user/confirmRegistration" class="form" style="display: none;">
+     <p class="success">
+      Registration confirmation e-mail has been sent to your e&#8209;mail.
+      To complete registration process please check your e&#8209;mail box
+      and follow instructions in the e&#8209;mail.
+     </p>
+     <div>
+      <label for="confirm" class="left">Confirmation key:</label>
+      <input class="formField" type="text" name="confirm">
+     </div>
+     <p class="confirmFieldError formErrorMessages" style="display: none;"></p>
+
+     <div>
+      <input type="hidden" name="login">
+      <label class="left">&nbsp;</label><input type="submit" value="Confirm registration">
+     </div>
     </form>
 
     <p class="success" style="display: none;">

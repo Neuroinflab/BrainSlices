@@ -43,6 +43,8 @@ REGISTRATION_EMAIL_TEMPLATE = '''Dear %%(name)s,
 please follow the link below to confirm your account registration (%%(login)s)
 in %s:
 %%(link)s
+or enter the following confirmation key manually:
+%%(key)s
 
 Sincerely yours,
 %s''' % (BS_SERVICE_NAME, BS_SERVICE_SIGNATURE)

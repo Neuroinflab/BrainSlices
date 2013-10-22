@@ -152,6 +152,38 @@ form[name=regeneratePasswordForm] .formErrorMessages
   padding-left: 3.5em;
 }
 
+form[name=regeneratePasswordFinalForm] label
+{
+  width: 9em;
+}
+
+form[name=regeneratePasswordFinalForm] .formErrorMessages
+{
+  padding-left: 9em;
+}
+
+form[name=regeneratePasswordFinalForm] .success
+{
+  width: 20.5em;
+  text-align: left;
+}
+
+form[name=confirmationForm] label
+{
+  width: 8em;
+}
+
+form[name=confirmationForm] .formErrorMessages
+{
+  padding-left: 8em;
+}
+
+form[name=confirmationForm] .success
+{
+  width: 19.5em;
+  text-align: left;
+}
+
 .success
 {
   background: #EEFFEE;

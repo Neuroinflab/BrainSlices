@@ -657,6 +657,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
   var $registerForm = $controlPanel.find('form[name="registerForm"]');
   var $regenerateForm = $controlPanel.find('form[name="regeneratePasswordForm"]');
   var $regenerateFinalForm = $controlPanel.find('form[name="regeneratePasswordFinalForm"]');
+  var $confirmationForm = $controlPanel.find('form[name="confirmationForm"]');
   var $success = $controlPanel.find('div>p.success');
 
   /**
@@ -739,8 +740,11 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                           if (response.status)
                           {
                             $registerForm.hide();
-                            $success.html(response.message).show();
                             $registerForm.find('.formField').val('');
+                            $confirmationForm.find('input[name="login"]').val(login);
+                            $confirmationForm.find('.success').html(response.message);
+                            //$success.html(response.message).show();
+                            $confirmationForm.show();
                           }
                           else
                           {
@@ -821,7 +825,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                           {
                             $regenerateForm.hide();
                             //$success.html(response.message).show();
-                            thisInstance.showRegeneratePasswordFinalForm(login);
+                            thisInstance.showRegeneratePasswordFinalForm(login, response.message);
                             //$regenerateForm.find('.formField').val('');
                           }
                           else
@@ -840,7 +844,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
 
   $regenerateForm.bind('submit', this.submitRegeneratePasswordForm);
 
-  this.showRegeneratePasswordFinalForm = function(login, confirm)
+  this.showRegeneratePasswordFinalForm = function(login, message, confirm)
   {
     $regenerateForm.hide();
     $loginForm.hide();
@@ -851,6 +855,15 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
     {
       thisInstance.showPanel();
       $regenerateFinalForm.find('input[name="confirm"]').val(confirm);
+    }
+
+    if (message != null)
+    {
+      $regenerateFinalForm.find('.success').html(message).show();
+    }
+    else
+    {
+      $regenerateFinalForm.find('.success').hide();
     }
     $regenerateFinalForm.show();
   };
@@ -918,6 +931,20 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
 
   $regenerateFinalForm.bind('submit', this.submitRegeneratePasswordFinalForm);
 
+  this.validateConfirmationForm = function()
+  {
+    var confirm = $confirmationForm.find('input[name="confirm"]').val().trim();
+    if (confirm == '')
+    {
+      $confirmationForm.find('.confirmFieldError').show().text('Provide a confirmation string (sent to you in an e-mail).');
+      return false;
+    }
+
+    return true;
+  }
+
+  $confirmationForm.bind('submit', this.validateConfirmationForm);
+
   onlogin = onlogin == null ? [] : (onlogin instanceof Array ?
                                     onlogin.slice(0) : [onlogin]);
   onlogin.push(function()
@@ -934,6 +961,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                                           $registerForm.hide();
                                           $regenerateForm.hide();
                                           $regenerateFinalForm.hide();
+                                          $confirmationForm.hide();
                                           $success.hide();
                                           //XXX: is this necessary?
                                           $controlPanel.find('.formField').val('');
@@ -982,6 +1010,9 @@ CUserPanel.prototype.destroy = function()
 
   this.$controlPanel.find('form[name="regeneratePasswordFinalForm"]').unbind('submit', this.submitRegeneratePasswordFinalForm);
   this.submitRegeneratePasswordFinalForm = null;
+
+  this.$controlPanel.find('form[name="confirmationForm"]').unbind('submit', this.validateConfirmationForm);
+  this.validateConfirmationForm = null;
 }
 
 /*****************************************************************************\
