@@ -156,7 +156,7 @@ def handlePgException(e):
 
 class dbBase(object):
   def __init__(self, db = db, dbPool = dbPool):
-    self._db = db,
+    self._db = db
     self._dbPool = dbPool
 
   @provideCursor #epydoc warning because of the decorator
