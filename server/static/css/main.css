@@ -184,6 +184,12 @@ form[name=confirmationForm] .success
   text-align: left;
 }
 
+form[name=confirmationForm]>p:first-of-type
+{
+  margin-right: 2px;
+  max-width: 20em;
+}
+
 .success
 {
   background: #EEFFEE;

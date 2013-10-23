@@ -27,7 +27,11 @@
     </form>
 
     <form name="registerForm" class="form" style="display: none;">
-     <p>Please fill out the form below in order to create your BrainSlices account.</p>
+     <p>
+      Please fill out the form below in order to create your BrainSlices
+      account or
+      <a class="showConfirmationFormButton" href="javascript:void(0)">enter
+      your confirmation key</a>.</p>
      <div>
       <label for="login" class="left">Login:</label>
       <input class="formField" type="text" name="login">
@@ -126,11 +130,23 @@
     </form>
 
     <form name="confirmationForm" action="/user/confirmRegistration" class="form" style="display: none;">
+     <p>
+      Please enter your login and confirmation key to complete the registration
+      process. The confirmation key is being sent via e&#8209;mail after
+      submission of <a class="showRegisterFormButton" href="javascript:void(0)">the
+      registration form</a>.
+     </p>
      <p class="success">
       Registration confirmation e-mail has been sent to your e&#8209;mail.
       To complete registration process please check your e&#8209;mail box
       and follow instructions in the e&#8209;mail.
      </p>
+     <div>
+      <label for="login" class="left">Login:</label>
+      <input class="formField" type="text" name="login">
+     </div>
+     <p class="loginFieldError formErrorMessages" style="display: none;"></p>
+
      <div>
       <label for="confirm" class="left">Confirmation key:</label>
       <input class="formField" type="text" name="confirm">
@@ -138,7 +154,6 @@
      <p class="confirmFieldError formErrorMessages" style="display: none;"></p>
 
      <div>
-      <input type="hidden" name="login">
       <label class="left">&nbsp;</label><input type="submit" value="Confirm registration">
      </div>
     </form>

@@ -668,6 +668,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
   this.showRegisterForm = function()
   {
     $loginForm.hide();
+    $confirmationForm.hide();
     $registerForm.find('.formField').val('');
     $controlPanel.find('.formErrorMessages').text('');
     $registerForm.show();
@@ -739,12 +740,13 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                         {
                           if (response.status)
                           {
-                            $registerForm.hide();
-                            $registerForm.find('.formField').val('');
-                            $confirmationForm.find('input[name="login"]').val(login);
-                            $confirmationForm.find('.success').html(response.message);
-                            //$success.html(response.message).show();
-                            $confirmationForm.show();
+                            //$registerForm.hide();
+                            //$registerForm.find('.formField').val('');
+                            thisInstance.showConfirmationForm(response.message, login);
+//                            $confirmationForm.find('input[name="login"]').val(login);
+//                            $confirmationForm.find('.success').html(response.message);
+//                            //$success.html(response.message).show();
+ //                           $confirmationForm.show();
                           }
                           else
                           {
@@ -783,6 +785,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
   this.showRegeneratePasswordForm = function()
   {
     $loginForm.hide();
+    $confirmationForm.hide();
     $controlPanel.find('.formErrorMessages').text('');
     $regenerateForm.find('.formField').val('');
     var login = $loginForm.find('input[name="login"]').val();
@@ -934,16 +937,58 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
   this.validateConfirmationForm = function()
   {
     var confirm = $confirmationForm.find('input[name="confirm"]').val().trim();
+    var login = $confirmationForm.find('input[name="login"]').val().trim();
+    var valid = true;
+
+    $confirmationForm.find('.formErrorMessages').hide().text('');
+    if (!validLogin(login))
+    {
+      $confirmationForm.find('.loginFieldError').show().text('Provide a valid login.');
+      valid = false;
+    }
+   
     if (confirm == '')
     {
-      $confirmationForm.find('.confirmFieldError').show().text('Provide a confirmation string (sent to you in an e-mail).');
-      return false;
+      $confirmationForm.find('.confirmFieldError').show().text('Provide a confirmation string (sent to you in an e&#8209;mail).');
+      valid = false;
     }
 
-    return true;
+    return valid;
   }
 
   $confirmationForm.bind('submit', this.validateConfirmationForm);
+
+  this.showConfirmationForm = function(message, login, sucess)
+  {
+    $confirmationForm.find('.formField').val('');
+    if (login != null)
+    {
+      $confirmationForm.find('input[name="login"]').val(login);
+    }
+
+    if (message != null)
+    {
+      $confirmationForm.children('p').first().hide();
+      $confirmationForm.find('.success').html(message).show();
+    }
+    else
+    {
+      $confirmationForm.find('.success').hide();
+      $confirmationForm.children('p').first().show();
+    }
+
+    $registerForm.hide();
+    $registerForm.find('.formField').val('');
+    $confirmationForm.show();
+  }
+
+  this.showConfirmationFormHandler = function()
+  {
+    thisInstance.showConfirmationForm();
+  }
+
+  $controlPanel.find('.showConfirmationFormButton').bind('click',
+    this.showConfirmationFormHandler);
 
   onlogin = onlogin == null ? [] : (onlogin instanceof Array ?
                                     onlogin.slice(0) : [onlogin]);
@@ -1013,6 +1058,10 @@ CUserPanel.prototype.destroy = function()
 
   this.$controlPanel.find('form[name="confirmationForm"]').unbind('submit', this.validateConfirmationForm);
   this.validateConfirmationForm = null;
+
+  this.$controlPanel.find('.showConfirmationFormButton').unbind('click', this.showConfirmationFormHandler);
+  this.showConfirmationFormHandler = null;
+  this.showConfirmationForm = null;
 }
 
 /*****************************************************************************\
