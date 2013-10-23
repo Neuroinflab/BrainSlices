@@ -223,9 +223,16 @@ class UserBase(dbBase):
 
     uid, salt, last = row[:3]
     hashId = rawID + str(last)
+    confirmed = False
     for dev, hsh in zip(devs, row[3:]):
-      if hsh != None and not dev.checkHash(login, hashId, salt, hsh):
-        return None
+      if hsh != None:
+        if not dev.checkHash(login, hashId, salt, hsh):
+          return None
+
+        confirmed = True
+
+    if not confirmed:
+      return None
 
     query = """
             UPDATE users
