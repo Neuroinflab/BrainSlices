@@ -100,7 +100,6 @@ class UserBase(dbBase):
 
     return uid if isinstance(identifier, (str, unicode)) else login
 
-  #XXX: not used
   @provideCursor
   def userRegistered(self, login, cursor = None):
     query = "SELECT login FROM users WHERE login = %s;"

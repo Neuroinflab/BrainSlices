@@ -59,9 +59,10 @@ class UserGenerator(Generator):
       message = 'logged in'
 
     else:
-      message = 'Incorrect login or password.'
-      if self.userBase.getUserEnabled(login) == False:
-        message = 'Account disabled.'
+      message = 'Login not registered.'
+      if self.userBase.userRegistered(login):
+        message = 'Password mismatch.' if self.userBase.getUserEnabled(login)\
+                  else 'Account disabled.'
 
     return generateJson(data = login, 
                         status = uid != None, 
@@ -92,7 +93,7 @@ class UserGenerator(Generator):
     status = False
     success = self.userBase.registerUser(login, password, email, name)
     if success == True:
-      message = "Account crearted however there was a problem with sending the confirmation e-mail, please contact admin."
+      message = "Account created however there was a problem with sending the confirmation e&#8209;mail, please contact admin."
       rawID = self.userBase.newConfirmationID(login)
       if rawID:
         confirmID = base64.urlsafe_b64encode(rawID)
@@ -100,7 +101,7 @@ class UserGenerator(Generator):
         if mail == True:
           self.userBase.confirmationSent(login)
           status = True
-          message = """Registration confirmation e-mail has been sent to your e&#8209;mail.
+          message = """Registration confirmation e&#8209;mail has been sent to your e&#8209;mail.
 To complete registration process please check your e&#8209;mail box and follow
 
 instructions in the e&#8209;mail."""
@@ -119,14 +120,15 @@ instructions in the e&#8209;mail."""
 
   def regeneratePassword(self, request):
     status = False
-    message = """No match for login and e&#8209;mail addres pair found in the
-database. Please note, that we consider e&#8209;mail address to be case-sensitive."""
     login = request.login
     email = request.email
     row = self.userBase.getEmailInformation(login)
+    message = "Unknown login."
     if row != None:
       email_, name, enabled = row
+      message = "E&#8209;mail address mismatch. Please note, that we consider e&#8209;mail address to be case-sensitive."
       if email_ == email:
+        message = "Account disabled."
         if enabled:
           message = """Some problem occured sending the confirmation
 e&#8209;mail, please contact the administrator."""
@@ -143,9 +145,6 @@ To complete the regeneration process please check your e&#8209;mail box and foll
               errorKey = mail[email][0]
               if errorKey in smtpErrors.keys():
                 message = 'SMTP error: ' + smtpErrors[errorKey]
-
-        else:
-          message = "The account is disabled."
 
     return generateJson(data = login, status = status, message = message)
 
