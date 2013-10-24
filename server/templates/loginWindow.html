@@ -29,9 +29,11 @@
     <form name="registerForm" class="form" style="display: none;">
      <p>
       Please fill out the form below in order to create your BrainSlices
-      account or
-      <a class="showConfirmationFormButton" href="javascript:void(0)">enter
-      your confirmation key</a>.</p>
+      account.<br>
+      If you have already submitted the form, you can
+      <a class="showConfirmationFormButton" href="javascript:void(0)">confirm
+      your request</a>.
+     </p>
      <div>
       <label for="login" class="left">Login:</label>
       <input class="formField" type="text" name="login">
@@ -73,7 +75,12 @@
     </form>
 
     <form name="regeneratePasswordForm" class="form" style="display: none;">
-     <p>Please enter your login and email:</p>
+     <p>
+      Please enter your login and email to start the password regeneration
+      process.<br>
+      If you already have submitted the form, you can <a class="showRegeneratePasswordFinalFormButton" href="javascript:void(0)">complete
+      the process</a>.
+     </p>
      <div>
       <label for="login" class="left">Login:</label>
       <input class="formField" type="text" name="login">
@@ -97,11 +104,24 @@
     </form>
 
     <form name="regeneratePasswordFinalForm" class="form" style="display: none;">
+     <p>
+      Please enter your login, confirmation key and a new password to complete
+      the password regeneration process.<br>
+      The confirmation key is being sent via e&#8209;mail after submission
+      of <a class="showRegeneratePasswordFormButton" href="javascript:void(0)">the
+      password regeneration form</a>.
+     </p>
      <p class="success">
       Password regeneration e&#8209;mail has been sent to your e&#8209;mail
       address. To complete the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail.
      </p>
 
+     <div>
+      <label for="login" class="left">Login:</label>
+      <input class="formField" type="text" name="login">
+     </div>
+
+     <p class="loginFieldError formErrorMessages" style="display: none;"></p>
      <div>
       <label for="confirm" class="left">Confirmation key:</label>
       <input class="formField" type="text" name="confirm">
@@ -121,7 +141,7 @@
      <p class="password2FieldError formErrorMessages" style="display: none;"></p>
 
      <div>
-      <input type="hidden" name="login">
+      <!--<input type="hidden" name="login">-->
       <label class="left">&nbsp;</label>
       <input type="submit" value="Change password">
      </div>
@@ -141,6 +161,7 @@
       To complete registration process please check your e&#8209;mail box
       and follow instructions in the e&#8209;mail.
      </p>
+
      <div>
       <label for="login" class="left">Login:</label>
       <input class="formField" type="text" name="login">

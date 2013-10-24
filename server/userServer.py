@@ -24,8 +24,6 @@
 import os
 import cherrypy
 import eMails
-import base64
-
 
 from template import templateEngine
 
@@ -94,9 +92,8 @@ class UserGenerator(Generator):
     success = self.userBase.registerUser(login, password, email, name)
     if success == True:
       message = "Account created however there was a problem with sending the confirmation e&#8209;mail, please contact admin."
-      rawID = self.userBase.newConfirmationID(login)
-      if rawID:
-        confirmID = base64.urlsafe_b64encode(rawID)
+      confirmID = self.userBase.newConfirmationID(login)
+      if confirmID:
         mail = eMails.sendConfirmationEmail(request, confirmID)
         if mail == True:
           self.userBase.confirmationSent(login)
@@ -123,7 +120,7 @@ instructions in the e&#8209;mail."""
     login = request.login
     email = request.email
     row = self.userBase.getEmailInformation(login)
-    message = "Unknown login."
+    message = "Login not registered."
     if row != None:
       email_, name, enabled = row
       message = "E&#8209;mail address mismatch. Please note, that we consider e&#8209;mail address to be case-sensitive."
@@ -132,9 +129,8 @@ instructions in the e&#8209;mail."""
         if enabled:
           message = """Some problem occured sending the confirmation
 e&#8209;mail, please contact the administrator."""
-          rawID = self.userBase.newConfirmationID(login)
-          if rawID:
-            confirmID = base64.urlsafe_b64encode(rawID)
+          confirmID = self.userBase.newConfirmationID(login)
+          if confirmID:
             mail = eMails.sendRegenerationEmail(request, name, confirmID)
             if mail == True:
               status = True
@@ -155,10 +151,8 @@ To complete the regeneration process please check your e&#8209;mail box and foll
     #TODO: simplify!!!
     uid = self.userBase.checkConfirmationID(login, rawId)
     if uid != None:
-      #request.session['userID'] = uid
-      rawId = self.userBase.newConfirmationID(login)
-      if rawId:
-        confirmID = base64.urlsafe_b64encode(rawId)
+      confirmID = self.userBase.newConfirmationID(login)
+      if confirmID:
         return ([('<!--%confirmHere%--!>', confirmID),
                  ('<!--%loginHere%--!>', login)],
                 [('<!--%modeHere%--!>', 'regeneration')])
@@ -170,12 +164,19 @@ To complete the regeneration process please check your e&#8209;mail box and foll
     login = request.login
     npass = request.password
     status = False
-    message = 'Failed to regenerate the password.'
+    message = 'Failed to change the password.'
     uid = self.userBase.checkConfirmationID(login, confirmId)
     if uid:
       if self.userBase.changePassword(login, npass):
         status = True
-        message = 'Password regenerated successfuly.'
+        message = 'Password changed successfuly.'
+
+    else:
+      message = 'Login not registered.'
+      if self.userBase.userRegistered(login):
+        message = 'Confirmation key mismatch' \
+                  if self.userBase.getUserEnabled(login) \
+                  else 'Account disabled.'
 
     request.session['userID'] = uid
     return generateJson(data = login,

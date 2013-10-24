@@ -20,7 +20,6 @@
 #    along with this software.  If not, see http://www.gnu.org/licenses/.     #
 #                                                                             #
 ###############################################################################
-from keyboard import keyboard
 
 import hmac
 import hashlib
@@ -77,4 +76,4 @@ except ImportError:
   pass
 
 if __name__ == '__main__':
-  keyboard()
+  pass

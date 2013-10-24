@@ -195,7 +195,8 @@ class UserBase(dbBase):
 
     salt, last = row
     rawID = os.urandom(12)
-    hashId = rawID + str(last)
+    confirmID = base64.urlsafe_b64encode(rawID)
+    hashId = confirmID + str(last)
     algs, devs = zip(*HashAlgorithms.items())
     hashes = tuple(dev.generateHash(login, hashId, salt) for dev in devs)
     query = """
@@ -205,7 +206,7 @@ class UserBase(dbBase):
             """ % (', '.join("confirm_%s = %%s" % alg for alg in algs))
     cursor.execute(query, hashes + (login,))
     if cursor.rowcount == 1:
-      return rawID
+      return confirmID
 
   @provideCursor
   def checkConfirmationID(self, login, rawID, cursor=None):

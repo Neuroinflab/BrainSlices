@@ -108,11 +108,17 @@ select, input, textarea
   margin-bottom: 5px;
 }
 
+.form>p:first-of-type
+{
+  margin-right: 2px;
+}
+
 .form input[type=password],
 .form input[type=text]
 {
   width: 11.7em;
 }
+
 
 form[name=loginForm] label
 {
@@ -123,7 +129,6 @@ form[name=loginForm] .formErrorMessages
 {
   padding-left: 6em;
 }
-
 
 
 form[name=registerForm] label
@@ -138,9 +143,9 @@ form[name=registerForm] .formErrorMessages
 
 form[name=registerForm]>p:first-of-type
 {
-  margin-right: 2px;
   max-width: 21.5em;
 }
+
 
 form[name=regeneratePasswordForm] label
 {
@@ -151,6 +156,12 @@ form[name=regeneratePasswordForm] .formErrorMessages
 {
   padding-left: 3.5em;
 }
+
+form[name=regeneratePasswordForm]>p:first-of-type
+{
+  max-width: 16em;
+}
+
 
 form[name=regeneratePasswordFinalForm] label
 {
@@ -167,6 +178,12 @@ form[name=regeneratePasswordFinalForm] .success
   width: 20.5em;
   text-align: left;
 }
+
+form[name=regeneratePasswordFinalForm]>p:first-of-type
+{
+  max-width: 20em;
+}
+
 
 form[name=confirmationForm] label
 {
