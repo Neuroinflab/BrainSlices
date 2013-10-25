@@ -113,10 +113,12 @@ select, input, textarea
   margin-right: 2px;
 }
 
+
+
 .form input[type=password],
 .form input[type=text]
 {
-  width: 11.7em;
+  width: 12.5em;
 }
 
 
@@ -141,9 +143,9 @@ form[name=registerForm] .formErrorMessages
   padding-left: 9em;
 }
 
-form[name=registerForm]>p:first-of-type
+form[name=registerForm] p
 {
-  max-width: 21.5em;
+  width: 22em;
 }
 
 
@@ -157,9 +159,9 @@ form[name=regeneratePasswordForm] .formErrorMessages
   padding-left: 3.5em;
 }
 
-form[name=regeneratePasswordForm]>p:first-of-type
+form[name=regeneratePasswordForm] p
 {
-  max-width: 16em;
+  width: 16.5em;
 }
 
 
@@ -175,13 +177,12 @@ form[name=regeneratePasswordFinalForm] .formErrorMessages
 
 form[name=regeneratePasswordFinalForm] .success
 {
-  width: 20.5em;
   text-align: left;
 }
 
-form[name=regeneratePasswordFinalForm]>p:first-of-type
+form[name=regeneratePasswordFinalForm] p
 {
-  max-width: 20em;
+  width: 23em;
 }
 
 
@@ -197,14 +198,12 @@ form[name=confirmationForm] .formErrorMessages
 
 form[name=confirmationForm] .success
 {
-  width: 19.5em;
   text-align: left;
 }
 
-form[name=confirmationForm]>p:first-of-type
+form[name=confirmationForm] p
 {
-  margin-right: 2px;
-  max-width: 20em;
+  width: 21em;
 }
 
 .success

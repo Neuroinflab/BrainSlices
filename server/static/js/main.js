@@ -433,18 +433,18 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton,
     var login = $form.find('input[name="login"]').val().trim();
     var password = $form.find('input[name="password"]').val();
 
-    thisInstance.$controlPanel.find('.formErrorMessages').hide().text('');
+    thisInstance.$controlPanel.find('.formErrorMessages').hide().html('');
     var permissionToGo = true;
 
     if (!validLogin(login))
     {
-      thisInstance.$controlPanel.find('.loginFieldError').show().text('Enter a valid login.');
+      thisInstance.$controlPanel.find('.loginFieldError').show().html('Enter a valid login.');
       permissionToGo = false;
     }
 
     if (password == '')
     {
-      thisInstance.$controlPanel.find('.passwordFieldError').show().text('Enter a password.');
+      thisInstance.$controlPanel.find('.passwordFieldError').show().html('Enter a password.');
       permissionToGo = false;
     }
 
@@ -478,7 +478,7 @@ function CLoginConsole($controlPanel, $panelShowButton, $logoutButton,
                                         function()
                                         {
                                           thisInstance.$controlPanel.find('.formField').val('');
-                                          thisInstance.$controlPanel.find('.formErrorMessages').hide().text('');
+                                          thisInstance.$controlPanel.find('.formErrorMessages').hide().html('');
                                           thisInstance.onLogin = null;
                                           if (onClose != null)
                                           {
@@ -554,7 +554,7 @@ CLoginConsole.prototype.login = function(login, password, onSuccess, onFailure)
                             {
                               onFailure(response);
                             }
-                            thisInstance.$controlPanel.find('.badPass').show().text(response.message);
+                            thisInstance.$controlPanel.find('.badPass').show().html(response.message);
                           });
 }
 
@@ -670,7 +670,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
     $loginForm.hide();
     $confirmationForm.hide();
     $registerForm.find('.formField').val('');
-    $controlPanel.find('.formErrorMessages').text('');
+    $controlPanel.find('.formErrorMessages').html('');
     $registerForm.show();
   };
 
@@ -689,35 +689,35 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
     var name = $registerForm.find('input[name="name"]').val().trim();
     var email = $registerForm.find('input[name="email"]').val().trim();
 
-    $registerForm.find('.formErrorMessages').hide().text('');
+    $registerForm.find('.formErrorMessages').hide().html('');
 
     var permissionToGo = true;
     if (!validLogin(login))
     {
-      $registerForm.find('.loginFieldError').show().text('Provide a valid login.');
+      $registerForm.find('.loginFieldError').show().html('Provide a valid login.');
       permissionToGo = false;
     }
 
     if (password == '')
     {
-      $registerForm.find('.passwordFieldError').show().text('Provide a password.');
+      $registerForm.find('.passwordFieldError').show().html('Provide a password.');
       permissionToGo = false;
     }
 
     if (password != password2)
     {
-      $registerForm.find('.password2FieldError').show().text("Passwords do not match.");
+      $registerForm.find('.password2FieldError').show().html("Passwords do not match.");
       permissionToGo = false;
     }
     else if (password2 == '')
     {
-      $registerForm.find('.password2FieldError').show().text('Confirm the password.');
+      $registerForm.find('.password2FieldError').show().html('Confirm the password.');
       permissionToGo = false;
     }
 
     if (name == '')
     {
-      $registerForm.find('.nameFieldError').show().text('Provide a name.');
+      $registerForm.find('.nameFieldError').show().html('Provide a name.');
       permissionToGo = false;
     }
 
@@ -729,7 +729,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                     + "- do you want to continue with it?" :
                     null))
     {
-      $registerForm.find('.emailFieldError').show().text('Provide a valid e-mail address.');
+      $registerForm.find('.emailFieldError').show().html('Provide a valid e&#8209;mail address.');
       permissionToGo = false;
     }
 
@@ -750,7 +750,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                           }
                           else
                           {
-                            $registerForm.find('.submitError').show().text(response.message);
+                            $registerForm.find('.submitError').show().html(response.message);
                           }
                         },
                         {
@@ -787,7 +787,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
     $loginForm.hide();
     //$confirmationForm.hide();
     $regenerateFinalForm.hide();
-    $controlPanel.find('.formErrorMessages').text('');
+    $controlPanel.find('.formErrorMessages').html('');
     $regenerateForm.find('.formField').val('');
     var login = $loginForm.find('input[name="login"]').val();
     $regenerateForm.find('input[name="login"]').val(login);
@@ -798,14 +798,14 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
 
   this.submitRegeneratePasswordForm = function()
   {
-    $regenerateForm.find('.formErrorMessages').hide().text('');
+    $regenerateForm.find('.formErrorMessages').hide().html('');
     var login = $regenerateForm.find('input[name="login"]').val().trim();
     var email = $regenerateForm.find('input[name="email"]').val().trim();
 
     var permissionToGo = true;
     if (!validLogin(login))
     {
-      $regenerateForm.find('.loginFieldError').show().text('Provide a valid login.');
+      $regenerateForm.find('.loginFieldError').show().html('Provide a valid login.');
       permissionToGo = false;
     }
 
@@ -816,7 +816,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                     + "- do you want to continue with it?" :
                     null))
     {
-      $regenerateForm.find('.emailFieldError').show().text('Provide a valid e-mail address.');
+      $regenerateForm.find('.emailFieldError').show().html('Provide a valid e-mail address.');
       permissionToGo = false;
     }
 
@@ -852,7 +852,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
   {
     $regenerateForm.hide();
     $loginForm.hide();
-    $controlPanel.find('.formErrorMessages').text('');
+    $controlPanel.find('.formErrorMessages').html('');
     $regenerateFinalForm.find('.formField').val('');
     $regenerateFinalForm.find('input[name="login"]').val(login != null ?
                                                          login : '');
@@ -883,7 +883,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
 
   this.submitRegeneratePasswordFinalForm = function()
   {
-    $regenerateFinalForm.find('.formErrorMessages').hide().text('');
+    $regenerateFinalForm.find('.formErrorMessages').hide().html('');
 
     var login = $regenerateFinalForm.find('input[name="login"]').val().trim();
     var password = $regenerateFinalForm.find('input[name="password"]').val();
@@ -893,30 +893,30 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
 
     if (!validLogin(login))
     {
-      $regenerateFinalForm.find('.loginFieldError').show().text('Provide a valid login.');
+      $regenerateFinalForm.find('.loginFieldError').show().html('Provide a valid login.');
       permissionToGo = false;
     }
 
     if (password == '')
     {
-      $regenerateFinalForm.find('.passwordFieldError').show().text('Provide a password.');
+      $regenerateFinalForm.find('.passwordFieldError').show().html('Provide a password.');
       permissionToGo = false;
     }
 
     if (password != password2)
     {
-      $regenerateFinalForm.find('.password2FieldError').show().text("Passwords do not match.");
+      $regenerateFinalForm.find('.password2FieldError').show().html("Passwords do not match.");
       permissionToGo = false;
     }
     else if (password2 == '')
     {
-      $regenerateFinalForm.find('.password2FieldError').show().text('Confirm the password.');
+      $regenerateFinalForm.find('.password2FieldError').show().html('Confirm the password.');
       permissionToGo = false;
     }
 
     if (confirm == '')
     {
-      $regenerateFinalForm.find('.confirmFieldError').show().text('Provide a confirmation string (sent to you in an e-mail).');
+      $regenerateFinalForm.find('.confirmFieldError').show().html('Provide a confirmation string (sent to you in an e&#8209;mail).');
       permissionToGo = false;
     }
 
@@ -933,7 +933,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                           }
                           else
                           {
-                            $regenerateFinalForm.find('.submitError').show().text(response.message);
+                            $regenerateFinalForm.find('.submitError').show().html(response.message);
                           }
                         },
                         {
@@ -956,16 +956,16 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
     var login = $confirmationForm.find('input[name="login"]').val().trim();
     var valid = true;
 
-    $confirmationForm.find('.formErrorMessages').hide().text('');
+    $confirmationForm.find('.formErrorMessages').hide().html('');
     if (!validLogin(login))
     {
-      $confirmationForm.find('.loginFieldError').show().text('Provide a valid login.');
+      $confirmationForm.find('.loginFieldError').show().html('Provide a valid login.');
       valid = false;
     }
    
     if (confirm == '')
     {
-      $confirmationForm.find('.confirmFieldError').show().text('Provide a confirmation string (sent to you in an e&#8209;mail).');
+      $confirmationForm.find('.confirmFieldError').show().html('Provide a confirmation string (sent to you in an e&#8209;mail).');
       valid = false;
     }
 
@@ -1010,7 +1010,7 @@ function CUserPanel($controlPanel, $panelShowButton, $logoutButton,
                                     onlogin.slice(0) : [onlogin]);
   onlogin.push(function()
   {
-    $logoutButton.text('Logout [' + thisInstance.isLoggedAs() + ']');
+    $logoutButton.html('Logout [' + thisInstance.isLoggedAs() + ']');
   });
 
   this.loginManager = new CLoginConsole($controlPanel, $panelShowButton,
