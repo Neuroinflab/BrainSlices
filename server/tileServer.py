@@ -81,7 +81,9 @@ class TileGenerator(object):
                           logged = request.session.get('userID') != None)
 
     return generateJson(status = False,
-                        message = "No such imagestack in the database.")
+                        message = "Image not available in the database."\
+                                  if data is None\
+                                  else "Not enough privileges to access the image.")
 
   #TODO: remove after tests
   def _allImages(self, request):

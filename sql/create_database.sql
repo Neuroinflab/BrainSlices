@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2013-10-03 15:54:41
+-- Created on: 2013-10-25 17:58:44
 -- Diagram Version: 
 -- =============================================================================
 
@@ -22,7 +22,7 @@ CREATE TABLE "images" (
 	"invalid" text,
 	"status" int4 NOT NULL DEFAULT 0,
 	"bid" int4,
-	"uid" int4,
+	"owner" int4,
 	"filename" text,
 	"source_filesize" int4 DEFAULT 0,
 	"source_crc32" int4 DEFAULT 0,
@@ -65,7 +65,7 @@ CREATE INDEX "images_bid" ON "images" (
 
 
 CREATE INDEX "images_uid" ON "images" (
-	"uid"
+	"owner"
 );
 
 
@@ -126,7 +126,7 @@ DROP TABLE IF EXISTS "batches" CASCADE;
 
 CREATE TABLE "batches" (
 	"bid" SERIAL NOT NULL,
-	"uid" int4 NOT NULL,
+	"owner" int4 NOT NULL,
 	"batch_comment" text,
 	"batch_opened" timestamp DEFAULT now(),
 	"batch_closed" timestamp,
@@ -138,7 +138,7 @@ WITH (
 
 
 CREATE INDEX "batches_uid" ON "batches" (
-	"uid"
+	"owner"
 );
 
 
@@ -338,14 +338,14 @@ ALTER TABLE "images" ADD CONSTRAINT "Ref_images_to_batches" FOREIGN KEY ("bid")
 	ON UPDATE NO ACTION
 	NOT DEFERRABLE;
 
-ALTER TABLE "images" ADD CONSTRAINT "Ref_images_to_users" FOREIGN KEY ("uid")
+ALTER TABLE "images" ADD CONSTRAINT "Ref_images_to_users" FOREIGN KEY ("owner")
 	REFERENCES "users"("uid")
 	MATCH SIMPLE
 	ON DELETE NO ACTION
 	ON UPDATE NO ACTION
 	NOT DEFERRABLE;
 
-ALTER TABLE "batches" ADD CONSTRAINT "Ref_batches_to_users" FOREIGN KEY ("uid")
+ALTER TABLE "batches" ADD CONSTRAINT "Ref_batches_to_users" FOREIGN KEY ("owner")
 	REFERENCES "users"("uid")
 	MATCH SIMPLE
 	ON DELETE NO ACTION

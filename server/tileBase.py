@@ -51,6 +51,12 @@ IMAGE_STATUS_ACCEPTED = 7
 IMAGE_STATUS_REMOVED = -1
 IMAGE_STATUS_ERROR = -2
 
+IMAGE_STATUS_PREVIEWABLE = IMAGE_STATUS_COMPLETED
+
+NO_PRIVILEGE = 0
+PUBLIC_PRIVILEGE = 1
+GROUP_PRIVILEGE = 2
+OWNER_PRIVILEGE = 3
 
 from config import BS_TILER_THREADS, BS_TILER_MEMORY 
 
@@ -131,52 +137,93 @@ class TileBase(dbBase):
                              ('annotate', annotate),
                              ('outline', outline)) if v != None]
     fields, values = zip(*change)
-    data = [values + (iid, uid) for iid in iids]
     update = ', '.join('%s = %%s' % k for k in fields)
     query = """
             UPDATE images
             SET %s
-            WHERE iid = %%s AND uid = %%s;
+            WHERE iid = %%s;
             """ % update
-    cursor.executemany(query, data)
-    return cursor.rowcount
+    rowcount = 0
+    for iid in iids:
+      row = self.getPrivileges(iid, uid, cursor = cursor)
+      if row is not None and row[2]:
+        cursor.execute(query, values + (iid,))
+        rowcount += cursor.rowcount
 
+    return rowcount
+
+
+  def canViewImage(self, iid, uid = None, extraFields = ''):
+    return self.canAccessImage(iid, uid = uid, extraFields = extraFields,
+                               thresholdStatus = IMAGE_STATUS_PREVIEWABLE)
 
   @provideCursor
-  def canViewImage(self, iid, uid = None, extraFields = '', cursor = None):
+  def canAccessImage(self, iid, uid = None, extraFields = '',
+                     thresholdStatus = IMAGE_STATUS_COMPLETED, cursor = None):
+    row = self.getPrivileges(iid, uid = uid, extraFields = extraFields,
+                             cursor = cursor)
+    if row is None: # no image
+      return None
+
+    status, view, edit, annotate, outline = row[:5]
+    if status < thresholdStatus: # technically unable to access the image
+      return False
+
+    if status == IMAGE_STATUS_ACCEPTED: # image technically can be accessed
+      if view > NO_PRIVILEGE:
+        return row[5:] if extraFields != '' else True
+
+      else:
+        return False
+
+    if edit > NO_PRIVILEGE: # editor privilege
+      return row[5:] if extraFields != '' else True
+
+    return False
+
+  @provideCursor
+  def getPrivileges(self, iid, uid = None, extraFields='', cursor = None):
     cursor.execute("""
-                   SELECT status, uid, public_image_view, public_image_edit %s
+                   SELECT status, owner,
+                          CASE WHEN public_image_view THEN %d ELSE %d END,
+                          CASE WHEN public_image_edit THEN %d ELSE %d END,
+                          CASE WHEN public_image_annotate THEN %d ELSE %d END,
+                          CASE WHEN public_image_outline THEN %d ELSE %d END
+                          %s
                    FROM images
                    WHERE iid = %%s;
-                   """ % extraFields, (iid,))
+                   """ % (PUBLIC_PRIVILEGE, NO_PRIVILEGE, 
+                          PUBLIC_PRIVILEGE, NO_PRIVILEGE,
+                          PUBLIC_PRIVILEGE, NO_PRIVILEGE,
+                          PUBLIC_PRIVILEGE, NO_PRIVILEGE, extraFields),
+                   (iid,))
     if cursor.rowcount != 1:
       # not found
       return None
 
     row = cursor.fetchone()
-    status, owner, view, edit = row[:4]
-
-    if status < IMAGE_STATUS_COMPLETED:
-      # not completed
-      return False
-
-    if status > IMAGE_STATUS_COMPLETED and view or owner == uid or edit:
-      # completed & public or owner or publicly editible
-      return row[4:]
+    status, owner, view, edit, annotate, outline = row[:6]
+    if owner == uid:
+      return (status, OWNER_PRIVILEGE, OWNER_PRIVILEGE, OWNER_PRIVILEGE,
+              OWNER_PRIVILEGE) + tuple(row[6:])
 
     if uid == None: #anonymous user cannot be in a group
-      return False
+      return (status, max(view, edit, annotate, outline), edit,
+              max(annotate, edit), max(outline, edit)) + tuple(row[6:])
 
     cursor.execute("""
-                   SELECT COUNT(*), BOOL_OR(image_edit)
+                   SELECT CASE WHEN COUNT(*) > 0 THEN %s ELSE %s END,
+                          CASE WHEN BOOL_OR(image_edit) THEN %s ELSE %s END,
+                          CASE WHEN BOOL_OR(image_annotate) THEN %s ELSE %s END,
+                          CASE WHEN BOOL_OR(image_outline) THEN %s ELSE %s END,
                    FROM image_privileges_cache
                    WHERE iid = %s AND uid = %s;
-                   """, (iid, uid))
-    view, edit = cursor.fetchone()
-    if edit == True or view > 0 and status > IMAGE_STATUS_COMPLETED:
-      return row[4:]
-
-    return False
+                   """, (GROUP_PRIVILEGE, view, GROUP_PRIVILEGE, edit,
+                         GROUP_PRIVILEGE, annotate, GROUP_PRIVILEGE, outline,
+                         iid, uid))
+    view, edit, annotate, outline = cursor.fetchone()
+    return (status, max(view, edit, annotate, outline), edit,
+            max(annotate, edit), max(outline, edit)) + tuple(row[6:])
 
   def tile(self, request):
     fid = self.canViewImage(request.id,
@@ -198,9 +245,9 @@ class TileBase(dbBase):
 
   def source(self, request):
     # redundency with tile()
-    fid = self.canViewImage(request.id,
-                            uid = request.session.get('userID'),
-                            extraFields = ', fid')
+    fid = self.canAccessImage(request.id,
+                              uid = request.session.get('userID'),
+                              extraFields = ', fid')
     if isinstance(fid, tuple):
       fid = fid[0]
       path = os.path.join(self.tileDir,
@@ -230,7 +277,8 @@ class TileBase(dbBase):
               'crc32': row[7], # previously was a hex string
               'md5': row[8]}
 
-    return None
+    if isinstance(row, bool):
+      return row
 
   #TODO: remove after tests
   @provideCursor
@@ -241,7 +289,7 @@ class TileBase(dbBase):
                      FROM images
                      WHERE status > %s AND public_image_view
                         OR status >= %s AND (public_image_edit
-                                             OR uid = %s)
+                                             OR owner = %s)
                      UNION
                      SELECT filename, iid
                      FROM images NATURAL JOIN 
@@ -281,7 +329,7 @@ class TileBase(dbBase):
     bid = cursor.fetchone()[0]
 
     cursor.execute("""
-                   INSERT INTO batches(bid, uid, batch_comment)
+                   INSERT INTO batches(bid, owner, batch_comment)
                    VALUES(%s, %s, %s);
                    """, (bid, uid, comment))
     return bid
@@ -294,7 +342,7 @@ class TileBase(dbBase):
     cursor.execute("""
                    SELECT bid, batch_comment
                    FROM batches
-                   WHERE batch_closed IS NULL AND uid = %s;
+                   WHERE batch_closed IS NULL AND owner = %s;
                    """, (uid,))
     return cursor.fetchall()
 
@@ -313,14 +361,14 @@ class TileBase(dbBase):
                      SELECT iid, status, image_crc32, invalid, source_crc32,
                             source_filesize, declared_size, filename
                      FROM images
-                     WHERE uid = %s AND bid = %s;
+                     WHERE owner = %s AND bid = %s;
                      """, (uid, bid))
     else:
       cursor.execute("""
                      SELECT iid, status, image_crc32, invalid, source_crc32,
                             source_filesize, declared_size, filename
                      FROM images
-                     WHERE uid = %s AND bid IS NULL;
+                     WHERE owner = %s AND bid IS NULL;
                      """, (uid,))
 
     #TODO: check for batch existence???
@@ -343,14 +391,14 @@ class TileBase(dbBase):
       cursor.execute("""
                      UPDATE batches
                      SET batch_closed = now()
-                     WHERE uid = %s AND bid = %s AND batch_closed IS NULL;
+                     WHERE owner = %s AND bid = %s AND batch_closed IS NULL;
                      """, (uid, bid))
 
     else:
       cursor.execute("""
                      UPDATE batches
                      SET batch_closed = now(), batch_comment = %s
-                     WHERE uid = %s AND bid = %s AND batch_closed IS NULL;
+                     WHERE owner = %s AND bid = %s AND batch_closed IS NULL;
                      """, (comment, uid, bid))
 
     return cursor.rowcount == 1
@@ -413,46 +461,53 @@ class TileBase(dbBase):
 
   @provideCursor
   def getDuplicateImages(self, uid, imageHash, filesize, cursor = None):
-    '''
+    """
     Gets all duplicate images by comparing the source_md5 and file size
     User must also privilege to view the image for it to be considered as a duplicate
-    '''
-    cursor.execute('''
-                    select iid, declared_size, status, filename from images 
-                    where source_md5 = %s and 
-                    ((status >= %s and uid = %s) or 
-                    (status = %s and uid <> %s)) 
-                    ''', (imageHash, IMAGE_STATUS_RECEIVED, uid, IMAGE_STATUS_ACCEPTED, uid))
+    """
+    cursor.execute("""
+                   SELECT iid, status, filename
+                   FROM images 
+                   WHERE source_md5 = %s AND declared_size = %s
+                         AND ((status >= %s AND owner = %s) OR status = %s); 
+                   """, (imageHash, filesize, IMAGE_STATUS_RECEIVED, uid,
+                         IMAGE_STATUS_ACCEPTED))
     r = cursor.fetchall()
-    if r: return [(str(row[0]), str(row[2]), row[3], imageHash) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
+    if r:
+      # TODO: is str conversion necessary?
+      return [(str(row[0]), str(row[1]), row[2], imageHash) for row in r\
+              if self.canViewImage(row[0], uid)]
+
     return []
 
+# broken image -> view privileges are not enough!!!
+# TODO: refactoring
   @provideCursor
   def getBrokenImages(self, uid, imageHash, filesize, cursor = None):
-    '''
+    """
     Gets all images that are broken uploads by comparing the source_md5
     User must also privilege to view the image for it to be considered as a broken upload
-    '''
+    """
     cursor.execute('''
                     select iid, declared_size, filename from images 
                     where source_md5 = %s and 
                     status in (%s, %s) 
                     ''', (imageHash, IMAGE_STATUS_UPLOADING, IMAGE_STATUS_RECEIVING))
     r = cursor.fetchall()
-    if r: return [(str(row[0]), row[2]) for row in r if row[1] == filesize and self.hasPrivilege(uid, row[0])]
+    if r: return [(str(row[0]), row[2]) for row in r if row[1] == filesize and self.canViewImage(row[0], uid)]
     return []
   
   @provideCursor
   def createNewImageSlot(self, uid, imageHash, filename, file_size, bid, cursor = None):
-    '''
+    """
     Inserts a new row in images table for new images to upload
-    '''
+    """
     cursor.execute("SELECT nextval('images_iid_seq');")
     iid = cursor.fetchone()[0]
     cursor.execute("""
-                   INSERT INTO images(iid, uid, status, source_md5, filename,
-                                      declared_size, bid)
-                   VALUES(%s, %s, %s, %s, %s, %s, %s);
+                   INSERT INTO images(iid, owner, status, source_md5,
+                                      filename, declared_size, bid)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s);
                    """, (iid, uid, IMAGE_STATUS_UPLOADING, imageHash, filename, file_size, bid))
     return str(iid)
 
@@ -469,20 +524,16 @@ class TileBase(dbBase):
     return cursor.fetchall()
 
   @provideCursor
-  def hasPrivilege(self, uid, iid, cursor = None):
-    '''
-    Checks if the given user has privilege to view the given image. 
-    If yes, returns True, else False
-    '''
-    return True
-
-  @provideCursor
   def makeUploadSlot(self, uid, filename, declared_size, bid, cursor = None):
     if uid == None:
       return None
 
     if bid != None:
-      cursor.execute("SELECT EXISTS (SELECT * FROM batches WHERE bid = %s AND uid = %s);",
+      cursor.execute("""
+                     SELECT EXISTS (SELECT *
+                                    FROM batches
+                                    WHERE bid = %s AND owner = %s);
+                     """,
                      (bid, uid))
       if not cursor.fetchone()[0]:
         return None
@@ -491,9 +542,9 @@ class TileBase(dbBase):
     iid = cursor.fetchone()[0]
 
     cursor.execute("""
-                   INSERT INTO images(iid, status, uid, filename,
+                   INSERT INTO images(iid, status, owner, filename,
                                       declared_size, bid)
-                   VALUES(%s, %s, %s, %s, %s, %s);
+                   VALUES (%s, %s, %s, %s, %s, %s);
                    """, (iid, IMAGE_STATUS_RECEIVING, uid, filename,
                          declared_size, bid))
     return iid
@@ -506,7 +557,7 @@ class TileBase(dbBase):
     cursor.execute("""
                    UPDATE images
                    SET status = %s
-                   WHERE uid = %s AND iid = %s AND status = %s;
+                   WHERE owner = %s AND iid = %s AND status = %s;
                    """, (IMAGE_STATUS_RECEIVING, uid, iid, IMAGE_STATUS_UPLOADING))
 
     if cursor.rowcount != 1:
@@ -647,7 +698,8 @@ class TileBase(dbBase):
     Removes rows with iids from DB
     '''
     iids_str = ','.join([str(iid) for iid in iids])
-    cursor.execute('DELETE from images where iid in ('+iids_str+')')  
+    cursor.execute('DELETE from images where iid in ('+iids_str+')')
+    # XXX: might be dangerous
 
   @provideCursor
   def acceptImage(self, uid, iids, imageRes, imageLeft = 0., imageTop = 0.,
@@ -665,7 +717,7 @@ class TileBase(dbBase):
                        UPDATE images
                        SET image_top = %s, image_left = %s,
                            pixel_size = %s, status = %s
-                       WHERE iid = %s AND uid = %s AND status = %s;
+                       WHERE iid = %s AND owner = %s AND status = %s;
                        """, data)
     return cursor.rowcount
 

@@ -356,6 +356,7 @@ class UserBase(dbBase):
   def addImagePrivilege(self, iid, gid, image_edit = False,
                         image_annotate = False, image_outline = False,
                         db = None, cursor = None):
+    # TODO:check if has privileges to do so
     cached = False
     while not cached:
       success = False
