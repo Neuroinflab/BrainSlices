@@ -248,8 +248,8 @@ class UserBase(dbBase):
       return uid
 
 
-  @provideCursor
-  def addGroup(self, uid, name, description = "", cursor = None):
+  @provideConnection()
+  def addGroup(self, uid, name, description = "", cursor = None, db = None):
     """
     Define a new privilege group.
 
@@ -269,87 +269,128 @@ class UserBase(dbBase):
 
     @raise KeyError: User #L{uid} not found.
     """
-    query = """
-            INSERT INTO groups(group_name, group_administrator, group_description)
-            VALUES (%s, %s, %s);
-            """
-    try:
-      cursor.execute(query, (name, uid, description))
+    done = False
+    while not done:
+      query = """
+              INSERT INTO groups(group_name, group_administrator, group_description)
+              VALUES (%s, %s, %s);
+              """
+      try:
+        cursor.execute(query, (name, uid, description))
+  
+      except psycopg2.IntegrityError as e:
+        db.rollback()
+        if e.pgcode == '23505':
+          raise ValueError('Group %s of %d already exists.' % (name, uid))
+  
+        if e.pgcode == '23503':
+          raise KeyError('User #%d does not exist.' % uid)
+  
+        raise
+  
+      else:
+        try:
+          result = self._getOneValue("""
+                                     SELECT gid
+                                     FROM groups
+                                     WHERE group_name = %s
+                                           AND group_administrator = %s;
+                                     """,
+                                     (name, uid),
+                                     cursor = cursor)
+        except TransactionRollbackError:
+          db.rollback()
 
-    except psycopg2.IntegrityError as e:
-      if e.pgcode == '23505':
-        raise ValueError('Group %s of %d already exists.' % (name, uid))
+        else:
+          done = True
 
-      if e.pgcode == '23503':
-        raise KeyError('User #%d does not exist.' % uid)
+    return result
 
-      raise
 
-    else:
-      return self._getOneValue("""
-                               SELECT gid
-                               FROM groups
-                               WHERE group_name = %s
-                                     AND group_administrator = %s;
-                               """,
-                               (name, uid),
-                               cursor = cursor)
+  @provideConnection
+  def deleteGroup(self, gid, cursor = None, db = None):
+    done = False
+    while not done:
+      try:
+        cursor.execute("DELETE FROM image_privileges_cache WHERE gid = %s;", (gid,))
+        cursor.execute("DELETE FROM image_privileges WHERE gid = %s;", (gid,))
+        cursor.execute("DELETE FROM members WHERE gid = %s", (gid,))
+        cursor.execute("DELETE FROM groups WHERE gid = %s;", (gid,))
 
-  @provideCursor
-  def deleteGroup(self, gid, cursor = None):
-    cursor.execute("DELETE FROM image_privileges_cache WHERE gid = %s;", (gid,))
-    cursor.execute("DELETE FROM image_privileges WHERE gid = %s;", (gid,))
-    cursor.execute("DELETE FROM members WHERE gid = %s", (gid,))
-    cursor.execute("DELETE FROM groups WHERE gid = %s;", (gid,))
+      except TransactionRollbackError:
+        db.rollback()
 
-  @provideCursor
-  def addGroupMember(self, uid, gid, member_add = False, member_del = False, cursor = None):
+      else:
+        done = True
+
+  @provideConnection
+  def addGroupMember(self, uid, gid, member_add = False, member_del = False,
+                     cursor = None, db = None):
     """
     Add a new member to the group.
     """
-    try:
-      cursor.execute("""
-                     INSERT INTO members(gid, uid, member_add, member_del)
-                     VALUES (%s, %s, %s, %s);
-                     """,
-                     (gid, uid, member_add, member_del))
+    done = False
+    while not done:
+      try:
+        cursor.execute("""
+                       INSERT INTO members(gid, uid, member_add, member_del)
+                       VALUES (%s, %s, %s, %s);
+                       """,
+                       (gid, uid, member_add, member_del))
+  
+      except psycopg2.IntegrityError as e:
+        db.rollback()
+        if e.pgcode == '23505':
+          raise ValueError('User #%d is already a member of a group #%d.'\
+                           % (uid, gid))
+  
+        if e.pgcode == '23503':
+          if 'users' in e.pgerror:
+            raise KeyError('User #%d does not exist.' % uid)
+  
+          if 'groups' in e.pgerror:
+            raise KeyError('Group #%d does not exist.' % gid)
+  
+          raise KeyError('User #%d or group # %d do not exist.' % (uid, gid))
+  
+        raise
+  
+      try:
+        #add to image_privilleges_cache
+        cursor.execute("""
+                       INSERT INTO image_privileges_cache(iid, gid, uid,
+                                   image_edit, image_annotate, image_outline)
+                       SELECT iid, gid, uid,
+                              image_edit, image_annotate, image_outline
+                       FROM image_privileges NATURAL JOIN members
+                       WHERE uid = %s AND gid = %s;
+                       """,
+                       (uid, gid))
 
-    except psycopg2.IntegrityError as e:
-      if e.pgcode == '23505':
-        raise ValueError('User #%d is already a member of a group #%d.'\
-                         % (uid, gid))
+      except TransactionRollbackError:
+        db.rollback()
 
-      if e.pgcode == '23503':
-        if 'users' in e.pgerror:
-          raise KeyError('User #%d does not exist.' % uid)
-
-        if 'groups' in e.pgerror:
-          raise KeyError('Group #%d does not exist.' % gid)
-
-        raise KeyError('User #%d or group # %d do not exist.' % (uid, gid))
-
-      raise
-
-    #add to image_privilleges_cache
-    cursor.execute("""
-                   INSERT INTO image_privileges_cache(iid, gid, uid,
-                               image_edit, image_annotate, image_outline)
-                   SELECT iid, gid, uid,
-                          image_edit, image_annotate, image_outline
-                   FROM image_privileges NATURAL JOIN members
-                   WHERE uid = %s AND gid = %s;
-                   """,
-                   (uid, gid))
+      else:
+        done = True
         
-  @provideCursor
-  def deleteGroupMember(self, uid, gid, cursor = None):
-    cursor.execute("""
-                   DELETE FROM image_privileges_cache
-                   WHERE uid = %s AND gid = %s;
-                   """,
-                   (uid, gid))
-    cursor.execute("DELETE FROM members WHERE uid = %s AND gid = %s;",
-                   (uid, gid))
+  @provideConnection
+  def deleteGroupMember(self, uid, gid, cursor = None, db = None):
+    done = False
+    while not done:
+      try:
+        cursor.execute("""
+                       DELETE FROM image_privileges_cache
+                       WHERE uid = %s AND gid = %s;
+                       """,
+                       (uid, gid))
+        cursor.execute("DELETE FROM members WHERE uid = %s AND gid = %s;",
+                       (uid, gid))
+
+      except TransactionRollbackError:
+        db.rollback()
+
+      else:
+        done = True
 
 #TODO: refactoring
   @provideConnection()
@@ -433,39 +474,39 @@ class UserBase(dbBase):
         cached = True
 
   @provideCursor
-  def grantGroupPrivilegesToUser(self, uid, gid, members_add, members_del, cursor = None):
+  def grantGroupPrivilegesToUser(self, uid, gid, memberAdd, memberDel,
+                                 cursor = None):
     
-    update_command = """UPDATE members SET member_add = %s, member_del = %s WHERE uid = %s and gid = %s"""
-    data = (members_add, members_del, uid, gid)
-    cursor.execute(update_command, data)
+    query = """
+            UPDATE members
+            SET member_add = %s, member_del = %s
+            WHERE uid = %s AND gid = %s;
+            """
+    cursor.execute(query, (memberAdd, memberDel, uid, gid))
 
   #TODO: wylistowanie grup uzytkownika, wylistowanie wszystkich grup, ktorych administratorem jest uzytkownik i ostatnia rzecz z kartki..  
     
   @provideCursor
-  def listUsersGroups(self, uid, member_add = None, member_del = None, cursor = None):
+  def listUsersGroups(self, uid, memberAdd = None, memberDel = None, cursor = None):
+    query = """
+            SELECT
+            gid, group_name, group_administrator, member_add, member_del
+            FROM groups NATURAL JOIN members
+            WHERE %s;
+            """
 
-    select_command = \
-    "SELECT" \
-    "  a.gid, group_name, group_administrator, member_add, member_del "\
-    "FROM" \
-    "  groups a" \
-    "  JOIN members b on a.gid = b.gid " \
-    "WHERE" \
-    "  uid = %s"
-    data = (uid,)
+    data = [uid]
+    condition = ['uid = %s']
+    if memberAdd != None:
+      data.append(memberAdd)
+      condition.append('member_add = %s')
 
-    if member_add != None:
-      select_command = select_command + " and member_add = %s"
-      data = data + (str(member_add),)
-    if member_del != None:
-      select_command = select_command + " and member_del = %s"
-      data = data + (str(member_del),)
+    if memberDel != None:
+      data.append(memberDel)
+      condition.append('member_del = %s')
 
-    cursor.execute(select_command, data)
-    l = []
-    for v in cursor:
-      l.append(v)
-    return l
+    cursor.execute(query % (' AND '.join(condition)), data)
+    return cursor.fetchall()
 
   @provideCursor
   def listGroupsByAdministrator(self, uid, cursor = None):
@@ -503,12 +544,3 @@ class UserBase(dbBase):
     print l  
 
     return result_dict  
-     
-
-
-
-
-
-
-
-
