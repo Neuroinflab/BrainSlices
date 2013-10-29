@@ -331,8 +331,7 @@ class UserBase(dbBase):
     """
     Add a new member to the group.
     """
-    done = False
-    while not done:
+    while True:
       try:
         cursor.execute("""
                        INSERT INTO members(gid, uid, member_add, member_del)
@@ -374,12 +373,11 @@ class UserBase(dbBase):
 
       else:
         db.commit()
-        done = True
+        return
         
   @provideConnection()
   def deleteGroupMember(self, uid, gid, cursor = None, db = None):
-    done = False
-    while not done:
+    while True:
       try:
         cursor.execute("""
                        DELETE FROM image_privileges_cache
@@ -394,18 +392,44 @@ class UserBase(dbBase):
 
       else:
         db.commit()
-        done = True
+        return
 
-#TODO: revoke view privilege!!!
+  @provideConnection()
+  def revokeImagePrivilege(self, iid, gid, db = None, cursor = None):
+    while True:
+      try:
+        cursor.execute("""
+                       DELETE FROM image_privileges_cache
+                       WHERE iid = %s AND gid = %s;
+                       """,
+                       (iid, gid))
+        cursor.execute("""
+                       DELETE FROM image_privileges
+                       WHERE iid = %s AND gid = %s;
+                       """,
+                       (iid, gid))
+
+      except psycopg2.IntegrityError as e:
+        db.rollback()
+        if e.pgcode != FOREIGN_KEY_VIOLATION:
+          # not the case someone has inserted something to cache
+          raise
+
+      except TransactionRollbackError:
+        db.rollback()
+
+      else:
+        db.commit()
+        return
 
 #TODO: refactoring
+#TODO: smart privilege update or so...
   @provideConnection()
-  def addImagePrivilege(self, iid, gid, image_edit = False,
-                        image_annotate = False, image_outline = False,
+  def grantImagePrivilege(self, iid, gid, imageEdit = False,
+                          imageAnnotate = False, imageOutline = False,
                         db = None, cursor = None):
     # TODO:check if has privileges to do so
-    cached = False
-    while not cached:
+    while True:
       success = False
       while not success:
         cursor.execute("""
@@ -478,7 +502,7 @@ class UserBase(dbBase):
 
       else:
         db.commit()
-        cached = True
+        return
 
   @provideCursor
   def grantGroupPrivilegesToUser(self, uid, gid, memberAdd, memberDel,
