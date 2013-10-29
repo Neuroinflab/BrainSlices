@@ -70,6 +70,6 @@ if __name__ == '__main__':
 
   ub.confirmationSent(login)
 
-  confirmId = ub.getConfirmID(login)
-  print ub.confirmRegistration(login, confirmId)
+  confirmId = ub.newConfirmationID(login)
+  print ub.checkConfirmationID(login, confirmId)
 

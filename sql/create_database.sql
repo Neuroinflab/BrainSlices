@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2013-10-25 17:58:44
+-- Created on: 10/29/2013 8:50:20 PM
 -- Diagram Version: 
 -- =============================================================================
 
@@ -169,7 +169,9 @@ WITH (
 CREATE INDEX "properties_iid" ON "properties" (
 	"iid"
 );
-GRANT ALL PRIVILEGES ON TABLE "properties" TO "postgres";
+
+
+ALTER TABLE "properties" OWNER TO "skwarki";GRANT ALL PRIVILEGES ON TABLE "properties" TO "postgres";
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "properties" TO "skwarki";
 
@@ -192,7 +194,9 @@ WITH (
 CREATE INDEX "global_properties_name" ON "global_properties" (
 	"property_name"
 );
-GRANT ALL PRIVILEGES ON TABLE "global_properties" TO "postgres";
+
+
+ALTER TABLE "global_properties" OWNER TO "skwarki";GRANT ALL PRIVILEGES ON TABLE "global_properties" TO "postgres";
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "global_properties" TO "skwarki";
 
@@ -216,7 +220,9 @@ WITH (
 CREATE INDEX "groups_administrator" ON "groups" (
 	"group_administrator"
 );
-GRANT ALL PRIVILEGES ON TABLE "groups" TO "postgres";
+
+
+ALTER TABLE "groups" OWNER TO "skwarki";GRANT ALL PRIVILEGES ON TABLE "groups" TO "postgres";
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "groups" TO "skwarki";
 
@@ -251,7 +257,9 @@ CREATE INDEX "members_uid" ON "members" (
 CREATE INDEX "members_gid" ON "members" (
 	"gid"
 );
-GRANT ALL PRIVILEGES ON TABLE "members" TO "postgres";
+
+
+ALTER TABLE "members" OWNER TO "skwarki";GRANT ALL PRIVILEGES ON TABLE "members" TO "postgres";
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "members" TO "skwarki";
 
@@ -280,7 +288,9 @@ CREATE INDEX "image_privileges_iid" ON "image_privileges" (
 CREATE INDEX "image_privileges_gid" ON "image_privileges" (
 	"gid"
 );
-GRANT ALL PRIVILEGES ON TABLE "image_privileges" TO "postgres";
+
+
+ALTER TABLE "image_privileges" OWNER TO "skwarki";GRANT ALL PRIVILEGES ON TABLE "image_privileges" TO "postgres";
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "image_privileges" TO "skwarki";
 
@@ -324,7 +334,9 @@ CREATE INDEX "image_privileges_cache_iid" ON "image_privileges_cache" (
 CREATE INDEX "image_privileges_cache_uid" ON "image_privileges_cache" (
 	"uid"
 );
-GRANT ALL PRIVILEGES ON TABLE "image_privileges_cache" TO "postgres";
+
+
+ALTER TABLE "image_privileges_cache" OWNER TO "skwarki";GRANT ALL PRIVILEGES ON TABLE "image_privileges_cache" TO "postgres";
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "image_privileges_cache" TO "skwarki";
 

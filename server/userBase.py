@@ -302,12 +302,13 @@ class UserBase(dbBase):
           db.rollback()
 
         else:
+          db.commit()
           done = True
 
     return result
 
 
-  @provideConnection
+  @provideConnection()
   def deleteGroup(self, gid, cursor = None, db = None):
     done = False
     while not done:
@@ -321,9 +322,10 @@ class UserBase(dbBase):
         db.rollback()
 
       else:
+        db.commit()
         done = True
 
-  @provideConnection
+  @provideConnection()
   def addGroupMember(self, uid, gid, member_add = False, member_del = False,
                      cursor = None, db = None):
     """
@@ -371,9 +373,10 @@ class UserBase(dbBase):
         db.rollback()
 
       else:
+        db.commit()
         done = True
         
-  @provideConnection
+  @provideConnection()
   def deleteGroupMember(self, uid, gid, cursor = None, db = None):
     done = False
     while not done:
@@ -390,7 +393,10 @@ class UserBase(dbBase):
         db.rollback()
 
       else:
+        db.commit()
         done = True
+
+#TODO: revoke view privilege!!!
 
 #TODO: refactoring
   @provideConnection()
@@ -471,6 +477,7 @@ class UserBase(dbBase):
         success = False
 
       else:
+        db.commit()
         cached = True
 
   @provideCursor
