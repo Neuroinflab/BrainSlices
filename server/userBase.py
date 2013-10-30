@@ -310,6 +310,12 @@ class UserBase(dbBase):
 
   @provideConnection()
   def deleteGroup(self, gid, cursor = None, db = None):
+    """
+    Remove existing privilege group.
+
+    @param gid: identifier of the group
+    @type gid: int
+    """
     done = False
     while not done:
       try:
@@ -326,10 +332,22 @@ class UserBase(dbBase):
         done = True
 
   @provideConnection()
-  def addGroupMember(self, uid, gid, member_add = False, member_del = False,
+  def addGroupMember(self, uid, gid, memberAdd = False, memberDel = False,
                      cursor = None, db = None):
     """
     Add a new member to the group.
+
+    @param uid: identifier of the user
+    @type uid: int
+
+    @param gid: identifier of the group
+    @type gid: int
+
+    @param memberAdd: member adding privilege
+    @type memberAdd: bool
+
+    @param memberDel: member removing privilege
+    @type memberDel: bool
     """
     while True:
       try:
@@ -337,7 +355,7 @@ class UserBase(dbBase):
                        INSERT INTO members(gid, uid, member_add, member_del)
                        VALUES (%s, %s, %s, %s);
                        """,
-                       (gid, uid, member_add, member_del))
+                       (gid, uid, memberAdd, memberDel))
   
       except psycopg2.IntegrityError as e:
         db.rollback()
@@ -377,6 +395,15 @@ class UserBase(dbBase):
         
   @provideConnection()
   def deleteGroupMember(self, uid, gid, cursor = None, db = None):
+    """
+    Remove a member from privilege group.
+
+    @param uid: identifier of the member
+    @type uid: int
+
+    @param gid: identifier of the group
+    @type gid: int
+    """
     while True:
       try:
         cursor.execute("""
@@ -396,6 +423,15 @@ class UserBase(dbBase):
 
   @provideConnection()
   def revokeImagePrivilege(self, iid, gid, db = None, cursor = None):
+    """
+    Revoke privilege to view the image from given group.
+
+    @param iid: identifier of the image
+    @type iid: int
+
+    @param gid: identifier of the group
+    @type gid: int
+    """
     while True:
       try:
         cursor.execute("""
@@ -422,12 +458,75 @@ class UserBase(dbBase):
         db.commit()
         return
 
+  @provideConnection()
+  def changeImagePrivilege(self, iid, gid, imageEdit = None,
+                           imageAnnotate = None, imageOutline = None,
+                           db = None, cursor = None):
+    """
+    Change privileges to edit/annotate/outline the image from given group.
+
+    @param iid: identifier of the image
+    @type iid: int
+
+    @param gid: identifier of the group
+    @type gid: int
+
+    @param imageEdit: privilege to edit the image
+    @type imageEdit: bool
+
+    @param imageAnnotate: privilege to annotate the image
+    @type imageAnnotate: bool
+
+    @param imageOutline: privilege to outline the image
+    @type imageOutline: bool
+    """
+    toUpdate = []
+    if imageEdit is not None:
+    toUpdate.append(('image_edit = %s', imageEdit))
+
+    if imageAnnotate is not None:
+      toUpdate.append(('image_annotate = %s', imageAnnotate))
+
+    if imageOutline is not None:
+      toUpdate.append(('image_outline = %s', imageOutline))
+
+    if len(toUpdate) > 0:
+      updateStrings, updateValues = zip(*toUpdate)
+      updateStrings = ', '.join(updateStrings)
+      updateValues = updateValues + (iid, gid)
+      while True:
+        try:
+          cursor.execute("""
+                         UPDATE image_privileges
+                         SET %s
+                         WHERE iid = %%s AND gid = %%s;
+                         """ % updateStrings,
+                         updateValues)
+          cursor.execute("""
+                         UPDATE image_privileges_cached
+                         SET %s
+                         WHERE iid = %%s AND gid = %%s;
+                         """ % updateStrings,
+                         updateValues)
+
+        except TransactionRollbackError:
+          db.rollback()
+  
+        except psycopg2.IntegrityError as e:
+          db.rollback()
+          if e.pgcode != UNIQUE_VIOLATION:
+            raise
+  
+        else:
+          db.commit()
+          return
+
 #TODO: refactoring
 #TODO: smart privilege update or so...
   @provideConnection()
   def grantImagePrivilege(self, iid, gid, imageEdit = False,
                           imageAnnotate = False, imageOutline = False,
-                        db = None, cursor = None):
+                          db = None, cursor = None):
     # TODO:check if has privileges to do so
     while True:
       success = False
