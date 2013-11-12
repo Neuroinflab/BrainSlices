@@ -479,6 +479,8 @@ class UserBase(dbBase):
 
     @param imageOutline: privilege to outline the image
     @type imageOutline: bool
+
+    @note: Obsoleted by L{grantImagePrivilege>}.
     """
     toUpdate = []
     if imageEdit is not None:
@@ -503,7 +505,7 @@ class UserBase(dbBase):
                          """ % updateStrings,
                          updateValues)
           cursor.execute("""
-                         UPDATE image_privileges_cached
+                         UPDATE image_privileges_cache
                          SET %s
                          WHERE iid = %%s AND gid = %%s;
                          """ % updateStrings,
@@ -521,87 +523,98 @@ class UserBase(dbBase):
           db.commit()
           return
 
-#TODO: refactoring
-#TODO: smart privilege update or so...
   @provideConnection()
-  def grantImagePrivilege(self, iid, gid, imageEdit = False,
-                          imageAnnotate = False, imageOutline = False,
+  def grantImagePrivilege(self, iid, gid, imageEdit = None,
+                          imageAnnotate = None, imageOutline = None,
                           db = None, cursor = None):
+    """
+    Grant privilege to view the image by members of a given group.
+
+    Given edit/annotate and outline privileges are being granted/revoked
+    simultaneously.
+
+    @param iid: identifier of the image
+    @type iid: int
+
+    @param gid: identifier of the group
+    @type gid: int
+
+    @param imageEdit: privilege to edit the image
+    @type imageEdit: bool
+
+    @param imageAnnotate: privilege to annotate the image
+    @type imageAnnotate: bool
+
+    @param imageOutline: privilege to outline the image
+    @type imageOutline: bool
+    """
+    toUpdate = []
+    if imageEdit is not None:
+      toUpdate.append(('image_edit', imageEdit))
+
+    if imageAnnotate is not None:
+      toUpdate.append(('image_annotate', imageAnnotate))
+
+    if imageOutline is not None:
+      toUpdate.append(('image_outline', imageOutline))
+
+    if len(toUpdate) > 0:
+      query = """
+              UPDATE %%s SET %s
+              WHERE iid = %%%%s AND gid = %%%%s;
+              """ % (', '.join('%s = %%%%s' % k for (k, _) in toUpdate))
+      queryUpdate = query % 'image_privileges'
+      queryUpdateCache = query % 'image_privileges_cache'
+
+    data = tuple(v for (_, v) in toUpdate) + (iid, gid)
+    fields = tuple(k for (k, _) in toUpdate) + ('iid', 'gid')
+    queryInsert = """
+                  INSERT INTO image_privileges(%s)
+                  VALUES (%s);
+                  """ % (', '.join(fields), ', '.join('%s' for k in fields))
+
     # TODO:check if has privileges to do so
     while True:
-      success = False
-      while not success:
-        cursor.execute("""
-                       UPDATE image_privileges SET image_edit = %s,
-                                                   image_annotate = %s,
-                                                   image_outline = %s
-                       WHERE iid = %s AND gid = %s;
-                       """,
-                       (image_edit, image_annotate, image_outline, iid, gid))
-        success = cursor.rowcount == 1
-        if not success:
-          try:
-            cursor.execute("""
-                           INSERT INTO image_privileges(iid, gid, image_edit,
-                                                        image_annotate,
-                                                        image_outline)
-                           VALUES (%s, %s, %s, %s, %s);
-                           """,
-                           (iid, gid, image_edit, image_annotate, image_outline))
-          except TransactionRollbackError:
-            db.rollback()
-  
-          except psycopg2.IntegrityError as e:
-            db.rollback()
-            if e.pgcode != UNIQUE_VIOLATION:
-              raise
-  
-          else:
-            success = True
-  
-      # Privilege set for image
-  
-      # a window where a new member (and its cached privilege) can be added
-      # or member/privilege removed
-
       try:
+        if len(toUpdate) > 0:
+          cursor.execute(queryUpdate, data)
+          if cursor.rowcount == 1:
+            cursor.execute(queryUpdateCache, data)
+            db.commit()
+            return True # no exceptions => success
+
+        try:
+          cursor.execute(queryInsert, data)
+
+        except psycopg2.IntegrityError as e:
+          if e.pgcode == UNIQUE_VIOLATION and len(toUpdate) == 0:
+            # view privilege exists and no update is necessary
+            db.rollback()
+            return True
+
+          raise
+
         cursor.execute("""
-                       WITH updated_rows AS
-                         ( UPDATE image_privileges_cache
-                           SET image_edit = %s,
-                               image_annotate = %s,
-                               image_outline = %s
-                           WHERE iid = %s AND gid = %s
-                           RETURNING *
-                         )
                        INSERT INTO image_privileges_cache(iid, gid, uid,
                                    image_edit, image_annotate, image_outline)
                        SELECT iid, gid, uid, image_edit, image_annotate,
                               image_outline
                        FROM image_privileges NATURAL JOIN members
-                       WHERE iid = %s AND gid = %s
-                       EXCEPT
-                       SELECT *
-                       FROM updated_rows;
-                       """,
-                       (image_edit, image_annotate, image_outline, iid, gid,
-                        iid, gid))
+                       WHERE iid = %s AND gid = %s;
+                       """, (iid, gid))
+        db.commit()
+        return True
+
       except psycopg2.IntegrityError as e:
         db.rollback()
-        success = False
         if e.pgcode not in (UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION):
           # image/member pair privilege not present nor image removed from
           # group in meanwhile nor member removed from group in meanwhile
-          # - so unknown error
+          # - so unknown integrity error
           raise
 
       except TransactionRollbackError:
         db.rollback()
-        success = False
-
-      else:
-        db.commit()
-        return
 
   @provideCursor
   def grantGroupPrivilegesToUser(self, uid, gid, memberAdd, memberDel,
@@ -614,7 +627,7 @@ class UserBase(dbBase):
             """
     cursor.execute(query, (memberAdd, memberDel, uid, gid))
 
-  #TODO: wylistowanie grup uzytkownika, wylistowanie wszystkich grup, ktorych administratorem jest uzytkownik i ostatnia rzecz z kartki..  
+#TODO: wylistowanie grup uzytkownika, wylistowanie wszystkich grup, ktorych administratorem jest uzytkownik i ostatnia rzecz z kartki..  
     
   @provideCursor
   def listUsersGroups(self, uid, memberAdd = None, memberDel = None, cursor = None):
