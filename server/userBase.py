@@ -482,7 +482,7 @@ class UserBase(dbBase):
     """
     toUpdate = []
     if imageEdit is not None:
-    toUpdate.append(('image_edit = %s', imageEdit))
+      toUpdate.append(('image_edit = %s', imageEdit))
 
     if imageAnnotate is not None:
       toUpdate.append(('image_annotate = %s', imageAnnotate))
