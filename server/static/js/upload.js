@@ -177,6 +177,76 @@ function makeUploadList(srcFiles, $list, progressBar)
 }
 
 /*****************************************************************************\
+ * Function: getUploadMonitor                                                *
+ *                                                                           *
+ * Prepere a custom XHR for progress bar update. i                           *
+ *                                                                           *
+ * Parameters:                                                               *
+ *   $progress - jQuery object representing PROGRESS element.                *
+ *   offset - Number of bytes uploaded in previous requests.                 *
+ *   fraction - A fraction (of total number) of bytes to be uploaded in      *
+ *              the request.                                                 *
+ *   total - A total number of bytes of the upload.                          *
+ *                                                                           *
+ * Return:                                                                   *
+ *   The XHR object.                                                         *
+\*****************************************************************************/
+function getUploadMonitor($progress, offset, fraction, total)
+{
+  return function()
+  {
+    var myXhr = $.ajaxSettings.xhr();
+    if (myXhr.upload) // check if upload property exists 
+    {
+      myXhr.upload.addEventListener(
+        'progress',
+        function(e)
+        {
+          if (e.lengthComputable)
+          {
+            $progress.attr(
+            {
+              value: e.loaded * fraction / e.total + offset,
+              max: total
+            });
+          }
+        },
+        false);
+      myXhr.upload.addEventListener(
+        'load',
+        function()
+        {
+          $progress.attr(
+          {
+            value: fraction + offset,
+            max: total
+          });
+        },
+        false);
+      myXhr.upload.addEventListener(
+        'error',
+        function()
+        {
+          alert('File Upload: Something went wrong.\nRetry');
+          console.error('File Upload: Error!');
+          throw 'File Upload: Something went wrong.\nRetry';
+        },
+        false);
+      myXhr.upload.addEventListener(
+        'abort',
+        function()
+        {
+          alert('File Upload: Aborted due to some reason.\nRetry');
+          console.error('File Upload: Aborted!');
+          throw 'File Upload: Aborted due to some reason.\nRetry';
+        },
+        false);
+    }
+    return myXhr;
+  }
+}
+
+/*****************************************************************************\
  * Function: getProgressHandlingFunction                                     *
  *                                                                           *
  * Prepere a handler for XHR 'progress' event for progress bar update.       *
@@ -283,9 +353,10 @@ function uploadFormFiles(form, $progress, uploadedFilesCollection)
     url: 'upload',
     type: 'POST',
     dataType: 'json',
-    xhr: function() // custom xhr
+    xhr: getUploadMonitor($progress, 0., 1., 1.),
+    /*function() // custom xhr
     {
-      myXhr = $.ajaxSettings.xhr();
+      var myXhr = $.ajaxSettings.xhr();
       if (myXhr.upload) // check if upload property exists 
       {
         // the upload progress is monitored
@@ -295,7 +366,7 @@ function uploadFormFiles(form, $progress, uploadedFilesCollection)
                                       false);
       }
       return myXhr;
-    },
+    },*/
     //Ajax events
     success: getCompleteHandler(uploadedFilesCollection, $progress),
     error: ajaxErrorHandler,
@@ -434,21 +505,22 @@ function getSendNextChunkFunction(blob, $progress, finalFunction, cSize)
           // the root of all Evil might be here - in URL-encoding
           // contentType: 'application/x-www-form-urlencoded', //BOOO, formData does not work
           cache: false,
-//          xhr: function() // custom xhr
-//          {
-//            myXhr = $.ajaxSettings.xhr();
-//            if (myXhr.upload) // check if upload property exists 
-//            {
-//              // for monitoring of the progress of the upload
-//              myXhr.upload.addEventListener('progress',
-//                getProgressHandlingFunction($progress,
-//                  offset,
-//                  Math.min(cSize, blob.size - offset) / blob.size,
-//                  blob.size),
-//                                            false);
-//            }
-//            return myXhr;
-//          },
+          xhr: getUploadMonitor($progress, offset, Math.min(cSize, blob.size - offset), blob.size),
+          /* function() // custom xhr
+          {
+            var myXhr = $.ajaxSettings.xhr();
+            if (myXhr.upload) // check if upload property exists 
+            {
+              // for monitoring of the progress of the upload
+              myXhr.upload.addEventListener('progress',
+                getProgressHandlingFunction($progress,
+                  offset,
+                  Math.min(cSize, blob.size - offset) / blob.size,
+                  blob.size),
+                                            false);
+            }
+            return myXhr;
+          },*/
           //Ajax events
           success: sendNextChunk, // recurrention
           error: ajaxErrorHandler,
@@ -589,9 +661,10 @@ function uploadChunkedFiles(fileList, $progresses, cSize, finalFunction, bid,
           url: 'uploadNewImage',
           dataType: 'json',
           type: 'POST',
-          xhr: function() // custom xhr
+          xhr: getUploadMonitor($progress, 0, Math.min(cSize, total), total),
+          /*function() // custom xhr
           {
-            myXhr = $.ajaxSettings.xhr();
+            var myXhr = $.ajaxSettings.xhr();
             if (myXhr.upload) // check if upload property exists 
             {
               myXhr.upload.addEventListener('progress',
@@ -601,7 +674,7 @@ function uploadChunkedFiles(fileList, $progresses, cSize, finalFunction, bid,
                   total), false); // for handling the progress of the upload
             }
             return myXhr;
-          },
+          },*/
     
           //Ajax events
           //beforeSend: beforeSendHandler,
@@ -1300,7 +1373,26 @@ function CFileUploader($form)
         {
           form_data.append('bid', bid);
         }
-        ajaxOptions = {cache : false, contentType : false, processData : false};
+        var $progress = $(file.progress_bar);
+        var total = file.size;
+        ajaxOptions = {
+          cache: false,
+          contentType: false,
+          processData: false,
+          xhr: getUploadMonitor($progress, 0, Math.min(CHUNK_SIZE, total), total) 
+          /*function() // custom xhr
+          {
+            var myXhr = $.ajaxSettings.xhr();
+            if (myXhr.upload) // check if upload property exists 
+            {
+              myXhr.upload.addEventListener('progress',
+                getProgressHandlingFunction($progress,
+                  0,
+                  Math.min(CHUNK_SIZE / total, 1),
+                  total), false); // for handling the progress of the upload
+            }
+            return myXhr;
+          }*/};
         loginConsole.ajax(
           'uploadNewImage', 
           getSendNextChunkFunction(file,
@@ -1348,7 +1440,7 @@ function CFileUploader($form)
   {
     cFilesUploaded++;
     $("#upload_status_message").hide().text("Completed " + cFilesUploaded + " of " + files.length).show();
-    alert('Upload Success!');
+    //alert('Upload Success!');
     upload_next_file();
   }
   
