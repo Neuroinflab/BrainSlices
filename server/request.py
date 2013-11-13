@@ -36,7 +36,12 @@ def isstr(s):
   return type(s) is str or type(s) is unicode
 
 def encodeValue(value, binary):
-  encoding = 'iso-8859-1' if binary else 'utf-8'
+  #encoding = 'iso-8859-1' if binary else 'utf-8'
+  if binary:
+    print dir(value), type(value)
+    return value
+
+  encoding = 'utf-8'
   if type(value) is list:
     return [x.encode(encoding) for x in value]
 
@@ -111,7 +116,7 @@ class Request(object):
 
     # checks if value of every argument is a string
     for (k, v) in self._normalized.iteritems():
-      if not isstr(v):
+      if not isstr(v) and k not in self._binary:
         self._invalid("argument %s is not a string" % k)
 
 
@@ -461,7 +466,7 @@ class UploadDataRequest(Request):
     if not Request._parse(self):
       return False
 
-    self._parseArgument('data')
+    self._parseArgument('data', None, lambda x: x.fullvalue())
 
     return self.valid
 
@@ -480,7 +485,7 @@ class ContinueImageUploadRequest(UploadDataRequest):
 
 
 class UploadNewImageRequest(UploadDataRequest):
-  _required = UploadDataRequest._required | frozenset(['filename', 'size'])
+  _required = UploadDataRequest._required | frozenset(['filename', 'size', 'key'])
   _optional = dict(UploadDataRequest._optional)
   _optional.update({'bid': None})
 
@@ -491,6 +496,8 @@ class UploadNewImageRequest(UploadDataRequest):
     self._parseArgument('filename')
     self._parseArgument('size', lambda x: x >= 0, int)
     self._parseArgument('bid', lambda x: x >= 0, int)
+    self._parseArgument('key', lambda x: len(x) > 0,
+                        lambda x: x.strip().lower())
 
     return self.valid
 
@@ -514,6 +521,7 @@ class UploadImageWithFieldStorageRequest(Request):
     Returns true if the input data is in any of the above formats, else false
     '''
     try:
+      #TODO: bid has to be removed
       has_bid = False
       if len(file_details) > 0: has_bid = 'bid' in file_details[0].keys() 
       for file in file_details:
@@ -522,6 +530,7 @@ class UploadImageWithFieldStorageRequest(Request):
         if not isinstance(file['size'], (int, long)) or file['size'] <= 0: return False
         if not has_bid and 'bid' in file.keys(): return False
         if has_bid and ('bid' not in file.keys() or not isinstance(file['bid'], (int, long)) or file['bid'] <= 0): return False
+
     except:
       return False
   

@@ -25,6 +25,7 @@ import os
 import sys
 
 import zlib
+import hashlib
 
 from optparse import OptionParser
 
@@ -56,10 +57,13 @@ tb = TileBase(db, tileDirectory, sourceDirectory)
 def uploadImage(uid, srcFilename, bid = None):
   slot = UploadSlot(uploadDirectory)
   ifh = open(srcFilename, "rb")
+  md5 = hashlib.md5()
   for data in ifh:
     slot.write(data)
+    md5.update(data)
 
-  iid = tb.appendSlot(uid, slot, srcFilename, bid = bid, launch = False)
+  iid = tb.appendSlot(uid, slot, srcFilename, declared_md5 = md5.hexdigest(),
+                      bid = bid, launch = False)
 
   ifh.close()
   slot.close()

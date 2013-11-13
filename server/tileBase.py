@@ -408,9 +408,11 @@ class TileBase(dbBase):
     thisInstance = self
     class UploadSlot(object):
       def __init__(self, uid, iid = None, filename = None,
-                   declared_size = None, bid = None):
+                   declared_size = None, declared_md5 = None, bid = None):
         if iid == None:
-          iid = thisInstance.makeUploadSlot(uid, filename, declared_size, bid)
+          iid = thisInstance.makeUploadSlot(uid, filename, declared_size,
+                                            bid = bid,
+                                            declared_md5 = declared_md5)
           crc32 = 0
           size = 0
           todo = declared_size
@@ -471,7 +473,7 @@ class TileBase(dbBase):
                    FROM images 
                    WHERE source_md5 = %s AND declared_size = %s
                          AND ((status >= %s AND owner = %s) OR status = %s); 
-                   """, (imageHash, filesize, IMAGE_STATUS_RECEIVED, uid,
+                   """, (imageHash.lower(), filesize, IMAGE_STATUS_RECEIVED, uid,
                          IMAGE_STATUS_ACCEPTED))
     r = cursor.fetchall()
     if r:
@@ -483,6 +485,7 @@ class TileBase(dbBase):
 
 # broken image -> view privileges are not enough!!!
 # TODO: refactoring
+# TODO: think about safety of status check
   @provideCursor
   def getBrokenImages(self, uid, imageHash, filesize, cursor = None):
     """
@@ -490,32 +493,23 @@ class TileBase(dbBase):
     User must also privilege to view the image for it to be considered as a broken upload
     """
     cursor.execute('''
-                    select iid, declared_size, filename from images 
-                    where source_md5 = %s and 
-                    status in (%s, %s) 
-                    ''', (imageHash, IMAGE_STATUS_UPLOADING, IMAGE_STATUS_RECEIVING))
+                   SELECT iid, filename
+                   FROM images 
+                   WHERE source_md5 = %s AND declared_size = %s
+                                         AND status IN (%s, %s);
+                   ''', (imageHash.lower(), filesize, IMAGE_STATUS_UPLOADING,
+                         IMAGE_STATUS_RECEIVING))
     r = cursor.fetchall()
-    if r: return [(str(row[0]), row[2]) for row in r if row[1] == filesize and self.canViewImage(row[0], uid)]
+    if r:
+      print r
+      return [row for row in r if self.getPrivileges(row[0], uid = uid)[2] > NO_PRIVILEGE]
+
     return []
   
   @provideCursor
-  def createNewImageSlot(self, uid, imageHash, filename, file_size, bid, cursor = None):
-    """
-    Inserts a new row in images table for new images to upload
-    """
-    cursor.execute("SELECT nextval('images_iid_seq');")
-    iid = cursor.fetchone()[0]
-    cursor.execute("""
-                   INSERT INTO images(iid, owner, status, source_md5,
-                                      filename, declared_size, bid)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s);
-                   """, (iid, uid, IMAGE_STATUS_UPLOADING, imageHash, filename, file_size, bid))
-    return str(iid)
-
-  @provideCursor
   def getImagesStatuses(self, iids, cursor = None):
     '''
-    Returns a array of tuples of iid and status
+    Returns an array of tuples of iid and status
     '''
     if len(iids) == 0:
       return []
@@ -525,7 +519,8 @@ class TileBase(dbBase):
     return cursor.fetchall()
 
   @provideCursor
-  def makeUploadSlot(self, uid, filename, declared_size, bid, cursor = None):
+  def makeUploadSlot(self, uid, filename, declared_size, bid = None,
+                     declared_md5 = None, cursor = None):
     if uid == None:
       return None
 
@@ -544,11 +539,13 @@ class TileBase(dbBase):
 
     cursor.execute("""
                    INSERT INTO images(iid, status, owner, filename,
-                                      declared_size, bid)
-                   VALUES (%s, %s, %s, %s, %s, %s);
+                                      declared_size, bid, source_md5)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s);
                    """, (iid, IMAGE_STATUS_RECEIVING, uid, filename,
-                         declared_size, bid))
-    return iid
+                         declared_size, bid,
+                         declared_md5.lower() if declared_md5 is not None else None))
+    if cursor.rowcount:
+      return iid
 
   @provideCursor
   def readUploadSlot(self, uid, iid, cursor = None):
@@ -625,11 +622,13 @@ class TileBase(dbBase):
 
 
   @provideCursor
-  def appendSlot(self, uid, slot, filename, bid = None, launch = True, cursor = None):
+  def appendSlot(self, uid, slot, filename, bid = None, declared_md5 = None,
+                 launch = True, cursor = None):
     if uid == None:
       return None
 
-    iid = self.makeUploadSlot(uid, filename, slot.size, bid, cursor = cursor)
+    iid = self.makeUploadSlot(uid, filename, slot.size, bid = bid,
+                              declared_md5 = declared_md5, cursor = cursor)
     if iid == None:
       return None
 
@@ -770,8 +769,8 @@ class TileBase(dbBase):
                        source_magick = %s, image_md5 = %s
                    WHERE iid = %s;
                    """, (IMAGE_STATUS_IDENTIFIED, invalid, width, height,
-                         ctypes.c_int32(crc32).value, meta, magick, md5,
-                         iid))
+                         ctypes.c_int32(crc32).value, meta, magick,
+                         md5.lower() if md5 is not None else md5, iid))
     if cursor.rowcount != 1:
       raise KeyError("ERROR: Unable to mark image #%d as identified." % iid)
     
@@ -800,7 +799,7 @@ class TileBase(dbBase):
                      UPDATE images
                      SET status = %s, image_md5 = %s
                      WHERE iid = %s AND status = %s;
-                     """, (IMAGE_STATUS_COMPLETED, md5,
+                     """, (IMAGE_STATUS_COMPLETED, md5.lower(),
                            iid, IMAGE_STATUS_TILED))
 
     if cursor.rowcount != 1:

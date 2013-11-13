@@ -143,23 +143,14 @@ class UploadGenerator(Generator):
       
     return generateJson(summary, logged = True)
 
-  def createSlotAndGetBrokenDuplicateFiles(self, uid, request):
+  def getBrokenDuplicateFiles(self, uid, request):
     '''
     Gets the list of broken and duplicate uploads for the file
     Creates a new slot by inserting a new row in DB facilitating new uploads 
     '''
-    bid = request['bid'] if 'bid' in request else None
     broken = self.tileBase.getBrokenImages(uid, request['filekey'], request['size'])
     duplicates = self.tileBase.getDuplicateImages(uid, request['filekey'], request['size'])
-    iid = self.tileBase.createNewImageSlot(uid, request['filekey'], request['filename'], request['size'], bid)
-    data =  {'iid': iid, 'broken': broken, 'duplicates': duplicates}
-    return data
-
-  def removeInvalidBrokenUploads(self, iids):
-    '''
-    Removes invalid broken uploads, i.e. uploads with 0% complete
-    '''
-    if len(iids) > 0: self.tileBase.removeIids(iids)
+    return (broken, duplicates)
 
   def getImagesStatuses(self, iids):
     '''
@@ -173,6 +164,7 @@ class UploadGenerator(Generator):
   def uploadNewImage(self, uid, request):
     slot = self.tileBase.UploadSlot(uid, filename = request.filename,
                                     declared_size = request.size,
+                                    declared_md5 = request.key,
                                     bid = request.bid)
     return self.appendSlot(slot, request.data)
 
@@ -228,27 +220,27 @@ class UploadServer(Server):
   @cherrypy.expose
   @serveContent(UploadImageWithFieldStorageRequest)
   @ensureLogged
-  def getBrokenDuplicatesAndCreateSlot(self, uid, request):
+  def getBrokenDuplicates(self, uid, request):
     '''
     Returns the list of broken and duplicate files found for the array of files passed.
     For each file creates a new slot (row) in DB. Depending on the user's selection this new
     row is either retained or removed during upload call.
     '''
     images_path = self.tileBase.sourceDir
-    data = {}
+    #data = {}
+    data = []
     for file in request.files_details:
-        types = self.generator.createSlotAndGetBrokenDuplicateFiles(uid, file)
-        invalid_broken_uploads = [] # Uploads with uploaded_amount = 0
-        broken_amts = []
-        for (name, source_filename) in types['broken']: 
-            uploaded_amount = self.getFilesize(os.path.join(images_path, name))
-            if uploaded_amount is 0: 
-                invalid_broken_uploads.append(name)
-            else:
-                broken_amts.append((name, uploaded_amount, source_filename))
-        self.generator.removeInvalidBrokenUploads(invalid_broken_uploads)
-        types['broken'] = broken_amts
-        data[file['filename'].encode('base64').strip()] = types
+      broken, duplicates = self.generator.getBrokenDuplicateFiles(uid, file)
+      broken_amts = []
+      for iid, f in broken:
+        p = os.path.join(images_path, str(iid))
+        fs = self.getFilesize(p)
+        print p, fs
+        broken_amts.append((iid, fs, f))
+#      broken_amts = [(iid, self.getFilesize(os.path.join(images_path, str(iid))), f)\
+#                     for (iid, f) in broken]
+      data.append((broken_amts, duplicates))
+
     return generateJson(data = data, status = True, logged = True)
 
   @cherrypy.expose
@@ -267,6 +259,7 @@ class UploadServer(Server):
     '''
     if os.path.isfile(file_path):
       return int(os.path.getsize(file_path))
+
     return 0
 
   @cherrypy.expose
