@@ -669,7 +669,6 @@ function CFileUploader($form, ajaxProvider)
   {
     //XXX: global value!
     //files = filterImageFiles($form.find(':file')[0].files);
-    attach_progress_bars();
     $("#upload_status_message").hide().text("Preparing upload...").show();
     isUploadComplete = false;
     calc_files_keys_and_trigger_upload($form.find('.uploadNew .uploads>li>progress'));
@@ -712,20 +711,6 @@ function CFileUploader($form, ajaxProvider)
   }
   
   /*
-   * For each file attach progress bars to file object
-   */
-  function attach_progress_bars()
-  {
-    var progress_bars = $form.find('.uploadNew .uploads>li>progress');
-    $(files).each(function(i, file)
-                  {
-                    file.progress_bar = progress_bars[i];
-                    // Assuming the progress bars are added in the same
-                    // serial order to the form's DOM
-                  });
-  }
-
-  /*
    * Triggers the upload of next file in the array, 'files'
    */
   function upload_next_file()
@@ -733,7 +718,7 @@ function CFileUploader($form, ajaxProvider)
     total_files = files.length;
     if (!isUploadComplete && iCurrentFileForUpload < total_files)
     {
-      upload_file(files[iCurrentFileForUpload++]); // Async method
+      upload_file(iCurrentFileForUpload++); // Async method
     }
 
     if (cFilesUploaded == total_files)
@@ -1051,37 +1036,28 @@ function CFileUploader($form, ajaxProvider)
   function addUploadFileProperties()
   {  
     var cFiles = files.length;
-    var selected_radios = $("#dialog form").find("input:checked");
+    var $selected_radios = $("#dialog form").find("input:checked");
+    var to_upload = [];
     for (var i = 0; i < cFiles; i++)
     {
-      var radio_ref = $(selected_radios).filter("[name='upload_radio_"+i+"']")[0];
+      var radio_ref = $selected_radios.filter("[name='upload_radio_"+i+"']")[0];
       //files[i]['iid'] = file_iid;
       if (radio_ref)
       {
         var val = $(radio_ref).val();
-        switch (val)
+        if (val == 'cancel') continue;
+        if (val != 'new')
         {
-          case 'new':
-            files[i].action = 'n';
-            break;
-
-          case 'cancel':
-            files[i].action = 's';
-            break;
-
-          default:
-            var row = val.split(',');
-            files[i].action = 'r';
-            files[i].iid = parseInt(row[0]);
-            files[i].uploaded_amount = parseInt(row[1]);
+          var row = val.split(',');
+          files[i].iid = parseInt(row[0]);
+          files[i].uploaded_amount = parseInt(row[1]);
         }
       }
-      else
-      {
-        // New image which is neither a duplicate nor broken
-        files[i].action = 'n';
-      }
+      to_upload.push(files[i]);
     }
+    files = makeUploadList(to_upload,
+                           $form.find('.uploadNew .uploads'),
+                           true);
     start_file_upload();
   }
   
@@ -1101,68 +1077,66 @@ function CFileUploader($form, ajaxProvider)
    * Uploads the file with progress bar. When upload is complete, triggers the next file 
    * upload maintaining the MAX_SIMULTANEOUS_UPLOADS constraint
    */
-  function upload_file(file)
+  function upload_file(fileNo)
   {
+    var file = files[fileNo];
     $("#upload_status_message").hide().text("Completing... " + (cFilesUploaded+1) + " of " + files.length).show();
-    switch (file.action)
+
+    if (file.iid != null)
     {
-      case 'n':
-        var form_data = new FormData();
-        form_data.append('data', file.slice(0, CHUNK_SIZE));
-        form_data.append('filename', file.name);
-        form_data.append('key', file.key);
-        form_data.append('size', file.size);
-        stupid_form_data = form_data;
-        //TODO: more sophisticated approach
-        var bid = $('.batch select').val();
-        if (bid != 'None')
+      getSendNextChunkFunction(file,
+                               $form.find('.uploadNew .uploads>li>progress').eq(fileNo),
+                               do_file_upload_complete, CHUNK_SIZE)(
+      {
+        status: true,
+        data: {size: file.uploaded_amount,
+               iid: file.iid}
+      });
+    }
+    else
+    {
+      var form_data = new FormData();
+      form_data.append('data', file.slice(0, CHUNK_SIZE));
+      form_data.append('filename', file.name);
+      form_data.append('key', file.key);
+      form_data.append('size', file.size);
+      stupid_form_data = form_data;
+      //TODO: more sophisticated approach
+      var bid = $('.batch select').val();
+      if (bid != 'None')
+      {
+        form_data.append('bid', bid);
+      }
+      var $progress = $form.find('.uploadNew .uploads>li>progress').eq(fileNo);
+      var total = file.size;
+      ajaxOptions = {
+        cache: false,
+        contentType: false,
+        processData: false,
+        xhr: getUploadMonitor($progress, 0, Math.min(CHUNK_SIZE, total), total)};
+      ajaxProvider.ajax(
+        'uploadNewImage', 
+        getSendNextChunkFunction(file,
+                                 $progress,
+                                 do_file_upload_complete, //SEND NEXT FILE
+                                 CHUNK_SIZE),
+        form_data,
+        function(data)
         {
-          form_data.append('bid', bid);
-        }
-        var $progress = $(file.progress_bar);
-        var total = file.size;
-        ajaxOptions = {
-          cache: false,
-          contentType: false,
-          processData: false,
-          xhr: getUploadMonitor($progress, 0, Math.min(CHUNK_SIZE, total), total)};
-        ajaxProvider.ajax(
-          'uploadNewImage', 
-          getSendNextChunkFunction(file,
-                                   $(file.progress_bar),
-                                   do_file_upload_complete, //SEND NEXT FILE
-                                   CHUNK_SIZE),
-          form_data,
-          function(data)
+          if (data.status == 0 && data.state() == 'rejected')
           {
-            if (data.status == 0 && data.state() == 'rejected')
-            {
-              // XXX ???
-              alert("You are offline. Please connect to internet and try again")
-            }
-            else
-            {
-              alert('File Upload: Something went wrong.\nRetry');
-              console.error('File Upload: Error!');
-              throw 'File Upload: Something went wrong.\nRetry';
-            }
-          },
-          'POST', 
-          ajaxOptions);
-        break;
-
-      case 'r':
-        getSendNextChunkFunction(file, $(file.progress_bar),
-                                 do_file_upload_complete, CHUNK_SIZE)(
-        {
-          status: true,
-          data: {size: file.uploaded_amount,
-                 iid: file.iid}
-        });
-        break;
-
-      default:
-        do_file_upload_complete();
+            // XXX ???
+            alert("You are offline. Please connect to internet and try again")
+          }
+          else
+          {
+            alert('File Upload: Something went wrong.\nRetry');
+            console.error('File Upload: Error!');
+            throw 'File Upload: Something went wrong.\nRetry';
+          }
+        },
+        'POST', 
+        ajaxOptions);
     }
   }
 
