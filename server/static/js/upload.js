@@ -1,4 +1,4 @@
-/* File: upload.js TODO: convert tabs to double spaces*/
+/* File: upload.js */
 /*****************************************************************************\
 *                                                                             *
 *    This file is part of BrainSlices Software                                *
@@ -146,14 +146,17 @@ CUploadedImages.prototype.sort = function()
 /*****************************************************************************\
  * Function: makeUploadList                                                  *
  *                                                                           *
- * Fill DOM list element with items representing files for upload. Items has *
- * to be ordered by name, then by file size.                                 *
+ * Fill DOM list element with items representing files for upload. Items are *
+ * ordered by name, then by file size.                                       *
  *                                                                           *
  * Parameters:                                                               *
  *   srcFiles - An array of File objectsi.                                   *
  *   $list - jQuery object representing UL or OL element.                    *
  *   progressBar - boolean indicating whether provide a progress bar for the *
  *                 item.                                                     *
+ *                                                                           *
+ * Returns:                                                                  *
+ *   An ordered array of files.                                              *
 \*****************************************************************************/
 function makeUploadList(srcFiles, $list, progressBar)
 {
@@ -174,6 +177,8 @@ function makeUploadList(srcFiles, $list, progressBar)
                  ')' + (progressBar ? ' <progress max="1"></progress>':'') +
                  '</li>');
   }
+
+  return files;
 }
 
 /*****************************************************************************\
@@ -198,6 +203,16 @@ function getUploadMonitor($progress, offset, fraction, total)
     var myXhr = $.ajaxSettings.xhr();
     if (myXhr.upload) // check if upload property exists 
     {
+      myXhr.upload.addEventListener(
+        'loadstart',
+        function()
+        {
+          $progress.attr(
+          {
+            value: offset,
+            max: total
+          });
+        }, false);
       myXhr.upload.addEventListener(
         'progress',
         function(e)
@@ -246,138 +261,6 @@ function getUploadMonitor($progress, offset, fraction, total)
   }
 }
 
-/*****************************************************************************\
- * Function: getProgressHandlingFunction                                     *
- *                                                                           *
- * Prepere a handler for XHR 'progress' event for progress bar update.       *
- *                                                                           *
- * Parameters:                                                               *
- *   $progress - jQuery object representing PROGRESS element.                *
- *   offset - Number of bytes uploaded in previous requests.                 *
- *   fraction - A fraction (of total number) of bytes to be uploaded in      *
- *              the request.                                                 *
- *   total - A total number of bytes of the upload.                          *
- *                                                                           *
- * Return:                                                                   *
- *   The handler function.                                                   *
-\*****************************************************************************/
-function getProgressHandlingFunction($progress, offset, fraction, total)
-{
-  return function(e)
-  {
-    if (e.lengthComputable)
-    {
-      $progress.attr(
-      {
-        value: e.loaded * fraction / e.total + offset,
-        max: total
-      });
-    }
-  }
-}
-
-/*****************************************************************************\
- * Group: uploading all files with one request                               *
-\*****************************************************************************/
-
-/*****************************************************************************\
- * Function: getCompleteHandler                                              *
- *                                                                           *
- * Prepare a handler for multiple file upload feedback.                      *
- *                                                                           *
- * Parameters:                                                               *
- *   uploadedFilesCollection - <CUploadedImages> object providing            *
- *                             information about uploaded files to the user. *
- *   $progress - jQuery object representing PROGRESS element.                *
- *                                                                           *
- * Return:                                                                   *
- *   A jQuery.ajax success handler function                                  *
- *   > function(response)                                                    *
- *   where 'response' is a <standart JSON object>. The 'data' attribute      *
- *   of the 'response' is (on success) an Array of objects describing        *
- *   uploaded files (see <CUploadedImages.append> for details).              *
-\*****************************************************************************/
-function getCompleteHandler(uploadedFilesCollection, $progress)
-{
-  return function (data)
-  {
-    if (!data.status)
-    {
-      alert(data.message);
-      return;
-    }
-  
-    data.data.sort(function(a, b)
-                   {
-                     if (a.name < b.name) return -1;
-                     if (a.name > b.name) return 1;
-                     return a.size - b.size;
-                   });
-    for (var i = 0; i < data.data.length; i++)
-    {
-      var fd = data.data[i];
-  
-      uploadedFilesCollection.append(fd);
-    }
-  
-    $progress.attr(
-    {
-      value: 1,
-      max: 1
-    });
-  }
-}
-
-/*****************************************************************************\
- * Function: uploadFormFiles                                                 *
- *                                                                           *
- * Upload files selected in a form to the repository *in a single request*.  *
- *                                                                           *
- * Parameters:                                                               *
- *   form - DOM FORM element.                                                *
- *   $progress - jQuery object representing PROGRESS element for the upload  *
- *               progress monitoring.                                        *
- *   uploadedFilesCollection - <CUploadedImages> object providing user with  *
- *                             information about uploaded files.             *
-\*****************************************************************************/
-function uploadFormFiles(form, $progress, uploadedFilesCollection)
-{
-  $progress.attr({
-                   max: 1,
-                   value: 0
-                 });
-
-  var formData = new FormData(form);
-  $.ajax(
-  {
-    url: 'upload',
-    type: 'POST',
-    dataType: 'json',
-    xhr: getUploadMonitor($progress, 0., 1., 1.),
-    /*function() // custom xhr
-    {
-      var myXhr = $.ajaxSettings.xhr();
-      if (myXhr.upload) // check if upload property exists 
-      {
-        // the upload progress is monitored
-        myXhr.upload.addEventListener('progress',
-                                      getProgressHandlingFunction($progress,
-                                                                  0., 1., 1.),
-                                      false);
-      }
-      return myXhr;
-    },*/
-    //Ajax events
-    success: getCompleteHandler(uploadedFilesCollection, $progress),
-    error: ajaxErrorHandler,
-    // Form data
-    data: formData,
-    //Options to tell JQuery not to process data or worry about content-type
-    cache: false,
-    contentType: false,
-    processData: false
-  });
-}
 
 /*****************************************************************************\
  * Group: chunked files upload                                               *
@@ -472,12 +355,6 @@ function getSendNextChunkFunction(blob, $progress, finalFunction, cSize)
       return;
     }
 
-//    $progress.attr(
-//    {
-//      value: response.data.size,
-//      max: blob.size
-//    });
-
     if (response.data.size < blob.size)
     {
       // send a next chunk if there is more data to send
@@ -488,45 +365,20 @@ function getSendNextChunkFunction(blob, $progress, finalFunction, cSize)
       form_data.append('iid', response.data.iid);
       form_data.append('offset', response.data.size);
 
-//      // the chunk will be sent when it is read - quite indirect approach
-//      var reader = new FileReader();
-//      reader.onload = function(event)
-//      {
-//        var result = event.target.result;
-
-        $.ajax(
-        {
-          url: 'continueImageUpload',
-          dataType: 'json',
-          type: 'POST',
-          data: form_data,
-          processData: false,
-          contentType: false,
-          // the root of all Evil might be here - in URL-encoding
-          // contentType: 'application/x-www-form-urlencoded', //BOOO, formData does not work
-          cache: false,
-          xhr: getUploadMonitor($progress, offset, Math.min(cSize, blob.size - offset), blob.size),
-          /* function() // custom xhr
-          {
-            var myXhr = $.ajaxSettings.xhr();
-            if (myXhr.upload) // check if upload property exists 
-            {
-              // for monitoring of the progress of the upload
-              myXhr.upload.addEventListener('progress',
-                getProgressHandlingFunction($progress,
-                  offset,
-                  Math.min(cSize, blob.size - offset) / blob.size,
-                  blob.size),
-                                            false);
-            }
-            return myXhr;
-          },*/
-          //Ajax events
-          success: sendNextChunk, // recurrention
-          error: ajaxErrorHandler,
-        });
-//      }
-//      reader.readAsBinaryString(chunk);
+      $.ajax(
+      {
+        url: 'continueImageUpload',
+        dataType: 'json',
+        type: 'POST',
+        data: form_data,
+        processData: false,
+        contentType: false,
+        cache: false,
+        xhr: getUploadMonitor($progress, offset, Math.min(cSize, blob.size - offset), blob.size),
+        //Ajax events
+        success: sendNextChunk, // recurrention
+        error: ajaxErrorHandler,
+      });
     }
     else
     {
@@ -662,20 +514,6 @@ function uploadChunkedFiles(fileList, $progresses, cSize, finalFunction, bid,
           dataType: 'json',
           type: 'POST',
           xhr: getUploadMonitor($progress, 0, Math.min(cSize, total), total),
-          /*function() // custom xhr
-          {
-            var myXhr = $.ajaxSettings.xhr();
-            if (myXhr.upload) // check if upload property exists 
-            {
-              myXhr.upload.addEventListener('progress',
-                getProgressHandlingFunction($progress,
-                  0,
-                  Math.min(cSize / total, 1),
-                  total), false); // for handling the progress of the upload
-            }
-            return myXhr;
-          },*/
-    
           //Ajax events
           //beforeSend: beforeSendHandler,
           success: getSendNextChunkFunction(file,
@@ -721,21 +559,21 @@ function uploadChunkedFiles(fileList, $progresses, cSize, finalFunction, bid,
  *                                                                           *
  * Parameters:                                                               *
  *   $form - A jQuery object representing the file upload form/panel.        *
+ *   ajaxProvider - An object providing ajax method (possibly of class       *
+ *                  <CLoginManager>).                                        *
 \*****************************************************************************/
-function CFileUploader($form)
+function CFileUploader($form, ajaxProvider)
 {
   this.$form = $form;
   this.uploaded = new CUploadedImages($form.find('table.uploaded>tbody'));
   this.$uploads = $form.find('.uploads');
+  var files = [];
 
   var thisInstance = this;
 
-  $.ajax(
-  {
-    url: 'batchList',
-    type: 'POST',
-    dataType: 'json',
-    success: function(response)
+  ajaxProvider.ajax(
+    'batchList',
+    function(response)
     {
       if (!response.status)
       {
@@ -750,16 +588,12 @@ function CFileUploader($form)
                        escapeHTML(list[i][1]) + '</option>');
       }
 
-      thisInstance.$form.find('.batch :button').click(function()
+      $form.find('.batch :button').click(function()
       {
-        var comment = thisInstance.$form.find('.batch :text').val();
-        $.ajax(
-        {
-          url: 'newBatch',
-          type: 'POST',
-          dataType: 'json',
-          data: {comment: comment},
-          success: function(response)
+        var comment = $form.find('.batch :text').val();
+        ajaxProvider.ajax(
+          'newBatch',
+          function(response)
           {
             if (!response.status)
             {
@@ -771,35 +605,32 @@ function CFileUploader($form)
                            escapeHTML(comment) + '</option>');
             $select.val(response.data);
           },
-          error: ajaxErrorHandler,
-          cache: false,
-        });
-        
+          {comment: comment},
+          ajaxErrorHandler,
+          'POST',
+          {cache: false});
       });
     },
-    error: ajaxErrorHandler,
-    cache: false,
-  });
+    null,
+    ajaxErrorHandler,
+    'POST',
+    {cache: false});
 
 
-
-  $form.find(':file').change(function()
+  function updateFiles()
   {
-    makeUploadList(this.files,
-                   thisInstance.$form.find('.uploadOld .uploads'),
-                   false);
-    makeUploadList(this.files,
-                   thisInstance.$form.find('.uploadNew .uploads'),
-                   true);
-    thisInstance.$form.find('.uploadOld progress').removeAttr('value');
-  });
+    files = $form.find(':file')[0].files;
+    if ($form.find('input[name="filter"]:checked').length > 0)
+    {
+      files = filterImageFiles(files);
+    }
+    files = makeUploadList(files,
+                           $form.find('.uploadNew .uploads'),
+                           true);
+  }
 
-  $form.find('.uploadOld :button').click(function()
-  {
-    uploadFormFiles(thisInstance.$form[0],
-                    thisInstance.$form.find('.uploadOld progress'),
-                    thisInstance.uploaded);
-  });
+  $form.find(':file').change(updateFiles);
+  $form.find('input[name="filter"]').change(updateFiles);
 
   $form.find('.uploadNew :button').click(function()
   {
@@ -814,28 +645,12 @@ function CFileUploader($form)
     {
       bid = null;
     }
-    uploadChunkedFiles(thisInstance.$form.find(':file')[0].files,
-                       thisInstance.$form.find('.uploadNew .uploads>li>progress'),
+    uploadChunkedFiles($form.find(':file')[0].files,
+                       $form.find('.uploadNew .uploads>li>progress'),
                        null, null, bid,
                        thisInstance.uploaded);
   }
 
-  $form.find('select.uploadMethod').change(function()
-  {
-    switch (thisInstance.$form.find('select.uploadMethod').val())
-    {
-      case 'chunked':
-        thisInstance.$form.find('.uploadOld').hide();
-        thisInstance.$form.find('.uploadNew').show();
-        break;
-
-      case 'compact':
-        thisInstance.$form.find('.uploadNew').hide();
-        thisInstance.$form.find('.uploadOld').show();
-        break;
-    }
-  });
-  
 
   //XXX: lol, everything in scope of a function :-D
   /* 
@@ -853,26 +668,43 @@ function CFileUploader($form)
   function new_chunk_upload()
   {
     //XXX: global value!
-    files = filter_non_image_files(thisInstance.$form.find(':file')[0].files);
+    //files = filterImageFiles($form.find(':file')[0].files);
     attach_progress_bars();
     $("#upload_status_message").hide().text("Preparing upload...").show();
     isUploadComplete = false;
-    calc_files_keys_and_trigger_upload();
+    calc_files_keys_and_trigger_upload($form.find('.uploadNew .uploads>li>progress'));
   }
   
-  /*
-   * From the files selected by the user, filter out non image files
-   */
-  function filter_non_image_files(files)
+  /**
+   * Function: filterImageFiles
+   *
+   * An internal function of <CFileUploader> constructor.
+   *
+   * Filter out files of non image type.
+   *
+   * Parameters:
+   *   files - an array of files
+   *
+   * Returns:
+   *   filtered array of files
+   *
+   * Todo:
+   *   more sophisticated file type filtering
+   ********************************************************/
+  function filterImageFiles(files)
   {
     var imageType = /image.*/;
     var image_files = [];
-    $(files).each(function(i, file)
-                  {
-                    if(file.type.match(imageType))
-                    image_files.push(file);
-                  });
-    if(files.length != image_files.length)
+    for (var i = 0; i < files.length; i++)
+    {
+      var file = files[i];
+      if (file.type.match(imageType))
+      {
+        image_files.push(file);
+      }
+    }
+
+    if (files.length != image_files.length)
     {
       alert("Only image files are allowed. Uploading only them if any.");
     }
@@ -884,7 +716,7 @@ function CFileUploader($form)
    */
   function attach_progress_bars()
   {
-    var progress_bars = thisInstance.$form.find('.uploadNew .uploads>li>progress');
+    var progress_bars = $form.find('.uploadNew .uploads>li>progress');
     $(files).each(function(i, file)
                   {
                     file.progress_bar = progress_bars[i];
@@ -914,19 +746,23 @@ function CFileUploader($form)
    * Adds 'key' property to file objects
    * MD5 hash of file contents. Optimized approach, as file is loaded into memory in chunks
    */ 
-  function calc_files_keys_and_trigger_upload()
+  function calc_files_keys_and_trigger_upload($progresses)
   {
     var currentFile = 0;
-    var chunkSize = 1024 * 1024 * 20; // 20 MB chunks for generating MD5 hash key
+    var chunkSize = 1024 * 1024; // 1 MB chunks for generating MD5 hash key
     $(files).each(function(i, file)
     {
       var chunks = Math.ceil(file.size / chunkSize);
       var currentChunk = 0;
       var spark = new SparkMD5.ArrayBuffer();
+      var $progress = $progresses.eq(i);
+
+      $progress.attr({value: currentChunk, max: chunks});
       function frOnload(e)
       {
         spark.append(e.target.result); 
         currentChunk++;
+        $progress.attr({value: currentChunk, max: chunks});
 
         if (currentChunk < chunks)
         {
@@ -971,26 +807,12 @@ function CFileUploader($form)
   function get_files_details(files)
   {
     files_details = [];
-    $(files).each(function(i, file)
+    for (var i = 0; i < files.length; i++)
     {
-      files_details.push(get_image_attributes(file));
-    });
-    return files_details;
-  }
-  
-  /*
-   * Returns the attributes of the image file to be saved in the DB
-   * This includes, "batch" name
-   */
-  function get_image_attributes(file)
-  {
-    var bid = $('.batch select').val();
-    data = {filekey: file.key, filename: file.name, size: file.size};
-    if (bid != 'None')
-    {
-      data['bid'] = parseInt(bid);
+      var file = files[i];
+      files_details.push(file.key + ',' + file.size);
     }
-    return data;
+    return files_details;
   }
   
   /* 
@@ -1000,9 +822,14 @@ function CFileUploader($form)
    */
   function find_or_insert_image_details()
   {
-    var files_details = get_files_details(files);
+    var files_details = []
+    for (var i = 0; i < files.length; i++)
+    {
+      var file = files[i];
+      files_details.push(file.key + ',' + file.size);
+    }
     ajaxOptions = {async: false};
-    loginConsole.ajax(
+    ajaxProvider.ajax(
       'getBrokenDuplicates', 
       function(response)
       {
@@ -1015,7 +842,7 @@ function CFileUploader($form)
           alert(response.message);
         }
       },
-      {files_details: JSON.stringify(files_details)},
+      {files_details: files_details.join(';')},
       function (data)
       {
         alert("Checking File Uploaded Amount: Something went wrong\nRetry upload");
@@ -1185,7 +1012,7 @@ function CFileUploader($form)
    */
   function refreshStatusForIids(iids)
   {
-    loginConsole.ajax(
+    ajaxProvider.ajax(
         'getImagesStatuses', 
         function(response)
         {
@@ -1268,96 +1095,12 @@ function CFileUploader($form)
   }
 
   /*
-   * Returns the form data containing the chunk of file to be uploaded
-   */
-  function get_form_data(file)
-  {
-    var form_data = new FormData();
-    form_data.append('theFile', file.slice(file.uploaded_amount));
-    return form_data;
-  }
-  
-  /*
-   * Returns the headers to passed in the upload AJAX request
-   * These the same file attributes passed during check_upload_amount
-   */
-  function get_headers(file)
-  {
-//    file_properties=['name', 'size', 'type', 'lastModifiedDate', 'key'];
-    file_properties=['name','action', 'iid', 'actionOnIid'];
-    headers = {}
-    for (property in file)
-    {
-      if (file_properties.indexOf(property) >= 0)
-      {
-        headers[property.toUpperCase()] = file[property];
-      }
-    }
-    headers['Cache-Control'] = "no-cache";
-    return headers;
-  }
-  
-  /*
    * Uploads the file with progress bar. When upload is complete, triggers the next file 
    * upload maintaining the MAX_SIMULTANEOUS_UPLOADS constraint
    */
   function upload_file(file)
   {
     $("#upload_status_message").hide().text("Completing... " + (cFilesUploaded+1) + " of " + files.length).show();
-//    form_data = get_form_data(file);
-//    headers = get_headers(file);
-//    ajaxOptions = {headers: headers, cache : false, contentType : false, processData : false,
-//          xhr: function()
-//              {
-//                myXhr = $.ajaxSettings.xhr();
-//                if (myXhr.upload) // check if upload property exists 
-//                {
-//                  if(file.action != 's')
-//                    myXhr.upload.addEventListener('progress', 
-//                      function(e) {
-//                        if (e.lengthComputable) {
-//                          uploaded_amount = (file.uploaded_amount / file.size) + (e.loaded / e.total);
-//                          set_progress(file, uploaded_amount);
-//  //                        if(uploaded_amount >= 1) do_file_upload_complete();
-//                        }
-//                        }, 
-//                      false);
-//                  myXhr.upload.addEventListener("load", 
-//                        function (e) {
-//                          do_file_upload_complete();  
-//                        }, false);
-//                  myXhr.upload.addEventListener("error", function(e) {
-//                      alert('File Upload: Something went wrong.\nRetry');
-//              console.error('File Upload: Error!');
-//              throw 'File Upload: Something went wrong.\nRetry';
-//                  }, false);
-//                  myXhr.upload.addEventListener("abort", function(e) {
-//                      alert('File Upload: Aborted due to some reason.\nRetry');
-//              console.error('File Upload: Aborted!');
-//              throw 'File Upload: Aborted due to some reason.\nRetry';
-//                  }, false);
-//                }
-//                return myXhr;
-//              }};
-//    loginConsole.ajax(
-//      'upload', 
-//      function(response) {
-//        // TODO: Find a way if XHR is not supported by browser, upload the next file with only
-//        // MAX_SIMULTANEOUS_UPLOADS runnings at a time
-//      },
-//      form_data,
-//      function(data) {
-//        if(data.status == 0 && data.state() == 'rejected')
-//          alert("You are offline. Please connect to internet and try again")
-//        else
-//        {
-//          alert('File Upload: Something went wrong.\nRetry');
-//          console.error('File Upload: Error!');
-//          throw 'File Upload: Something went wrong.\nRetry';
-//        }
-//      },
-//      'POST', 
-//      ajaxOptions);
     switch (file.action)
     {
       case 'n':
@@ -1379,21 +1122,8 @@ function CFileUploader($form)
           cache: false,
           contentType: false,
           processData: false,
-          xhr: getUploadMonitor($progress, 0, Math.min(CHUNK_SIZE, total), total) 
-          /*function() // custom xhr
-          {
-            var myXhr = $.ajaxSettings.xhr();
-            if (myXhr.upload) // check if upload property exists 
-            {
-              myXhr.upload.addEventListener('progress',
-                getProgressHandlingFunction($progress,
-                  0,
-                  Math.min(CHUNK_SIZE / total, 1),
-                  total), false); // for handling the progress of the upload
-            }
-            return myXhr;
-          }*/};
-        loginConsole.ajax(
+          xhr: getUploadMonitor($progress, 0, Math.min(CHUNK_SIZE, total), total)};
+        ajaxProvider.ajax(
           'uploadNewImage', 
           getSendNextChunkFunction(file,
                                    $(file.progress_bar),
@@ -1442,17 +1172,6 @@ function CFileUploader($form)
     $("#upload_status_message").hide().text("Completed " + cFilesUploaded + " of " + files.length).show();
     //alert('Upload Success!');
     upload_next_file();
-  }
-  
-  /*
-   * Sets the Progress bar for the corresponding file if found as a property of the file object passed
-   */
-  function set_progress(file, progress_amount)
-  {
-    if (file.progress_bar)
-      file.progress_bar.value = progress_amount;
-    else
-      console.log("Couldn't find progress bar for the file: " + file.name);
   }
   
   /*

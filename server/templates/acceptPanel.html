@@ -66,21 +66,12 @@
   
   
      File: <input type="file" name="theFile" multiple="multiple"/> <br/>
-     <select class="uploadMethod">
-      <option selected="selected">chunked</option>
-      <option>compact</option>
-     </select>
+     <input type="checkbox" checked="checked" name="filter" value="filter"> Filter image type <br/>
   
      <div class="uploadNew">
       <input type="button" value="Upload" />
       <p class="ui-state-highlight" style="display: none;" id="upload_status_message"></p>
       <ul class="uploads"></ul>
-     </div>
-  
-     <div class="uploadOld" style="display: none;">
-      <input type="button" value="Upload" />
-      <ul class="uploads"></ul>
-      <progress max="1"></progress> 
      </div>
   
      <table border class="uploaded">

@@ -143,13 +143,13 @@ class UploadGenerator(Generator):
       
     return generateJson(summary, logged = True)
 
-  def getBrokenDuplicateFiles(self, uid, request):
+  def getBrokenDuplicateFiles(self, uid, key, size):
     '''
     Gets the list of broken and duplicate uploads for the file
     Creates a new slot by inserting a new row in DB facilitating new uploads 
     '''
-    broken = self.tileBase.getBrokenImages(uid, request['filekey'], request['size'])
-    duplicates = self.tileBase.getDuplicateImages(uid, request['filekey'], request['size'])
+    broken = self.tileBase.getBrokenImages(uid, key, size)
+    duplicates = self.tileBase.getDuplicateImages(uid, key, size)
     return (broken, duplicates)
 
   def getImagesStatuses(self, iids):
@@ -217,6 +217,7 @@ class UploadServer(Server):
     return self.generator.index()
     # remove after tests
 
+#TODO: move to generator...
   @cherrypy.expose
   @serveContent(UploadImageWithFieldStorageRequest)
   @ensureLogged
@@ -229,8 +230,8 @@ class UploadServer(Server):
     images_path = self.tileBase.sourceDir
     #data = {}
     data = []
-    for file in request.files_details:
-      broken, duplicates = self.generator.getBrokenDuplicateFiles(uid, file)
+    for key, size in request.files_details:
+      broken, duplicates = self.generator.getBrokenDuplicateFiles(uid, key, size)
       broken_amts = []
       for iid, f in broken:
         p = os.path.join(images_path, str(iid))

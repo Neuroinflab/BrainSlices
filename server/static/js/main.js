@@ -125,7 +125,10 @@ CLoginManager.prototype.ajaxAux = function(url, successHandler, data,
                 }
     };
     
-    if(options) $.extend(ajaxData, options); // Merge all other options passed as is
+    if (options)
+    {
+      $.extend(ajaxData, options); // Merge all other options passed as is
+    }
   
     if (data != null)
     {
