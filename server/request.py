@@ -35,11 +35,11 @@ EMAIL_RE = re.compile('^.+@.+$')
 def isstr(s):
   return type(s) is str or type(s) is unicode
 
-def encodeValue(value, binary):
+def encodeValue(value):
   #encoding = 'iso-8859-1' if binary else 'utf-8'
-  if binary:
-    print dir(value), type(value)
-    return value
+  #if binary:
+  #  #print dir(value), type(value)
+  #  return value
 
   encoding = 'utf-8'
   if type(value) is list:
@@ -61,7 +61,7 @@ class Request(object):
     self.time = datetime.now()
     self._path = [x.encode('utf-8') for x in args]
     self._raw = dict((k.encode('utf-8'),
-                      encodeValue(v, k in self._binary)) for (k, v) in kwargs.items())
+                      v if k in self._binary else encodeValue(v)) for (k, v) in kwargs.items())
     self.valid = True
     self.reason = []
     self._allArgsSet = frozenset(self._allArgs())
