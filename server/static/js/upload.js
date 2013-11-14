@@ -816,9 +816,7 @@ function CFileUploader($form, ajaxProvider)
   }
   
   /* 
-   * Checks the number of bytes uploaded of the passed files 
-   * Sets the uploaded amount for the file object
-   * If this is a new image, a new row is created in images table and zero is set
+   * Query server for duplicates 
    */
   function find_or_insert_image_details()
   {
@@ -889,9 +887,7 @@ function CFileUploader($form, ajaxProvider)
           var percent_uploaded = Math.round(slot_size / files[i].size * 100);
           $radio_buttons_div.append($("<input>").attr({type: "radio",
                                                        name: 'upload_radio_' + i,
-                                                       "data-action": 'r',
-                                                       "data-actioniid": slot_iid,
-                                                       value: slot_size}));
+                                                       value: slot_iid + ',' + slot_size}));
           $radio_buttons_div.append($("<label />").text(slot[2] + " #" + slot_iid + " (" + percent_uploaded + "%)"));
         }
         $dialog_content.append($radio_buttons_div);
@@ -930,18 +926,14 @@ function CFileUploader($form, ajaxProvider)
         var $upload_again = $("<div />");
         $upload_again.append($("<input>").attr({type: "radio",
                                                 name: 'upload_radio_' + i, 
-                                                "data-action": 'n',
-                                                "data-actioniid": 0,
-                                                value: 0}));
+                                                value: 'new'}));
         $upload_again.append($("<span />").text(" upload again"));
         $dialog_content.append($upload_again);
         
         var $take_no_action = $("<div />");
         $take_no_action.append($("<input>").attr({type: "radio",
                                                   name: 'upload_radio_' + i,
-                                                  'data-action': 's',
-                                                  "data-actioniid": 0,
-                                                  value: files[i].size,
+                                                  value: 'cancel',
                                                   checked: true}));
         $take_no_action.append($("<span />").text(" take no action"));
         $dialog_content.append($take_no_action);
@@ -1056,27 +1048,38 @@ function CFileUploader($form, ajaxProvider)
    * 3) iid: iid of the new slot created for that particular file
    * 4) uploaded_amount: based on the action chosen by user, uploaded amount is filled either for resume or cancel or new
    */
-  function addUploadFileProperties(data)
+  function addUploadFileProperties()
   {  
     var cFiles = files.length;
     var selected_radios = $("#dialog form").find("input:checked");
     for (var i = 0; i < cFiles; i++)
     {
-      var file_iid = data[i].iid; 
       var radio_ref = $(selected_radios).filter("[name='upload_radio_"+i+"']")[0];
-      files[i]['iid'] = file_iid;
+      //files[i]['iid'] = file_iid;
       if (radio_ref)
       {
-        files[i]['action'] = $(radio_ref).attr("data-action");
-        files[i]['actionOnIid'] = parseInt($(radio_ref).attr("data-actioniid"));
-        files[i]['uploaded_amount'] = parseInt($(radio_ref).val());
+        var val = $(radio_ref).val();
+        switch (val)
+        {
+          case 'new':
+            files[i].action = 'n';
+            break;
+
+          case 'cancel':
+            files[i].action = 's';
+            break;
+
+          default:
+            var row = val.split(',');
+            files[i].action = 'r';
+            files[i].iid = parseInt(row[0]);
+            files[i].uploaded_amount = parseInt(row[1]);
+        }
       }
       else
       {
         // New image which is neither a duplicate nor broken
-        files[i]['action'] = 'n';
-        files[i]['actionOnIid'] = 0;
-        files[i]['uploaded_amount'] = 0;
+        files[i].action = 'n';
       }
     }
     start_file_upload();
@@ -1154,7 +1157,7 @@ function CFileUploader($form, ajaxProvider)
         {
           status: true,
           data: {size: file.uploaded_amount,
-               iid: file.actionOnIid}
+                 iid: file.iid}
         });
         break;
 
