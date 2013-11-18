@@ -36,11 +36,6 @@ def isstr(s):
   return type(s) is str or type(s) is unicode
 
 def encodeValue(value):
-  #encoding = 'iso-8859-1' if binary else 'utf-8'
-  #if binary:
-  #  #print dir(value), type(value)
-  #  return value
-
   encoding = 'utf-8'
   if type(value) is list:
     return [x.encode(encoding) for x in value]

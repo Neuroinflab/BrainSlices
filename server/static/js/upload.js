@@ -275,7 +275,7 @@ function getUploadMonitor($progress, offset, fraction, total)
 var CHUNK_SIZE = 1024 * 1024;
 
 var MAX_SIMULTANEOUS_UPLOADS = 3; // These many images will be uploaded simultaneously 
-var iCurrentFileForUpload = 0, files = null;
+
 var STATUS_MAP = {'0': 'UPLOADING',
                   '1': 'RECEIVING',
                   '2': 'RECEIVED',
@@ -390,149 +390,6 @@ function getSendNextChunkFunction(blob, $progress, finalFunction, cSize)
   return sendNextChunk;
 }
 
-/*****************************************************************************\
- * Function: uploadChunkedFiles                                              *
- *                                                                           *
- * Upload files as series of data chunks.                                    *
- *                                                                           *
- * Parameters:                                                               *
- *   fileList - A FileList object (or Array of File objects).                *
- *   $progresses - A jQuery array of PROGRESS elements corresponding to the  *
- *                 fileList items sorted by name, then by size.              *
- *   cSize - An integer indicating the maximal size of data chunk to be send *
- *           (defaults to <CHUNK_SIZE>).                                     *
- *   finalFunction - A no argument function to be called when all filas has  *
- *                   been successfully uploaded.                             *
- *   bid - A unique repository batch identifier. In not null, the uploaded   *
- *         files would be assigned to that batch.                            *
- *   uploadedFilesCollection - <CUploadedImages> object providing user with  *
- *                             information about uploaded files.             *
- *                                                                           *
- * Possible improvements:                                                    *
- *   - The way the upload of the first file starts?                          *
-\*****************************************************************************/
-function uploadChunkedFiles(fileList, $progresses, cSize, finalFunction, bid,
-                            uploadedFilesCollection)
-{
-  if (cSize == null)
-  {
-    cSize = CHUNK_SIZE;
-  }
-
-  // work on a sorted copy of fileList
-  var files = [];
-  for (var i = 0; i < fileList.length; i++)
-  {
-    files.push(fileList[i]);
-  }
-
-  files.sort(imageCMP);
-
-  /**
-   * Function: uploadFileNo
-   *
-   * An internal function of <uploadChunkedFiles>.
-   *
-   * Make a handler of successful file upload (a function fo be passed as the
-   * 'finalFunction' parameter of <getSendNextChunkFunction>).
-   *
-   * The handler function notifies user about successful upload and starts
-   * upload of next file unless all files has been sent.
-   *
-   * Parameters:
-   *   fileNo - An integer. Number of file (in 'files' Array) to be uploaded.
-   *
-   * Returns:
-   *   The handler function.
-   *
-   * Possible improvements:
-   *   - Send multiple files simultaneously?
-   *   - Use iteration with 'fileNo' as a counter rather than recurrention
-   *     (if fileNo is defined in <uploadChunkedFiles> scope its value is
-   *     preserved)?
-   *   - Provide more explicite data read (if possible)?
-   *   - Send data as multipart/form-data?
-   *   - Check if it is the last chunk to be uploaded and set 'success' AJAX
-   *     handler appropriately?
-   *   - Check if it is the last file to be uploaded and set the 
-   *     <getSendNextChunkFunction> 'finalFunction' parameter approprietly
-   *     instead of checking if the last file has been already sent?
-   ***************************************************************************/
-  function uploadFileNo(fileNo)
-  {
-    return function(response)
-    {
-      if (response == null || !response.status)
-      {
-        //TODO: customize
-        alert(response.message);
-        return;
-      }
-
-      if (uploadedFilesCollection != null && fileNo > 0)
-      {
-        uploadedFilesCollection.append({name: files[fileNo - 1].name,
-                                        size: response.data.size,
-                                        iid: response.data.iid,
-                                        crc32: response.data.crc32});
-      }
-
-      // all files has been sent if there is no file number fileNo in files
-      if (fileNo >= files.length)
-      {
-        if (finalFunction != null)
-        {
-          finalFunction();
-        }
-        return;
-      }
-
-      var file = files[fileNo];
-      var $progress = $progresses.eq(fileNo); //TODO: bugtest it
-
-      // the first chunk of data will be sent
-      var reader = new FileReader();
-      var total = file.size;
-      var chunk = file.slice(0, cSize);
-    
-      reader.onload = function(event)
-      {
-        var result = event.target.result;
-        var data = {
-                     data: result,
-                     filename: file.name,
-                     size: total
-                    };
-        if (bid != null)
-        {
-          data['bid'] = bid;
-        }
-    
-        $.ajax(
-        {
-          url: 'uploadNewImage',
-          dataType: 'json',
-          type: 'POST',
-          xhr: getUploadMonitor($progress, 0, Math.min(cSize, total), total),
-          //Ajax events
-          //beforeSend: beforeSendHandler,
-          success: getSendNextChunkFunction(file,
-                                            $progress,
-                                            uploadFileNo(fileNo + 1),
-                                            cSize),
-          error: ajaxErrorHandler,
-          data: data,
-          contentType: 'application/x-www-form-urlencoded', //BOOO, formData does not work
-          cache: false
-        });
-      }
-      reader.readAsBinaryString(chunk);
-    }
-  }
-
-  // TODO: there must be a better way than artificial triggering handler -_-
-  uploadFileNo(0)({status: true});
-}
 
 /*****************************************************************************\
  * Class: CFileUploader                                                      *
@@ -638,26 +495,6 @@ function CFileUploader($form, ajaxProvider)
      new_chunk_upload();
   });
   
-  function old_chunk_upload()
-  {
-    var bid = $('.batch select').val();
-    if (bid == 'None')
-    {
-      bid = null;
-    }
-    uploadChunkedFiles($form.find(':file')[0].files,
-                       $form.find('.uploadNew .uploads>li>progress'),
-                       null, null, bid,
-                       thisInstance.uploaded);
-  }
-
-
-  //XXX: lol, everything in scope of a function :-D
-  /* 
-   * -------------------------------------------------------------------------
-   * Edited By: Nitin Pasumarthy
-   * Date: July 11, 2013 
-   */
   
   var cFilesUploaded = 0; // has the count of files that are completely uploaded
   var isUploadComplete = false;
@@ -711,23 +548,6 @@ function CFileUploader($form, ajaxProvider)
   }
   
   /*
-   * Triggers the upload of next file in the array, 'files'
-   */
-  function upload_next_file()
-  {
-    total_files = files.length;
-    if (!isUploadComplete && iCurrentFileForUpload < total_files)
-    {
-      upload_file(iCurrentFileForUpload++); // Async method
-    }
-
-    if (cFilesUploaded == total_files)
-    {
-      do_upload_complete();
-    }
-  }
-  
-  /*
    * Adds 'key' property to file objects
    * MD5 hash of file contents. Optimized approach, as file is loaded into memory in chunks
    */ 
@@ -735,11 +555,17 @@ function CFileUploader($form, ajaxProvider)
   {
     var currentFile = 0;
     var chunkSize = 1024 * 1024; // 1 MB chunks for generating MD5 hash key
+    var keys = [];
+    for (var i = 0; i < files.length; i++)
+    {
+      keys.push(new SparkMD5.ArrayBuffer());
+    }
+
     $(files).each(function(i, file)
     {
       var chunks = Math.ceil(file.size / chunkSize);
       var currentChunk = 0;
-      var spark = new SparkMD5.ArrayBuffer();
+      var spark = keys[i];
       var $progress = $progresses.eq(i);
 
       $progress.attr({value: currentChunk, max: chunks});
@@ -756,17 +582,21 @@ function CFileUploader($form, ajaxProvider)
         else
         {
           currentFile++;
-          var hash = spark.end(); // Completed computing MD5 HASH 
-          file.key = hash; // Save the hash as a property of the file
-          if (currentFile == files.length)
+          keys[i] = {key: spark.end(),
+                     file: file,
+                     size: file.size,
+                     name: file.name,
+                     type: file.type};
+          if (currentFile == files.length) //the last file
           {
-            find_or_insert_image_details(); // Triggers file upload 
+            find_or_insert_image_details(keys); // Trigger file upload 
           }
         }
       };
       function frOnerror(data)
       {
-        currentFile++;
+        //currentFile++;
+        //keys[i] = null;
         console.warn("File Key Computation: Something went wrong.");
         alert("Reading File: Something went wrong.\nRefresh page and retry.");
         throw 'MD5 computation error. Upload cannot continue' // Discontinue the upload process
@@ -786,30 +616,16 @@ function CFileUploader($form, ajaxProvider)
     });
   }
   
-  /*
-   * Returns an array of files details which are to be saved as meta data of the file
-   */
-  function get_files_details(files)
-  {
-    files_details = [];
-    for (var i = 0; i < files.length; i++)
-    {
-      var file = files[i];
-      files_details.push(file.key + ',' + file.size);
-    }
-    return files_details;
-  }
-  
   /* 
    * Query server for duplicates 
    */
-  function find_or_insert_image_details()
+  function find_or_insert_image_details(files)
   {
-    var files_details = []
+    var details = [];
     for (var i = 0; i < files.length; i++)
     {
-      var file = files[i];
-      files_details.push(file.key + ',' + file.size);
+      var file = files[i]
+      details.push(file.key + ',' + file.size)
     }
     ajaxOptions = {async: false};
     ajaxProvider.ajax(
@@ -818,14 +634,14 @@ function CFileUploader($form, ajaxProvider)
       {
         if (response.status)
         {
-          form_dialog(response.data);
+          form_dialog(response.data, files);
         }
         else
         {
           alert(response.message);
         }
       },
-      {files_details: files_details.join(';')},
+      {files_details: details.join(';')},
       function (data)
       {
         alert("Checking File Uploaded Amount: Something went wrong\nRetry upload");
@@ -841,7 +657,7 @@ function CFileUploader($form, ajaxProvider)
   /*
    * Creates the JQuery UI Dialog for taking user's action for broken and duplicate images
    */
-  function form_dialog(data)
+  function form_dialog(data, files)
   {
     var show_dialog = false;
     var $dialog_content = $("<form />"); // Very imp for "cancel" functionality of dialog to work
@@ -963,13 +779,13 @@ function CFileUploader($form, ajaxProvider)
           {
             $(this).children("form")[0].reset();
           }
-          addUploadFileProperties(data);
+          addUploadFileProperties(files);
         }
       });
     }
     else
     {
-      addUploadFileProperties(data);
+      addUploadFileProperties(files);
     }
     
     refreshStatusForIids(duplicate_iids);
@@ -1022,8 +838,10 @@ function CFileUploader($form, ajaxProvider)
   /*
    * Returns image thumbnail object for the given iid
    */
-  function getThumbnail(iid) {
-    return $("<img />").attr({src: '../images/'+iid+'/tiles/0/0/0.jpg'}).addClass("polaroid-image");
+  function getThumbnail(iid)
+  {
+    return $("<img />").attr({src: '../images/'+iid+'/tiles/0/0/0.jpg',
+                              alt: 'thumbnail of image #' + iid}).addClass("polaroid-image");
   }
   
   /*
@@ -1033,7 +851,7 @@ function CFileUploader($form, ajaxProvider)
    * 3) iid: iid of the new slot created for that particular file
    * 4) uploaded_amount: based on the action chosen by user, uploaded amount is filled either for resume or cancel or new
    */
-  function addUploadFileProperties()
+  function addUploadFileProperties(files)
   {  
     var cFiles = files.length;
     var $selected_radios = $("#dialog form").find("input:checked");
@@ -1041,7 +859,8 @@ function CFileUploader($form, ajaxProvider)
     for (var i = 0; i < cFiles; i++)
     {
       var radio_ref = $selected_radios.filter("[name='upload_radio_"+i+"']")[0];
-      //files[i]['iid'] = file_iid;
+      var file = files[i];
+
       if (radio_ref)
       {
         var val = $(radio_ref).val();
@@ -1049,118 +868,233 @@ function CFileUploader($form, ajaxProvider)
         if (val != 'new')
         {
           var row = val.split(',');
-          files[i].iid = parseInt(row[0]);
-          files[i].uploaded_amount = parseInt(row[1]);
+          file.iid = parseInt(row[0]);
+          file.uploaded = parseInt(row[1]);
         }
       }
-      to_upload.push(files[i]);
+      to_upload.push(file);
     }
-    files = makeUploadList(to_upload,
-                           $form.find('.uploadNew .uploads'),
-                           true);
-    start_file_upload();
+    makeUploadList(to_upload,
+                   $form.find('.uploadNew .uploads'),
+                   true);
+    start_file_upload(to_upload);
   }
   
   /*
    * Triggers the upload process. Opens MAX_SIMULTANEOUS_UPLOADS threads for parallel uploads
    */
-  function start_file_upload()
+  function start_file_upload(files)
   {
-    if (files.length == 0) do_upload_complete();
-    while (iCurrentFileForUpload < MAX_SIMULTANEOUS_UPLOADS && iCurrentFileForUpload < files.length)
+    
+    /*
+     * Final function called after all uploads are completesd
+     */
+
+    function do_upload_complete()
     {
-      upload_next_file();
+      $("#upload_status_message").hide().text("Upload complete!").show();
+      alert('All images uploaded');
+      $("form#upload")[0].reset();
+      iCurrentFileForUpload = 0;  // reset the index of current file being uploaded to zero
+      cFilesUploaded = 0; // reset the total number of files uploaded
+      isUploadComplete = true; // flag that helps prevent some threads being calling upload function again
     }
+
+    //TODO: more sophisticated approach
+    var bid = $('.batch select').val();
+    uploadChunkedFiles(files,
+                       $form.find('.uploadNew .uploads>li>progress'),
+                       CHUNK_SIZE,
+                       do_upload_complete,
+                       bid != 'None' ? parseInt(bid) : null,
+                       thisInstance.uploaded);
+
   }
 
-  /*
-   * Uploads the file with progress bar. When upload is complete, triggers the next file 
-   * upload maintaining the MAX_SIMULTANEOUS_UPLOADS constraint
-   */
-  function upload_file(fileNo)
-  {
-    var file = files[fileNo];
-    $("#upload_status_message").hide().text("Completing... " + (cFilesUploaded+1) + " of " + files.length).show();
 
-    if (file.iid != null)
-    {
-      getSendNextChunkFunction(file,
-                               $form.find('.uploadNew .uploads>li>progress').eq(fileNo),
-                               do_file_upload_complete, CHUNK_SIZE)(
-      {
-        status: true,
-        data: {size: file.uploaded_amount,
-               iid: file.iid}
-      });
-    }
-    else
-    {
-      var form_data = new FormData();
-      form_data.append('data', file.slice(0, CHUNK_SIZE));
-      form_data.append('filename', file.name);
-      form_data.append('key', file.key);
-      form_data.append('size', file.size);
-      stupid_form_data = form_data;
-      //TODO: more sophisticated approach
-      var bid = $('.batch select').val();
-      if (bid != 'None')
-      {
-        form_data.append('bid', bid);
-      }
-      var $progress = $form.find('.uploadNew .uploads>li>progress').eq(fileNo);
-      var total = file.size;
-      ajaxOptions = {
-        cache: false,
-        contentType: false,
-        processData: false,
-        xhr: getUploadMonitor($progress, 0, Math.min(CHUNK_SIZE, total), total)};
-      ajaxProvider.ajax(
-        'uploadNewImage', 
-        getSendNextChunkFunction(file,
-                                 $progress,
-                                 do_file_upload_complete, //SEND NEXT FILE
-                                 CHUNK_SIZE),
-        form_data,
-        function(data)
-        {
-          if (data.status == 0 && data.state() == 'rejected')
-          {
-            // XXX ???
-            alert("You are offline. Please connect to internet and try again")
-          }
-          else
-          {
-            alert('File Upload: Something went wrong.\nRetry');
-            console.error('File Upload: Error!');
-            throw 'File Upload: Something went wrong.\nRetry';
-          }
-        },
-        'POST', 
-        ajaxOptions);
-    }
-  }
-
-  /*
-   * To be called when a file is "completely" uploaded
-   */
-  function do_file_upload_complete()
+  /*****************************************************************************\
+   * Function: uploadChunkedFiles                                              *
+   *                                                                           *
+   * Upload files as series of data chunks.                                    *
+   *                                                                           *
+   * Parameters:                                                               *
+   *   fileList - A FileList object (or Array of File objects).                *
+   *   $progresses - A jQuery array of PROGRESS elements corresponding to the  *
+   *                 fileList items sorted by name, then by size.              *
+   *   cSize - An integer indicating the maximal size of data chunk to be send *
+   *           (defaults to <CHUNK_SIZE>).                                     *
+   *   finalFunction - A no argument function to be called when all filas has  *
+   *                   been successfully uploaded.                             *
+   *   bid - A unique repository batch identifier. In not null, the uploaded   *
+   *         files would be assigned to that batch.                            *
+   *   uploadedFilesCollection - <CUploadedImages> object providing user with  *
+   *                             information about uploaded files.             *
+   *                                                                           *
+   * Possible improvements:                                                    *
+   *   - The way the upload of the first file starts?                          *
+  \*****************************************************************************/
+  function uploadChunkedFiles(fileList, $progresses, cSize, finalFunction, bid,
+                              uploadedFilesCollection)
   {
-    cFilesUploaded++;
-    $("#upload_status_message").hide().text("Completed " + cFilesUploaded + " of " + files.length).show();
-    //alert('Upload Success!');
-    upload_next_file();
-  }
+    if (cSize == null)
+    {
+      cSize = CHUNK_SIZE;
+    }
   
-  /*
-   * Final function called after all uploads are completesd
-   */
-  function do_upload_complete()
-  {
-    $("#upload_status_message").hide().text("Upload complete!").show();
-    alert('All images uploaded');
-    $("form#upload")[0].reset();
-    iCurrentFileForUpload = 0;  // reset the index of current file being uploaded to zero
-    cFilesUploaded = 0; // reset the total number of files uploaded
-    isUploadComplete = true; // flag that helps prevent some threads being calling upload function again
+    //// work on a sorted copy of fileList
+    //var files = [];
+    //for (var i = 0; i < fileList.length; i++)
+    //{
+    //  files.push(fileList[i]);
+    //}
+  
+    //files.sort(imageCMP);
+    var files = fileList;
+    var fileNo = 0;
+    var inProgress = 0;
+    var uploaded = 0;
+  
+    function getUploadedHandler(data)
+    {
+      return function(response)
+      {
+        if (response == null || !response.status)
+        {
+          //TODO: customize
+          alert(response.message);
+          return;
+        }
+    
+        if (uploadedFilesCollection != null)
+        {
+          uploadedFilesCollection.append({name: data.name,
+                                          size: response.data.size,
+                                          iid: response.data.iid,
+                                          crc32: response.data.crc32});
+        }
+  
+        uploaded++;
+        inProgress--;
+        if (fileNo < files.length)
+        {
+          uploadNextFile();
+        }
+        else
+        {
+          if (uploaded >= files.length)
+          {
+            if (finalFunction != null)
+            {
+              finalFunction();
+            }
+            return;
+          }
+        }
+      }
+    }
+  
+    /**
+     * Function: uploadFileNo
+     *
+     * An internal function of <uploadChunkedFiles>.
+     *
+     * Make a handler of successful file upload (a function fo be passed as the
+     * 'finalFunction' parameter of <getSendNextChunkFunction>).
+     *
+     * The handler function notifies user about successful upload and starts
+     * upload of next file unless all files has been sent.
+     *
+     * Parameters:
+     *   fileNo - An integer. Number of file (in 'files' Array) to be uploaded.
+     *
+     * Returns:
+     *   The handler function.
+     *
+     * Possible improvements:
+     *   - Send multiple files simultaneously?
+     *   - Use iteration with 'fileNo' as a counter rather than recurrention
+     *     (if fileNo is defined in <uploadChunkedFiles> scope its value is
+     *     preserved)?
+     *   - Provide more explicite data read (if possible)?
+     *   - Send data as multipart/form-data?
+     *   - Check if it is the last chunk to be uploaded and set 'success' AJAX
+     *     handler appropriately?
+     *   - Check if it is the last file to be uploaded and set the 
+     *     <getSendNextChunkFunction> 'finalFunction' parameter approprietly
+     *     instead of checking if the last file has been already sent?
+     ***************************************************************************/
+    function uploadNextFile()
+    {
+      var file = files[fileNo];
+      var $progress = $progresses.eq(fileNo); //TODO: bugtest it
+      fileNo++;
+      inProgress++;
+  
+      // the first chunk of data will be sent
+      var total = file.size;
+  
+      if (file.iid != null)
+      {
+        getSendNextChunkFunction(file.file,
+                                 $progress,
+                                 getUploadedHandler({name: file.name}),
+                                 CHUNK_SIZE)(
+        {
+          status: true,
+          data: {size: file.uploaded,
+                 iid: file.iid}
+        });
+      }
+      else
+      {
+        var form_data = new FormData();
+        form_data.append('data', file.file.slice(0, CHUNK_SIZE));
+        form_data.append('filename', file.name);
+        form_data.append('key', file.key);
+        form_data.append('size', file.size);
+        if (bid != null)
+        {
+          form_data.append('bid', bid);
+        }
+  
+        var total = file.size;
+        ajaxOptions = {
+          cache: false,
+          contentType: false,
+          processData: false,
+          xhr: getUploadMonitor($progress, 0, Math.min(CHUNK_SIZE, total), total)};
+        ajaxProvider.ajax(
+          'uploadNewImage', 
+          getSendNextChunkFunction(file.file,
+                                   $progress,
+                                   getUploadedHandler({name: file.name}),
+                                   CHUNK_SIZE),
+          form_data,
+          function(data)
+          {
+            if (data.status == 0 && data.state() == 'rejected')
+            {
+              alert("File Upload: Something went wrong. Possibly no network connection.")
+            }
+            else
+            {
+              alert('File Upload: Something went wrong.\nRetry');
+              console.error('File Upload: Error!');
+              throw 'File Upload: Something went wrong.\nRetry';
+            }
+          },
+          'POST', 
+          ajaxOptions);
+      }
+    }
+
+    if (files.length == 0 && finalFunction != null)
+    {
+      finalFunction();
+    }
+    while (fileNo < files.length && inProgress < MAX_SIMULTANEOUS_UPLOADS)
+    {
+      uploadNextFile();
+    }
   }
 }
