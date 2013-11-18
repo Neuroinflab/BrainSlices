@@ -814,17 +814,20 @@ function CFileUploader($form, ajaxProvider)
             var iid_status = response.data;
             var span;
             var not_accepted = [];
-            for (iid in iid_status)
+            for (var i = 0; i < iid_status.length; i++)
             {
+              var row = iid_status[i];
+              var iid = row[0];
+              var status = row[1];
               span = $("#dialog").find("span[data-iid='"+iid+"']");
-              $(span).text(STATUS_MAP[iid_status[iid]]);
+              $(span).text(STATUS_MAP[status]);
               $(span).parent("li").find("img").remove(); // Remove existing images if any
-              if (iid_status[iid] >= 6)
+              if (status >= 6)
               {
-                $(span).parent("li").append(getThumbnail(iid));
+                $(span).parent("li").append(getThumbnail(iid, row[2], row[3]));
               }
 
-              if (iid_status[iid] < 7)
+              if (status < 7)
               {
                 not_accepted.push(iid);
               }
@@ -838,22 +841,30 @@ function CFileUploader($form, ajaxProvider)
   /*
    * Returns image thumbnail object for the given iid
    */
-  function getThumbnail(iid)
+  function getThumbnail(iid, width, height)
   {
+    var w = 128;
+    var h = 128;
+    if (width > height)
+    {
+      h = Math.round(128 * height / width);
+    }
+    else
+    {
+      w = Math.round(128 * width / height);
+    }
     return $("<img />").attr({src: '../images/'+iid+'/tiles/0/0/0.jpg',
-                              alt: 'thumbnail of image #' + iid}).addClass("polaroid-image");
+                              alt: 'thumbnail of image #' + iid}).addClass("polaroid-image").css({width: w + 'px', height: h + 'px'});
   }
   
-  /*
-   * Adds additional properties to file objects:
-   * 1) Action: Which action to take based on user's choice from dialog. Valid Values: s (=> stop / cancel), n (=> new), r (=> resume)
-   * 2) ActionOnIid: The above action on which image iid. This is valid only for resume upload action indicating broken image iid
-   * 3) iid: iid of the new slot created for that particular file
-   * 4) uploaded_amount: based on the action chosen by user, uploaded amount is filled either for resume or cancel or new
+  /**
+   * Preprocess list of files for upload according to the user choice and
+   * request upload.
    */
   function addUploadFileProperties(files)
   {  
     var cFiles = files.length;
+    // XXX
     var $selected_radios = $("#dialog form").find("input:checked");
     var to_upload = [];
     for (var i = 0; i < cFiles; i++)
@@ -912,28 +923,32 @@ function CFileUploader($form, ajaxProvider)
   }
 
 
-  /*****************************************************************************\
-   * Function: uploadChunkedFiles                                              *
-   *                                                                           *
-   * Upload files as series of data chunks.                                    *
-   *                                                                           *
-   * Parameters:                                                               *
-   *   fileList - A FileList object (or Array of File objects).                *
-   *   $progresses - A jQuery array of PROGRESS elements corresponding to the  *
-   *                 fileList items sorted by name, then by size.              *
-   *   cSize - An integer indicating the maximal size of data chunk to be send *
-   *           (defaults to <CHUNK_SIZE>).                                     *
-   *   finalFunction - A no argument function to be called when all filas has  *
-   *                   been successfully uploaded.                             *
-   *   bid - A unique repository batch identifier. In not null, the uploaded   *
-   *         files would be assigned to that batch.                            *
-   *   uploadedFilesCollection - <CUploadedImages> object providing user with  *
-   *                             information about uploaded files.             *
-   *                                                                           *
-   * Possible improvements:                                                    *
-   *   - The way the upload of the first file starts?                          *
-  \*****************************************************************************/
-  function uploadChunkedFiles(fileList, $progresses, cSize, finalFunction, bid,
+  /**
+   * Function: uploadChunkedFiles                                             
+   *                                                                          
+   * Upload files as series of data chunks.                                   
+   *                                                                          
+   * Parameters:                                                              
+   *   files - An Array of file description items (containing File objects
+   *           itself as well as additional data like size and filename; if a
+   *           file upload has to be resumed, also iid and already uploaded
+   *           amount of data is provided).
+   *
+   *   $progresses - A jQuery array of PROGRESS elements corresponding to the 
+   *                 fileList items sorted by name, then by size.             
+   *   cSize - An integer indicating the maximal size of data chunk to be send
+   *           (defaults to <CHUNK_SIZE>).                                    
+   *   finalFunction - A no argument function to be called when all filas has 
+   *                   been successfully uploaded.                            
+   *   bid - A unique repository batch identifier. In not null, the uploaded  
+   *         files would be assigned to that batch.                           
+   *   uploadedFilesCollection - <CUploadedImages> object providing user with 
+   *                             information about uploaded files.            
+   *                                                                          
+   * Possible improvements:                                                   
+   *   - The way the upload of the first file starts?                         
+   **************************************************************************/
+  function uploadChunkedFiles(files, $progresses, cSize, finalFunction, bid,
                               uploadedFilesCollection)
   {
     if (cSize == null)
@@ -941,15 +956,6 @@ function CFileUploader($form, ajaxProvider)
       cSize = CHUNK_SIZE;
     }
   
-    //// work on a sorted copy of fileList
-    //var files = [];
-    //for (var i = 0; i < fileList.length; i++)
-    //{
-    //  files.push(fileList[i]);
-    //}
-  
-    //files.sort(imageCMP);
-    var files = fileList;
     var fileNo = 0;
     var inProgress = 0;
     var uploaded = 0;

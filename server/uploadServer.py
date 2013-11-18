@@ -158,7 +158,7 @@ class UploadGenerator(Generator):
     Returns a hash of {iid: status}
     '''
     iids_statuses = self.tileBase.getImagesStatuses(iids)
-    return {entry[0]:entry[1] for entry in iids_statuses}
+    return iids_statuses #{entry[0]:entry[1] for entry in iids_statuses}
 
   @ensureLogged
   def uploadNewImage(self, uid, request):
@@ -229,20 +229,10 @@ class UploadServer(Server):
     row is either retained or removed during upload call.
     '''
     images_path = self.tileBase.sourceDir
-    #data = {}
     data = []
     for key, size in request.files_details:
       broken, duplicates = self.generator.getBrokenDuplicateFiles(uid, key, size)
       data.append((broken, duplicates))
-      #broken_amts = []
-      #for iid, f in broken:
-      #  p = os.path.join(images_path, str(iid))
-      #  fs = self.getFilesize(p)
-      #  print p, fs
-      #  broken_amts.append((iid, fs, f))
-#     # broken_amts = [(iid, self.getFilesize(os.path.join(images_path, str(iid))), f)\
-#     #                for (iid, f) in broken]
-      #data.append((broken_amts, duplicates))
 
     return generateJson(data = data, status = True, logged = True)
 

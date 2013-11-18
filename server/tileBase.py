@@ -480,7 +480,8 @@ class TileBase(dbBase):
     if r:
       # TODO: is str conversion necessary?
       return [(str(row[0]), str(row[1]), row[2], imageHash) for row in r\
-              if self.canViewImage(row[0], uid)]
+              if self.canAccessImage(row[0], uid,
+                                     thresholdStatus = IMAGE_STATUS_RECEIVED)]
 
     return []
 
@@ -516,7 +517,7 @@ class TileBase(dbBase):
       return []
 
     iids_str = ",".join([str(iid) for iid in iids])
-    cursor.execute("SELECT iid, status FROM images where iid in (" + iids_str + ")")
+    cursor.execute("SELECT iid, status, image_width, image_height FROM images where iid in (" + iids_str + ")")
     return cursor.fetchall()
 
   @provideCursor
