@@ -424,7 +424,9 @@ function CFileUploader($form, ajaxProvider)
   this.$form = $form;
   this.uploaded = new CUploadedImages($form.find('table.uploaded>tbody'));
   this.$uploads = $form.find('.uploads');
+
   var files = [];
+  var keys = [];
 
   var thisInstance = this;
 
@@ -555,7 +557,7 @@ function CFileUploader($form, ajaxProvider)
   {
     var currentFile = 0;
     var chunkSize = 1024 * 1024; // 1 MB chunks for generating MD5 hash key
-    var keys = [];
+    keys = [];
     for (var i = 0; i < files.length; i++)
     {
       keys.push(new SparkMD5.ArrayBuffer());
@@ -589,7 +591,7 @@ function CFileUploader($form, ajaxProvider)
                      type: file.type};
           if (currentFile == files.length) //the last file
           {
-            find_or_insert_image_details(keys); // Trigger file upload 
+            checkDuplicates(); // Trigger file upload 
           }
         }
       };
@@ -619,12 +621,12 @@ function CFileUploader($form, ajaxProvider)
   /* 
    * Query server for duplicates 
    */
-  function find_or_insert_image_details(files)
+  function checkDuplicates()
   {
     var details = [];
-    for (var i = 0; i < files.length; i++)
+    for (var i = 0; i < keys.length; i++)
     {
-      var file = files[i]
+      var file = keys[i]
       details.push(file.key + ',' + file.size)
     }
     ajaxOptions = {async: false};
@@ -634,7 +636,7 @@ function CFileUploader($form, ajaxProvider)
       {
         if (response.status)
         {
-          form_dialog(response.data, files);
+          form_dialog(response.data);
         }
         else
         {
@@ -653,18 +655,31 @@ function CFileUploader($form, ajaxProvider)
   }
  
   var to_refresh = [];
+  var $dialog = $('#brokenDuplicatePanel');
+  var $dialogContent = $dialog.find('.content');
+  var dialog = new CCloseableDiv($dialog,
+                                 function()
+                                 {
+                                   $dialogContent.css('max-height',
+                                   Math.round($dialog.height() * 0.8) + 'px');
+                                   //do some fancy content scaling
+                                 },
+                                 function()
+                                 {
+                                   $dialogContent.html('');
+                                 });
 
   /*
    * Creates the JQuery UI Dialog for taking user's action for broken and duplicate images
    */
-  function form_dialog(data, files)
+  function form_dialog(data)
   {
     var show_dialog = false;
-    var $dialog_content = $("<form />"); // Very imp for "cancel" functionality of dialog to work
+//    var $dialog_content = $("<form />"); // Very imp for "cancel" functionality of dialog to work
     var duplicate_iids = [];
     to_refresh = []; //XXX: almost global
     
-    for (var i = 0; i < files.length; i++)
+    for (var i = 0; i < keys.length; i++)
     {
       var file_data = data[i];
       var broken = file_data[0];
@@ -673,63 +688,65 @@ function CFileUploader($form, ajaxProvider)
       if (broken.length > 0 || duplicates.length > 0)
       {
         show_dialog = true;
-        $dialog_content.append($("<h3 />").text(files[i].name + ":").css("text-decoration", "underline"));
-      }
-      
-      if (broken.length > 0)
-      {
-        $dialog_content.append($("<h4 />").text("Broken upload(s):").css("text-decoration", "underline"));
-        var $radio_buttons_div = $("<div />").css("margin-botton", "10px");
-        for (var j = 0; j < broken.length; j++)
-        {
-          var slot = broken[j];
-          var slot_iid = slot[0];
-          var slot_size = slot[1];
-          var percent_uploaded = Math.round(slot_size / files[i].size * 100);
-          $radio_buttons_div.append($("<input>").attr({type: "radio",
-                                                       name: 'upload_radio_' + i,
-                                                       value: slot_iid + ',' + slot_size}));
-          $radio_buttons_div.append($("<label />").text(slot[2] + " #" + slot_iid + " (" + percent_uploaded + "%)"));
-        }
-        $dialog_content.append($radio_buttons_div);
-      }
-      
-      if (duplicates.length > 0)
-      {
-        $dialog_content.append($("<h4 />").text("Duplicate upload(s):").css("text-decoration", "underline"));
-        var $ul = $("<ul />");
-        var text; var status = 0; var image = null; var li;
-        for (var j = 0; j < duplicates.length; j++)
-        {
-          var duplicate = duplicates[j];
-          var duplicate_iid = duplicate[0];
-          var duplicate_status = duplicate[1];
-          duplicate_iids.push(duplicate_iid);
-          if (duplicate_status < 7)
-          {
-            to_refresh.push(duplicate_iid);
-          }
-//          text = "#" + duplicate[0] + " " + duplicate[2] + " " + duplicate[3] + " " + STATUS_MAP[duplicate[1]];
-          var text = "#" + duplicate_iid + " " + duplicate[2] + ". Status: ";
-          var $li = $("<li />").text(text);
-          $li.append($("<span />").attr({"data-iid": duplicate_iid}).text(STATUS_MAP[duplicate_status]));
-          $li.append($("<a />").attr({title: 'Refresh status',
-                                      "data-iid": duplicate_iid}).
-              addClass('refreshStatus lmargin10 link').text("Refresh"));
-          $ul.append($li);
-        }
+        var $div = $('<div />');
+        $div.append($("<h3 />").text(keys[i].name + ":"));
 
-        $dialog_content.append($("<div />").append($ul));
-      }
+        if (broken.length > 0)
+        {
+          $div.append(
+            $("<h4 />").text("Broken upload"
+                             + (broken.length > 1 ? "s:" : ":")));
+          var $radio_buttons_div = $("<div />").css("margin-botton", "10px");
+          for (var j = 0; j < broken.length; j++)
+          {
+            var slot = broken[j];
+            var slot_iid = slot[0];
+            var slot_size = slot[1];
+            var percent_uploaded = Math.round(slot_size / files[i].size * 100);
+            $radio_buttons_div.append($("<input>").attr({type: "radio",
+                                                         name: 'upload_radio_' + i,
+                                                         value: slot_iid + ',' + slot_size}));
+            $radio_buttons_div.append($("<label />").text(slot[2] + " #" + slot_iid + " (" + percent_uploaded + "%)"));
+          }
+          $div.append($radio_buttons_div);
+        }
+        
+        if (duplicates.length > 0)
+        {
+          $div.append(
+            $("<h4 />").text("Duplicate upload"
+                             + (duplicates.length > 1 ? "s:" : ":")));
+          var $ul = $("<ul />");
+          var text; var status = 0; var image = null; var li;
+          for (var j = 0; j < duplicates.length; j++)
+          {
+            var duplicate = duplicates[j];
+            var duplicate_iid = duplicate[0];
+            var duplicate_status = duplicate[1];
+            duplicate_iids.push(duplicate_iid);
+            if (duplicate_status < 7)
+            {
+              to_refresh.push(duplicate_iid);
+            }
+  //          text = "#" + duplicate[0] + " " + duplicate[2] + " " + duplicate[3] + " " + STATUS_MAP[duplicate[1]];
+            var text = "#" + duplicate_iid + " " + duplicate[2] + ". Status: ";
+            var $li = $("<li />").text(text);
+            $li.append($("<span />").attr({"data-iid": duplicate_iid}).text(STATUS_MAP[duplicate_status]));
+            $li.append($("<a />").attr({title: 'Refresh status',
+                                        "data-iid": duplicate_iid}).
+                addClass('refreshStatus lmargin10 link').text("Refresh"));
+            $ul.append($li);
+          }
+  
+          $div.append($("<div />").append($ul));
+        }
       
-      if (broken.length > 0 || duplicates.length > 0)
-      {
         var $upload_again = $("<div />");
         $upload_again.append($("<input>").attr({type: "radio",
                                                 name: 'upload_radio_' + i, 
                                                 value: 'new'}));
         $upload_again.append($("<span />").text(" upload again"));
-        $dialog_content.append($upload_again);
+        $div.append($upload_again);
         
         var $take_no_action = $("<div />");
         $take_no_action.append($("<input>").attr({type: "radio",
@@ -737,7 +754,13 @@ function CFileUploader($form, ajaxProvider)
                                                   value: 'cancel',
                                                   checked: true}));
         $take_no_action.append($("<span />").text(" take no action"));
-        $dialog_content.append($take_no_action);
+        $div.append($take_no_action);
+        $dialogContent.append($div);
+        keys[i].$div = $div;
+      }
+      else
+      {
+        keys[i].$div = null;
       }
       
       // $dialog_content.append($("<hr />").css("margin", "10px"));
@@ -745,6 +768,7 @@ function CFileUploader($form, ajaxProvider)
     
     if (show_dialog)
     {
+      dialog.open();
       // Trigger Auto Refresh of status for every 20s
       // TODO: make it better
       // (might be refreshing completed/accepted images)
@@ -755,7 +779,7 @@ function CFileUploader($form, ajaxProvider)
       }
 
       $("#upload_status_message").hide().text("Pick what to do...").show();
-      $("#dialog").html("").append($dialog_content).dialog({
+/*      $("#dialog").html("").append($dialog_content).dialog({
         modal: true,
         buttons: [
                     { text: "OK", click: function() {
@@ -779,13 +803,13 @@ function CFileUploader($form, ajaxProvider)
           {
             $(this).children("form")[0].reset();
           }
-          addUploadFileProperties(files);
+          addUploadFileProperties();
         }
-      });
+      });*/
     }
     else
     {
-      addUploadFileProperties(files);
+      addUploadFileProperties();
     }
     
     refreshStatusForIids(duplicate_iids);
@@ -819,7 +843,7 @@ function CFileUploader($form, ajaxProvider)
               var row = iid_status[i];
               var iid = row[0];
               var status = row[1];
-              span = $("#dialog").find("span[data-iid='"+iid+"']");
+              span = $dialogContent.find("span[data-iid='"+iid+"']");
               $(span).text(STATUS_MAP[status]);
               $(span).parent("li").find("img").remove(); // Remove existing images if any
               if (status >= 6)
@@ -861,20 +885,23 @@ function CFileUploader($form, ajaxProvider)
    * Preprocess list of files for upload according to the user choice and
    * request upload.
    */
-  function addUploadFileProperties(files)
-  {  
-    var cFiles = files.length;
+  function addUploadFileProperties()
+  { 
+    dialog.close();
+
+    var cFiles = keys.length;
     // XXX
-    var $selected_radios = $("#dialog form").find("input:checked");
+    //var $selected_radios = $("#dialog form").find("input:checked");
     var to_upload = [];
     for (var i = 0; i < cFiles; i++)
     {
-      var radio_ref = $selected_radios.filter("[name='upload_radio_"+i+"']")[0];
-      var file = files[i];
+      //var radio_ref = $selected_radios.filter("[name='upload_radio_"+i+"']")[0];
+      var file = keys[i];
+      var $radio_ref = file.$div;
 
-      if (radio_ref)
+      if ($radio_ref)
       {
-        var val = $(radio_ref).val();
+        var val = $radio_ref.find("input:checked").val();
         if (val == 'cancel') continue;
         if (val != 'new')
         {
@@ -890,6 +917,8 @@ function CFileUploader($form, ajaxProvider)
                    true);
     start_file_upload(to_upload);
   }
+
+  $dialog.find('.confirmation_button').bind('click', addUploadFileProperties);
   
   /*
    * Triggers the upload process. Opens MAX_SIMULTANEOUS_UPLOADS threads for parallel uploads

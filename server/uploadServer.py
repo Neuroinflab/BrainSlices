@@ -75,73 +75,12 @@ class UploadGenerator(Generator):
 
     upload = self.templateEngine('upload.html')
     upload['<!--%controlPanel%-->'] = controlPanel
+    upload['<!--%brokenDuplicatePanel%-->'] = self.templateEngine('brokenDuplicatePanel.html')
     self['index'] = upload
 
   @useTemplate('index')
   def index(self):
     return [], []
-
-#  def uploadFieldStorage(self, uid, formFields):
-#    if not 'theFile' in formFields:
-#      raise cherrypy.HTTPError("400 Bad request", "No files sent.")
-#
-#    bid = None
-#    if 'bid' in formFields:
-#      try:
-#        bid_ = formFields['bid'].value
-#        if bid_ != 'None':
-#          bid = int(bid_)
-#      except:
-#        raise cherrypy.HTTPError("400 Bad request", "Bad value of bid field.")
-#
-#    theFile = formFields['theFile']
-#    if isinstance(theFile, cgi.FieldStorage):
-#      files = [theFile]
-#
-#    else:
-#      files = theFile
-#
-#    summary = []
-#    for theFile in files:
-#      if isinstance(theFile.file, UploadSlot):
-#        slot = theFile.file
-#
-#        if hasattr(theFile, 'slot'):
-#          del theFile.slot
-#
-#      else:
-#        value = theFile.value
-#        slot = UploadSlot(self.uploadDir)
-#        slot.write(value)
-#      
-#      #XXX: redundant with upload().myFieldStorage.__del__
-#      try:
-#        iid = int(cherrypy.request.headers['IID'])
-#
-#      except:
-#        raise cherrypy.HTTPError("400 Bad request",
-#                                 "Bad value (%s) of IID field." % \
-#                                 cherrypy.request.headers['IID'])
-#
-#      try:
-#        actioniid = int(cherrypy.request.headers['ACTIONONIID'])
-#
-#      except:
-#        raise cherrypy.HTTPError("400 Bad request",
-#                                 "Bad value (%s) of ACTIONONIID field." % \
-#                                 cherrypy.request.headers['ACTIONONIID'])
-#      iid = self.tileBase.saveSlotAndFinishUpload(slot, 
-#                iid, 
-#                cherrypy.request.headers['ACTION'],
-#                actioniid)
-#      summary.append({'name': cherrypy.request.headers['NAME'], # theFile.filename,
-#                      'iid': iid,
-#                      'size': slot.size,
-#                      'crc32': format(slot.crc32 & 0xffffffff, "08x")})
-#
-#
-#      
-#    return generateJson(summary, logged = True)
 
   def getBrokenDuplicateFiles(self, uid, key, size):
     '''
@@ -158,7 +97,7 @@ class UploadGenerator(Generator):
     Returns a hash of {iid: status}
     '''
     iids_statuses = self.tileBase.getImagesStatuses(iids)
-    return iids_statuses #{entry[0]:entry[1] for entry in iids_statuses}
+    return iids_statuses
 
   @ensureLogged
   def uploadNewImage(self, uid, request):
@@ -246,70 +185,14 @@ class UploadServer(Server):
     iids_statuses = self.generator.getImagesStatuses(request.iids)
     return generateJson(data = iids_statuses, status = True, logged = True)
 
-  def getFilesize(self, file_path):
-    '''
-    Returns the file size if the file exists in file system, else returns 0
-    '''
-    if os.path.isfile(file_path):
-      return int(os.path.getsize(file_path))
-
-    return 0
-
-#  @cherrypy.expose
-#  @cherrypy.config(**{'request.process_request_body': False})
-#  @serveContent()
-#  def upload(self):
+#  def getFilesize(self, file_path):
 #    '''
-#    Uploads the image byte data passed as a stream. 
-#    Overrides the default request processing of cherrypy facilitating resuming image upload
+#    Returns the file size if the file exists in file system, else returns 0
 #    '''
-#    uid = cherrypy.session.get('userID')
-#    if uid == None:
-#      return generateJson(status = False,
-#                          message = "Unknown user identity.")
+#    if os.path.isfile(file_path):
+#      return int(os.path.getsize(file_path))
 #
-#    # remove after proper implementation
-#    cherrypy.response.timeout = 1000 # 3600
-#    incomingBytes = int(cherrypy.request.headers['content-length'])
-#    if incomingBytes > cherrypy.server.max_request_body_size:
-#      return generateJson(status = False,
-#                          logged = True,
-#                          message = "Too big data transmitted (%d > %d)." %\
-#                                    (incomingBytes,
-#                                     cherrypy.server.max_request_body_size))
-#
-#    generator = self.generator
-#    class myFieldStorage(cgi.FieldStorage):
-#      def make_file(self, binary=None):
-#        self.slot = UploadSlot(generator.uploadDir)
-#        return self.slot
-#
-#      def __del__(self):
-#        if hasattr(self, 'slot'):
-#          try:
-#            iid = int(cherrypy.request.headers['IID'])
-#          except:
-#            raise cherrypy.HTTPError("400 Bad request",
-#                                     "Bad value (%s) of IID field." % \
-#                                     cherrypy.request.headers['IID'])
-#          try:
-#            actioniid = int(cherrypy.request.headers['ACTIONONIID'])
-#          except:
-#            raise cherrypy.HTTPError("400 Bad request",
-#                                     "Bad value (%s) of ACTIONONIID field." % \
-#                                     cherrypy.request.headers['ACTIONONIID'])
-#
-#          iid =  generator.tileBase.saveSlotAndFinishUpload(
-#                          self.slot, 
-#                          iid, 
-#                          cherrypy.request.headers['ACTION'],
-#                          actioniid)
-#      
-#    formFields = myFieldStorage(fp=cherrypy.request.rfile,
-#                                headers=cherrypy.request.headers,
-#                                environ={'REQUEST_METHOD':'POST'},
-#                                keep_blank_values=True)
-#    return self.generator.uploadFieldStorage(uid, formFields)
+#    return 0
 
   @cherrypy.expose
   @serveContent(UploadNewImageRequest)

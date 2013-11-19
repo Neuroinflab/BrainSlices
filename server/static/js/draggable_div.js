@@ -229,6 +229,7 @@ function CCloseableDiv($div, onOpen, onClose)
   this.$div = $div;
   this.onClose = onClose;
   this.onOpen = onOpen;
+  this.opened = false;
 
   var thisInstance = this;
 
@@ -239,13 +240,17 @@ function CCloseableDiv($div, onOpen, onClose)
    *********************/
   this.close = function()
   {
-    // the 'ESC' button handler is no longer necessary
-    $('body').unbind('keydown', thisInstance.closeByKey);
-    thisInstance.$div.hide();
-
-    if (thisInstance.onClose != null)
+    if (thisInstance.opened)
     {
-      thisInstance.onClose();
+      // the 'ESC' button handler is no longer necessary
+      $('body').unbind('keydown', thisInstance.closeByKey);
+      thisInstance.$div.hide();
+
+      if (thisInstance.onClose != null)
+      {
+        thisInstance.onClose();
+      }
+      thisInstance.opened = false;
     }
   };
 
@@ -266,13 +271,17 @@ function CCloseableDiv($div, onOpen, onClose)
 \*****************************************************************************/
 CCloseableDiv.prototype.open = function()
 {
-  if (this.onOpen != null)
+  if (!this.opened)
   {
-    this.onOpen();
-  }
+    if (this.onOpen != null)
+    {
+      this.onOpen();
+    }
 
-  this.$div.show();
-  $('body').bind('keydown', this.closeByKey);
+    this.$div.show();
+    $('body').bind('keydown', this.closeByKey);
+    this.opened = true;
+  }
 }
 
 /*****************************************************************************\
