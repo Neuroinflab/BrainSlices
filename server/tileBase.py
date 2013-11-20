@@ -214,9 +214,9 @@ class TileBase(dbBase):
 
     cursor.execute("""
                    SELECT CASE WHEN COUNT(*) > 0 THEN %s ELSE %s END,
-                          CASE WHEN BOOL_OR(image_edit) THEN %s ELSE %s END,
-                          CASE WHEN BOOL_OR(image_annotate) THEN %s ELSE %s END,
-                          CASE WHEN BOOL_OR(image_outline) THEN %s ELSE %s END,
+                          CASE WHEN COALESCE(BOOL_OR(image_edit), FALSE) THEN %s ELSE %s END,
+                          CASE WHEN COALESCE(BOOL_OR(image_annotate), FALSE) THEN %s ELSE %s END,
+                          CASE WHEN COALESCE(BOOL_OR(image_outline), FALSE) THEN %s ELSE %s END,
                    FROM image_privileges_cache
                    WHERE iid = %s AND uid = %s;
                    """, (GROUP_PRIVILEGE, view, GROUP_PRIVILEGE, edit,
@@ -777,31 +777,33 @@ class TileBase(dbBase):
       raise KeyError("ERROR: Unable to mark image #%d as identified." % iid)
     
   @provideCursor
-  def imageTiled(self, iid, tileWidth, tileHeight, cursor = None):
+  def imageTiled(self, iid, tileWidth, tileHeight, jpegSize = None,
+                 cursor = None):
     cursor.execute("""
                    UPDATE images
-                   SET status = %s, tile_width = %s, tile_height = %s, fid = iid
+                   SET status = %s, tile_width = %s, tile_height = %s,
+                       fid = iid, jpeg_size = %s
                    WHERE iid = %s AND status = %s;
                    """, (IMAGE_STATUS_TILED, tileWidth, tileHeight,
-                         iid, IMAGE_STATUS_IDENTIFIED))
+                         jpegSize, iid, IMAGE_STATUS_IDENTIFIED))
     if cursor.rowcount != 1:
       raise KeyError("ERROR: Unable to mark image #%d as tiled." % iid)
 
   @provideCursor
-  def imageCompleted(self, iid, md5 = None, cursor = None):
+  def imageCompleted(self, iid, pngSize = None, md5 = None, cursor = None):
     if md5 == None:
       cursor.execute("""
                      UPDATE images
-                     SET status = %s
+                     SET status = %s, png_size = %s
                      WHERE iid = %s AND status = %s;
-                     """, (IMAGE_STATUS_COMPLETED,
+                     """, (IMAGE_STATUS_COMPLETED, pngSize,
                            iid, IMAGE_STATUS_TILED))
     else:
       cursor.execute("""
                      UPDATE images
-                     SET status = %s, image_md5 = %s
+                     SET status = %s, image_md5 = %s, png_size = %s
                      WHERE iid = %s AND status = %s;
-                     """, (IMAGE_STATUS_COMPLETED, md5.lower(),
+                     """, (IMAGE_STATUS_COMPLETED, md5.lower(), pngSize,
                            iid, IMAGE_STATUS_TILED))
 
     if cursor.rowcount != 1:

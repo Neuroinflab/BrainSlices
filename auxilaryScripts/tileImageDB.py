@@ -193,31 +193,34 @@ class imageTiler(object):
     # tile the image
     maxZoomLevel = int(math.ceil(math.log(max(float(self.imageWidth) / self.tileWidth,
                                               float(self.imageHeight) / self.tileHeight), 2)))
+    jpegSize = 0
 
     for zoomLevel in xrange(maxZoomLevel + 1):
       print zoomLevel
       zoomLevelPath = os.path.join(self.directory, "tiles", "%d" % zoomLevel)
       scaleFactor = 0.5 ** (maxZoomLevel - zoomLevel)
-      self.tile(zoomLevelPath,
-                self.tileWidth,
-                self.tileHeight,
-                scaleFactor,
-                quality = self.jpgQuality)
+      jpegSize += self.tile(zoomLevelPath,
+                            self.tileWidth,
+                            self.tileHeight,
+                            scaleFactor,
+                            quality = self.jpgQuality)
 
 
-    tb.imageTiled(self.iid, self.tileWidth, self.tileHeight)
+    tb.imageTiled(self.iid, self.tileWidth, self.tileHeight,
+                  jpegSize = jpegSize)
 
     # create image containing the original bitmap
     self.__complete()
 
   def __complete(self):
     # create image containing the original bitmap
+    pngPath = os.path.join(self.directory, 'image.png')
     raw2png = [os.path.join(directoryName, 'imageProcessing', 'raw2pngMD5')]
     raw2png += ['-size', str(self.imageWidth), str(self.imageHeight)]
     raw2png += ['-compression', '9', '-rle']
     raw2png += ['-limit', str(self.limit / 4)] # just for safety
     raw2png += ['-src', self.filename]
-    raw2png += ['-dst', os.path.join(self.directory, 'image.png')]
+    raw2png += ['-dst', pngPath]
 
     print ' '.join(raw2png)
 
@@ -225,7 +228,9 @@ class imageTiler(object):
     pStdOut, pStdErr = process2png.communicate()
     #process2png.wait()
 
-    tb.imageCompleted(self.iid, md5 = pStdOut)
+    pngSize = os.path.getsize(pngPath)
+
+    tb.imageCompleted(self.iid, pngSize = pngSize, md5 = pStdOut)
     os.remove(self.filename)
   
   def tile(self, destDir, tileWidth, tileHeight, scaleFactor = 1, quality = None):
@@ -257,6 +262,14 @@ class imageTiler(object):
 
     processTile = subprocess.Popen(tile)
     processTile.wait()
+
+    jpegSize = 0
+    for x in xrange(xTiles):
+      columnPath = os.path.join(destDir, '%d' % x)
+      for y in xrange(yTiles):
+        jpegSize += os.path.getsize(os.path.join(columnPath, '%d.jpg' % y))
+
+    return jpegSize
 
 
 def tileImage(iid, tileWidth, tileHeight, jpgQuality = None, resume = False,

@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 10/29/2013 8:50:20 PM
+-- Created on: 2013-11-20 16:44:19
 -- Diagram Version: 
 -- =============================================================================
 
@@ -36,6 +36,8 @@ CREATE TABLE "images" (
 	"public_image_edit" bool NOT NULL DEFAULT False,
 	"public_image_annotate" bool NOT NULL DEFAULT False,
 	"public_image_outline" bool NOT NULL DEFAULT False,
+	"png_size" int4,
+	"jpeg_size" int4,
 	CONSTRAINT "images_pkey" PRIMARY KEY("iid")
 )
 WITH (
