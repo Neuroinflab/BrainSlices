@@ -26,7 +26,7 @@ G{importgraph}
 import unittest
 from datetime import datetime
 
-import re, simplejson
+import re
 
 LOGIN_RE = re.compile('^[a-z0-9-+_.*]+$')
 #EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
@@ -463,7 +463,7 @@ class UploadDataRequest(Request):
     if not Request._parse(self):
       return False
 
-    self._parseArgument('data', None, lambda x: x.fullvalue())
+    self._parseArgument('data', lambda x: len(x) > 0, lambda x: x.fullvalue())
 
     return self.valid
 
@@ -476,7 +476,9 @@ class ContinueImageUploadRequest(UploadDataRequest):
       return False
 
     self._parseArgument('iid', lambda x: x >= 0, int)
-    self._parseArgument('offset', lambda x: x >= 0, int)
+    self._parseArgument('offset',
+                        lambda x: x >= 0 and x <= MAX_FILE_SIZE - len(self.data),
+                        int)
 
     return self.valid
 
@@ -491,7 +493,9 @@ class UploadNewImageRequest(UploadDataRequest):
       return False
 
     self._parseArgument('filename')
-    self._parseArgument('size', lambda x: x >= 0, int)
+    self._parseArgument('size',
+                        lambda x: x >= MIN_FILE_SIZE and x <= MAX_FILE_SIZE,
+                        int)
     self._parseArgument('bid', lambda x: x >= 0, int)
     self._parseArgument('key', lambda x: len(x) > 0,
                         lambda x: x.strip().lower())
@@ -513,14 +517,16 @@ class GetBrokenDuplicatesRequest(Request):
     return self.valid
 
 
-class GetImageStatusRequest(Request):
+class GetImagesStatusesRequest(Request):
   _required = Request._required | frozenset(['iids'])
 
   def _parse(self):
     if not Request._parse(self):
       return False
 
-    self._parseArgument('iids', None, simplejson.loads)
+    self._parseArgument('iids',
+                        lambda x: len(x) > 0 and all(y >= 0 for y in x),
+                        lambda x: [int(y) for y in x.split(',')])
     
     return self.valid
 

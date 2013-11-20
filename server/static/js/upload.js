@@ -705,6 +705,7 @@ function CFileUploader($form, ajaxProvider)
   var to_refresh = [];
   var $dialog = $('#brokenDuplicatePanel');
   var $dialogContent = $dialog.find('.content');
+  var setIntervalId = null;
   var dialog = new CCloseableDiv($dialog,
                                  function()
                                  {
@@ -715,6 +716,11 @@ function CFileUploader($form, ajaxProvider)
                                  function()
                                  {
                                    $dialogContent.html('');
+                                   if (setIntervalId != null)
+                                   {
+                                     clearInterval(setIntervalId);
+                                     setIntervalId = null;
+                                   }
                                  });
 
   /*
@@ -822,8 +828,22 @@ function CFileUploader($form, ajaxProvider)
       // (might be refreshing completed/accepted images)
       if (duplicate_iids.length > 0)
       {
-        var set_interval_id = setInterval(function() {
-          refreshStatusForIids(to_refresh) }, 20*1000);
+        if (setIntervalId != null)
+        {
+          clearInterval(setIntervalId);
+        }
+        setIntervalId = setInterval(function()
+                                    {
+                                      if (to_refresh.length > 0)
+                                      {
+                                        refreshStatusForIids(to_refresh)
+                                      }
+                                      else
+                                      {
+                                        clearInterval(setIntervalId);
+                                        setIntervalId = null;
+                                      }
+                                    }, 20*1000);
       }
 
       $("#upload_status_message").hide().text("Pick what to do...").show();
@@ -907,7 +927,7 @@ function CFileUploader($form, ajaxProvider)
             to_refresh = not_accepted; //XXX: almost global
           }
         },
-        { 'iids': JSON.stringify(iids) }, null, 'POST', {async: false});
+        { 'iids': iids.join(',') }, null, 'POST', {async: false});
   }
   
   /*
@@ -943,7 +963,6 @@ function CFileUploader($form, ajaxProvider)
     var to_upload = [];
     for (var i = 0; i < cFiles; i++)
     {
-      //var radio_ref = $selected_radios.filter("[name='upload_radio_"+i+"']")[0];
       var file = keys[i];
       var $radio_ref = file.$div;
 
