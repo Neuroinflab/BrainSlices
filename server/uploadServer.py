@@ -32,7 +32,7 @@ from server import jsonStd, generateJson, Server, serveContent, ensureLogged,\
                    Generator, useTemplate
 from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
-                    UploadImageWithFieldStorageRequest, GetImageStatusRequest
+                    GetBrokenDuplicatesRequest, GetImageStatusRequest
 
 
 class UploadGenerator(Generator):
@@ -159,7 +159,7 @@ class UploadServer(Server):
 
 #TODO: move to generator...
   @cherrypy.expose
-  @serveContent(UploadImageWithFieldStorageRequest)
+  @serveContent(GetBrokenDuplicatesRequest)
   @ensureLogged
   def getBrokenDuplicates(self, uid, request):
     '''

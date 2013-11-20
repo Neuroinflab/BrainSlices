@@ -31,6 +31,8 @@ import re, simplejson
 LOGIN_RE = re.compile('^[a-z0-9-+_.*]+$')
 #EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
 EMAIL_RE = re.compile('^.+@.+$')
+MIN_FILE_SIZE = 8
+MAX_FILE_SIZE = 1024 * 1024 * 1024
 
 def isstr(s):
   return type(s) is str or type(s) is unicode
@@ -497,7 +499,7 @@ class UploadNewImageRequest(UploadDataRequest):
     return self.valid
 
 
-class UploadImageWithFieldStorageRequest(Request):
+class GetBrokenDuplicatesRequest(Request):
   _required = Request._required | frozenset(['files_details'])
 
   def _parse(self):
@@ -505,8 +507,8 @@ class UploadImageWithFieldStorageRequest(Request):
       return False
 
     self._parseArgument('files_details',
-                        lambda x: len(x) > 0 and all(s > 0 and len(k) > 0 for (k, s) in x),
-                        lambda x: [(k, int(s)) for (k, s) in (y.split(',') for y in x.split(';'))])
+                        lambda x: len(x) > 0 and all(s >= MIN_FILE_SIZE and s <= MAX_FILE_SIZE and len(k) > 0 for (k, s) in x),
+                        lambda x: [(k, int(s)) for (k, s) in (y.split(',') for y in x.split(':'))])
     
     return self.valid
 

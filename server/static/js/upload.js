@@ -274,7 +274,26 @@ function getUploadMonitor($progress, offset, fraction, total)
 \************************************/
 var CHUNK_SIZE = 1024 * 1024;
 
-var MAX_SIMULTANEOUS_UPLOADS = 3; // These many images will be uploaded simultaneously 
+/**************************************\
+ * Constant: MAX_SIMULTANEOUS_UPLOADS *
+ * The maximum number of images being *
+ * uploaded simultaneously.           *
+\**************************************/
+var MAX_SIMULTANEOUS_UPLOADS = 3;
+
+/*************************************\
+ * Constant: MAX_FILE_SIZE           *
+ * The maximum size of file that can *
+ * be uploaded.                      *
+\*************************************/
+var MAX_FILE_SIZE = 1024 * 1024 * 1024;
+
+/*************************************\
+ * Constant: MIN_FILE_SIZE           *
+ * The minimum size of file that can *
+ * be uploaded.                      *
+\*************************************/
+var MIN_FILE_SIZE = 8;
 
 var STATUS_MAP = {'0': 'UPLOADING',
                   '1': 'RECEIVING',
@@ -478,12 +497,9 @@ function CFileUploader($form, ajaxProvider)
 
   function updateFiles()
   {
-    files = $form.find(':file')[0].files;
-    if ($form.find('input[name="filter"]:checked').length > 0)
-    {
-      files = filterImageFiles(files);
-    }
-    files = makeUploadList(files,
+    var filtered = filterImageFiles($form.find(':file')[0].files,
+                                    $form.find('input[name="filter"]:checked').length > 0);
+    files = makeUploadList(filtered,
                            $form.find('.uploadNew .uploads'),
                            true);
   }
@@ -518,7 +534,8 @@ function CFileUploader($form, ajaxProvider)
    *
    * An internal function of <CFileUploader> constructor.
    *
-   * Filter out files of non image type.
+   * Filter out files of improper size and (optionally)
+   * of non image type.
    *
    * Parameters:
    *   files - an array of files
@@ -529,24 +546,55 @@ function CFileUploader($form, ajaxProvider)
    * Todo:
    *   more sophisticated file type filtering
    ********************************************************/
-  function filterImageFiles(files)
+  function filterImageFiles(files, filterImages)
   {
+    var proper = [];
+    var tooBig = [], tooSmall = [], nonImage = [];
     var imageType = /image.*/;
-    var image_files = [];
+
     for (var i = 0; i < files.length; i++)
     {
       var file = files[i];
-      if (file.type.match(imageType))
+      if (file.size < MIN_FILE_SIZE)
       {
-        image_files.push(file);
+        tooSmall.push(file.name);
+        continue;
       }
+      if (file.size > MAX_FILE_SIZE)
+      {
+        tooBig.push(file.name);
+        continue;
+      }
+      if (filterImages && !file.type.match(imageType))
+      {
+        nonImage.push(file.name);
+        continue;
+      }
+      proper.push(file);
     }
 
-    if (files.length != image_files.length)
+    if (proper.length < files.length)
     {
-      alert("Only image files are allowed. Uploading only them if any.");
+      var msg = 'Some of selected files has been filtered out.\n';
+      if (tooBig.length > 0)
+      {
+        msg += 'Files greater than ' + MAX_FILE_SIZE + ' bytes: '
+               + tooBig.join(', ') + '.\n';
+      }
+
+      if (tooSmall.length > 0)
+      {
+        msg += 'Files too small to store any reasonable images: '
+               + tooSmall.join(', ') + '.\n';
+      }
+
+      if (nonImage.length > 0)
+      {
+        msg += 'Files of non-image type:' + nonImage.join(', ') + '.\n';
+      }
+      alert(msg);
     }
-    return image_files;
+    return proper;
   }
   
   /*
@@ -643,7 +691,7 @@ function CFileUploader($form, ajaxProvider)
           alert(response.message);
         }
       },
-      {files_details: details.join(';')},
+      {files_details: details.join(':')},
       function (data)
       {
         alert("Checking File Uploaded Amount: Something went wrong\nRetry upload");
