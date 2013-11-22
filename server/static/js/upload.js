@@ -174,7 +174,7 @@ function makeUploadList(srcFiles, $list, progressBar)
   {
     var file = files[i];
     $list.append('<li>' + file.name + ' (' + file.type + ', ' + file.size +
-                 ')' + (progressBar ? ' <progress max="1"></progress>':'') +
+                 ')' + (progressBar ? ' <progress max="1" value="0"></progress>':'') +
                  '</li>');
   }
 
@@ -603,67 +603,66 @@ function CFileUploader($form, ajaxProvider)
    */ 
   function calc_files_keys_and_trigger_upload($progresses)
   {
-    var currentFile = 0;
     var chunkSize = 1024 * 1024; // 1 MB chunks for generating MD5 hash key
     keys = [];
-    for (var i = 0; i < files.length; i++)
-    {
-      keys.push(new SparkMD5.ArrayBuffer());
-    }
 
-    $(files).each(function(i, file)
-    {
-      var chunks = Math.ceil(file.size / chunkSize);
-      var currentChunk = 0;
-      var spark = keys[i];
-      var $progress = $progresses.eq(i);
+    var currentFile = 0;
+    var currentChunk = 0;
+    var nChunks = null;
+    var spark = null;
+    var file = null;
+    var $progress = null;
 
-      $progress.attr({value: currentChunk, max: chunks});
-      function frOnload(e)
+    function digestNextChunk()
+    {
+      if (currentFile == files.length)
       {
-        spark.append(e.target.result); 
+        return checkDuplicates(); //trigger file upload
+      }
+
+      if (currentChunk == 0)
+      {
+        // file processing initization
+        file = files[currentFile];
+        nChunks = Math.ceil(file.size / chunkSize);
+        spark = new SparkMD5.ArrayBuffer();
+        $progress = $progresses.eq(currentFile).attr({value: 0,
+                                                      max: nChunks});
+      }
+
+      if (currentChunk == nChunks)
+      {
+        keys.push({key: spark.end(),
+                   file: file,
+                   size: file.size,
+                   name: file.name,
+                   type: file.type});
+        $progress.attr('value', nChunks);
+        currentFile++;
+        currentChunk = 0;
+        return digestNextChunk();
+      }
+
+      var fileReader = new FileReader();
+      fileReader.onload = function(e)
+      {
+        spark.append(e.target.result);
         currentChunk++;
-        $progress.attr({value: currentChunk, max: chunks});
-
-        if (currentChunk < chunks)
-        {
-          loadNextSlice();
-        }
-        else
-        {
-          currentFile++;
-          keys[i] = {key: spark.end(),
-                     file: file,
-                     size: file.size,
-                     name: file.name,
-                     type: file.type};
-          if (currentFile == files.length) //the last file
-          {
-            checkDuplicates(); // Trigger file upload 
-          }
-        }
+        $progress.attr('value', currentChunk);
+        return digestNextChunk();
       };
-      function frOnerror(data)
+      fileReader.onerror = function(e)
       {
-        //currentFile++;
-        //keys[i] = null;
         console.warn("File Key Computation: Something went wrong.");
         alert("Reading File: Something went wrong.\nRefresh page and retry.");
-        throw 'MD5 computation error. Upload cannot continue' // Discontinue the upload process
+        throw 'MD5 computation error. Upload cannot continue'
       };
-      function loadNextSlice()
-      {
-        var fileReader = new FileReader();
-        fileReader.onload = frOnload;
-        fileReader.onerror = frOnerror;
+      var start = currentChunk * chunkSize,
+          end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
 
-        var start = currentChunk * chunkSize,
-            end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
-
-        fileReader.readAsArrayBuffer(file.slice(start, end));
-      };
-      loadNextSlice();
-    });
+      fileReader.readAsArrayBuffer(file.slice(start, end));
+    };
+    digestNextChunk();
   }
   
   /* 
@@ -834,53 +833,25 @@ function CFileUploader($form, ajaxProvider)
         }
         setIntervalId = setInterval(function()
                                     {
-                                      if (to_refresh.length > 0)
-                                      {
-                                        refreshStatusForIids(to_refresh)
-                                      }
-                                      else
+                                      if (to_refresh.length == 0)
                                       {
                                         clearInterval(setIntervalId);
                                         setIntervalId = null;
+                                      }
+                                      else
+                                      {
+                                        refreshStatusForIids(to_refresh);
                                       }
                                     }, 20*1000);
       }
 
       $("#upload_status_message").hide().text("Pick what to do...").show();
-/*      $("#dialog").html("").append($dialog_content).dialog({
-        modal: true,
-        buttons: [
-                    { text: "OK", click: function() {
-                        $(this).dialog("close");
-                      }
-                    },
-                    { text: "Cancel", click: function() { 
-                        $(this).children("form")[0].reset();
-                        $(this).dialog("close");
-                      }
-                    }
-                  ],
-        closeText: "Cancel",
-        minWidth: 600,
-        maxWidth: 840,
-        maxHeight: 540,
-        close: function( event, ui )
-        {
-          clearInterval(set_interval_id); // Clear the setInterval call
-          if (event.currentTarget && event.currentTarget.innerText == "Cancel") // When cross button is clicked TODO: A better way to detect when cross button on dialog is pressed
-          {
-            $(this).children("form")[0].reset();
-          }
-          addUploadFileProperties();
-        }
-      });*/
+      refreshStatusForIids(duplicate_iids);
     }
     else
     {
       addUploadFileProperties();
     }
-    
-    refreshStatusForIids(duplicate_iids);
   }
 
   /*
@@ -897,7 +868,9 @@ function CFileUploader($form, ajaxProvider)
    */
   function refreshStatusForIids(iids)
   {
-    ajaxProvider.ajax(
+    if (iids.length > 0)
+    {
+      ajaxProvider.ajax(
         'getImagesStatuses', 
         function(response)
         {
@@ -928,6 +901,7 @@ function CFileUploader($form, ajaxProvider)
           }
         },
         { 'iids': iids.join(',') }, null, 'POST', {async: false});
+    }
   }
   
   /*
