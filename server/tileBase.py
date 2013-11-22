@@ -76,49 +76,6 @@ def launchImageTiling(iid):
   launch.communicate("python %(command)s %(iid)d --threads %(threads)d --limit %(limit)d > %(log)s/%(iid)d_out.txt 2> %(log)s/%(iid)d_err.txt\n" % {'command': tilingCommand, 'iid': iid, 'log': tilingLogs, 'threads': BS_TILER_THREADS, 'limit': BS_TILER_MEMORY})
 
 
-#class UploadSlot(object):
-#  def __init__(self, directory):
-#    self.fh = tempfile.NamedTemporaryFile('w+b', dir=directory)
-#    self.crc32 = 0
-#    self.size = 0
-#
-#  def write(self, data):
-#    if not self.fh.closed:
-#      self.crc32 = zlib.crc32(data, self.crc32)
-#      self.size += len(data)
-#
-#    return self.fh.write(data)
-#
-#  def close(self):
-#    return self.fh.close()
-#
-#  def flush(self):
-#    return self.fh.flush()
-#
-#  def seek(self, *args, **kwargs):
-#    return self.fh.seek(*args, **kwargs)
-#
-#  def finish(self, filename):
-#    '''
-#    Appends the slot data to file passed in bytes
-#    Closes the slot which is must for image upload resume functionality 
-#    '''
-#    try:
-#      self.fh.flush()
-#      fd = open(filename, 'ab')
-#      self.fh.seek(0)
-#      data = self.fh.read(1024 * 1024)
-#      while data:
-#        fd.write(data)
-#        data = self.fh.read(1024 * 1024)
-#
-#      #fd.write(self.fh.read())# XXX: DANGEROUS - read() reads a whole file, so if the file size is about 1GiB and server is running on a PC eith only 512 MiB of RAM - the server is fried
-#      fd.close()
-#      self.fh.close()
-#    except:
-#      pass
-
-
 class TileBase(dbBase):
   def __init__(self, db, tileDir, sourceDir):
     dbBase.__init__(self, db)

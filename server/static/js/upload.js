@@ -307,108 +307,6 @@ var STATUS_MAP = {'0': 'UPLOADING',
                   '-2': 'ERROR'}; // Hash map for the status of an image,
                                   // taken directly from tileBase.py
 
-/*****************************************************************************\
- * Function: getSendNextChunkFunction                                        *
- *                                                                           *
- * Prepare a handler for file chunk upload feedback that would upload the    *
- * next chunk if necessary.                                                  *
- *                                                                           *
- * Parameters:                                                               *
- *   blob - A Blob (or File) object to be uploaded.                          *
- *   $progress - A jQuery object representing the PROGRESS element for       *
- *               upload progress visualisation.                              *
- *   finalFunction - A function to be called when whole data has been        *
- *                   successfully uploaded. The function takes the server    *
- *                   response as its argument (see <standart JSON object>    *
- *                   for details).                                           *
- *   cSize - An integer indicating the maximal size of data chunk to be send *
- *           (defaults to <CHUNK_SIZE>).                                     *
- *                                                                           *
- * Returns:                                                                  *
- *   The handler (see <sendNextChunk> for details).                          *
-\*****************************************************************************/
-function getSendNextChunkFunction(blob, $progress, finalFunction, cSize)
-{
-  if (cSize == null)
-  {
-    cSize = CHUNK_SIZE;
-  }
-
-  if (finalFunction == null)
-  {
-    finalFunction = function(response)
-    {
-      alert('Upload of ' + response.data.size + 'B finished\n' +
-            'iid = ' + response.data.iid + '\n' +
-            'crc32 = ' + response.data.crc32);
-    }
-  }
-
-  /**
-   * Function: sendNextChunk
-   *
-   * An internal function of <getSendNextChunkFunction>.
-   *
-   * Send remaining data chunk by chunk in recurrent (but asynchronous) manner
-   * if there is anything to send, otherwise finish the upload process.
-   *
-   * Parameters:
-   *   response - A <standart JSON object>. Its 'data' attribute contains
-   *              following attributes: 'size' (number of uploaded bytes),
-   *              'iid' (an unique repository identifier of file being
-   *              uploaded), 'crc32' (a HEX string of CRC32 checksum of the
-   *              uploaded data).
-   *
-   * Possible improvements:
-   *   - Check if it is the last chunk to be uploaded and set 'success' AJAX
-   *     handler appropriately instead of checking if the last chunk has been
-   *     already sent?
-   *   - Provide more explicite data read (if possible)?
-   *   - Send data as multipart/form-data?
-   ***************************************************************************/
-  function sendNextChunk(response)
-  {
-    if (!response.status)
-    {
-      alert(response.message);
-      return;
-    }
-
-    if (response.data.size < blob.size)
-    {
-      // send a next chunk if there is more data to send
-      var offset = response.data.size;
-      var chunk = blob.slice(offset, offset + cSize);
-      var form_data = new FormData();
-      form_data.append('data', chunk);
-      form_data.append('iid', response.data.iid);
-      form_data.append('offset', response.data.size);
-
-      $.ajax(
-      {
-        url: 'continueImageUpload',
-        dataType: 'json',
-        type: 'POST',
-        data: form_data,
-        processData: false,
-        contentType: false,
-        cache: false,
-        xhr: getUploadMonitor($progress, offset, Math.min(cSize, blob.size - offset), blob.size),
-        //Ajax events
-        success: sendNextChunk, // recurrention
-        error: ajaxErrorHandler,
-      });
-    }
-    else
-    {
-      // if there is no more data to sent finish the file upload
-      finalFunction(response);
-    }
-  }
-
-  return sendNextChunk;
-}
-
 
 /*****************************************************************************\
  * Class: CFileUploader                                                      *
@@ -1029,48 +927,142 @@ function CFileUploader($form, ajaxProvider)
     var fileNo = 0;
     var inProgress = 0;
     var uploaded = 0;
-  
-    function getUploadedHandler(data)
+
+    /**
+     * Function: getSendNextChunkFunction                                     
+     *
+     * An internal function of <uploadChunkedFiles>.
+     *
+     * Prepare a handler for file chunk upload feedback that would upload the 
+     * next chunk if necessary.                                               
+     *                                                                        
+     * Parameters:                                                            
+     *   blob - A Blob (or File) object to be uploaded.                       
+     *   $progress - A jQuery object representing the PROGRESS element for    
+     *               upload progress visualisation.                           
+     *   finalFunction - A function to be called when whole data has been     
+     *                   successfully uploaded. The function takes the server 
+     *                   response as its argument (see <standart JSON object> 
+     *                   for details).                                        
+     *                                                                        
+     * Returns:                                                               
+     *   The handler (see <sendNextChunk> for details).                       
+    \************************************************************************/
+    function getSendNextChunkFunction(blob, $progress, data)
     {
-      return function(response)
+      if (finalFunction == null)
       {
-        if (response == null || !response.status)
+        finalFunction = function(response)
         {
-          //TODO: customize
+          alert('Upload of ' + response.data.size + 'B finished\n' +
+                'iid = ' + response.data.iid + '\n' +
+                'crc32 = ' + response.data.crc32);
+        }
+      }
+
+      /**
+       * Function: sendNextChunk
+       *
+       * An internal function of <getSendNextChunkFunction>.
+       *
+       * Send remaining data chunk by chunk in recurrent (but asynchronous)
+       * manner if there is anything to send, otherwise finish the upload
+       * process.
+       *
+       * Parameters:
+       *   response - A <standart JSON object>. Its 'data' attribute contains
+       *              following attributes: 'size' (number of uploaded bytes),
+       *              'iid' (an unique repository identifier of file being
+       *              uploaded), 'crc32' (a HEX string of CRC32 checksum of
+       *              the uploaded data).
+       *
+       * Possible improvements:
+       *   - Check if it is the last chunk to be uploaded and set 'success'
+       *     AJAX handler appropriately instead of checking if the last chunk
+       *     has been already sent?
+       *   - Provide more explicite data read (if possible)?
+       *   - Send data as multipart/form-data?
+       **********************************************************************/
+      function sendNextChunk(response)
+      {
+        if (response == null)
+        {
+          alert('Upload failed.');
+          return;
+        }
+        if (!response.status)
+        {
           alert(response.message);
           return;
         }
-    
-        if (uploadedFilesCollection != null)
+
+        if ('bid' in response.data)
         {
-          uploadedFilesCollection.append({name: data.name,
-                                          size: response.data.size,
-                                          iid: response.data.iid,
-                                          crc32: response.data.crc32});
+          //Automatic Bath Management ;-)
+          bid = response.data.bid;
         }
-  
-        uploaded++;
-        inProgress--;
-        if (fileNo < files.length)
+
+        if (response.data.size < blob.size)
         {
-          uploadNextFile();
+          // send a next chunk if there is more data to send
+          var offset = response.data.size;
+          var chunk = blob.slice(offset, offset + cSize);
+          var form_data = new FormData();
+          form_data.append('data', chunk);
+          form_data.append('iid', response.data.iid);
+          form_data.append('offset', response.data.size);
+
+          $.ajax(
+          {
+            url: 'continueImageUpload',
+            dataType: 'json',
+            type: 'POST',
+            data: form_data,
+            processData: false,
+            contentType: false,
+            cache: false,
+            xhr: getUploadMonitor($progress, offset, Math.min(cSize, blob.size - offset), blob.size),
+            //Ajax events
+            success: sendNextChunk, // recurrention
+            error: ajaxErrorHandler,
+          });
         }
         else
         {
-          if (uploaded >= files.length)
+          // if there is no more data to sent finish the file upload
+          if (uploadedFilesCollection != null)
           {
-            if (finalFunction != null)
+            uploadedFilesCollection.append({name: data.name,
+                                            size: response.data.size,
+                                            iid: response.data.iid,
+                                            crc32: response.data.crc32});
+          }
+
+          uploaded++;
+          inProgress--;
+          if (fileNo < files.length)
+          {
+            uploadNextFile();
+          }
+          else
+          {
+            if (uploaded >= files.length)
             {
-              finalFunction();
+              if (finalFunction != null)
+              {
+                finalFunction();
+              }
+              return;
             }
-            return;
           }
         }
       }
+      return sendNextChunk;
     }
+
   
     /**
-     * Function: uploadFileNo
+     * Function: uploadNextFile
      *
      * An internal function of <uploadChunkedFiles>.
      *
@@ -1099,68 +1091,70 @@ function CFileUploader($form, ajaxProvider)
      *     <getSendNextChunkFunction> 'finalFunction' parameter approprietly
      *     instead of checking if the last file has been already sent?
      ***************************************************************************/
-    function uploadNextFile()
+    function uploadNextFile(limit)
     {
-      var file = files[fileNo];
-      var $progress = $progresses.eq(fileNo); //TODO: bugtest it
-      fileNo++;
-      inProgress++;
-  
-      // the first chunk of data will be sent
-      var total = file.size;
-  
-      if (file.iid != null)
+      if (limit == null)
       {
-        getSendNextChunkFunction(file.file,
-                                 $progress,
-                                 getUploadedHandler({name: file.name}),
-                                 CHUNK_SIZE)(
-        {
-          status: true,
-          data: {size: file.uploaded,
-                 iid: file.iid}
-        });
+        limit = MAX_SIMULTANEOUS_UPLOADS;
       }
-      else
+
+      while (fileNo < files.length && inProgress < limit)
       {
-        var form_data = new FormData();
-        form_data.append('data', file.file.slice(0, CHUNK_SIZE));
-        form_data.append('filename', file.name);
-        form_data.append('key', file.key);
-        form_data.append('size', file.size);
-        if (bid != null)
-        {
-          form_data.append('bid', bid);
-        }
-  
+        var file = files[fileNo];
+        var $progress = $progresses.eq(fileNo); //TODO: bugtest it
+        fileNo++;
+        inProgress++;
+    
+        // the first chunk of data will be sent
         var total = file.size;
-        ajaxOptions = {
-          cache: false,
-          contentType: false,
-          processData: false,
-          xhr: getUploadMonitor($progress, 0, Math.min(CHUNK_SIZE, total), total)};
-        ajaxProvider.ajax(
-          'uploadNewImage', 
-          getSendNextChunkFunction(file.file,
-                                   $progress,
-                                   getUploadedHandler({name: file.name}),
-                                   CHUNK_SIZE),
-          form_data,
-          function(data)
+    
+        if (file.iid != null)
+        {
+          getSendNextChunkFunction(file.file, $progress, {name: file.name})(
           {
-            if (data.status == 0 && data.state() == 'rejected')
+            status: true,
+            data: {size: file.uploaded,
+                   iid: file.iid}
+          });
+        }
+        else
+        {
+          var form_data = new FormData();
+          form_data.append('data', file.file.slice(0, cSize));
+          form_data.append('filename', file.name);
+          form_data.append('key', file.key);
+          form_data.append('size', file.size);
+          if (bid != null)
+          {
+            form_data.append('bid', bid);
+          }
+    
+          var total = file.size;
+          ajaxOptions = {
+            cache: false,
+            contentType: false,
+            processData: false,
+            xhr: getUploadMonitor($progress, 0, Math.min(cSize, total), total)};
+          ajaxProvider.ajax(
+            'uploadNewImage', 
+            getSendNextChunkFunction(file.file, $progress, {name: file.name}),
+            form_data,
+            function(data)
             {
-              alert("File Upload: Something went wrong. Possibly no network connection.")
-            }
-            else
-            {
-              alert('File Upload: Something went wrong.\nRetry');
-              console.error('File Upload: Error!');
-              throw 'File Upload: Something went wrong.\nRetry';
-            }
-          },
-          'POST', 
-          ajaxOptions);
+              if (data.status == 0 && data.state() == 'rejected')
+              {
+                alert("File Upload: Something went wrong. Possibly no network connection.")
+              }
+              else
+              {
+                alert('File Upload: Something went wrong.\nRetry');
+                console.error('File Upload: Error!');
+                throw 'File Upload: Something went wrong.\nRetry';
+              }
+            },
+            'POST', 
+            ajaxOptions);
+        }
       }
     }
 
@@ -1168,9 +1162,8 @@ function CFileUploader($form, ajaxProvider)
     {
       finalFunction();
     }
-    while (fileNo < files.length && inProgress < MAX_SIMULTANEOUS_UPLOADS)
-    {
-      uploadNextFile();
-    }
+
+    uploadNextFile(bid == null ? 1 : null);
+    // a chance to fetch a new bid if not defined
   }
 }
