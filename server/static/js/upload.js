@@ -346,6 +346,7 @@ function CFileUploader($form, ajaxProvider)
   var keys = [];
 
   var thisInstance = this;
+  var $batchSelect = $form.find('.batch select');
 
   ajaxProvider.ajax(
     'batchList',
@@ -357,10 +358,10 @@ function CFileUploader($form, ajaxProvider)
         return;
       }
       var list = response.data;
-      var $select = $('.batch select');
+      var $batchSelect = $('.batch select');
       for (var i = 0; i < list.length; i++)
       {
-        $select.append('<option value="' + list[i][0] + '">' +
+        $batchSelect.append('<option value="' + list[i][0] + '">' +
                        escapeHTML(list[i][1]) + '</option>');
       }
 
@@ -376,10 +377,9 @@ function CFileUploader($form, ajaxProvider)
               alert(response.message);
               return;
             }
-            var $select = $('.batch select');
-            $select.append('<option value="' + response.data + '">' +
-                           escapeHTML(comment) + '</option>');
-            $select.val(response.data);
+            $batchSelect.append('<option value="' + response.data.bid + '">' +
+                           escapeHTML(response.data.comment) + '</option>');
+            $batchSelect.val(response.data.bid);
           },
           {comment: comment},
           ajaxErrorHandler,
@@ -405,27 +405,23 @@ function CFileUploader($form, ajaxProvider)
   $form.find(':file').change(updateFiles);
   $form.find('input[name="filter"]').change(updateFiles);
 
-  $form.find('.uploadNew :button').click(function()
-  {
-    // old_chunk_upload();
-     new_chunk_upload();
-  });
-  
-  
   var cFilesUploaded = 0; // has the count of files that are completely uploaded
   var isUploadComplete = false;
-  
-  /*
-   * Uploads the images in chunks. Facilitates a way to resume upload in case of any network failure
-   */
-  function new_chunk_upload()
+
+  $form.find('.uploadNew :button').click(function()
   {
-    //XXX: global value!
-    //files = filterImageFiles($form.find(':file')[0].files);
-    $("#upload_status_message").hide().text("Preparing upload...").show();
-    isUploadComplete = false;
-    calc_files_keys_and_trigger_upload($form.find('.uploadNew .uploads>li>progress'));
-  }
+    if (files.length > 0)
+    {
+      $("#upload_status_message").hide().text("Preparing upload...").show();
+      isUploadComplete = false;
+      calc_files_keys_and_trigger_upload($form.find('.uploadNew .uploads>li>progress'));
+    }
+    else
+    {
+      alert('No files to upload.');
+    }
+  });
+  
   
   /**
    * Function: filterImageFiles
@@ -864,7 +860,11 @@ function CFileUploader($form, ajaxProvider)
    */
   function start_file_upload(files)
   {
-    
+    if (files.length == 0)
+    {
+      //nothing to do, do not bother me, bro
+      return;
+    }
     /*
      * Final function called after all uploads are completesd
      */
@@ -879,14 +879,42 @@ function CFileUploader($form, ajaxProvider)
       isUploadComplete = true; // flag that helps prevent some threads being calling upload function again
     }
 
-    //TODO: more sophisticated approach
-    var bid = $('.batch select').val();
-    uploadChunkedFiles(files,
-                       $form.find('.uploadNew .uploads>li>progress'),
-                       CHUNK_SIZE,
-                       do_upload_complete,
-                       bid != 'None' ? parseInt(bid) : null,
-                       thisInstance.uploaded);
+    var bid = $batchSelect.val();
+    if (bid != 'None')
+    {
+      uploadChunkedFiles(files,
+                         $form.find('.uploadNew .uploads>li>progress'),
+                         CHUNK_SIZE,
+                         do_upload_complete,
+                         parseInt(bid),
+                         thisInstance.uploaded);
+    }
+    else
+    {
+      ajaxProvider.ajax(
+        'newBatch',
+        function(response)
+        {
+          if (!response.status)
+          {
+            alert(response.message);
+            return;
+          }
+          $batchSelect.append('<option value="' + response.data.bid + '">' +
+                         escapeHTML(response.data.comment) + '</option>');
+          $batchSelect.val(response.data.bid);
+          uploadChunkedFiles(files,
+                             $form.find('.uploadNew .uploads>li>progress'),
+                             CHUNK_SIZE,
+                             do_upload_complete,
+                             response.data.bid,
+                             thisInstance.uploaded);
+        },
+        null,
+        ajaxErrorHandler,
+        'POST',
+        {cache: false});
+    }
 
   }
 
@@ -994,12 +1022,6 @@ function CFileUploader($form, ajaxProvider)
         {
           alert(response.message);
           return;
-        }
-
-        if ('bid' in response.data)
-        {
-          //Automatic Bath Management ;-)
-          bid = response.data.bid;
         }
 
         if (response.data.size < blob.size)
@@ -1163,7 +1185,6 @@ function CFileUploader($form, ajaxProvider)
       finalFunction();
     }
 
-    uploadNextFile(bid == null ? 1 : null);
-    // a chance to fetch a new bid if not defined
+    uploadNextFile();
   }
 }

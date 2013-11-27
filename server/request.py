@@ -532,7 +532,8 @@ class GetImagesStatusesRequest(Request):
 
 
 class NewBatchRequest(Request):
-  _required = Request._required | frozenset(['comment'])
+  _optional = dict(Request._optional)
+  _optional.update({'comment': None})
 
   def _parse(self):
     if not Request._parse(self):

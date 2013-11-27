@@ -102,25 +102,18 @@ class UploadGenerator(Generator):
 
   @ensureLogged
   def uploadNewImage(self, uid, request):
-    bid = request.bid
-    newBid = bid is None
-    if newBid:
-      today = datetime.today()
-      desc = today.strftime(' Batch automatically generated %Y.%m.%d %H:%M %Z')
-      bid = self.tileBase.newBatch(uid, desc)
-
     slot = self.tileBase.UploadSlot(uid, filename = request.filename,
                                     declared_size = request.size,
                                     declared_md5 = request.key,
-                                    bid = bid)
-    return self.appendSlot(slot, request.data, bid = bid if newBid else None)
+                                    bid = request.bid)
+    return self.appendSlot(slot, request.data)
 
   @ensureLogged
   def continueImageUpload(self, uid, request):
     slot = self.tileBase.UploadSlot(uid, iid = request.iid)
     return self.appendSlot(slot, request.data, offset = request.offset)
 
-  def appendSlot(self, slot, data, offset = 0, bid = None):
+  def appendSlot(self, slot, data, offset = 0):
     if offset != slot.size:
       print offset, slot.size
       return generateJson(status = False,
@@ -133,15 +126,17 @@ class UploadGenerator(Generator):
             'size': slot.size,
             'crc32': format(slot.crc32 & 0xffffffff, "08x")}
 
-    if bid is not None:
-      data['bid'] = bid
-
     return generateJson(data, logged = True)
 
   @ensureLogged
   def newBatch(self, uid, request):
-    bid = self.tileBase.newBatch(uid, comment = request.comment)
-    return generateJson(bid, logged = True)
+    comment = request.comment
+    if comment is None:
+      today = datetime.today()
+      comment = today.strftime(' Batch automatically generated %Y.%m.%d %H:%M %Z')
+
+    bid = self.tileBase.newBatch(uid, comment = comment)
+    return generateJson({'bid': bid, 'comment': comment}, logged = True)
 
   @ensureLogged
   def batchList(self, uid, request):
