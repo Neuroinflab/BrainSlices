@@ -238,3 +238,24 @@ form[name=confirmationForm] p
   text-align: center;
   width: 30em;
 }
+
+/* UPLOAD GUI CSS TEMPORARY HACKS */
+
+#layersConsole
+{
+  max-height: 20ex;
+  overflow-y: auto;
+}
+
+#upload ul.uploads
+{
+  max-height: 20ex;
+  overflow-y: auto;
+}
+
+#upload table.uploaded>tbody
+{
+  max-height: 20ex;
+  overflow-y: auto;
+  display: block;
+}

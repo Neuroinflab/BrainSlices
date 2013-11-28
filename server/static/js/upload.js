@@ -107,8 +107,9 @@ CUploadedImages.prototype.reset = function(images)
 CUploadedImages.prototype.append = function(image)
 {
   this.images.push(image);
+  var crc32 = ("00000000" + (image.crc32 > 0 ? image.crc32 : 0x100000000 - image.crc32).toString(16)).substr(-8);
   this.$table.append('<tr><td>' + image.name + '</td><td>' + image.size +
-                     '</td><td>' + image.iid + '</td><td>' + image.crc32 +
+                     '</td><td>' + image.iid + '</td><td>' + crc32 +
                      '</td></tr>');
 }
 
@@ -775,15 +776,16 @@ function CFileUploader($form, ajaxProvider)
             var not_accepted = [];
             for (var i = 0; i < iid_status.length; i++)
             {
+              // XXX: iid_status might be not ordered!!!
               var row = iid_status[i];
-              var iid = row[0];
-              var status = row[1];
+              var iid = row.iid;
+              var status = row.status;
               span = $dialogContent.find("span[data-iid='"+iid+"']");
               $(span).text(STATUS_MAP[status]);
               $(span).parent("li").find("img").remove(); // Remove existing images if any
               if (status >= 6)
               {
-                $(span).parent("li").append(getThumbnail(iid, row[2], row[3]));
+                $(span).parent("li").append(getThumbnail(iid, row.imageWidth, row.imageHeight));
               }
 
               if (status < 7)

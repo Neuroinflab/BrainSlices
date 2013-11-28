@@ -219,7 +219,8 @@ CSynchronizedStacksDisplay.prototype.syncStop = function()
 CSynchronizedStacksDisplay.prototype.addTileLayer = function(imageId,
                                                              path,
                                                              zIndex,
-                                                             label)
+                                                             label,
+                                                             info)
 {
   var id = 'i' + imageId;
 
@@ -272,7 +273,8 @@ CSynchronizedStacksDisplay.prototype.addTileLayer = function(imageId,
 
   this.layers.splice(zIndex, 0, layer);
 
-  this.images.cacheTiledImage(id, path, function()
+
+  function finishCaching()
   { // car z = zIndex ??
     //TODO: move to separated method?
     for (var z = 0; z < thisInstance.layers.length; z++)
@@ -283,11 +285,20 @@ CSynchronizedStacksDisplay.prototype.addTileLayer = function(imageId,
         thisInstance.images.setZ(imageID, z);
       }
     }
-
+  
     thisInstance.updateTopZ(thisInstance.layers.length - 1);
-
+  
     thisInstance.arrangeInterface();
-  }, $iface);
+  }
+
+  if (info == null)
+  {
+    this.images.cacheTiledImage(id, path, finishCaching, $iface);
+  }
+  else
+  {
+    this.images.cacheTiledImageOffline(id, path, info, finishCaching, $iface);
+  }
   // onSuccess shall update interface and z-indices
   return id;
 }

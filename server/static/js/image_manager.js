@@ -133,6 +133,47 @@ CImageManager.prototype.updateCachedTiledImage = function(id, path, onSuccess, i
   this.cacheTiledImage(id, path, onSuccess, iface);
 }
 
+CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSuccess, iface, zIndex)
+{
+  if (!this.has(id))
+  {
+    var cachedImage = {};
+    cachedImage.changed = false;
+    cachedImage.info = data;
+
+    //fix invalid metadata
+    if (data.imageLeft == undefined)
+    {
+      data.imageLeft = 0;
+      cachedImage.changed = true;
+    }
+    if (data.imageTop == undefined)
+    {
+      data.imageTop = 0;
+      cachedImage.changed = true;
+    }
+    if (data.pixelSize == undefined)
+    {
+      data.pixelSize = 100000 / data.imageWidth;
+      cachedImage.changed = true;
+    }
+    cachedImage.references = {};
+    cachedImage.path = path;
+    cachedImage.type = 'tiledImage';
+    cachedImage.cacheId = 0;
+    cachedImage.iface = iface;
+    cachedImage.id = id;
+    cachedImage.z = zIndex != null ? zIndex : 0;
+    this.images[id] = cachedImage;
+    this.bindImageInterface(id, iface);
+  }
+
+  if (onSuccess != null)
+  {
+    onSuccess(this.images[id]);
+  }
+}
+
 CImageManager.prototype.cacheTiledImage = function(id, path, onSuccess, iface, zIndex)
 {
   var thisInstance = this;
@@ -146,43 +187,7 @@ CImageManager.prototype.cacheTiledImage = function(id, path, onSuccess, iface, z
     {
       if (data.status)
       {
-        if (!thisInstance.has(id))
-        {
-          var cachedImage = {};
-          cachedImage.changed = false;
-          cachedImage.info = data.data;
-
-          //fix invalid metadata
-          if (data.data.imageLeft == undefined)
-          {
-            data.data.imageLeft = 0;
-            cachedImage.changed = true;
-          }
-          if (data.data.imageTop == undefined)
-          {
-            data.data.imageTop = 0;
-            cachedImage.changed = true;
-          }
-          if (data.data.pixelSize == undefined)
-          {
-            data.data.pixelSize = 100000 / data.data.imageWidth;
-            cachedImage.changed = true;
-          }
-          cachedImage.references = {};
-          cachedImage.path = path;
-          cachedImage.type = 'tiledImage';
-          cachedImage.cacheId = 0;
-          cachedImage.iface = iface;
-          cachedImage.id = id;
-          cachedImage.z = zIndex != null ? zIndex : 0;
-          thisInstance.images[id] = cachedImage;
-          thisInstance.bindImageInterface(id, iface);
-        }
-
-        if (onSuccess != null)
-        {
-          onSuccess(thisInstance.images[id]);
-        }
+        thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, iface, zIndex);
       }
       else
       {

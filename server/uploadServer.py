@@ -83,22 +83,31 @@ class UploadGenerator(Generator):
   def index(self):
     return [], []
 
-  def getBrokenDuplicateFiles(self, uid, key, size):
+  @ensureLogged
+  def getBrokenDuplicates(self, uid, request):
     '''
     Gets the list of broken and duplicate uploads for the file
     Creates a new slot by inserting a new row in DB facilitating new uploads 
     '''
-    broken = self.tileBase.getBrokenImages(uid, key, size)
-    duplicates = self.tileBase.getDuplicateImages(uid, key, size)
-    return (broken, duplicates)
+    images_path = self.tileBase.sourceDir
+    data = []
+    for key, size in request.files_details:
+      broken = self.tileBase.getBrokenImages(uid, key, size)
+      duplicates = self.tileBase.getDuplicateImages(uid, key, size)
+      data.append((broken, duplicates))
 
-  def getImagesStatuses(self, iids):
+    return generateJson(data = data, status = True, logged = uid != None)
+
+  @ensureLogged
+  def getImagesStatuses(self, uid, request):
     '''
     Makes a DB call to get the status of each IID passed
     Returns a hash of {iid: status}
     '''
-    iids_statuses = self.tileBase.getImagesStatuses(iids)
-    return iids_statuses
+    iids_statuses = self.tileBase.getImagesStatuses(uid, request.iids)
+    return generateJson(data = iids_statuses,
+                        status = True,
+                        logged = uid != None)
 
   @ensureLogged
   def uploadNewImage(self, uid, request):
@@ -122,11 +131,9 @@ class UploadGenerator(Generator):
 
     slot.write(data)
     slot.close()
-    data = {'iid': slot.iid,
-            'size': slot.size,
-            'crc32': format(slot.crc32 & 0xffffffff, "08x")}
-
-    return generateJson(data, logged = True)
+    return generateJson({'iid': slot.iid,
+                         'size': slot.size,
+                         'crc32': slot.crc32}, logged = True)
 
   @ensureLogged
   def newBatch(self, uid, request):
@@ -164,42 +171,23 @@ class UploadServer(Server):
     return self.generator.index()
     # remove after tests
 
-#TODO: move to generator...
   @cherrypy.expose
   @serveContent(GetBrokenDuplicatesRequest)
-  @ensureLogged
-  def getBrokenDuplicates(self, uid, request):
+  def getBrokenDuplicates(self, request):
     '''
     Returns the list of broken and duplicate files found for the array of files passed.
     For each file creates a new slot (row) in DB. Depending on the user's selection this new
     row is either retained or removed during upload call.
     '''
-    images_path = self.tileBase.sourceDir
-    data = []
-    for key, size in request.files_details:
-      broken, duplicates = self.generator.getBrokenDuplicateFiles(uid, key, size)
-      data.append((broken, duplicates))
-
-    return generateJson(data = data, status = True, logged = True)
+    return self.generator.getBrokenDuplicates(request)
 
   @cherrypy.expose
   @serveContent(GetImagesStatusesRequest)
-  @ensureLogged
-  def getImagesStatuses(self, uid, request):
+  def getImagesStatuses(self, request):
     '''
     Returns the status of each iid passed. Bulk API
     '''
-    iids_statuses = self.generator.getImagesStatuses(request.iids)
-    return generateJson(data = iids_statuses, status = True, logged = True)
-
-#  def getFilesize(self, file_path):
-#    '''
-#    Returns the file size if the file exists in file system, else returns 0
-#    '''
-#    if os.path.isfile(file_path):
-#      return int(os.path.getsize(file_path))
-#
-#    return 0
+    return self.generator.getImagesStatuses(request)
 
   @cherrypy.expose
   @serveContent(UploadNewImageRequest)

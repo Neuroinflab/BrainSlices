@@ -44,15 +44,22 @@ function listBatch()
       stacks.flush();
       fileUploader.uploaded.reset();
 
-			for (var id in data.data)
+			for (var i = 0; i < data.data.length; i++)
 			{
-        var image = data.data[id];
-        if (image[0] >= 6)
+        var image = data.data[i];
+        var id = image.iid;
+        if (image.status >= 6)
         {
           // status: completed
-          stacks.addTileLayer(id, '/images/' + id, null, image[6]); 
+          stacks.addTileLayer(id, '/images/' + id, null, image.filename, image);
         }
-        fileUploader.uploaded.append({name: image[6] + (image[0] == 7 ? '' : '(' + image[0] + ')'), size: image[4], iid: id, crc32: image[3]});
+        fileUploader.uploaded.append({
+          name: image.filename + (image.status == 7 ?
+                                   '' :
+                                   ' (' + STATUS_MAP[image.status] + ')'),
+          size: image.sourceFilesize,
+          iid: id,
+          crc32: image.sourceCRC32});
 			}
     },
     error: ajaxErrorHandler

@@ -223,7 +223,7 @@ class TileBase(dbBase):
                             extraFields = """,
                             image_top, image_left, image_width, image_height,
                             tile_width, tile_height, pixel_size,
-                            image_crc32, image_md5""")
+                            image_crc32, image_md5, iid, status""")
     if isinstance(row, tuple):
       return {'imageTop': row[0],
               'imageLeft': row[1],
@@ -233,7 +233,9 @@ class TileBase(dbBase):
               'tileHeight': row[5],
               'pixelSize': row[6],
               'crc32': row[7], # previously was a hex string
-              'md5': row[8]}
+              'md5': row[8],
+              'iid': row[9],
+              'status': row[10]}
 
     if isinstance(row, bool):
       return row
@@ -316,29 +318,43 @@ class TileBase(dbBase):
 
     if bid != None:
       cursor.execute("""
-                     SELECT iid, status, image_crc32, invalid, source_crc32,
+                     SELECT image_top, image_left, image_width, image_height,
+                            tile_width, tile_height, pixel_size,
+                            image_crc32, image_md5, iid, status,
+
+                            invalid, source_crc32,
                             source_filesize, declared_size, filename
                      FROM images
                      WHERE owner = %s AND bid = %s;
                      """, (uid, bid))
     else:
       cursor.execute("""
-                     SELECT iid, status, image_crc32, invalid, source_crc32,
+                     SELECT image_top, image_left, image_width, image_height,
+                            tile_width, tile_height, pixel_size,
+                            image_crc32, image_md5,
+                            iid, status, invalid, source_crc32,
                             source_filesize, declared_size, filename
                      FROM images
                      WHERE owner = %s AND bid IS NULL;
                      """, (uid,))
 
     #TODO: check for batch existence???
-    #TODO: send crc32 as int?
-
-    return dict((iid, (status,
-                       format(image_crc32 & 0xffffffff, '08x') if image_crc32 != None else None, invalid,
-                       format(source_crc32 & 0xffffffff, '08x'),
-                       source_filesize, declared_size, filename)) \
-                for (iid, status, image_crc32, invalid, source_crc32,
-                     source_filesize, declared_size, filename) \
-                in cursor.fetchall())
+    return [{'imageTop': row[0],
+             'imageLeft': row[1],
+             'imageWidth': row[2],
+             'imageHeight': row[3],
+             'tileWidth': row[4],
+             'tileHeight': row[5],
+             'pixelSize': row[6],
+             'crc32': row[7],
+             'md5': row[8],
+             'iid': row[9],
+             'status': row[10], #info.json ends here
+             'invalid': row[11],
+             'sourceCRC32': row[12],
+             'sourceFilesize': row[13],
+             'declaredFilesize': row[14],
+             'filename': row[15]} for row in cursor.fetchall()]
 
   @provideCursor
   def closeBatch(self, uid, bid, comment = None, cursor = None):
@@ -435,8 +451,8 @@ class TileBase(dbBase):
                          IMAGE_STATUS_ACCEPTED))
     r = cursor.fetchall()
     if r:
-      # TODO: is str conversion necessary?
-      return [(str(row[0]), str(row[1]), row[2], imageHash) for row in r\
+      # row[0] and row[1] was casted to str
+      return [(row[0], row[1], row[2], imageHash) for row in r\
               if self.canAccessImage(row[0], uid,
                                      thresholdStatus = IMAGE_STATUS_RECEIVED)]
 
@@ -466,16 +482,31 @@ class TileBase(dbBase):
     return []
   
   @provideCursor
-  def getImagesStatuses(self, iids, cursor = None):
+  def getImagesStatuses(self, uid, iids, cursor = None):
     '''
     Returns an array of tuples of iid and status
     '''
-    if len(iids) == 0:
-      return []
+    statuses = []
+    for iid in iids:
+      row = self.canAccessImage(iid, uid, thresholdStatus = IMAGE_STATUS_RECEIVED,
+      extraFields = """,
+                    image_top, image_left, image_width, image_height,
+                    tile_width, tile_height, pixel_size,
+                    image_crc32, image_md5, iid, status""")
+      if row:
+        statuses.append({'imageTop': row[0],
+                         'imageLeft': row[1],
+                         'imageWidth': row[2],
+                         'imageHeight': row[3],
+                         'tileWidth': row[4],
+                         'tileHeight': row[5],
+                         'pixelSize': row[6],
+                         'crc32': row[7], # previously was a hex string
+                         'md5': row[8],
+                         'iid': row[9],
+                         'status': row[10]})
 
-    iids_str = ",".join([str(iid) for iid in iids])
-    cursor.execute("SELECT iid, status, image_width, image_height FROM images where iid in (" + iids_str + ")")
-    return cursor.fetchall()
+    return statuses
 
   @provideCursor
   def makeUploadSlot(self, uid, filename, declared_size, bid = None,
