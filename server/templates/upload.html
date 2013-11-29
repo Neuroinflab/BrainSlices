@@ -51,7 +51,7 @@ function listBatch()
         if (image.status >= 6)
         {
           // status: completed
-          stacks.addTileLayer(id, '/images/' + id, null, image.filename, image);
+          stacks.addTileLayer(id, '/images/' + id, null, image.filename, image, false);
         }
         fileUploader.uploaded.append({
           name: image.filename + (image.status == 7 ?
@@ -61,6 +61,7 @@ function listBatch()
           iid: id,
           crc32: image.sourceCRC32});
 			}
+      stacks.updateOrder();
     },
     error: ajaxErrorHandler
   });

@@ -243,19 +243,19 @@ form[name=confirmationForm] p
 
 #layersConsole
 {
-  max-height: 20ex;
+  max-height: 10ex;
   overflow-y: auto;
 }
 
 #upload ul.uploads
 {
-  max-height: 20ex;
+  max-height: 10ex;
   overflow-y: auto;
 }
 
-#upload table.uploaded>tbody
+#uploadDiv
 {
-  max-height: 20ex;
+  max-height: 10ex;
   overflow-y: auto;
-  display: block;
+  display: inline-block;
 }

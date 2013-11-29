@@ -220,8 +220,14 @@ CSynchronizedStacksDisplay.prototype.addTileLayer = function(imageId,
                                                              path,
                                                              zIndex,
                                                              label,
-                                                             info)
+                                                             info,
+                                                             update)
 {
+  if (update == null)
+  {
+    update = true;
+  }
+
   var id = 'i' + imageId;
 
   for (var i = 0; i < this.layers.length; i++)
@@ -274,22 +280,15 @@ CSynchronizedStacksDisplay.prototype.addTileLayer = function(imageId,
   this.layers.splice(zIndex, 0, layer);
 
 
-  function finishCaching()
-  { // car z = zIndex ??
-    //TODO: move to separated method?
-    for (var z = 0; z < thisInstance.layers.length; z++)
-    {
-      var imageID = thisInstance.layers[z].id;
-      if (thisInstance.images.has(imageID))
-      {
-        thisInstance.images.setZ(imageID, z);
-      }
-    }
-  
-    thisInstance.updateTopZ(thisInstance.layers.length - 1);
-  
-    thisInstance.arrangeInterface();
-  }
+  var finishCaching = update ?
+                      function()
+                      {
+                        if (update)
+                        {
+                          thisInstance.updateOrder();
+                        }
+                      } :
+                      null;
 
   if (info == null)
   {
@@ -301,6 +300,21 @@ CSynchronizedStacksDisplay.prototype.addTileLayer = function(imageId,
   }
   // onSuccess shall update interface and z-indices
   return id;
+}
+
+CSynchronizedStacksDisplay.prototype.updateOrder = function()
+{
+  for (var z = 0; z < this.layers.length; z++)
+  {
+    var imageID = this.layers[z].id;
+    if (this.images.has(imageID))
+    {
+      this.images.setZ(imageID, z);
+    }
+  }
+
+  this.updateTopZ(this.layers.length - 1);
+  this.arrangeInterface();
 }
 
 CSynchronizedStacksDisplay.prototype.updateTopZ = function(z)
