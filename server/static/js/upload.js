@@ -867,10 +867,20 @@ function CFileUploader($form, ajaxProvider)
       //nothing to do, do not bother me, bro
       return;
     }
+
+		var uploadNewFiles = false;
+		for (var i = 0; i < files.length; i++)
+		{
+			if (files[i].iid == undefined)
+			{
+				uploadNewFiles = true;
+				break;
+			}
+		}
+
     /*
      * Final function called after all uploads are completesd
      */
-
     function do_upload_complete()
     {
       $("#upload_status_message").hide().text("Upload complete!").show();
@@ -882,7 +892,7 @@ function CFileUploader($form, ajaxProvider)
     }
 
     var bid = $batchSelect.val();
-    if (bid != 'None')
+    if (bid != 'None' || !uploadNewFiles)
     {
       uploadChunkedFiles(files,
                          $form.find('.uploadNew .uploads>li>progress'),

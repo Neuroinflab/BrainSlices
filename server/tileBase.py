@@ -33,11 +33,6 @@ from database import provideCursor, dbBase
 
 
 import ctypes
-import ctypes.util
-_zlib = ctypes.cdll.LoadLibrary(ctypes.util.find_library('z'))
-assert _zlib._name, "Unable to load zlib with ctype"
-def crc32_combine(crc1, crc2, len2):
-  return 0xffffffff & _zlib.crc32_combine(crc1, crc2, len2)
 
 
 IMAGE_STATUS_UPLOADING = 0
@@ -563,35 +558,6 @@ class TileBase(dbBase):
     return cursor.fetchone()
 
   @provideCursor
-  def updateUploadSlot(self, iid, crc32, size, finish = False, launch = True, cursor = None):
-    cursor.execute("""
-                   SELECT source_filesize, source_crc32
-                   FROM images
-                   WHERE iid = %s;
-                   """, (iid,))
-    if cursor.rowcount == 1:
-      _size, _crc32 = cursor.fetchone()
-      crc32 = crc32_combine(_crc32, crc32, size)
-      size += _size
-
-    cursor.execute("""
-                   UPDATE images
-                   SET source_crc32 = %s, source_filesize = %s, status = %s,
-                       upload_end = now()
-                   WHERE iid = %s;
-                   """, (ctypes.c_int32(crc32).value, size,
-                         IMAGE_STATUS_RECEIVED if finish else IMAGE_STATUS_UPLOADING,
-                         iid))
-    if cursor.rowcount == 1:
-      if finish and launch:
-#         pass
-        launchImageTiling(iid)
-
-      return True
-
-    return False
-
-  @provideCursor
   def writeUploadSlot(self, iid, crc32, size, finish = False, launch = True, cursor = None):
     cursor.execute("""
                    UPDATE images
@@ -603,93 +569,11 @@ class TileBase(dbBase):
                          iid))
     if cursor.rowcount == 1:
       if finish and launch:
-#         pass
         launchImageTiling(iid)
 
       return True
 
     return False
-
-
-  @provideCursor
-  def appendSlot(self, uid, slot, filename, bid = None, declared_md5 = None,
-                 launch = True, cursor = None):
-    if uid == None:
-      return None
-
-    iid = self.makeUploadSlot(uid, filename, slot.size, bid = bid,
-                              declared_md5 = declared_md5, cursor = cursor)
-    if iid == None:
-      return None
-
-    slot.finish(os.path.join(self.sourceDir, "%d" % iid))
-    if self.writeUploadSlot(iid, slot.crc32, slot.size, True, launch = launch, cursor = cursor):
-      return iid
-    
-    return None
-  
-  def saveSlotAndFinishUpload(self, slot, iid, action, actionOnIid):
-    '''
-    Based on the action key passed, 
-    For Stop upload action: Removes the new row added for new image upload
-    For New image upload action: writes the byte data into sourceImage folder. If completely uploaded, triggers tiling
-    For resume image upload action: appends the byte data to passed destination / actionOnIid image
-    For new and resume uploads, source_filesize is updated depending on size of image in the file system
-    '''
-    if action is 's' or action is 'r':
-      self.removeIids([iid])
-  
-    if action is 'r': 
-      iid = actionOnIid
-
-    if action is 'n' or action is 'r':
-      filepath = os.path.join(self.sourceDir, "%s" % iid) 
-      slot.finish(filepath)
-    
-      filesystemSize = 0
-      if os.path.isfile(filepath):
-        filesystemSize = int(os.path.getsize(filepath)) 
-
-      dbSize, declaredSize = self.getSourceFileSize(iid)
-      computedSize = dbSize + slot.size
-
-      if filesystemSize == computedSize:
-        self.updateUploadSlot(iid, slot.crc32, slot.size,
-                              computedSize == declaredSize)
-        return iid
-
-      self.imageInvalid(iid, "Filesystem size mismatches database size.")
-      return None
-
-  @provideCursor
-  def getDeclaredFileSize(self, iid, cursor = None):
-    '''
-    Returns the declared filesize from DB
-    '''
-    cursor.execute('SELECT declared_size from images where iid = %s', (iid,))
-    return cursor.fetchone()[0]
-  
-  @provideCursor
-  def getSourceFileSize(self, iid, cursor = None):
-    '''
-    Returns the declared filesize from DB
-    '''
-    cursor.execute("""
-                   SELECT source_filesize, declared_size
-                   FROM images
-                   WHERE iid = %s;
-                   """, (iid,))
-    if cursor.rowcount == 1:
-      return cursor.fetchone()
-  
-  @provideCursor
-  def removeIids(self, iids, cursor = None):
-    '''
-    Removes rows with iids from DB
-    '''
-    iids_str = ','.join([str(iid) for iid in iids])
-    cursor.execute('DELETE from images where iid in ('+iids_str+')')
-    # XXX: might be dangerous
 
   @provideCursor
   def acceptImage(self, uid, iids, imageRes, imageLeft = 0., imageTop = 0.,

@@ -257,5 +257,5 @@ form[name=confirmationForm] p
 {
   max-height: 10ex;
   overflow-y: auto;
-  display: inline-block;
+/*  display: inline-block;*/
 }

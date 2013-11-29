@@ -68,9 +68,6 @@ def uploadImage(uid, srcFilename, bid = None):
   for data in ifh:
     slot.write(data)
 
-#  iid = tb.appendSlot(uid, slot, srcFilename, declared_md5 = md5.hexdigest(),
-#                      bid = bid, launch = False)
-
   ifh.close()
   slot.close(False)
   return slot.iid
