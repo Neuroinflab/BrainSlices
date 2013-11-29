@@ -33,7 +33,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),
                                              '../server')))
 
 from database import db
-from tileBase import TileBase, UploadSlot
+from tileBase import TileBase
 
 #redundant with tileImageDB.py
 def ensureDirPath(directory):
@@ -55,19 +55,25 @@ tileDirectory = os.path.abspath(os.path.join(os.path.dirname(__file__),
 tb = TileBase(db, tileDirectory, sourceDirectory)
 
 def uploadImage(uid, srcFilename, bid = None):
-  slot = UploadSlot(uploadDirectory)
   ifh = open(srcFilename, "rb")
   md5 = hashlib.md5()
+  size = 0
+  for data in ifh:
+    md5.update(data)
+    size += len(data)
+
+  slot = tb.UploadSlot(uid, filename=srcFilename, bid=bid, declared_size = size,
+                       declared_md5 = md5.hexdigest())
+  ifh.seek(0)
   for data in ifh:
     slot.write(data)
-    md5.update(data)
 
-  iid = tb.appendSlot(uid, slot, srcFilename, declared_md5 = md5.hexdigest(),
-                      bid = bid, launch = False)
+#  iid = tb.appendSlot(uid, slot, srcFilename, declared_md5 = md5.hexdigest(),
+#                      bid = bid, launch = False)
 
   ifh.close()
-  slot.close()
-  return iid
+  slot.close(False)
+  return slot.iid
 
 if __name__ == '__main__':
   usage = "Usage: %prog [options] <uid> <filename> [<filename> ...]"
