@@ -422,11 +422,11 @@ class TileBase(dbBase):
       def seek(self, *args, **kwargs):
         return self.fh.seek(*args, **kwargs)
 
-      def close(self):
+      def close(self, launch = True):
         if not self.fh.closed:
           self.fh.flush()
           thisInstance.writeUploadSlot(self.iid, self.crc32, self.size,
-                                       finish = self.todo == 0)
+                                       finish = self.todo == 0, launch = launch)
 
         return self.fh.close()
 
