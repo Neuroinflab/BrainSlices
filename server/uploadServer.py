@@ -69,7 +69,8 @@ class UploadGenerator(Generator):
 
     controlPanel = self.templateEngine('draggableWindow.html')
     controlPanel['__windowId__'] = 'controlPanel'
-    controlPanel['<!--%title%-->'] = 'Control panel; cursor at: <span class="mouseX"></span>, <span class="mouseY"></span>'
+    controlPanel['<!--%title%-->'] = """Control panel; cursor at: <span class="mouseX"></span>, <span class="mouseY"></span>
+                                        <a href="javascript:void(0)" id="loginLink">login</a><a href="javascript:void(0)" id="logoutLink"></a>"""
 
     acceptControlPanel = self.templateEngine('acceptPanel.html')
     controlPanel['<!--%content%-->'] = acceptControlPanel
@@ -77,6 +78,7 @@ class UploadGenerator(Generator):
     upload = self.templateEngine('upload.html')
     upload['<!--%controlPanel%-->'] = controlPanel
     upload['<!--%brokenDuplicatePanel%-->'] = self.templateEngine('brokenDuplicatePanel.html')
+    upload['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
     self['index'] = upload
 
   @useTemplate('index')
