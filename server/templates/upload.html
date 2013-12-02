@@ -41,8 +41,20 @@ function listBatch()
         return false;
       }
 
-      stacks.flush();
+      layerManager.flush();
       fileUploader.uploaded.reset();
+      data.data.sort(function(a, b)
+                     {
+                       if (a.filename < b.filename)
+                       {
+                         return -1;
+                       }
+                       if (a.filename > b.filename)
+                       {
+                         return 1;
+                       }
+                       return a.iid - b.iid;
+                     });
 
 			for (var i = 0; i < data.data.length; i++)
 			{
@@ -51,7 +63,7 @@ function listBatch()
         if (image.status >= 6)
         {
           // status: completed
-          stacks.addTileLayer(id, '/images/' + id, null, image.filename, image, false);
+          layerManager.addTileLayer(id, '/images/' + id, null, image.filename, image, false);
         }
         fileUploader.uploaded.append({
           name: image.filename + (image.status == 7 ?
@@ -61,7 +73,7 @@ function listBatch()
           iid: id,
           crc32: image.sourceCRC32});
 			}
-      stacks.updateOrder();
+      layerManager.updateOrder();
     },
     error: ajaxErrorHandler
   });
@@ -77,28 +89,28 @@ function rearrangeInterface()
   var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
 
   stacks.rearrange(nx, ny, width);
-  stacks.arrangeInterface();
+  layerManager.arrangeInterface();
 }
 
 function compressStacks()
 {
-  var images = stacks.loadedImagesOrdered();
+  var images = layerManager.loadedImagesOrdered();
   stacks.rearrange(1, 1);
   for (var i = 0; i < images.length; i++)
   {
     if (!stacks.has(0, images[i]))
     {
-      stacks.load(0, images[i], true);
+      layerManager.load(0, images[i], true);
     }
   }
-  stacks.arrangeInterface();
+  layerManager.arrangeInterface();
   $('#nx').val(stacks.nx);
   $('#ny').val(stacks.ny);
 }
 
 function decompressStacks()
 {
-  var images = stacks.loadedImagesOrdered();
+  var images = layerManager.loadedImagesOrdered();
   var nx = $('#nx').val();
   var ny = $('#ny').val();
   var nxCor = nx * ny < images.length ?
@@ -108,14 +120,15 @@ function decompressStacks()
   var width = display == 'matrix' ?
               null :
               parseInt(Math.max(100, 66 * nxCor / ny)) + '%';
-  stacks.unloadAll();
+  layerManager.unloadAll();
   stacks.rearrange(nxCor, ny, width);
   for (var i = 0; i < images.length; i++)
   {
-    stacks.load(i, images[images.length - 1 - i], true);
+    //stacks.load also shall work
+    layerManager.load(i, images[images.length - 1 - i], true);
   }
 
-  stacks.arrangeInterface();
+  layerManager.arrangeInterface();
   $('#nx').val(stacks.nx);
   $('#ny').val(stacks.ny);
 }
@@ -152,6 +165,7 @@ $(document).ready(function()
                                           $('#controlPanel'),
                                           false, false, false,
                                           '/static/gfx');
+  layerManager = new CLayerManager($('#controlPanel'), stacks, false, false, false);
   
 });
 

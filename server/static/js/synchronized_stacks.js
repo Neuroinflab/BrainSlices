@@ -30,16 +30,19 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
   var thisInstance = this;
 
   this.zoomUpdateEnabled = true;
-  this.layers = []; // list of available layers
 
   this.stacks = [];
 
   this.images = new CImageManager();
 
-  this.adjustmentEnabled = doNotAdjust != true;
-  this.removalEnabled = doNotAdjust != true;
-  this.downloadEnabled = doNotDownload != true;
-  this.loadButtons = {} // AssocArray of Arrays
+  // XXX: interface starts
+  //this.layers = []; // list of available layers
+
+  //this.adjustmentEnabled = doNotAdjust != true;
+  //this.removalEnabled = doNotAdjust != true;
+  //this.downloadEnabled = doNotDownload != true;
+  //this.loadButtons = {} // AssocArray of Arrays
+  // XXX: interface ends
 
   this.gfx = gfx != null ? gfx : 'static/gfx';
 
@@ -54,7 +57,7 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
     this.$quality = null;
     this.$transparency = null;
 
-    this.$layerList = null;
+//    this.$layerList = null;
 
     this.$stacksSynchronization = null;
 
@@ -71,7 +74,7 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
     this.$quality = $controlPanel.find('[name="quality"]');
     this.$transparency = $controlPanel.find('[name="transparency"]');
 
-    this.$layerList = $controlPanel.find('.layerList');
+//    this.$layerList = $controlPanel.find('.layerList');
 
     this.$stacksSynchronization = $controlPanel.find('[name="synchronization"]');
 
@@ -173,8 +176,6 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
   this.crosshairX = crosshairX;
   this.crosshairY = crosshairY;
 
-
-
   this.resizeHandler = function()
   {
     // thisInstance, crosshairX, crosshairY are fixed now ^^;
@@ -183,27 +184,8 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
 
   $(window).bind('resize', this.resizeHandler);
 
+  // XXX: might be a part of interface
   this.rearrange(nx, ny);
-}
-
-CSynchronizedStacksDisplay.prototype.stopAdjustment = function(id)
-{
-  return this.images.stopAdjustment(id);
-}
-
-CSynchronizedStacksDisplay.prototype.startAdjustment = function(id)
-{
-  return this.images.startAdjustment(id);
-}
-
-CSynchronizedStacksDisplay.prototype.isAdjusted = function(id)
-{
-  return this.images.adjust != null && id in this.images.adjust;
-}
-
-CSynchronizedStacksDisplay.prototype.bindImageInterface = function(id, iface)
-{
-  return this.images.bindImageInterface(id, iface);
 }
 
 CSynchronizedStacksDisplay.prototype.syncStart = function()
@@ -216,106 +198,125 @@ CSynchronizedStacksDisplay.prototype.syncStop = function()
   this.synchronize = false;
 }
 
-CSynchronizedStacksDisplay.prototype.addTileLayer = function(imageId,
-                                                             path,
-                                                             zIndex,
-                                                             label,
-                                                             info,
-                                                             update)
-{
-  if (update == null)
-  {
-    update = true;
-  }
 
-  var id = 'i' + imageId;
-
-  for (var i = 0; i < this.layers.length; i++)
-  {
-    if (this.layers[i].id == id) return; //imposible to add image twice
-    //TODO: maybe it is better to just check if it is already cached???
-  }
-
-  if (zIndex == null || zIndex < 0 || zIndex > this.layers.length)
-  {
-    zIndex = this.layers.length;
-  }
-
-  if (label == null)
-  {
-    label = id;
-  }
-
-  var thisInstance = this;
-
-  var layer = {};
-  layer.id = id;
-  layer.label = label;
-  layer.path = path;
-
-  var $iface = null;
-  if (this.adjustmentEnabled)
-  {
-    var $adjust = $('<input type="checkbox" class="recyclableElement">');
-    $iface = $('<span style="display: none;" class="recyclableElement"><input type="number" class="imageLeft"><input type="number" class="imageTop"><input type="number" class="pixelSize"></span>');
-
-    $adjust.bind('change', function()
-    {
-      if ($adjust.filter(':checked').length  != 0)
-      {
-        $iface.show();
-        thisInstance.images.startAdjustment(id);
-      }
-      else
-      {
-        $iface.hide();
-        thisInstance.images.stopAdjustment(id);
-      }
-    });
-
-    layer.$iface = $iface;
-    layer.$adjust = $adjust;
-  }
-
-  this.layers.splice(zIndex, 0, layer);
-
-
-  var finishCaching = update ?
-                      function()
-                      {
-                        if (update)
-                        {
-                          thisInstance.updateOrder();
-                        }
-                      } :
-                      null;
-
-  if (info == null)
-  {
-    this.images.cacheTiledImage(id, path, finishCaching, $iface);
-  }
-  else
-  {
-    this.images.cacheTiledImageOffline(id, path, info, finishCaching, $iface);
-  }
-  // onSuccess shall update interface and z-indices
-  return id;
-}
-
-CSynchronizedStacksDisplay.prototype.updateOrder = function()
-{
-  for (var z = 0; z < this.layers.length; z++)
-  {
-    var imageID = this.layers[z].id;
-    if (this.images.has(imageID))
-    {
-      this.images.setZ(imageID, z);
-    }
-  }
-
-  this.updateTopZ(this.layers.length - 1);
-  this.arrangeInterface();
-}
+// XXX: interface starts
+//CSynchronizedStacksDisplay.prototype.stopAdjustment = function(id)
+//{
+//  return this.images.stopAdjustment(id);
+//}
+//
+//CSynchronizedStacksDisplay.prototype.startAdjustment = function(id)
+//{
+//  return this.images.startAdjustment(id);
+//}
+//
+//CSynchronizedStacksDisplay.prototype.isAdjusted = function(id)
+//{
+//  return this.images.adjust != null && id in this.images.adjust;
+//}
+//
+//CSynchronizedStacksDisplay.prototype.bindImageInterface = function(id, iface)
+//{
+//  return this.images.bindImageInterface(id, iface);
+//}
+//
+//CSynchronizedStacksDisplay.prototype.addTileLayer = function(imageId,
+//                                                             path,
+//                                                             zIndex,
+//                                                             label,
+//                                                             info,
+//                                                             update)
+//{
+//  if (update == null)
+//  {
+//    update = true;
+//  }
+//
+//  var id = 'i' + imageId;
+//
+//  for (var i = 0; i < this.layers.length; i++)
+//  {
+//    if (this.layers[i].id == id) return; //imposible to add image twice
+//    //TODO: maybe it is better to just check if it is already cached???
+//  }
+//
+//  if (zIndex == null || zIndex < 0 || zIndex > this.layers.length)
+//  {
+//    zIndex = this.layers.length;
+//  }
+//
+//  if (label == null)
+//  {
+//    label = id;
+//  }
+//
+//  var thisInstance = this;
+//
+//  var layer = {};
+//  layer.id = id;
+//  layer.label = label;
+//  layer.path = path;
+//
+//  var $iface = null;
+//  if (this.adjustmentEnabled)
+//  {
+//    var $adjust = $('<input type="checkbox" class="recyclableElement">');
+//    $iface = $('<span style="display: none;" class="recyclableElement"><input type="number" class="imageLeft"><input type="number" class="imageTop"><input type="number" class="pixelSize"></span>');
+//
+//    $adjust.bind('change', function()
+//    {
+//      if ($adjust.filter(':checked').length  != 0)
+//      {
+//        $iface.show();
+//        thisInstance.images.startAdjustment(id);
+//      }
+//      else
+//      {
+//        $iface.hide();
+//        thisInstance.images.stopAdjustment(id);
+//      }
+//    });
+//
+//    layer.$iface = $iface;
+//    layer.$adjust = $adjust;
+//  }
+//
+//  this.layers.splice(zIndex, 0, layer);
+//
+//
+//  var finishCaching = update ?
+//                      function()
+//                      {
+//                        thisInstance.updateOrder();
+//                      } :
+//                      null;
+//
+//  if (info == null)
+//  {
+//    this.images.cacheTiledImage(id, path, update ? finishCaching : null, $iface);
+//  }
+//  else
+//  {
+//    this.images.cacheTiledImageOffline(id, path, info, update ? finishCaching : null, $iface);
+//  }
+//  // onSuccess shall update interface and z-indices
+//  return id;
+//}
+//
+//CSynchronizedStacksDisplay.prototype.updateOrder = function()
+//{
+//  for (var z = 0; z < this.layers.length; z++)
+//  {
+//    var imageID = this.layers[z].id;
+//    if (this.images.has(imageID))
+//    {
+//      this.images.setZ(imageID, z);
+//    }
+//  }
+//
+//  this.updateTopZ(this.layers.length - 1);
+//  this.arrangeInterface();
+//}
 
 CSynchronizedStacksDisplay.prototype.updateTopZ = function(z)
 {
@@ -397,165 +398,165 @@ CSynchronizedStacksDisplay.prototype.rearrange = function(nx, ny, width)
   this.resize(this.crosshairX, this.crosshairY);
 }
 
-CSynchronizedStacksDisplay.prototype.arrangeInterface = function()
-{
-  // detaching is crucial for preservation of event handlers
-  this.$layerList.find('.recyclableElement').detach();
-  this.$layerList.html('');
-  var nmax = this.nx * this.ny;
-
-  for (var z = this.layers.length - 1; z >= 0; z--)
-  {
-    //alert(z + ' ' + this.layers);
-    var layer = this.layers[z];
-    var id = layer.id;
-
-    var $listItem = $('<tr></tr>');
-    $listItem.append(this.layerDrag(z));
-
-    if (this.downloadEnabled)
-    {
-      if (id[0] == 'i')
-      {
-        $listItem.append('<td><a href="' + layer.path + '/image.png">Download</a></td>');
-      }
-      else
-      {
-        $listItem.append('<td><br></td>');
-      }
-    }
-
-    var loadButtons = id in this.loadButtons ? this.loadButtons[id] : [];
-
-    var $cell = $('<td></td>');
-    for (var n = 0; n < nmax; n++)
-    {
-      if (n == loadButtons.length)
-      {
-        loadButtons.push(this.layerCB(id, n));
-      }
-      var $cb = loadButtons[n].$cb;
-      if (this.has(n, id))
-      {
-        $cb.attr('checked', 'checked');
-      }
-      else
-      {
-        $cb.filter(':checked').removeAttr('checked');
-      }
-      $cell.append($cb);
-    }
-
-    var toDismiss = loadButtons.splice(nmax);
-    for (var i = 0; i < toDismiss.length; i++)
-    {
-      var item = toDismiss[i];
-      item.$cb.unbind('change', item.changeHandler);
-    }
-
-    this.loadButtons[id] = loadButtons;
-    $listItem.append($cell);
-
-    if (this.adjustmentEnabled)
-    {
-      $cell = $('<td></td>');
-      $cell.append(layer.$adjust, layer.$iface);
-      $listItem.append($cell);
-    }
-
-    if (this.removalEnabled)
-    {
-      $cell = $('<td></td>');
-      $cell.append(this.layerDelB(z));
-      $listItem.append($cell);
-    }
-
-    this.$layerList.append($listItem);
-  }
-}
-
-CSynchronizedStacksDisplay.prototype.layerDelB = function(z)
-{
-  var thisInstance = this;
-  var $delB = $('<button>Delete</button>');
-  $delB.bind('click', function()
-  {
-    thisInstance.removeLayerByZ(z);
-  });
-
-  return $delB;
-}
-
-CSynchronizedStacksDisplay.prototype.layerDrag = function(z)
-{
-  var thisInstance = this;
-  var $drag = $('<td draggable="true">' + this.layers[z].label + '</td>');
-  $drag.bind('dragstart', function(ev)
-  {
-    ev.originalEvent.dataTransfer.setData('Text', z);
-  });
-
-  $drag.bind('dragover', function(ev)
-  {
-    ev.originalEvent.preventDefault();
-  });
-
-  $drag.bind('drop', function(ev)
-  {
-    ev.originalEvent.preventDefault();
-    var srcZ = ev.originalEvent.dataTransfer.getData("Text");
-    if (srcZ == z) return;
-
-    var src = thisInstance.layers.splice(srcZ, 1)[0];
-    thisInstance.layers.splice(z, 0, src);
-
-    var stop = Math.max(srcZ, z);
-    for (var i = Math.min(srcZ, z); i <= stop; i++)
-    {
-      thisInstance.images.setZ(thisInstance.layers[i].id, i);
-    }
-
-    // update the opacity of bottom and not-bottom layers
-    for (var i = 0; i < thisInstance.stacks.length; i++)
-    {
-      thisInstance.stacks[i].setOpacity();
-    }
-
-    thisInstance.updateTopZ(stop);
-
-    thisInstance.arrangeInterface();
-  });
-
-  return $drag;
-}
-
-CSynchronizedStacksDisplay.prototype.layerCB = function(id, stackId)
-{
-  //TODO: use stack instead of stackId???
-  
-  var thisInstance = this;
-  var stack = this.stacks[stackId];
-  var $cb = $('<input type="checkbox" class="recyclableElement">');
-  var changeHandler = function()
-  {
-    if ($cb.filter(':checked').length != 0)
-    {
-      thisInstance.loadLayerByStack(stack, id, true);
-    }
-    else
-    {
-      thisInstance.unload(stack.syncId(), id, true);
-    }
-  };
-
-  $cb.bind('change', changeHandler);
-
-  var res = {};
-  res.$cb = $cb;
-  res.changeHandler = changeHandler
-  return res;
-}
-
+//CSynchronizedStacksDisplay.prototype.arrangeInterface = function()
+//{
+//  // detaching is crucial for preservation of event handlers
+//  this.$layerList.find('.recyclableElement').detach();
+//  this.$layerList.html('');
+//  var nmax = this.nx * this.ny;
+//
+//  for (var z = this.layers.length - 1; z >= 0; z--)
+//  {
+//    //alert(z + ' ' + this.layers);
+//    var layer = this.layers[z];
+//    var id = layer.id;
+//
+//    var $listItem = $('<tr></tr>');
+//    $listItem.append(this.layerDrag(z));
+//
+//    if (this.downloadEnabled)
+//    {
+//      if (id[0] == 'i')
+//      {
+//        $listItem.append('<td><a href="' + layer.path + '/image.png">Download</a></td>');
+//      }
+//      else
+//      {
+//        $listItem.append('<td><br></td>');
+//      }
+//    }
+//
+//    var loadButtons = id in this.loadButtons ? this.loadButtons[id] : [];
+//
+//    var $cell = $('<td></td>');
+//    for (var n = 0; n < nmax; n++)
+//    {
+//      if (n == loadButtons.length)
+//      {
+//        loadButtons.push(this.layerCB(id, n));
+//      }
+//      var $cb = loadButtons[n].$cb;
+//      if (this.has(n, id))
+//      {
+//        $cb.attr('checked', 'checked');
+//      }
+//      else
+//      {
+//        $cb.filter(':checked').removeAttr('checked');
+//      }
+//      $cell.append($cb);
+//    }
+//
+//    var toDismiss = loadButtons.splice(nmax);
+//    for (var i = 0; i < toDismiss.length; i++)
+//    {
+//      var item = toDismiss[i];
+//      item.$cb.unbind('change', item.changeHandler);
+//    }
+//
+//    this.loadButtons[id] = loadButtons;
+//    $listItem.append($cell);
+//
+//    if (this.adjustmentEnabled)
+//    {
+//      $cell = $('<td></td>');
+//      $cell.append(layer.$adjust, layer.$iface);
+//      $listItem.append($cell);
+//    }
+//
+//    if (this.removalEnabled)
+//    {
+//      $cell = $('<td></td>');
+//      $cell.append(this.layerDelB(z));
+//      $listItem.append($cell);
+//    }
+//
+//    this.$layerList.append($listItem);
+//  }
+//}
+//
+//CSynchronizedStacksDisplay.prototype.layerDelB = function(z)
+//{
+//  var thisInstance = this;
+//  var $delB = $('<button>Delete</button>');
+//  $delB.bind('click', function()
+//  {
+//    thisInstance.removeLayerByZ(z);
+//  });
+//
+//  return $delB;
+//}
+//
+//CSynchronizedStacksDisplay.prototype.layerDrag = function(z)
+//{
+//  var thisInstance = this;
+//  var $drag = $('<td draggable="true">' + this.layers[z].label + '</td>');
+//  $drag.bind('dragstart', function(ev)
+//  {
+//    ev.originalEvent.dataTransfer.setData('Text', z);
+//  });
+//
+//  $drag.bind('dragover', function(ev)
+//  {
+//    ev.originalEvent.preventDefault();
+//  });
+//
+//  $drag.bind('drop', function(ev)
+//  {
+//    ev.originalEvent.preventDefault();
+//    var srcZ = ev.originalEvent.dataTransfer.getData("Text");
+//    if (srcZ == z) return;
+//
+//    var src = thisInstance.layers.splice(srcZ, 1)[0];
+//    thisInstance.layers.splice(z, 0, src);
+//
+//    var stop = Math.max(srcZ, z);
+//    for (var i = Math.min(srcZ, z); i <= stop; i++)
+//    {
+//      thisInstance.images.setZ(thisInstance.layers[i].id, i);
+//    }
+//
+//    // update the opacity of bottom and not-bottom layers
+//    for (var i = 0; i < thisInstance.stacks.length; i++)
+//    {
+//      thisInstance.stacks[i].setOpacity();
+//    }
+//
+//    thisInstance.updateTopZ(stop);
+//
+//    thisInstance.arrangeInterface();
+//  });
+//
+//  return $drag;
+//}
+//
+//CSynchronizedStacksDisplay.prototype.layerCB = function(id, stackId)
+//{
+//  //TODO: use stack instead of stackId???
+//  
+//  var thisInstance = this;
+//  var stack = this.stacks[stackId];
+//  var $cb = $('<input type="checkbox" class="recyclableElement">');
+//  var changeHandler = function()
+//  {
+//    if ($cb.filter(':checked').length != 0)
+//    {
+//      thisInstance.loadLayerByStack(stack, id, true);
+//    }
+//    else
+//    {
+//      thisInstance.unload(stack.syncId(), id, true);
+//    }
+//  };
+//
+//  $cb.bind('change', changeHandler);
+//
+//  var res = {};
+//  res.$cb = $cb;
+//  res.changeHandler = changeHandler
+//  return res;
+//}
+//
 CSynchronizedStacksDisplay.prototype.removeLayer = function(id)
 {
   for (var i = 0; i < this.stacks.length; i++)
@@ -566,36 +567,36 @@ CSynchronizedStacksDisplay.prototype.removeLayer = function(id)
     }
   }
 
-  var toDismiss = this.loadButtons[id];
-  //XXX: redundant with arrangeInterface();
-  for (var i = 0; i < toDismiss.lenght; i++)
-  {
-    var item = toDismiss[i];
-    item.$cb.unbind('change', item.changeHandler);
-  }
-  delete this.loadButtons[id];
+//  var toDismiss = this.loadButtons[id];
+//  //XXX: redundant with arrangeInterface();
+//  for (var i = 0; i < toDismiss.lenght; i++)
+//  {
+//    var item = toDismiss[i];
+//    item.$cb.unbind('change', item.changeHandler);
+//  }
+//  delete this.loadButtons[id];
 
   this.images.removeCachedImage(id);
 }
-
-CSynchronizedStacksDisplay.prototype.removeLayerByZ = function(z)
-{
-  //XXX warning: z might be greater than this.layers.length !!!
-  var id = this.layers[z].id;
-  this.layers.splice(z, 1);
-  this.removeLayer(id);
-  this.arrangeInterface();
-}
-
-CSynchronizedStacksDisplay.prototype.flush = function()
-{
-  for (var i = 0; i < this.layers.length; i++)
-  {
-    this.removeLayer(this.layers[i].id);
-  }
-  this.layers = [];
-  this.arrangeInterface();
-}
+//
+//CSynchronizedStacksDisplay.prototype.removeLayerByZ = function(z)
+//{
+//  //XXX warning: z might be greater than this.layers.length !!!
+//  var id = this.layers[z].id;
+//  this.layers.splice(z, 1);
+//  this.removeLayer(id);
+//  this.arrangeInterface();
+//}
+//
+//CSynchronizedStacksDisplay.prototype.flush = function()
+//{
+//  for (var i = 0; i < this.layers.length; i++)
+//  {
+//    this.removeLayer(this.layers[i].id);
+//  }
+//  this.layers = [];
+//  this.arrangeInterface();
+//}
 
 CSynchronizedStacksDisplay.prototype.load = function(stackId, imageId,
                                                      doNotUpdateIface)
@@ -608,20 +609,20 @@ CSynchronizedStacksDisplay.prototype.loadLayerByStack = function(stack, imageId,
 {
   var quality = this.$quality.val();
   stack.loadFromCache(this.images, imageId, quality);
-  if (doNotUpdateIface != true)
-  {
-    this.loadButtons[imageId][stack.syncId()].$cb.attr('checked', 'checked');
-  }
+//  if (doNotUpdateIface != true)
+//  {
+//    this.loadButtons[imageId][stack.syncId()].$cb.attr('checked', 'checked');
+//  }
 }
 
 CSynchronizedStacksDisplay.prototype.unload = function(stackId, imageId,
                                                        doNotUpdateIface)
 {
   this.stacks[stackId].remove(imageId);
-  if (doNotUpdateIface != true)
-  {
-    this.loadButtons[imageId][stackId].$cb.filter(':checked').removeAttr('checked');
-  }
+//  if (doNotUpdateIface != true)
+//  {
+//    this.loadButtons[imageId][stackId].$cb.filter(':checked').removeAttr('checked');
+//  }
 }
 
 CSynchronizedStacksDisplay.prototype.unloadAll = function(id)
@@ -652,20 +653,20 @@ CSynchronizedStacksDisplay.prototype.loadedImages = function()
   return images;
 }
 
-CSynchronizedStacksDisplay.prototype.loadedImagesOrdered = function()
-{
-  var images = this.loadedImages();
-  var ordered = [];
-  for (var i = 0; i < this.layers.length; i++)
-  {
-    var id = this.layers[i].id;
-    if (id in images)
-    {
-      ordered.push(id);
-    }
-  }
-  return ordered;
-}
+//CSynchronizedStacksDisplay.prototype.loadedImagesOrdered = function()
+//{
+//  var images = this.loadedImages();
+//  var ordered = [];
+//  for (var i = 0; i < this.layers.length; i++)
+//  {
+//    var id = this.layers[i].id;
+//    if (id in images)
+//    {
+//      ordered.push(id);
+//    }
+//  }
+//  return ordered;
+//}
 
 CSynchronizedStacksDisplay.prototype.has = function(stackId, imageId)
 {
@@ -689,16 +690,16 @@ CSynchronizedStacksDisplay.prototype.removeStack = function(id, doNotDestroy)
     this.stacks[i].syncId(i);
   }
 
-  //remove layer load/unload buttons
-  for (var imageId in this.loadButtons)
-  {
-    item = this.loadButtons[imageId].splice(id, 1);
-    if (item.length == 1)
-    {
-      item[0].$cb.unbind('change', item[0].changeHandler);
-      item[0].$cb.remove(); //XXX
-    }
-  }
+//  //remove layer load/unload buttons
+//  for (var imageId in this.loadButtons)
+//  {
+//    item = this.loadButtons[imageId].splice(id, 1);
+//    if (item.length == 1)
+//    {
+//      item[0].$cb.unbind('change', item[0].changeHandler);
+//      item[0].$cb.remove(); //XXX
+//    }
+//  }
 
   if (res.length == 1)
   {
@@ -910,17 +911,17 @@ CSynchronizedStacksDisplay.prototype.destroy = function()
     this.resizeHandler = null;
   }
 
-  for (var id in this.loadButtons)
-  {
-    //XXX: redundant with removeLayerByZ()
-    var toDismiss = this.loadButtons[id];
-    for (var i = 0; i < toDismiss.length; i++)
-    {
-      var item = toDismiss[i];
-      item.$cb.unbind('change', item.changeHandler);
-    }
-  }
-  //TODO: check what happens to everything else bound to this.$layerList descendants
+//  for (var id in this.loadButtons)
+//  {
+//    //XXX: redundant with removeLayerByZ()
+//    var toDismiss = this.loadButtons[id];
+//    for (var i = 0; i < toDismiss.length; i++)
+//    {
+//      var item = toDismiss[i];
+//      item.$cb.unbind('change', item.changeHandler);
+//    }
+//  }
+//  //TODO: check what happens to everything else bound to this.$layerList descendants
 
   if (this.control != null)
   {

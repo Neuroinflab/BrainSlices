@@ -92,6 +92,14 @@ CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
   }
 }
 
+CImageManager.prototype.updateAll = function(imageLeft, imageTop, pixelSize)
+{
+  for (var id in this.images)
+  {
+    this.updateImage(id, imageLeft, imageTop, pixelSize);
+  }
+}
+
 // propagate zIndex value update across all managed images
 CImageManager.prototype.setZ = function(id, zIndex)
 {
@@ -385,3 +393,404 @@ CLayerStack.prototype.loadFromCache = function(cache, id, quality)
 }
 
 
+
+function CLayerManager($controlPanel, stacks, doNotRemove, doNotAdjust, doNotDownload)
+{
+  this.stacks = stacks;
+  this.images = stacks.images; // just a shortcut
+  this.$controlPanel = $controlPanel;
+  this.$layerList = $controlPanel.find('.layerList');
+
+  this.adjustmentEnabled = doNotAdjust != true;
+  this.removalEnabled = doNotAdjust != true;
+  this.downloadEnabled = doNotDownload != true;
+  this.loadButtons = {} // AssocArray of Arrays
+
+  this.layers = [];
+}
+
+CLayerManager.prototype.stopAdjustment = function(id)
+{
+  return this.images.stopAdjustment(id);
+}
+
+CLayerManager.prototype.startAdjustment = function(id)
+{
+  return this.images.startAdjustment(id);
+}
+
+CLayerManager.prototype.isAdjusted = function(id)
+{
+  return this.images.adjust != null && id in this.images.adjust;
+}
+
+CLayerManager.prototype.bindImageInterface = function(id, iface)
+{
+  return this.images.bindImageInterface(id, iface);
+}
+
+CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
+                                              info, update)
+{
+  if (update == null)
+  {
+    update = true;
+  }
+
+  var id = 'i' + imageId;
+
+  // XXX: iface starts
+  for (var i = 0; i < this.layers.length; i++)
+  {
+    if (this.layers[i].id == id) return; //imposible to add image twice
+    //TODO: maybe it is better to just check if it is already cached???
+  }
+
+  if (zIndex == null || zIndex < 0 || zIndex > this.layers.length)
+  {
+    zIndex = this.layers.length;
+  }
+
+  if (label == null)
+  {
+    label = id;
+  }
+
+  var thisInstance = this;
+
+  var layer = {};
+  layer.id = id;
+  layer.label = label;
+  layer.path = path;
+
+  var $iface = null;
+  if (this.adjustmentEnabled)
+  {
+    var $adjust = $('<input type="checkbox" class="recyclableElement">');
+    $iface = $('<span style="display: none;" class="recyclableElement"><input type="number" class="imageLeft"><input type="number" class="imageTop"><input type="number" class="pixelSize"></span>');
+
+    $adjust.bind('change', function()
+    {
+      if ($adjust.filter(':checked').length  != 0)
+      {
+        $iface.show();
+        thisInstance.images.startAdjustment(id);
+      }
+      else
+      {
+        $iface.hide();
+        thisInstance.images.stopAdjustment(id);
+      }
+    });
+
+    layer.$iface = $iface;
+    layer.$adjust = $adjust;
+  }
+
+  this.layers.splice(zIndex, 0, layer);
+
+
+  var finishCaching = update ?
+                      function()
+                      {
+                        thisInstance.updateOrder();
+                      } :
+                      null;
+
+  if (info == null)
+  {
+    this.images.cacheTiledImage(id, path, update ? finishCaching : null, $iface);
+  }
+  else
+  {
+    this.images.cacheTiledImageOffline(id, path, info, update ? finishCaching : null, $iface);
+  }
+  // onSuccess shall update interface and z-indices
+  return id;
+}
+
+CLayerManager.prototype.updateOrder = function()
+{
+  for (var z = 0; z < this.layers.length; z++)
+  {
+    var imageID = this.layers[z].id;
+    if (this.images.has(imageID))
+    {
+      this.images.setZ(imageID, z);
+    }
+  }
+
+  this.stacks.updateTopZ(this.layers.length - 1);
+  this.arrangeInterface();
+}
+
+CLayerManager.prototype.arrangeInterface = function()
+{
+  // detaching is crucial for preservation of event handlers
+  this.$layerList.find('.recyclableElement').detach();
+  this.$layerList.html('');
+  var nmax = this.stacks.nx * this.stacks.ny;
+
+  for (var z = this.layers.length - 1; z >= 0; z--)
+  {
+    //alert(z + ' ' + this.layers);
+    var layer = this.layers[z];
+    var id = layer.id;
+
+    var $listItem = $('<tr></tr>');
+    $listItem.append(this.layerDrag(z));
+
+    if (this.downloadEnabled)
+    {
+      if (id[0] == 'i')
+      {
+        $listItem.append('<td><a href="' + layer.path + '/image.png">Download</a></td>');
+      }
+      else
+      {
+        $listItem.append('<td><br></td>');
+      }
+    }
+
+    var loadButtons = id in this.loadButtons ? this.loadButtons[id] : [];
+
+    var $cell = $('<td></td>');
+    for (var n = 0; n < nmax; n++)
+    {
+      if (n == loadButtons.length)
+      {
+        loadButtons.push(this.layerCB(id, n));
+      }
+      var $cb = loadButtons[n].$cb;
+      if (this.stacks.has(n, id))
+      {
+        $cb.attr('checked', 'checked');
+      }
+      else
+      {
+        $cb.filter(':checked').removeAttr('checked');
+      }
+      $cell.append($cb);
+    }
+
+    var toDismiss = loadButtons.splice(nmax);
+    for (var i = 0; i < toDismiss.length; i++)
+    {
+      var item = toDismiss[i];
+      item.$cb.unbind('change', item.changeHandler);
+    }
+
+    this.loadButtons[id] = loadButtons;
+    $listItem.append($cell);
+
+    if (this.adjustmentEnabled)
+    {
+      $cell = $('<td></td>');
+      $cell.append(layer.$adjust, layer.$iface);
+      $listItem.append($cell);
+    }
+
+    if (this.removalEnabled)
+    {
+      $cell = $('<td></td>');
+      $cell.append(this.layerDelB(z));
+      $listItem.append($cell);
+    }
+
+    this.$layerList.append($listItem);
+  }
+}
+
+CLayerManager.prototype.layerDelB = function(z)
+{
+  var thisInstance = this;
+  var $delB = $('<button>Delete</button>');
+  $delB.bind('click', function()
+  {
+    thisInstance.removeLayerByZ(z);
+  });
+
+  return $delB;
+}
+
+CLayerManager.prototype.layerDrag = function(z)
+{
+  var thisInstance = this;
+  var $drag = $('<td draggable="true">' + this.layers[z].label + '</td>');
+  $drag.bind('dragstart', function(ev)
+  {
+    ev.originalEvent.dataTransfer.setData('Text', z);
+  });
+
+  $drag.bind('dragover', function(ev)
+  {
+    ev.originalEvent.preventDefault();
+  });
+
+  $drag.bind('drop', function(ev)
+  {
+    ev.originalEvent.preventDefault();
+    var srcZ = ev.originalEvent.dataTransfer.getData("Text");
+    if (srcZ == z) return;
+
+    var src = thisInstance.layers.splice(srcZ, 1)[0];
+    thisInstance.layers.splice(z, 0, src);
+
+    var stop = Math.max(srcZ, z);
+    for (var i = Math.min(srcZ, z); i <= stop; i++)
+    {
+      thisInstance.images.setZ(thisInstance.layers[i].id, i);
+    }
+
+    // update the opacity of bottom and not-bottom layers
+    // TODO: a method in CSynchronizedStacksDisplay
+    for (var i = 0; i < thisInstance.stacks.stacks.length; i++)
+    {
+      thisInstance.stacks.stacks[i].setOpacity();
+    }
+
+    thisInstance.stacks.updateTopZ(stop);
+
+    thisInstance.arrangeInterface();
+  });
+
+  return $drag;
+}
+
+CLayerManager.prototype.layerCB = function(id, stackId)
+{
+  //TODO: use stack instead of stackId???
+  
+  var thisInstance = this;
+  var stack = this.stacks.stacks[stackId];
+  var $cb = $('<input type="checkbox" class="recyclableElement">');
+  var changeHandler = function()
+  {
+    if ($cb.filter(':checked').length != 0)
+    {
+      thisInstance.loadLayerByStack(stack, id, true);
+    }
+    else
+    {
+      thisInstance.unload(stack.syncId(), id, true);
+    }
+  };
+
+  $cb.bind('change', changeHandler);
+
+  var res = {};
+  res.$cb = $cb;
+  res.changeHandler = changeHandler
+  return res;
+}
+
+CLayerManager.prototype.removeLayer = function(id)
+{
+  var toDismiss = this.loadButtons[id];
+  //XXX: redundant with arrangeInterface();
+  for (var i = 0; i < toDismiss.lenght; i++)
+  {
+    var item = toDismiss[i];
+    item.$cb.unbind('change', item.changeHandler);
+  }
+  delete this.loadButtons[id];
+
+  this.stacks.removeLayer(id);
+}
+
+CLayerManager.prototype.removeLayerByZ = function(z)
+{
+  //XXX warning: z might be greater than this.layers.length !!!
+  var id = this.layers[z].id;
+  this.layers.splice(z, 1);
+  this.removeLayer(id);
+  this.arrangeInterface();
+}
+
+CLayerManager.prototype.flush = function()
+{
+  for (var i = 0; i < this.layers.length; i++)
+  {
+    this.removeLayer(this.layers[i].id);
+  }
+  this.layers = [];
+  this.arrangeInterface();
+}
+
+//an alias
+CLayerManager.prototype.load = function(stackId, imageId, doNotUpdateIface)
+{
+  this.loadLayerByStack(this.stacks.stacks[stackId], imageId, doNotUpdateIface);
+}
+
+CLayerManager.prototype.loadLayerByStack = function(stack, imageId,
+                                                  doNotUpdateIface)
+{
+  this.stacks.loadLayerByStack(stack, imageId);
+  if (doNotUpdateIface != true)
+  {
+    this.loadButtons[imageId][stack.syncId()].$cb.attr('checked', 'checked');
+  }
+}
+
+CLayerManager.prototype.unload = function(stackId, imageId, doNotUpdateIface)
+{
+  this.stacks.unload(stackId, imageId);
+  if (doNotUpdateIface != true)
+  {
+    this.loadButtons[imageId][stackId].$cb.filter(':checked').removeAttr('checked');
+  }
+}
+
+CLayerManager.prototype.loadedImagesOrdered = function()
+{
+  var images = this.stacks.loadedImages();
+  var ordered = [];
+  for (var i = 0; i < this.layers.length; i++)
+  {
+    var id = this.layers[i].id;
+    if (id in images)
+    {
+      ordered.push(id);
+    }
+  }
+  return ordered;
+}
+
+CLayerManager.prototype.removeStack = function(id, doNotDestroy)
+{
+  //remove layer load/unload buttons
+  for (var imageId in this.loadButtons)
+  {
+    var item = this.loadButtons[imageId].splice(id, 1);
+    if (item.length == 1)
+    {
+      item[0].$cb.unbind('change', item[0].changeHandler);
+      item[0].$cb.remove(); //XXX
+    }
+  }
+  return this.stacks.removeStack(id, doNotDestroy);
+}
+
+//an alias
+CLayerManager.prototype.unloadAll = function(id)
+{
+  return this.stacks.unloadAll(id);
+}
+
+//TODO: make consistent with constructor!!!
+CLayerManager.prototype.destroy = function()
+{
+  for (var id in this.loadButtons)
+  {
+    //XXX: redundant with removeLayerByZ()
+    var toDismiss = this.loadButtons[id];
+    for (var i = 0; i < toDismiss.length; i++)
+    {
+      var item = toDismiss[i];
+      item.$cb.unbind('change', item.changeHandler);
+    }
+  }
+  //TODO: check what happens to everything else bound to this.$layerList descendants
+
+}

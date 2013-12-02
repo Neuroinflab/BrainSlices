@@ -213,27 +213,27 @@ class TileBase(dbBase):
     return None
 
   def info(self, request):
-    row = self.canViewImage(request.id,
+    return self.canViewImage(request.id,
                             uid = request.session.get('userID'),
                             extraFields = """,
                             image_top, image_left, image_width, image_height,
                             tile_width, tile_height, pixel_size,
                             image_crc32, image_md5, iid, status""")
-    if isinstance(row, tuple):
-      return {'imageTop': row[0],
-              'imageLeft': row[1],
-              'imageWidth': row[2],
-              'imageHeight': row[3],
-              'tileWidth': row[4],
-              'tileHeight': row[5],
-              'pixelSize': row[6],
-              'crc32': row[7], # previously was a hex string
-              'md5': row[8],
-              'iid': row[9],
-              'status': row[10]}
+    #if isinstance(row, tuple):
+    #  return {'imageTop': row[0],
+    #          'imageLeft': row[1],
+    #          'imageWidth': row[2],
+    #          'imageHeight': row[3],
+    #          'tileWidth': row[4],
+    #          'tileHeight': row[5],
+    #          'pixelSize': row[6],
+    #          'crc32': row[7], # previously was a hex string
+    #          'md5': row[8],
+    #          'iid': row[9],
+    #          'status': row[10]}
 
-    if isinstance(row, bool):
-      return row
+    #if isinstance(row, bool):
+    #  return row
 
   #TODO: remove after tests
   @provideCursor
@@ -308,9 +308,6 @@ class TileBase(dbBase):
 
   @provideCursor
   def getBatchDetails(self, uid, bid, cursor = None):
-    if uid == None:
-      return None
-
     if bid != None:
       cursor.execute("""
                      SELECT image_top, image_left, image_width, image_height,
@@ -334,22 +331,7 @@ class TileBase(dbBase):
                      """, (uid,))
 
     #TODO: check for batch existence???
-    return [{'imageTop': row[0],
-             'imageLeft': row[1],
-             'imageWidth': row[2],
-             'imageHeight': row[3],
-             'tileWidth': row[4],
-             'tileHeight': row[5],
-             'pixelSize': row[6],
-             'crc32': row[7],
-             'md5': row[8],
-             'iid': row[9],
-             'status': row[10], #info.json ends here
-             'invalid': row[11],
-             'sourceCRC32': row[12],
-             'sourceFilesize': row[13],
-             'declaredFilesize': row[14],
-             'filename': row[15]} for row in cursor.fetchall()]
+    return cursor.fetchall()
 
   @provideCursor
   def closeBatch(self, uid, bid, comment = None, cursor = None):
@@ -489,17 +471,7 @@ class TileBase(dbBase):
                     tile_width, tile_height, pixel_size,
                     image_crc32, image_md5, iid, status""")
       if row:
-        statuses.append({'imageTop': row[0],
-                         'imageLeft': row[1],
-                         'imageWidth': row[2],
-                         'imageHeight': row[3],
-                         'tileWidth': row[4],
-                         'tileHeight': row[5],
-                         'pixelSize': row[6],
-                         'crc32': row[7], # previously was a hex string
-                         'md5': row[8],
-                         'iid': row[9],
-                         'status': row[10]})
+        statuses.append(row)
 
     return statuses
 

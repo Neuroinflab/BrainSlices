@@ -247,6 +247,18 @@ form[name=confirmationForm] p
   overflow-y: auto;
 }
 
+#layersConsole table
+{
+/*  table-layout: fixed;*/
+}
+
+#layersConsole input.imageLeft,
+#layersConsole input.imageTop,
+#layersConsole input.pixelSize
+{
+  width: 5em;
+}
+
 #upload ul.uploads
 {
   max-height: 10ex;
@@ -258,4 +270,9 @@ form[name=confirmationForm] p
   max-height: 10ex;
   overflow-y: auto;
 /*  display: inline-block;*/
+}
+
+#upload table.uploaded
+{
+/*  table-layout: fixed;*/
 }

@@ -30,7 +30,7 @@ from datetime import datetime
 
 #from tileBase import UploadSlot
 from server import jsonStd, generateJson, Server, serveContent, ensureLogged,\
-                   Generator, useTemplate
+                   Generator, useTemplate, unwrapRow
 from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
                     GetBrokenDuplicatesRequest, GetImagesStatusesRequest
@@ -105,7 +105,7 @@ class UploadGenerator(Generator):
     Returns a hash of {iid: status}
     '''
     iids_statuses = self.tileBase.getImagesStatuses(uid, request.iids)
-    return generateJson(data = iids_statuses,
+    return generateJson(data = [unwrapRow(row) for row in iids_statuses],
                         status = True,
                         logged = uid != None)
 
@@ -153,8 +153,13 @@ class UploadGenerator(Generator):
   @ensureLogged
   def batchDetails(self, uid, request):
     details = self.tileBase.getBatchDetails(uid, request.bid)
-    #TODO: check for None
-    return generateJson(details, logged = True)
+    data = [unwrapRow(row, ['imageTop', 'imageLeft', 'imageWidth',
+                            'imageHeight', 'tileWidth', 'tileHeight',
+                            'pixelSize', 'crc32', 'md5', 'iid',
+                            'status', 'invalid', 'sourceCRC32',
+                            'sourceFilesize', 'declaredFilesize',
+                            'filename']) for row in details]
+    return generateJson(data, logged = True)
 
 
 class UploadServer(Server):

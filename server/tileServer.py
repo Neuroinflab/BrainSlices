@@ -27,7 +27,7 @@ from cherrypy.lib import static
 import json
 
 from request import ImageRequest, Request
-from server import generateJson, Server, serveContent
+from server import generateJson, Server, serveContent, unwrapRow
 
 
 class OutlineServer(Server):
@@ -75,7 +75,7 @@ class TileGenerator(object):
   def info(self, request):
     data = self.tileBase.info(request)
     if data:
-      return generateJson(data = data,
+      return generateJson(data = unwrapRow(data),
                           status = data != None,
                           message = None,
                           logged = request.session.get('userID') != None)
