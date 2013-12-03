@@ -820,7 +820,7 @@ CSynchronizedStacksDisplay.prototype.updateZoomPanel = function()
 
 // stack, but iface utilizes it (updateZoomPanel)
 // -> propagation necessary
-CSynchronizedStacksDisplay.prototype.mulZoom = function(factor, id)
+CSynchronizedStacksDisplay.prototype.mulZoom = function(factor, id, x, y)
 {
   // XXX: think about an adjustment - see moveAbsolute for details
 
@@ -829,7 +829,7 @@ CSynchronizedStacksDisplay.prototype.mulZoom = function(factor, id)
     for (var i = 0; i < this.stacks.length; i++)
     {
       var stack = this.stacks[i];
-      stack.setPixelSize(stack.pixelSize / factor);
+      stack.setPixelSize(stack.pixelSize / factor, x, y);
       stack.update();
     }
 
@@ -839,7 +839,7 @@ CSynchronizedStacksDisplay.prototype.mulZoom = function(factor, id)
   else
   {
     var stack = this.stacks[id];
-    stack.setPixelSize(stack.pixelSize / factor);
+    stack.setPixelSize(stack.pixelSize / factor, x, y);
     stack.update();
     if (id == 0)
     {
@@ -847,6 +847,14 @@ CSynchronizedStacksDisplay.prototype.mulZoom = function(factor, id)
       this.zoom *= factor;
       this.updateZoomPanel();
     }
+  }
+
+  if ((this.synchronize || id == null || id == 0) && x != null && y != null)
+  {
+    var dx = this.focusPointX - x;
+    var dy = this.focusPointY - y;
+    this.focusPointX = x + dx / factor;
+    this.focusPointY = y + dy / factor;
   }
 }
 

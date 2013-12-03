@@ -222,14 +222,20 @@ function CLayerStack(parentDiv, zoom, focusPointX, focusPointY, crosshairX, cros
   this.mouseWheelHandler = function(ev)
   {
     var factor = ev.originalEvent.detail < 0 || ev.originalEvent.wheelDelta > 0 ? 2. : 0.5;
+    var offset = thisInstance.display.offset();
+    var xM = event.clientX - offset.left;
+    var yM = event.clientY - offset.top;
+    var x = thisInstance.pixelSize * (xM - thisInstance.crosshairX) + thisInstance.focusPointX;
+    var y = thisInstance.pixelSize * (yM - thisInstance.crosshairY) + thisInstance.focusPointY;
+    //console.debug(x + ',\t' + y)
 
     if (thisInstance.syncStacks != null)
     {
-      thisInstance.syncStacks.mulZoom(factor, thisInstance.id);
+      thisInstance.syncStacks.mulZoom(factor, thisInstance.id, x, y);
     }
     else
     {
-      thisInstance.setPixelSize(thisInstance.pixelSize / factor);
+      thisInstance.setPixelSize(thisInstance.pixelSize / factor, x, y);
       thisInstance.update();
     }
   };
@@ -367,8 +373,15 @@ CLayerStack.prototype.setFocusPoint = function(focusPointX, focusPointY)
   this.focusPointY = parseFloat(focusPointY);
 }
 
-CLayerStack.prototype.setPixelSize = function(pixelSize)
+CLayerStack.prototype.setPixelSize = function(pixelSize, x, y)
 {
+  if (x != null && y != null)
+  {
+    var dx = this.focusPointX - x;
+    var dy = this.focusPointY - y;
+    this.focusPointX = x + dx * pixelSize / this.pixelSize;
+    this.focusPointY = y + dy * pixelSize / this.pixelSize;
+  }
   this.pixelSize = parseFloat(pixelSize);
   this.putCursor();
 }
