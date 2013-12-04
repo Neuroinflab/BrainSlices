@@ -349,49 +349,52 @@ function CFileUploader($form, ajaxProvider)
   var thisInstance = this;
   var $batchSelect = $form.find('.batch select');
 
-  ajaxProvider.ajax(
-    'batchList',
-    function(response)
-    {
-      if (!response.status)
+  this.listBatches = function()
+  {
+    $batchSelect.html('<option value="None" selected="selected">None</option>');
+    ajaxProvider.ajax(
+      'batchList',
+      function(response)
       {
-        alert(response.message);
-        return;
-      }
-      var list = response.data;
-      var $batchSelect = $('.batch select');
-      for (var i = 0; i < list.length; i++)
-      {
-        $batchSelect.append('<option value="' + list[i][0] + '">' +
-                       escapeHTML(list[i][1]) + '</option>');
-      }
+        if (!response.status)
+        {
+          alert(response.message);
+          return;
+        }
+        var list = response.data;
+        for (var i = 0; i < list.length; i++)
+        {
+          $batchSelect.append('<option value="' + list[i][0] + '">' +
+                         escapeHTML(list[i][1]) + '</option>');
+        }
 
-      $form.find('.batch :button').click(function()
-      {
-        var comment = $form.find('.batch :text').val();
-        ajaxProvider.ajax(
-          'newBatch',
-          function(response)
-          {
-            if (!response.status)
+        $form.find('.batch :button').click(function()
+        {
+          var comment = $form.find('.batch :text').val();
+          ajaxProvider.ajax(
+            'newBatch',
+            function(response)
             {
-              alert(response.message);
-              return;
-            }
-            $batchSelect.append('<option value="' + response.data.bid + '">' +
-                           escapeHTML(response.data.comment) + '</option>');
-            $batchSelect.val(response.data.bid);
-          },
-          {comment: comment},
-          ajaxErrorHandler,
-          'POST',
-          {cache: false});
-      });
-    },
-    null,
-    ajaxErrorHandler,
-    'POST',
-    {cache: false});
+              if (!response.status)
+              {
+                alert(response.message);
+                return;
+              }
+              $batchSelect.append('<option value="' + response.data.bid + '">' +
+                             escapeHTML(response.data.comment) + '</option>');
+              $batchSelect.val(response.data.bid);
+            },
+            {comment: comment},
+            ajaxErrorHandler,
+            'POST',
+            {cache: false});
+        });
+      },
+      null,
+      ajaxErrorHandler,
+      'POST',
+      {cache: false});
+  }
 
 
   function updateFiles()

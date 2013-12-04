@@ -21,6 +21,7 @@
   <script src="/static/js/jquery-ui-1.10.3.dialog.min.js" type="text/javascript"></script>
   <script type="text/javascript">
 
+var fileUploader = null;
 
 function listBatch()
 {
@@ -140,8 +141,18 @@ $(document).ready(function()
 	          {
 	            $('#logoutLink').text('Logout [' +
 	                                  loginConsole.isLoggedAs() + ']');
+              if (fileUploader != null)
+              {
+                fileUploader.listBatches();
+              }
 	          },
-	          null,
+	          function()
+            {
+              if (fileUploader != null)
+              {
+                fileUploader.listBatches();
+              }
+            },
 	          null,
 	          function()
 	          {
