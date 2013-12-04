@@ -394,12 +394,11 @@ CLayerStack.prototype.loadFromCache = function(cache, id, quality)
 
 
 
-function CLayerManager($controlPanel, stacks, doNotRemove, doNotAdjust, doNotDownload)
+function CLayerManager($layerList, stacks, doNotRemove, doNotAdjust, doNotDownload)
 {
   this.stacks = stacks;
   this.images = stacks.images; // just a shortcut
-  this.$controlPanel = $controlPanel;
-  this.$layerList = $controlPanel.find('.layerList');
+  this.$layerList = $layerList;
 
   this.adjustmentEnabled = doNotAdjust != true;
   this.removalEnabled = doNotAdjust != true;
@@ -778,9 +777,12 @@ CLayerManager.prototype.unloadAll = function(id)
   return this.stacks.unloadAll(id);
 }
 
-//TODO: make consistent with constructor!!!
 CLayerManager.prototype.destroy = function()
 {
+  this.stacks = null;
+  this.images = null;
+  this.$layerList = null;
+
   for (var id in this.loadButtons)
   {
     //XXX: redundant with removeLayerByZ()
@@ -791,6 +793,8 @@ CLayerManager.prototype.destroy = function()
       item.$cb.unbind('change', item.changeHandler);
     }
   }
+  this.loadButtons = null;
+  this.layers = null;
   //TODO: check what happens to everything else bound to this.$layerList descendants
 
 }

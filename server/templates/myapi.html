@@ -160,7 +160,7 @@ $(function()
                                           $('#controlPanel'),
                                           false, false, false,
                                           '/static/gfx');
-  layerManager = new CLayerManager($('#controlPanel'), stacks, false, false, false);
+  layerManager = new CLayerManager($('#controlPanel .layerList'), stacks, false, false, false);
 
   $('#sliceDisplay').bind('mousemove', processMove);
   $('#sliceDisplay').bind('mousedown', startMove);
