@@ -296,17 +296,6 @@ var MAX_FILE_SIZE = 1024 * 1024 * 1024;
 \*************************************/
 var MIN_FILE_SIZE = 8;
 
-var STATUS_MAP = {'0': 'UPLOADING',
-                  '1': 'RECEIVING',
-                  '2': 'RECEIVED',
-                  '3': 'PROCESSING',
-                  '4': 'IDENTIFIED',
-                  '5': 'TILED',
-                  '6': 'COMPLETED',
-                  '7': 'ACCEPTED',
-                  '-1': 'REMOVED',
-                  '-2': 'ERROR'}; // Hash map for the status of an image,
-                                  // taken directly from tileBase.py
 
 
 /*****************************************************************************\

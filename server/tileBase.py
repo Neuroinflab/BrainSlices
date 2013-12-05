@@ -548,6 +548,28 @@ class TileBase(dbBase):
     return False
 
   @provideCursor
+  def updateMetadata(self, iid, pixelSize = None, imageLeft = None,
+                     imageTop = None, status = None, cursor = None):
+    toUpdate = [(x, y) for (x, y) in [('pixel_size', pixelSize),
+                                      ('image_left', imageLeft),
+                                      ('image_top', imageTop),
+                                      ('status', status)]\
+                if y is not None]
+    if len(toUpdate) == 0:
+      return False
+
+    fields, data = zip(*toUpdate)
+    data += iid,
+    query = """
+            UPDATE images
+            SET %s
+            WHERE iid = %%s;
+            """ % (', '.join("%s = %%s" % x for x in fields))
+    cursor.execute(query, data)
+    return cursor.rowcount == 1
+
+
+  @provideCursor
   def acceptImage(self, uid, iids, imageRes, imageLeft = 0., imageTop = 0.,
                   cursor = None):
     if uid == None:

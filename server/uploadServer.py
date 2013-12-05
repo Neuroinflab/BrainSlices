@@ -36,6 +36,8 @@ from request import NewBatchRequest, ContinueImageUploadRequest,\
                     GetBrokenDuplicatesRequest, GetImagesStatusesRequest,\
                     UpdateMetadataRequest
 
+from tileBase import NO_PRIVILEGE
+
 
 class UploadServer(Generator, Server):
   """
@@ -170,6 +172,28 @@ class UploadServer(Generator, Server):
                             'sourceFilesize', 'declaredFilesize',
                             'filename']) for row in details]
     return generateJson(data, logged = True)
+
+  @cherrypy.expose
+  @serveContent(UpdateMetadataRequest)
+  @ensureLogged
+  def updateMetadata(self, uid, request):
+    result = []
+    for iid, left, top, ps, status in request.updated:
+      privileges = self.tileBase.getPrivileges(iid, uid)
+      if privileges is None:
+        continue
+
+      if privileges[2] == NO_PRIVILEGE:
+        result.append((iid, False))
+        continue
+
+      if self.tileBase.updateMetadata(iid, pixelSize = ps, imageLeft = left,
+                                      imageTop = top, status = status):
+        result.append((iid, True))
+
+      print iid, top, left, ps, status
+
+    return generateJson(result, logged = True)
 
 
 #class UploadServer(Server):
