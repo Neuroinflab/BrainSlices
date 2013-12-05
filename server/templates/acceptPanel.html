@@ -51,6 +51,14 @@
       </tbody>
      </table>
     </div>
+    <select id="nstatus" onchange="updateStatus();">
+     <option value="6">All not accepted</option>
+     <option value="7">All accepted</option>
+    </select>
+    <input type="number" class="imageLeft" id="nleft" onchange="updateLeft();">
+    <input type="number" class="imageTop" id="ntop" onchange="updateTop();">
+    <input type="number" class="pixelSize" id="nps" onchange="updatePixelSize();">
+    <button onclick="centerImage();">Center Images</button>
     <button onclick="saveUpdated();">SaveChanges</button>
     <!--%searchbox%-->
     <hr>

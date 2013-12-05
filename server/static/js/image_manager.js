@@ -137,13 +137,13 @@ CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
   }
 }
 
-CImageManager.prototype.updateImageStatus = function(id, status)
+CImageManager.prototype.updateImageStatus = function(id, status, updateIFace)
 {
   if (id == null)
   {
     for (id in this.images)
     {
-      this.updateImageStatus(id, status);
+      this.updateImageStatus(id, status, updateIFace);
     }
   }
   else
@@ -155,6 +155,42 @@ CImageManager.prototype.updateImageStatus = function(id, status)
       image.$row.addClass('changed');
     }
     image.info.status = status;
+
+    if (updateIFace == null || updateIFace)
+    {
+      this.updateImageInterface(id);
+    }
+  }
+}
+
+CImageManager.prototype.apply = function(id, f, updateIFace)
+{
+  if (id == null)
+  {
+    for (id in this.images)
+    {
+      this.apply(id, f, updateIFace);
+    }
+  }
+  else
+  {
+    var image = this.images[id];
+    image.changed = true;
+    if (image.$row != null)
+    {
+      image.$row.addClass('changed');
+    }
+    f(image);
+    var references = image.references;
+    for (var cacheId in references) //XXX dangerous
+    {
+      references[cacheId].updateImage(image.info.imageLeft, image.info.imageTop, image.info.pixelSize).update();
+    }
+
+    if (updateIFace == null || updateIFace)
+    {
+      this.updateImageInterface(id);
+    }
   }
 }
 
@@ -673,7 +709,7 @@ CLayerManager.prototype.arrangeInterface = function()
 {
   // detaching is crucial for preservation of event handlers
   this.$layerList.find('.recyclableElement').detach();
-  this.$layerList.html('');
+  var $layerList = $('<tbody></tbody>');
   var nmax = this.stacks.nx * this.stacks.ny;
 
   for (var z = this.layers.length - 1; z >= 0; z--)
@@ -744,8 +780,10 @@ CLayerManager.prototype.arrangeInterface = function()
 
     this.images.bindImageRow(id, $listItem);
 
-    this.$layerList.append($listItem);
+    $layerList.append($listItem);
   }
+  this.$layerList.replaceWith($layerList);
+  this.$layerList = $layerList;
 }
 
 CLayerManager.prototype.layerDelB = function(z)

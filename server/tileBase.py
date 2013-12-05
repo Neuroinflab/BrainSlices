@@ -168,7 +168,7 @@ class TileBase(dbBase):
                    SELECT CASE WHEN COUNT(*) > 0 THEN %s ELSE %s END,
                           CASE WHEN COALESCE(BOOL_OR(image_edit), FALSE) THEN %s ELSE %s END,
                           CASE WHEN COALESCE(BOOL_OR(image_annotate), FALSE) THEN %s ELSE %s END,
-                          CASE WHEN COALESCE(BOOL_OR(image_outline), FALSE) THEN %s ELSE %s END,
+                          CASE WHEN COALESCE(BOOL_OR(image_outline), FALSE) THEN %s ELSE %s END
                    FROM image_privileges_cache
                    WHERE iid = %s AND uid = %s;
                    """, (GROUP_PRIVILEGE, view, GROUP_PRIVILEGE, edit,
