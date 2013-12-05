@@ -385,8 +385,8 @@ function CFileUploader($form, ajaxProvider)
               $batchSelect.val(response.data.bid);
             },
             {comment: comment},
-            ajaxErrorHandler,
-            'POST',
+            null,
+            null,
             {cache: false});
         });
       },
@@ -595,7 +595,7 @@ function CFileUploader($form, ajaxProvider)
         console.error('Checking File Uploaded Amount: Error!');
         throw 'Error while checking already uploaded amount. Upload cannot continue.'; // Discontinue the process of upload
       },
-      'POST', 
+      null, 
       ajaxOptions);
   }
  
@@ -799,7 +799,7 @@ function CFileUploader($form, ajaxProvider)
             to_refresh = not_accepted; //XXX: almost global
           }
         },
-        { 'iids': iids.join(',') }, null, 'POST', {async: false});
+        { 'iids': iids.join(',') }, null, null, {async: false});
     }
   }
   
@@ -925,9 +925,7 @@ function CFileUploader($form, ajaxProvider)
                              response.data.bid,
                              thisInstance.uploaded);
         },
-        null,
-        ajaxErrorHandler,
-        'POST',
+        null, null, null,
         {cache: false});
     }
 
@@ -1049,20 +1047,27 @@ function CFileUploader($form, ajaxProvider)
           form_data.append('iid', response.data.iid);
           form_data.append('offset', response.data.size);
 
-          $.ajax(
-          {
-            url: 'continueImageUpload',
-            dataType: 'json',
-            type: 'POST',
-            data: form_data,
-            processData: false,
-            contentType: false,
-            cache: false,
-            xhr: getUploadMonitor($progress, offset, Math.min(cSize, blob.size - offset), blob.size),
-            //Ajax events
-            success: sendNextChunk, // recurrention
-            error: ajaxErrorHandler,
-          });
+          ajaxProvider.ajax('continueImageUpload',
+                            sendNextChunk,
+                            form_data,
+                            function(data)
+                            {
+                              if (data.status == 0 && data.state() == 'rejected')
+                              {
+                                alert("File Upload: Something went wrong. Possibly no network connection.")
+                              }
+                              else
+                              {
+                                alert('File Upload: Something went wrong.\nRetry');
+                                console.error('File Upload: Error!');
+                                throw 'File Upload: Something went wrong.\nRetry';
+                              }
+                            },
+                            null,
+                            {processData: false,
+                             contentType: false,
+                             cache: false,
+                             xhr: getUploadMonitor($progress, offset, Math.min(cSize, blob.size - offset), blob.size)});
         }
         else
         {
@@ -1189,7 +1194,7 @@ function CFileUploader($form, ajaxProvider)
                 throw 'File Upload: Something went wrong.\nRetry';
               }
             },
-            'POST', 
+            null, 
             ajaxOptions);
         }
       }
