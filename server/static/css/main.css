@@ -247,6 +247,11 @@ form[name=confirmationForm] p
   overflow-y: auto;
 }
 
+#layersConsole .changed
+{
+  background: #FED;
+}
+
 #layersConsole table
 {
 /*  table-layout: fixed;*/

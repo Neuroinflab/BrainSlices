@@ -55,20 +55,20 @@ CImageManager.prototype.bindImageInterface = function(id, iface)
 
       image.updateHandler = function()
       {
-        var imageLeft = parseFloat(iface.children('input.imageLeft').val());
-        var imageTop = parseFloat(iface.children('input.imageTop').val());
-        var pixelSize = parseFloat(iface.children('input.pixelSize').val());
+        var imageLeft = parseFloat(iface.find('input.imageLeft').val());
+        var imageTop = parseFloat(iface.find('input.imageTop').val());
+        var pixelSize = parseFloat(iface.find('input.pixelSize').val());
         thisInstance.updateImage(id, imageLeft, imageTop, pixelSize, false);
       }
 
       image.statusChangeHandler = function()
       {
-        var status = parseInt(iface.children('select[name="status"]').val());
+        var status = parseInt(iface.find('select[name="status"]').val());
         thisInstance.updateImageStatus(id, status);
       }
 
-      iface.children('input').bind('change', image.updateHandler);
-      iface.children('select[name="status"]').bind('change', image.statusChangeHandler);
+      iface.find('input').bind('change', image.updateHandler);
+      iface.find('select[name="status"]').bind('change', image.statusChangeHandler);
     }
     else
     {
@@ -77,6 +77,28 @@ CImageManager.prototype.bindImageInterface = function(id, iface)
     }
 
     this.updateImageInterface(id);
+    return true;
+  }
+  return false;
+}
+
+CImageManager.prototype.bindImageRow = function(id, $row)
+{
+  if (id in this.images)
+  {
+    var image = this.images[id];
+    if ($row != null)
+    {
+      if (image.changed)
+      {
+        $row.addClass('changed');
+      }
+      else if ($row.hasClass('changed'))
+      {
+        $row.removeClass('changed');
+      }
+    }
+    this.images[id].$row = $row;
     return true;
   }
   return false;
@@ -96,6 +118,10 @@ CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
   {
     var image = this.images[id];
     image.changed = true;
+    if (image.$row != null)
+    {
+      image.$row.addClass('changed');
+    }
     if (imageLeft != null) image.info.imageLeft = imageLeft;
     if (imageTop != null) image.info.imageTop = imageTop;
     if (pixelSize != null) image.info.pixelSize = pixelSize;
@@ -124,6 +150,10 @@ CImageManager.prototype.updateImageStatus = function(id, status)
   {
     var image = this.images[id];
     image.changed = true;
+    if (image.$row != null)
+    {
+      image.$row.addClass('changed');
+    }
     image.info.status = status;
   }
 }
@@ -131,6 +161,7 @@ CImageManager.prototype.updateImageStatus = function(id, status)
 CImageManager.prototype.saveUpdatedTiled = function()
 {
   var changed = [];
+  var changedMapping = {};
   for (var id in this.images)
   {
     if (id[0] == 'i')
@@ -141,6 +172,7 @@ CImageManager.prototype.saveUpdatedTiled = function()
         var info = image.info;
         changed.push(info.iid + ',' + info.imageLeft + ',' + info.imageTop
                      + ',' + info.pixelSize + ',' + info.status);
+        changedMapping[info.iid] = image;
       }
     }
   }
@@ -148,9 +180,33 @@ CImageManager.prototype.saveUpdatedTiled = function()
   if (changed.length > 0)
   {
     this.ajaxProvider.ajax('/upload/updateMetadata',
-                           function()
+                           function(response)
                            {
-                             alert('TODO: image.changed cleanup;');
+                             if (!response.status)
+                             {
+                               alert(response.message);
+                               return;
+                             }
+                             var changed = response.data;
+
+                             for (var i = 0; i < changed.length; i++)
+                             {
+                               var item = changed[i];
+                               var image = changedMapping[item[0]];
+                               if (item[1])
+                               {
+                                 image.changed = false;
+                                 if (image.$row != null &&
+                                     image.$row.hasClass('changed'))
+                                 {
+                                   image.$row.removeClass('changed');
+                                 }
+                               }
+                               else
+                               {
+                                 console.warn('No privileges to change image #' + item[0]);
+                               }
+                             }
                            },
                            {updated: changed.join(':')});
   }
@@ -228,6 +284,7 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
     cachedImage.type = 'tiledImage';
     cachedImage.cacheId = 0;
     cachedImage.iface = iface;
+    cachedImage.$row = null; //???
     cachedImage.id = id;
     cachedImage.z = zIndex != null ? zIndex : 0;
     this.images[id] = cachedImage;
@@ -359,12 +416,12 @@ CImageManager.prototype.removeCachedImage = function(id)
     var image = this.images[id];
     if (image.updateHandler != null)
     {
-      image.iface.children('input').unbind('change', image.updateHandler);
+      image.iface.find('input').unbind('change', image.updateHandler);
     }
 
     if (image.statusChangeHandler != null)
     {
-      image.iface.children('select[name="status"]').unbind('change', image.statusChangeHandler);
+      image.iface.find('select[name="status"]').unbind('change', image.statusChangeHandler);
     }
 
     var references = image.references;
@@ -520,7 +577,6 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
 
   var id = 'i' + imageId;
 
-  // XXX: iface starts
   for (var i = 0; i < this.layers.length; i++)
   {
     if (this.layers[i].id == id) return; //imposible to add image twice
@@ -685,6 +741,8 @@ CLayerManager.prototype.arrangeInterface = function()
       $cell.append(this.layerDelB(z));
       $listItem.append($cell);
     }
+
+    this.images.bindImageRow(id, $listItem);
 
     this.$layerList.append($listItem);
   }
