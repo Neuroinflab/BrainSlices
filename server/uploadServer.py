@@ -33,10 +33,11 @@ from server import jsonStd, generateJson, Server, serveContent, ensureLogged,\
                    Generator, useTemplate, unwrapRow
 from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
-                    GetBrokenDuplicatesRequest, GetImagesStatusesRequest
+                    GetBrokenDuplicatesRequest, GetImagesStatusesRequest,\
+                    UpdateMetadataRequest
 
 
-class UploadGenerator(Generator):
+class UploadServer(Generator, Server):
   """
   Class of objects responsible for generation of content related to file
   (image) upload.
@@ -44,28 +45,19 @@ class UploadGenerator(Generator):
   @type tileBase: L{TileBase}
   @ivar tileBase: An object supporting image-related manipulations in the
                   repository database.
-
-  @type uploadDir: str
-  @ivar uploadDir: A filesystem path to directory containing the uploaded
-                   files.
   """
-  def __init__(self, templatesPath, uploadDir, tileBase):
+  def __init__(self, servicePath, tileBase):
     """
-    @type templatesPath: str
-    @param templatesPath: A filesystem path to directory containing HTML
-                          templates.
-
-    @type uploadDir: str
-    @param uploadDir: A filesystem path to directory containing the uploaded
-                      files.
+    @type servicePath: str
+    @param templatesPath: A filesystem path to directory containing service
+                          files.
 
     @type tileBase: L{TileBase}
     @param tileBase: An object supporting image-related manipulations in the
                      repository database.
     """
-    Generator.__init__(self, templatesPath)
+    Generator.__init__(self, os.path.join(servicePath, 'templates'))
     self.tileBase = tileBase
-    self.uploadDir = uploadDir
 
     controlPanel = self.templateEngine('draggableWindow.html')
     controlPanel['__windowId__'] = 'controlPanel'
@@ -81,10 +73,14 @@ class UploadGenerator(Generator):
     upload['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
     self['index'] = upload
 
+  @cherrypy.expose
+  @serveContent()
   @useTemplate('index')
   def index(self):
     return [], []
 
+  @cherrypy.expose
+  @serveContent(GetBrokenDuplicatesRequest)
   @ensureLogged
   def getBrokenDuplicates(self, uid, request):
     '''
@@ -100,6 +96,8 @@ class UploadGenerator(Generator):
 
     return generateJson(data = data, status = True, logged = uid != None)
 
+  @cherrypy.expose
+  @serveContent(GetImagesStatusesRequest)
   @ensureLogged
   def getImagesStatuses(self, uid, request):
     '''
@@ -111,6 +109,8 @@ class UploadGenerator(Generator):
                         status = True,
                         logged = uid != None)
 
+  @cherrypy.expose
+  @serveContent(UploadNewImageRequest)
   @ensureLogged
   def uploadNewImage(self, uid, request):
     slot = self.tileBase.UploadSlot(uid, filename = request.filename,
@@ -119,6 +119,8 @@ class UploadGenerator(Generator):
                                     bid = request.bid)
     return self.appendSlot(slot, request.data)
 
+  @cherrypy.expose
+  @serveContent(ContinueImageUploadRequest)
   @ensureLogged
   def continueImageUpload(self, uid, request):
     slot = self.tileBase.UploadSlot(uid, iid = request.iid)
@@ -137,6 +139,8 @@ class UploadGenerator(Generator):
                          'size': slot.size,
                          'crc32': slot.crc32}, logged = True)
 
+  @cherrypy.expose
+  @serveContent(NewBatchRequest)
   @ensureLogged
   def newBatch(self, uid, request):
     comment = request.comment
@@ -147,11 +151,15 @@ class UploadGenerator(Generator):
     bid = self.tileBase.newBatch(uid, comment = comment)
     return generateJson({'bid': bid, 'comment': comment}, logged = True)
 
+  @cherrypy.expose
+  @serveContent(BatchListRequest)
   @ensureLogged
   def batchList(self, uid, request):
     batches = self.tileBase.listOpenBatches(uid)
     return generateJson(batches, logged = True)
 
+  @cherrypy.expose
+  @serveContent(BatchDetailsRequest)
   @ensureLogged
   def batchDetails(self, uid, request):
     details = self.tileBase.getBatchDetails(uid, request.bid)
@@ -164,59 +172,57 @@ class UploadGenerator(Generator):
     return generateJson(data, logged = True)
 
 
-class UploadServer(Server):
-  def __init__(self, servicePath, tileBase):
-    self.serviceDir = servicePath # remove after tests
-    self.uploadDir = os.path.join(servicePath, 'uploadSlots')
-    self.tileBase = tileBase
-    templatesDir = os.path.join(servicePath, 'templates')
-    self.generator = UploadGenerator(templatesDir, self.uploadDir, tileBase)
-
-  @cherrypy.expose
-  @serveContent()
-  def index(self):
-    return self.generator.index()
-    # remove after tests
-
-  @cherrypy.expose
-  @serveContent(GetBrokenDuplicatesRequest)
-  def getBrokenDuplicates(self, request):
-    '''
-    Returns the list of broken and duplicate files found for the array of files passed.
-    For each file creates a new slot (row) in DB. Depending on the user's selection this new
-    row is either retained or removed during upload call.
-    '''
-    return self.generator.getBrokenDuplicates(request)
-
-  @cherrypy.expose
-  @serveContent(GetImagesStatusesRequest)
-  def getImagesStatuses(self, request):
-    '''
-    Returns the status of each iid passed. Bulk API
-    '''
-    return self.generator.getImagesStatuses(request)
-
-  @cherrypy.expose
-  @serveContent(UploadNewImageRequest)
-  def uploadNewImage(self, request):
-    return self.generator.uploadNewImage(request)
-
-  @cherrypy.expose
-  @serveContent(ContinueImageUploadRequest)
-  def continueImageUpload(self, request):
-    return self.generator.continueImageUpload(request)
-
-  @cherrypy.expose
-  @serveContent(NewBatchRequest)
-  def newBatch(self, request):
-    return self.generator.newBatch(request)
-
-  @cherrypy.expose
-  @serveContent(BatchListRequest)
-  def batchList(self, request):
-    return self.generator.batchList(request)
-
-  @cherrypy.expose
-  @serveContent(BatchDetailsRequest)
-  def batchDetails(self, request):
-    return self.generator.batchDetails(request)
+#class UploadServer(Server):
+#  def __init__(self, servicePath, tileBase):
+#    self.serviceDir = servicePath # remove after tests
+#    self.tileBase = tileBase
+#    templatesDir = os.path.join(servicePath, 'templates')
+#
+#  @cherrypy.expose
+#  @serveContent()
+#  def index(self):
+#    return self.generator.index()
+#    # remove after tests
+#
+#  @cherrypy.expose
+#  @serveContent(GetBrokenDuplicatesRequest)
+#  def getBrokenDuplicates(self, request):
+#    '''
+#    Returns the list of broken and duplicate files found for the array of files passed.
+#    For each file creates a new slot (row) in DB. Depending on the user's selection this new
+#    row is either retained or removed during upload call.
+#    '''
+#    return self.generator.getBrokenDuplicates(request)
+#
+#  @cherrypy.expose
+#  @serveContent(GetImagesStatusesRequest)
+#  def getImagesStatuses(self, request):
+#    '''
+#    Returns the status of each iid passed. Bulk API
+#    '''
+#    return self.generator.getImagesStatuses(request)
+#
+#  @cherrypy.expose
+#  @serveContent(UploadNewImageRequest)
+#  def uploadNewImage(self, request):
+#    return self.generator.uploadNewImage(request)
+#
+#  @cherrypy.expose
+#  @serveContent(ContinueImageUploadRequest)
+#  def continueImageUpload(self, request):
+#    return self.generator.continueImageUpload(request)
+#
+#  @cherrypy.expose
+#  @serveContent(NewBatchRequest)
+#  def newBatch(self, request):
+#    return self.generator.newBatch(request)
+#
+#  @cherrypy.expose
+#  @serveContent(BatchListRequest)
+#  def batchList(self, request):
+#    return self.generator.batchList(request)
+#
+#  @cherrypy.expose
+#  @serveContent(BatchDetailsRequest)
+#  def batchDetails(self, request):
+#    return self.generator.batchDetails(request)

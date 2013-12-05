@@ -27,12 +27,16 @@ import unittest
 from datetime import datetime
 
 import re
+from math import isnan, isinf
 
 LOGIN_RE = re.compile('^[a-z0-9-+_.*]+$')
 #EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
 EMAIL_RE = re.compile('^.+@.+$')
 MIN_FILE_SIZE = 8
 MAX_FILE_SIZE = 1024 * 1024 * 1024
+
+def validFloat(x):
+  return not (isnan(x) or isinf(x))
 
 def isstr(s):
   return type(s) is str or type(s) is unicode
@@ -528,6 +532,27 @@ class GetImagesStatusesRequest(Request):
                         lambda x: len(x) > 0 and all(y >= 0 for y in x),
                         lambda x: [int(y) for y in x.split(',')])
     
+    return self.valid
+
+
+class UpdateMetadataRequest(Request):
+  _required = Request._required | frozenset(['updated'])
+
+  def _parse(self):
+    if not Request._parse(self):
+      return False
+
+    unwrap = lambda x: (int(x[0]), float(x[1]), float(x[2]), float(x[3]), int(x[4]))
+    self._parseArgument('updated',
+                        lambda x: len(x) > 0 and\
+                                  all(iid >= 0 and\
+                                      validFloat(left) and\
+                                      validFloat(top) and\
+                                      pixelSize > 0 and\
+                                      status in set([-1, 6, 7])\
+                                      for (iid, left, top, pixelSize, status) in x),
+                        lambda x: [unwrap(y.split(',')) for y in x.split(':')])
+
     return self.valid
 
 
