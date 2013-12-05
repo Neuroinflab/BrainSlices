@@ -158,8 +158,7 @@ $(function()
                                           $('#x').val(), $('#y').val(),
                                           null, null,
                                           $('#controlPanel'),
-                                          false, false, false,
-                                          '/static/gfx');
+                                          '/static/gfx', loginConsole);
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks, false, false, false);
 
   $('#sliceDisplay').bind('mousemove', processMove);

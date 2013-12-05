@@ -134,6 +134,12 @@ function decompressStacks()
   $('#ny').val(stacks.ny);
 }
 
+function saveUpdated()
+{
+  //TODO: move to layerManager or so...
+  layerManager.images.saveUpdatedTiled();
+}
+
 $(document).ready(function()
 {
 	loginConsole = new CLoginConsole($('#userPanel'), $('#loginLink'), $('#logoutLink'),
@@ -174,8 +180,7 @@ $(document).ready(function()
                                           $('#x').val(), $('#y').val(),
                                           null, null,
                                           $('#controlPanel'),
-                                          false, false, false,
-                                          '/static/gfx');
+                                          '/static/gfx', loginConsole);
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks, false, false, false);
   
 });

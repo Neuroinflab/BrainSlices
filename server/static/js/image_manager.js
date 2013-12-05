@@ -21,8 +21,9 @@
 *                                                                             *
 \*****************************************************************************/
 
-function CImageManager()
+function CImageManager(ajaxProvider)
 {
+  this.ajaxProvider = ajaxProvider;
   this.images = {};
   this.adjust = null;
 }
@@ -60,11 +61,19 @@ CImageManager.prototype.bindImageInterface = function(id, iface)
         thisInstance.updateImage(id, imageLeft, imageTop, pixelSize, false);
       }
 
+      image.statusChangeHandler = function()
+      {
+        var status = parseInt(iface.children('select[name="status"]').val());
+        thisInstance.updateImageStatus(id, status);
+      }
+
       iface.children('input').bind('change', image.updateHandler);
+      iface.children('select[name="status"]').bind('change', image.statusChangeHandler);
     }
     else
     {
       image.updateHandler = null;
+      image.statusChangeHandler = null;
     }
 
     this.updateImageInterface(id);
@@ -76,27 +85,74 @@ CImageManager.prototype.bindImageInterface = function(id, iface)
 CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
                                                pixelSize, updateIFace)
 {
-  var image = this.images[id];
-  image.changed = true;
-  if (imageLeft != null) image.info.imageLeft = imageLeft;
-  if (imageTop != null) image.info.imageTop = imageTop;
-  if (pixelSize != null) image.info.pixelSize = pixelSize;
-  var references = image.references;
-  for (var cacheId in references) //XXX dangerous
+  if (id == null)
   {
-    references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
+    for (id in this.images)
+    {
+      this.updateImage(id, imageLeft, imageTop, pixelSize);
+    }
   }
-  if (updateIFace == null || updateIFace)
+  else
   {
-    this.updateImageInterface(id);
+    var image = this.images[id];
+    image.changed = true;
+    if (imageLeft != null) image.info.imageLeft = imageLeft;
+    if (imageTop != null) image.info.imageTop = imageTop;
+    if (pixelSize != null) image.info.pixelSize = pixelSize;
+    var references = image.references;
+    for (var cacheId in references) //XXX dangerous
+    {
+      references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
+    }
+    if (updateIFace == null || updateIFace)
+    {
+      this.updateImageInterface(id);
+    }
   }
 }
 
-CImageManager.prototype.updateAll = function(imageLeft, imageTop, pixelSize)
+CImageManager.prototype.updateImageStatus = function(id, status)
 {
+  if (id == null)
+  {
+    for (id in this.images)
+    {
+      this.updateImageStatus(id, status);
+    }
+  }
+  else
+  {
+    var image = this.images[id];
+    image.changed = true;
+    image.info.status = status;
+  }
+}
+
+CImageManager.prototype.saveUpdatedTiled = function()
+{
+  var changed = [];
   for (var id in this.images)
   {
-    this.updateImage(id, imageLeft, imageTop, pixelSize);
+    if (id[0] == 'i')
+    {
+      var image = this.images[id];
+      if (image.changed)
+      {
+        var info = image.info;
+        changed.push(info.iid + ',' + info.imageLeft + ',' + info.imageTop
+                     + ',' + info.pixelSize + ',' + info.status);
+      }
+    }
+  }
+
+  if (changed.length > 0)
+  {
+    this.ajaxProvider.ajax('/upload/updateMetadata',
+                           function()
+                           {
+                             alert('TODO: image.changed cleanup;');
+                           },
+                           {updated: changed.join(':')});
   }
 }
 
@@ -129,6 +185,8 @@ CImageManager.prototype.updateImageInterface = function(id)
       iface.find('span.imageTop').html(info.imageTop);
       iface.find('input.pixelSize').val(info.pixelSize);
       iface.find('span.pixelSize').html(info.pixelSize);
+      iface.find('select[name="status"]').val(info.status);
+      iface.find('span.status').html(STATUS_MAP[info.status]);
     }
     return true;
   }
@@ -185,25 +243,41 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
 CImageManager.prototype.cacheTiledImage = function(id, path, onSuccess, iface, zIndex)
 {
   var thisInstance = this;
-  $.ajax({
-    //type: 'POST', //causes 412 error on refresh -_-
-    type: 'GET',
-    url: path + '/info.json',
-    data: '',
-    dataType: 'json',
-    success: function(data)
-    {
-      if (data.status)
-      {
-        thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, iface, zIndex);
-      }
-      else
-      {
-        alert(data.message);
-      }
-    },
-    error: ajaxErrorHandler
-  });
+  this.ajaxProvider.ajax(path + '/info.json',
+                         function(data)
+                         {
+                           if (data.status)
+                           {
+                             thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, iface, zIndex);
+                           }
+                           else
+                           {
+                             alert(data.message);
+                           }
+                         },
+                         null,
+                         null,
+                         'GET');
+
+ // {
+ //   //type: 'POST', //causes 412 error on refresh -_-
+ //   type: 'GET',
+ //   url: path + '/info.json',
+ //   data: '',
+ //   dataType: 'json',
+ //   success: function(data)
+ //   {
+ //     if (data.status)
+ //     {
+ //       thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, iface, zIndex);
+ //     }
+ //     else
+ //     {
+ //       alert(data.message);
+ //     }
+ //   },
+ //   error: ajaxErrorHandler
+ // });
 }
 
 CImageManager.prototype.startAdjustment = function(id)
@@ -283,7 +357,15 @@ CImageManager.prototype.removeCachedImage = function(id)
   {
     this.stopAdjustment(id);
     var image = this.images[id];
-    image.iface.children('input').unbind('change', image.updateHandler);
+    if (image.updateHandler != null)
+    {
+      image.iface.children('input').unbind('change', image.updateHandler);
+    }
+
+    if (image.statusChangeHandler != null)
+    {
+      image.iface.children('select[name="status"]').unbind('change', image.statusChangeHandler);
+    }
 
     var references = image.references;
     for (var cacheId in references)
@@ -466,7 +548,15 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   if (this.adjustmentEnabled)
   {
     var $adjust = $('<input type="checkbox" class="recyclableElement">');
-    $iface = $('<span style="display: none;" class="recyclableElement"><input type="number" class="imageLeft"><input type="number" class="imageTop"><input type="number" class="pixelSize"></span>');
+    $iface = $('<span style="display: none;" class="recyclableElement">' +
+                '<input type="number" class="imageLeft">' +
+                '<input type="number" class="imageTop">' +
+                '<input type="number" class="pixelSize">' +
+                '<select name="status">' +
+                 '<option value="6">Completed</option>' +
+                 '<option value="7">Accepted</option>' +
+                '</select>' +
+               '</span>');
 
     $adjust.bind('change', function()
     {

@@ -23,9 +23,8 @@
 
 function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
                                     focusPointX, focusPointY, crosshairX,
-                                    crosshairY, $controlPanel, doNotRemove,
-                                    doNotAdjust, doNotDownload,
-                                    gfx)
+                                    crosshairY, $controlPanel, gfx,
+                                    ajaxProvider)
 {
   var thisInstance = this;
 
@@ -33,7 +32,7 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
 
   this.stacks = [];
 
-  this.images = new CImageManager();
+  this.images = new CImageManager(ajaxProvider);
 
   this.gfx = gfx != null ? gfx : 'static/gfx';
 
