@@ -125,15 +125,25 @@ CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
     if (imageLeft != null) image.info.imageLeft = imageLeft;
     if (imageTop != null) image.info.imageTop = imageTop;
     if (pixelSize != null) image.info.pixelSize = pixelSize;
-    var references = image.references;
-    for (var cacheId in references) //XXX dangerous
-    {
-      references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
-    }
+    this.propagateImageUpdate(image);
     if (updateIFace == null || updateIFace)
     {
       this.updateImageInterface(id);
     }
+  }
+}
+
+CImageManager.prototype.propagateImageUpdate = function(image)
+{
+  var references = image.references;
+  var info = image.info;
+  var imageLeft = info.imageLeft;
+  var imageTop = info.imageTop;
+  var pixelSize = info.pixelSize;
+
+  for (var cacheId in references) //XXX dangerous
+  {
+    references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
   }
 }
 
@@ -181,11 +191,7 @@ CImageManager.prototype.apply = function(id, f, updateIFace)
       image.$row.addClass('changed');
     }
     f(image);
-    var references = image.references;
-    for (var cacheId in references) //XXX dangerous
-    {
-      references[cacheId].updateImage(image.info.imageLeft, image.info.imageTop, image.info.pixelSize).update();
-    }
+    this.propagateImageUpdate(image);
 
     if (updateIFace == null || updateIFace)
     {
