@@ -22,62 +22,60 @@
   <script type="text/javascript">
 
 var fileUploader = null;
+var loginConsole = null;
 
 function listBatch()
 {
   var bid = $('.batch select').val();
   var query = (bid == 'None') ? '' : 'bid=' + bid;
 
-  $.ajax({
-    //type: 'POST', //causes 412 error on refresh -_-
-    type: 'GET',
-    url: '/upload/batchDetails',
-    data: query,
-    dataType: 'json',
-    success: function(data)
-    {
-      if (!data.status)
-      {
-        alert(data.message);
-        return false;
-      }
+  loginConsole.ajax('/upload/batchDetails',
+                    function(data)
+                    {
+                      if (!data.status)
+                      {
+                        alert(data.message);
+                        return false;
+                      }
 
-      layerManager.flush();
-      fileUploader.uploaded.reset();
-      data.data.sort(function(a, b)
-                     {
-                       if (a.filename < b.filename)
-                       {
-                         return -1;
-                       }
-                       if (a.filename > b.filename)
-                       {
-                         return 1;
-                       }
-                       return a.iid - b.iid;
-                     });
+                      layerManager.flush();
+                      fileUploader.uploaded.reset();
+                      data.data.sort(function(a, b)
+                                     {
+                                       if (a.filename < b.filename)
+                                       {
+                                         return -1;
+                                       }
+                                       if (a.filename > b.filename)
+                                       {
+                                         return 1;
+                                       }
+                                       return a.iid - b.iid;
+                                     });
 
-			for (var i = 0; i < data.data.length; i++)
-			{
-        var image = data.data[i];
-        var id = image.iid;
-        if (image.status >= 6)
-        {
-          // status: completed
-          layerManager.addTileLayer(id, '/images/' + id, null, image.filename, image, false);
-        }
-        fileUploader.uploaded.append({
-          name: image.filename + (image.status == 7 ?
-                                   '' :
-                                   ' (' + STATUS_MAP[image.status] + ')'),
-          size: image.sourceFilesize,
-          iid: id,
-          crc32: image.sourceCRC32});
-			}
-      layerManager.updateOrder();
-    },
-    error: ajaxErrorHandler
-  });
+                  		for (var i = 0; i < data.data.length; i++)
+                  		{
+                        var image = data.data[i];
+                        var id = image.iid;
+                        if (image.status >= 6)
+                        {
+                          // status: completed
+                          layerManager.addTileLayer(id, '/images/' + id, null, image.filename, image, false);
+                        }
+                        fileUploader.uploaded.append({
+                          name: image.filename + (image.status == 7 ?
+                                                   '' :
+                                                   ' (' + STATUS_MAP[image.status] + ')'),
+                          size: image.sourceFilesize,
+                          iid: id,
+                          crc32: image.sourceCRC32});
+                  		}
+                      layerManager.updateOrder();
+                    },
+                    query,
+                    null,
+                    'GET');
+//    //type: 'POST', //causes 412 error on refresh -_-
 
   return false;
 }
@@ -179,11 +177,11 @@ function centerImage(id)
 
 $(document).ready(function()
 {
-	loginConsole = new CLoginConsole($('#userPanel'), $('#loginLink'), $('#logoutLink'),
+	loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
 	          function()
 	          {
-	            $('#logoutLink').text('Logout [' +
-	                                  loginConsole.isLoggedAs() + ']');
+	            //$('#logoutLink').text('Logout [' +
+	            //                      loginConsole.isLoggedAs() + ']');
               if (fileUploader != null)
               {
                 fileUploader.listBatches();
@@ -195,17 +193,7 @@ $(document).ready(function()
               {
                 fileUploader.listBatches();
               }
-            },
-	          null,
-	          function()
-	          {
-	            $('#loginDiv').show();
-	            $('#registerDiv').hide();
-	            $('.formErrorMessages').text('');
-	            $('#registerOkDiv').hide('');
-	            $('#regeneratePasswordDiv').hide('');
-	            $('.regenerateForm').val('');
-	          });
+            });
 	
   fileUploader = new CFileUploader($('#upload'), loginConsole);
   var nx = 1;
