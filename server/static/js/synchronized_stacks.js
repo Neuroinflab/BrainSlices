@@ -388,14 +388,15 @@ CSynchronizedStacksDisplay.prototype.moveAbsolute = function(dx, dy, id)
       if (imageId in layers)
       {
         adjust = true;
-        break;
+        this.images.adjustOffset(dx, dy, imageId);
+        //break;
       }
     }
   }
 
   if (adjust)
   {
-    this.images.adjustOffset(dx, dy);
+    //this.images.adjustOffset(dx, dy);
   }
   else if (this.synchronize || id == null)
   {

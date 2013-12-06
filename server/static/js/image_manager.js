@@ -497,14 +497,22 @@ CImageManager.prototype.stopAdjustment = function(id)
   }
 }
 
-CImageManager.prototype.adjustOffset = function(dx, dy)
+CImageManager.prototype.adjustOffset = function(dx, dy, id)
 {
   if (this.adjust == null)
   {
     return;
   }
 
-  for (var id in this.adjust)
+
+  if (id == null)
+  {
+    for (id in this.adjust)
+    {
+      this.adjustOffset(dx, dy, id);
+    }
+  }
+  else if (id in this.adjust)
   {
     var image = this.adjust[id];
 
