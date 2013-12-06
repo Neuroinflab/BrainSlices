@@ -48,9 +48,10 @@ CImageManager.prototype.bindImageInterface = function(id, iface)
   if (id in this.images)
   {
     var image = this.images[id];
-    image.iface = iface;
+
     if (iface != null)
     {
+      image.iface = iface;
       var thisInstance = this;
 
       image.updateHandler = function()
@@ -72,11 +73,25 @@ CImageManager.prototype.bindImageInterface = function(id, iface)
     }
     else
     {
+      if (image.iface != null)
+      {
+        if (image.updateHandler != null)
+        {
+          image.iface.find('input').unbind('change', image.updateHandler);
+        }
+
+        if (image.statusChangeHandler != null)
+        {
+          image.iface.find('select[name="status"]').unbind('change', image.statusChangeHandler);
+        }
+      }
+
       image.updateHandler = null;
       image.statusChangeHandler = null;
+      image.iface = null;
     }
 
-    this.updateImageInterface(id);
+    image.updateInterface();
     return true;
   }
   return false;
@@ -125,26 +140,24 @@ CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
     if (imageLeft != null) image.info.imageLeft = imageLeft;
     if (imageTop != null) image.info.imageTop = imageTop;
     if (pixelSize != null) image.info.pixelSize = pixelSize;
-    this.propagateImageUpdate(image);
-    if (updateIFace == null || updateIFace)
-    {
-      this.updateImageInterface(id);
-    }
+    image.update(updateIFace);
   }
 }
 
 CImageManager.prototype.propagateImageUpdate = function(image)
 {
-  var references = image.references;
-  var info = image.info;
-  var imageLeft = info.imageLeft;
-  var imageTop = info.imageTop;
-  var pixelSize = info.pixelSize;
-
-  for (var cacheId in references) //XXX dangerous
-  {
-    references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
-  }
+  alert('Deprecated method CImageManager.propagateImageUpdate called');
+  image.update();
+//  var references = image.references;
+//  var info = image.info;
+//  var imageLeft = info.imageLeft;
+//  var imageTop = info.imageTop;
+//  var pixelSize = info.pixelSize;
+//
+//  for (var cacheId in references) //XXX dangerous
+//  {
+//    references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
+//  }
 }
 
 CImageManager.prototype.updateImageStatus = function(id, status, updateIFace)
@@ -168,7 +181,7 @@ CImageManager.prototype.updateImageStatus = function(id, status, updateIFace)
 
     if (updateIFace == null || updateIFace)
     {
-      this.updateImageInterface(id);
+      image.updateInterface();
     }
   }
 }
@@ -191,12 +204,7 @@ CImageManager.prototype.apply = function(id, f, updateIFace)
       image.$row.addClass('changed');
     }
     f(image);
-    this.propagateImageUpdate(image);
-
-    if (updateIFace == null || updateIFace)
-    {
-      this.updateImageInterface(id);
-    }
+    image.update(updateIFace);
   }
 }
 
@@ -269,23 +277,25 @@ CImageManager.prototype.setZ = function(id, zIndex)
 
 CImageManager.prototype.updateImageInterface = function(id)
 {
+  alert('Deprecated method CImageManager.updateImageInterface used')
   //shall be moved to separated class???
   if (id in this.images)
   {
-    var image = this.images[id];
-    var iface = image.iface;
-    if (iface != null)
-    {
-      var info = image.info;
-      iface.find('input.imageLeft').val(info.imageLeft);
-      iface.find('span.imageLeft').html(info.imageLeft);
-      iface.find('input.imageTop').val(info.imageTop);
-      iface.find('span.imageTop').html(info.imageTop);
-      iface.find('input.pixelSize').val(info.pixelSize);
-      iface.find('span.pixelSize').html(info.pixelSize);
-      iface.find('select[name="status"]').val(info.status);
-      iface.find('span.status').html(STATUS_MAP[info.status]);
-    }
+    this.images[id].updateInterface();
+//    var image = this.images[id];
+//    var iface = image.iface;
+//    if (iface != null)
+//    {
+//      var info = image.info;
+//      iface.find('input.imageLeft').val(info.imageLeft);
+//      iface.find('span.imageLeft').html(info.imageLeft);
+//      iface.find('input.imageTop').val(info.imageTop);
+//      iface.find('span.imageTop').html(info.imageTop);
+//      iface.find('input.pixelSize').val(info.pixelSize);
+//      iface.find('span.pixelSize').html(info.pixelSize);
+//      iface.find('select[name="status"]').val(info.status);
+//      iface.find('span.status').html(STATUS_MAP[info.status]);
+//    }
     return true;
   }
   return false;
@@ -329,6 +339,68 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
     cachedImage.$row = null; //???
     cachedImage.id = id;
     cachedImage.z = zIndex != null ? zIndex : 0;
+
+    cachedImage.updateInterface = function()
+    {
+      if (cachedImage.iface != null)
+      {
+        var iface = cachedImage.iface;
+        var info = cachedImage.info;
+        iface.find('input.imageLeft').val(info.imageLeft);
+        iface.find('span.imageLeft').html(info.imageLeft);
+        iface.find('input.imageTop').val(info.imageTop);
+        iface.find('span.imageTop').html(info.imageTop);
+        iface.find('input.pixelSize').val(info.pixelSize);
+        iface.find('span.pixelSize').html(info.pixelSize);
+        iface.find('select[name="status"]').val(info.status);
+        iface.find('span.status').html(STATUS_MAP[info.status]);
+      }
+    }
+
+    cachedImage.update = function(updateIFace)
+    {
+      var references = cachedImage.references;
+      var info = cachedImage.info;
+      var imageLeft = info.imageLeft;
+      var imageTop = info.imageTop;
+      var pixelSize = info.pixelSize;
+    
+      for (var cacheId in references) //XXX dangerous
+      {
+        references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
+      }
+
+      if (updateIFace == null || updateIFace)
+      {
+        cachedImage.updateInterface();
+      }
+    }
+
+    cachedImage.destroy = function()
+    {
+      // redundant with bindImageInterface
+      if (cachedImage.updateHandler != null)
+      {
+        cachedImage.iface.find('input').unbind('change', cachedImage.updateHandler);
+      }
+
+      if (cachedImage.statusChangeHandler != null)
+      {
+        cachedImage.iface.find('select[name="status"]').unbind('change', cachedImage.statusChangeHandler);
+      }
+
+      var references = cachedImage.references;
+      for (var cacheId in references)
+      {
+        // necessary to avoid circular references
+        references[cacheId].references = null;
+      }
+
+      cachedImage.updateInterface = null;
+      cachedImage.update = null;
+      cachedImage.destroy = null;
+    }
+
     this.images[id] = cachedImage;
     this.bindImageInterface(id, iface);
   }
@@ -437,15 +509,14 @@ CImageManager.prototype.adjustOffset = function(dx, dy)
     var image = this.adjust[id];
 
     image.changed = true;
-    var imageLeft = image.info.imageLeft += dx;
-    var imageTop = image.info.imageTop += dy;
-
-    var references = image.references;
-    for (var cacheId in references)
+    if (image.$row != null)
     {
-      references[cacheId].updateImage(imageLeft, imageTop, null).update();
+      image.$row.addClass('changed');
     }
-    this.updateImageInterface(id);
+    image.info.imageLeft += dx;
+    image.info.imageTop += dy;
+
+    image.update();
   }
   //TODO: update some offset information?
 }
@@ -456,22 +527,24 @@ CImageManager.prototype.removeCachedImage = function(id)
   {
     this.stopAdjustment(id);
     var image = this.images[id];
-    if (image.updateHandler != null)
-    {
-      image.iface.find('input').unbind('change', image.updateHandler);
-    }
+    image.destroy();
 
-    if (image.statusChangeHandler != null)
-    {
-      image.iface.find('select[name="status"]').unbind('change', image.statusChangeHandler);
-    }
-
-    var references = image.references;
-    for (var cacheId in references)
-    {
-      // necessary to avoid circular references
-      references[cacheId].references = null;
-    }
+//    if (image.updateHandler != null)
+//    {
+//      image.iface.find('input').unbind('change', image.updateHandler);
+//    }
+//
+//    if (image.statusChangeHandler != null)
+//    {
+//      image.iface.find('select[name="status"]').unbind('change', image.statusChangeHandler);
+//    }
+//
+//    var references = image.references;
+//    for (var cacheId in references)
+//    {
+//      // necessary to avoid circular references
+//      references[cacheId].references = null;
+//    }
     delete this.images[id];
   }
 }
