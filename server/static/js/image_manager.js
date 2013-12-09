@@ -132,16 +132,6 @@ CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
   else
   {
     this.images[id].updateInfo(imageLeft, imageTop, pixelSize, null, updateIFace);
-    //var image = this.images[id];
-    //image.changed = true;
-    //if (image.$row != null)
-    //{
-    //  image.$row.addClass('changed');
-    //}
-    //if (imageLeft != null) image.info.imageLeft = imageLeft;
-    //if (imageTop != null) image.info.imageTop = imageTop;
-    //if (pixelSize != null) image.info.pixelSize = pixelSize;
-    //image.update(updateIFace);
   }
 }
 
@@ -163,18 +153,6 @@ CImageManager.prototype.updateImageStatus = function(id, status, updateIFace)
   else
   {
     this.images[id].updateInfo(null, null, null, status, updateIFace);
-    //var image = this.images[id];
-    //image.changed = true;
-    //if (image.$row != null)
-    //{
-    //  image.$row.addClass('changed');
-    //}
-    //image.info.status = status;
-
-    //if (updateIFace == null || updateIFace)
-    //{
-    //  image.updateInterface();
-    //}
   }
 }
 
@@ -189,17 +167,10 @@ CImageManager.prototype.apply = function(id, f, updateIFace)
   }
   else
   {
-    //var image = this.images[id];
-    //image.changed = true;
-    //if (image.$row != null)
-    //{
-    //  image.$row.addClass('changed');
-    //}
     if (id in this.images)
     {
       f(this.images[id], updateIFace);
     }
-    //image.update(updateIFace);
   }
 }
 
@@ -455,25 +426,7 @@ CImageManager.prototype.cacheTiledImage = function(id, path, onSuccess, iface, z
                          null,
                          'GET');
 
- // {
  //   //type: 'POST', //causes 412 error on refresh -_-
- //   type: 'GET',
- //   url: path + '/info.json',
- //   data: '',
- //   dataType: 'json',
- //   success: function(data)
- //   {
- //     if (data.status)
- //     {
- //       thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, iface, zIndex);
- //     }
- //     else
- //     {
- //       alert(data.message);
- //     }
- //   },
- //   error: ajaxErrorHandler
- // });
 }
 
 CImageManager.prototype.startAdjustment = function(id)
