@@ -240,12 +240,12 @@ CImageManager.prototype.saveUpdatedTiled = function()
                                var image = changedMapping[item[0]];
                                if (item[1])
                                {
-                                 image.changed = false;
-                                 if (image.$row != null &&
-                                     image.$row.hasClass('changed'))
-                                 {
-                                   image.$row.removeClass('changed');
-                                 }
+                                 var data = image.info;
+                                 data._imageLeft = data.imageLeft;
+                                 data._imageTop = data.imageTop;
+                                 data._pixelSize = data.pixelSize;
+                                 data._status = data.status;
+                                 image.reset(false);
                                }
                                else
                                {
@@ -293,29 +293,13 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
   if (!this.has(id))
   {
     var cachedImage = {};
-    cachedImage.changed = false;
     cachedImage.info = data;
 
-    //fix invalid metadata
-    data._imageLeft = imageLeft;
-    if (data.imageLeft == undefined)
-    {
-      data.imageLeft = 0;
-      cachedImage.changed = true;
-    }
+    data._imageLeft = data.imageLeft;
     data._imageTop = data.imageTop;
-    if (data.imageTop == undefined)
-    {
-      data.imageTop = 0;
-      cachedImage.changed = true;
-    }
     data._pixelSize = data.pixelSize;
-    if (data.pixelSize == undefined)
-    {
-      data.pixelSize = 100000 / data.imageWidth;
-      cachedImage.changed = true;
-    }
     data._status = data.status;
+
     cachedImage.references = {};
     cachedImage.path = path;
     cachedImage.type = 'tiledImage';
@@ -324,6 +308,46 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
     cachedImage.$row = null; //???
     cachedImage.id = id;
     cachedImage.z = zIndex != null ? zIndex : 0;
+
+    cachedImage.reset = function(updateIFace)
+    {
+      cachedImage.changed = false;
+
+      //fix invalid metadata
+      data.imageLeft = data._imageLeft;
+      if (data.imageLeft == undefined)
+      {
+        data.imageLeft = 0;
+        cachedImage.changed = true;
+      }
+      data.imageTop = data._imageTop;
+      if (data.imageTop == undefined)
+      {
+        data.imageTop = 0;
+        cachedImage.changed = true;
+      }
+      data.pixelSize = data._pixelSize;
+      if (data.pixelSize == undefined)
+      {
+        data.pixelSize = 100000 / data.imageWidth;
+        cachedImage.changed = true;
+      }
+      data.status = data._status;
+
+      if (cachedImage.$row != null)
+      {
+        if (cachedImage.changed)
+        {
+          cachedImage.$row.addClass('changed');
+        }
+        else if (cachedImage.$row.hasClass('changed'))
+        {
+          cachedImage.$row.removeClass('changed');
+        }
+      }
+
+      cachedImage.update(updateIFace);
+    }
 
     cachedImage.updateInterface = function()
     {
@@ -403,6 +427,7 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
 
     this.images[id] = cachedImage;
     this.bindImageInterface(id, iface);
+    cachedImage.reset();
   }
 
   if (onSuccess != null)

@@ -176,6 +176,14 @@ function centerImage(id)
   });
 }
 
+function resetImage(id)
+{
+  layerManager.images.apply(id, function(image, updateIface)
+  {
+    image.reset(updateIface);
+  });
+}
+
 $(document).ready(function()
 {
 	loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
