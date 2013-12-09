@@ -59,13 +59,15 @@ CImageManager.prototype.bindImageInterface = function(id, iface)
         var imageLeft = parseFloat(iface.find('input.imageLeft').val());
         var imageTop = parseFloat(iface.find('input.imageTop').val());
         var pixelSize = parseFloat(iface.find('input.pixelSize').val());
-        thisInstance.updateImage(id, imageLeft, imageTop, pixelSize, false);
+        image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
+        //thisInstance.updateImage(id, imageLeft, imageTop, pixelSize, false);
       }
 
       image.statusChangeHandler = function()
       {
         var status = parseInt(iface.find('select[name="status"]').val());
-        thisInstance.updateImageStatus(id, status);
+        image.updateInfo(null, null, null, status, false);
+        //thisInstance.updateImageStatus(id, status);
       }
 
       iface.find('input').bind('change', image.updateHandler);
