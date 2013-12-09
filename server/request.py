@@ -520,6 +520,7 @@ class GetBrokenDuplicatesRequest(Request):
     
     return self.valid
 
+
 IidsRequestAux = Request.extend('IidsRequestAux',
 """
 A virtual class introducing iids list parsing.
@@ -528,28 +529,17 @@ required = 'iids',
 atoms = {'iids': (lambda x: len(x) > 0 and all(y >= 0 for y in x),
                   lambda x: [int(y) for y in x.split(',')])})
 
+
 GetImagesStatusesRequest = IidsRequestAux.extend('GetImagesStatusesRequest',
 """
 A class for image status querying.
 """)
 
+
 DeleteImagesRequest = IidsRequestAux.extend('DeleteImagesRequest',
 """
 A class for image deletion.
 """)
-
-#class GetImagesStatusesRequest(Request):
-#  _required = Request._required | frozenset(['iids'])
-#
-#  def _parse(self):
-#    if not Request._parse(self):
-#      return False
-#
-#    self._parseArgument('iids',
-#                        lambda x: len(x) > 0 and all(y >= 0 for y in x),
-#                        lambda x: [int(y) for y in x.split(',')])
-#    
-#    return self.valid
 
 
 UpdateMetadataRequest = Request.extend('UpdateMetadataRequest',
@@ -570,26 +560,6 @@ atoms = {'updated': (lambda x:\
                                            float(x[2]), float(x[3]),
                                            int(x[4])):\
                        [unwrap(y.split(',')) for y in x.split(':')])})
-
-#class UpdateMetadataRequest(Request):
-#  _required = Request._required | frozenset(['updated'])
-#
-#  def _parse(self):
-#    if not Request._parse(self):
-#      return False
-#
-#    unwrap = lambda x: (int(x[0]), float(x[1]), float(x[2]), float(x[3]), int(x[4]))
-#    self._parseArgument('updated',
-#                        lambda x: len(x) > 0 and\
-#                                  all(iid >= 0 and\
-#                                      validFloat(left) and\
-#                                      validFloat(top) and\
-#                                      pixelSize > 0 and\
-#                                      status in (6, 7)\
-#                                      for (iid, left, top, pixelSize, status) in x),
-#                        lambda x: [unwrap(y.split(',')) for y in x.split(':')])
-#
-#    return self.valid
 
 
 class NewBatchRequest(Request):
