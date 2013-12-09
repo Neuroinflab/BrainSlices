@@ -520,19 +520,36 @@ class GetBrokenDuplicatesRequest(Request):
     
     return self.valid
 
+IidsRequestAux = Request.extend('IidsRequestAux',
+"""
+A virtual class introducing iids list parsing.
+""",
+required = 'iids',
+atoms = {'iids': (lambda x: len(x) > 0 and all(y >= 0 for y in x),
+                  lambda x: [int(y) for y in x.split(',')])})
 
-class GetImagesStatusesRequest(Request):
-  _required = Request._required | frozenset(['iids'])
+GetImagesStatusesRequest = IidsRequestAux.extend('GetImagesStatusesRequest',
+"""
+A class for image status querying.
+""")
 
-  def _parse(self):
-    if not Request._parse(self):
-      return False
+DeleteImagesRequest = IidsRequestAux.extend('DeleteImagesRequest',
+"""
+A class for image deletion.
+""")
 
-    self._parseArgument('iids',
-                        lambda x: len(x) > 0 and all(y >= 0 for y in x),
-                        lambda x: [int(y) for y in x.split(',')])
-    
-    return self.valid
+#class GetImagesStatusesRequest(Request):
+#  _required = Request._required | frozenset(['iids'])
+#
+#  def _parse(self):
+#    if not Request._parse(self):
+#      return False
+#
+#    self._parseArgument('iids',
+#                        lambda x: len(x) > 0 and all(y >= 0 for y in x),
+#                        lambda x: [int(y) for y in x.split(',')])
+#    
+#    return self.valid
 
 
 UpdateMetadataRequest = Request.extend('UpdateMetadataRequest',
