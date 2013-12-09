@@ -131,16 +131,17 @@ CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
   }
   else
   {
-    var image = this.images[id];
-    image.changed = true;
-    if (image.$row != null)
-    {
-      image.$row.addClass('changed');
-    }
-    if (imageLeft != null) image.info.imageLeft = imageLeft;
-    if (imageTop != null) image.info.imageTop = imageTop;
-    if (pixelSize != null) image.info.pixelSize = pixelSize;
-    image.update(updateIFace);
+    this.images[id].updateInfo(imageLeft, imageTop, pixelSize, null, updateIFace);
+    //var image = this.images[id];
+    //image.changed = true;
+    //if (image.$row != null)
+    //{
+    //  image.$row.addClass('changed');
+    //}
+    //if (imageLeft != null) image.info.imageLeft = imageLeft;
+    //if (imageTop != null) image.info.imageTop = imageTop;
+    //if (pixelSize != null) image.info.pixelSize = pixelSize;
+    //image.update(updateIFace);
   }
 }
 
@@ -148,16 +149,6 @@ CImageManager.prototype.propagateImageUpdate = function(image)
 {
   alert('Deprecated method CImageManager.propagateImageUpdate called');
   image.update();
-//  var references = image.references;
-//  var info = image.info;
-//  var imageLeft = info.imageLeft;
-//  var imageTop = info.imageTop;
-//  var pixelSize = info.pixelSize;
-//
-//  for (var cacheId in references) //XXX dangerous
-//  {
-//    references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
-//  }
 }
 
 CImageManager.prototype.updateImageStatus = function(id, status, updateIFace)
@@ -171,18 +162,19 @@ CImageManager.prototype.updateImageStatus = function(id, status, updateIFace)
   }
   else
   {
-    var image = this.images[id];
-    image.changed = true;
-    if (image.$row != null)
-    {
-      image.$row.addClass('changed');
-    }
-    image.info.status = status;
+    this.images[id].updateInfo(null, null, null, status, updateIFace);
+    //var image = this.images[id];
+    //image.changed = true;
+    //if (image.$row != null)
+    //{
+    //  image.$row.addClass('changed');
+    //}
+    //image.info.status = status;
 
-    if (updateIFace == null || updateIFace)
-    {
-      image.updateInterface();
-    }
+    //if (updateIFace == null || updateIFace)
+    //{
+    //  image.updateInterface();
+    //}
   }
 }
 
@@ -197,14 +189,17 @@ CImageManager.prototype.apply = function(id, f, updateIFace)
   }
   else
   {
-    var image = this.images[id];
-    image.changed = true;
-    if (image.$row != null)
+    //var image = this.images[id];
+    //image.changed = true;
+    //if (image.$row != null)
+    //{
+    //  image.$row.addClass('changed');
+    //}
+    if (id in this.images)
     {
-      image.$row.addClass('changed');
+      f(this.images[id], updateIFace);
     }
-    f(image);
-    image.update(updateIFace);
+    //image.update(updateIFace);
   }
 }
 
@@ -282,20 +277,6 @@ CImageManager.prototype.updateImageInterface = function(id)
   if (id in this.images)
   {
     this.images[id].updateInterface();
-//    var image = this.images[id];
-//    var iface = image.iface;
-//    if (iface != null)
-//    {
-//      var info = image.info;
-//      iface.find('input.imageLeft').val(info.imageLeft);
-//      iface.find('span.imageLeft').html(info.imageLeft);
-//      iface.find('input.imageTop').val(info.imageTop);
-//      iface.find('span.imageTop').html(info.imageTop);
-//      iface.find('input.pixelSize').val(info.pixelSize);
-//      iface.find('span.pixelSize').html(info.pixelSize);
-//      iface.find('select[name="status"]').val(info.status);
-//      iface.find('span.status').html(STATUS_MAP[info.status]);
-//    }
     return true;
   }
   return false;
@@ -316,21 +297,25 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
     cachedImage.info = data;
 
     //fix invalid metadata
+    data._imageLeft = imageLeft;
     if (data.imageLeft == undefined)
     {
       data.imageLeft = 0;
       cachedImage.changed = true;
     }
+    data._imageTop = data.imageTop;
     if (data.imageTop == undefined)
     {
       data.imageTop = 0;
       cachedImage.changed = true;
     }
+    data._pixelSize = data.pixelSize;
     if (data.pixelSize == undefined)
     {
       data.pixelSize = 100000 / data.imageWidth;
       cachedImage.changed = true;
     }
+    data._status = data.status;
     cachedImage.references = {};
     cachedImage.path = path;
     cachedImage.type = 'tiledImage';
@@ -374,6 +359,21 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
       {
         cachedImage.updateInterface();
       }
+    }
+
+    cachedImage.updateInfo = function(imageLeft, imageTop, pixelSize, status, updateIFace)
+    {
+      cachedImage.changed = true;
+      if (cachedImage.$row != null)
+      {
+        cachedImage.$row.addClass('changed');
+      }
+
+      if (imageLeft != null) cachedImage.info.imageLeft = imageLeft;
+      if (imageTop != null) cachedImage.info.imageTop = imageTop;
+      if (pixelSize != null) cachedImage.info.pixelSize = pixelSize;
+      if (status != null) cachedImage.info.status = status;
+      cachedImage.update(updateIFace);
     }
 
     cachedImage.destroy = function()
@@ -536,23 +536,6 @@ CImageManager.prototype.removeCachedImage = function(id)
     this.stopAdjustment(id);
     var image = this.images[id];
     image.destroy();
-
-//    if (image.updateHandler != null)
-//    {
-//      image.iface.find('input').unbind('change', image.updateHandler);
-//    }
-//
-//    if (image.statusChangeHandler != null)
-//    {
-//      image.iface.find('select[name="status"]').unbind('change', image.statusChangeHandler);
-//    }
-//
-//    var references = image.references;
-//    for (var cacheId in references)
-//    {
-//      // necessary to avoid circular references
-//      references[cacheId].references = null;
-//    }
     delete this.images[id];
   }
 }

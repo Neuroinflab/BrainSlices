@@ -166,12 +166,13 @@ function updateStatus()
 
 function centerImage(id)
 {
-  layerManager.images.apply(id, function(image)
+  layerManager.images.apply(id, function(image, updateIfeace)
   {
     var info = image.info;
     var factor = -0.5 * info.pixelSize;
-    info.imageLeft = factor * info.imageWidth;
-    info.imageTop = factor * info.imageHeight;
+    var imageLeft = factor * info.imageWidth;
+    var imageTop = factor * info.imageHeight;
+    image.updateInfo(imageLeft, imageTop, null, null, updateIfeace);
   });
 }
 
