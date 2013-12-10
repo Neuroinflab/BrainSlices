@@ -29,7 +29,7 @@ import zlib
 import tempfile
 import subprocess
 
-from database import provideCursor, dbBase
+from database import provideCursor, manageConnection, dbBase
 
 
 import ctypes
@@ -569,8 +569,8 @@ class TileBase(dbBase):
     cursor.execute(query, data)
     return cursor.rowcount == 1
 
-  @provideCursor
-  def deleteImage(self, iid, cursor = None):
+  @manageConnection()
+  def deleteImage(self, iid, cursor = None, db = None):
     cursor.execute("""
                    UPDATE images
                    SET status = %s
@@ -580,31 +580,18 @@ class TileBase(dbBase):
     if cursor.rowcount != 1:
       return False
 
-    #if fid != iid:
-    #  cursor.execute("""
-    #                 UPDATE images
-    #                 SET fid = NULL
-    #                 WHERE iid = %s;
-    #                 """, (iid,))
-
-    #fid = self.getOneValue("""
-    #                       SELECT fid
-    #                       FROM images
-    #                       WHERE iid = %s;
-    #                       """, (iid,), cursor = cursor)
-    #if fid != None:
-    #  n = self.getOneValue("""
-    #                       SELECT COUNT(*)
-    #                       FROM images
-    #                       WHERE fid = %s AND status >= %s;
-    #                       """, (fid, IMAGE_STATUS_COMPLETED),
-    #                       cursor = cursor)
-
-    # TODO: 
-    # - check for deduplication links before files removal
-    # - void image privileges
-    # - image files removal
-
+    cursor.execute("""
+                   DELETE FROM properties
+                   WHERE iid = %s;
+                   """, (iid,))
+    cursor.execute("""
+                   DELETE FROM image_privileges_cache
+                   WHERE iid = %s;
+                   """, (iid,))
+    cursor.execute("""
+                   DELETE FROM image_privileges
+                   WHERE iid = %s;
+                   """, (iid,))
     return True
 
   @provideCursor
@@ -714,8 +701,8 @@ class TileBase(dbBase):
       raise KeyError("ERROR: Unable to mark image #%d as completed." % iid)
 
 
-  @provideCursor
-  def clean(self, cursor = None):
+  @manageConnection()
+  def clean(self, cursor = None, db = None):
     """
     Deduplicate and remove files of removed images.
     """

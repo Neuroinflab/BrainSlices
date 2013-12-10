@@ -73,6 +73,45 @@ def provideConnection(isolationLevel=psycopg2.extensions.ISOLATION_LEVEL_SERIALI
 
   return decorator
 
+def manageConnection(isolationLevel=psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE):
+  def decorator(function):
+    def toBeExecuted(self, *args, **kwargs):
+      newConnection = 'connection' not in kwargs
+      if newConnection:
+        db = self._dbPool.getconn()
+        db.set_isolation_level(isolationLevel)
+        db.set_client_encoding(BS_DB_ENCODING)
+        cursor = db.cursor()
+        kwargs['db'] = db
+        kwargs['cursor'] = cursor
+
+      try:
+        while True:
+          try:
+            result = function(self, *args, **kwargs)
+
+          except TransactionRollbackError:
+            db.rollback()
+
+          except:
+            db.rollback()
+            raise
+
+          else:
+            db.commit()
+            break
+
+      finally:
+        if newConnection:
+          cursor.close()
+          self._dbPool.putconn(db)
+
+      return result
+
+    return toBeExecuted
+
+  return decorator
+
 pg_exceptions_dict = {
   """ERROR:  duplicate key value violates unique constraint "groups_name_administrator"\n""":
   (KeyError, 'group_name, administrator pair already exists'),
