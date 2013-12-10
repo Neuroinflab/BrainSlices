@@ -45,6 +45,7 @@ IMAGE_STATUS_COMPLETED = 6
 IMAGE_STATUS_ACCEPTED = 7
 IMAGE_STATUS_REMOVED = -1
 IMAGE_STATUS_ERROR = -2
+IMAGE_STATUS_MIN = -10
 
 IMAGE_STATUS_PREVIEWABLE = IMAGE_STATUS_COMPLETED
 
@@ -570,15 +571,13 @@ class TileBase(dbBase):
 
   @provideCursor
   def deleteImage(self, iid, cursor = None):
-    fid = self._getOneValue("""
-                            UPDATE images
-                            SET status = %s
-                            WHERE iid = %s AND status >= %s
-                            RETURNING fid;
-                            """,
-                            (IMAGE_STATUS_REMOVED, iid, IMAGE_STATUS_COMPLETED),
-                            cursor = cursor)
-    if fid is None:
+    cursor.execute("""
+                   UPDATE images
+                   SET status = %s
+                   WHERE iid = %s AND status >= %s;
+                   """,
+                   (IMAGE_STATUS_REMOVED, iid, IMAGE_STATUS_COMPLETED))
+    if cursor.rowcount != 1:
       return False
 
     #if fid != iid:
@@ -722,7 +721,6 @@ class TileBase(dbBase):
     """
     #XXX WARNING: should be executed only when there is no tiling in progress!
     # and the service is paused
-    #TODO: make it robust to removed images
     cursor.execute("""
                    SELECT image_crc32, image_md5, image_width, image_height
                    FROM images
@@ -735,16 +733,20 @@ class TileBase(dbBase):
                     IMAGE_STATUS_ACCEPTED))
     rows = cursor.fetchall()
     for row in rows:
+      # only FID-s of non-deleted images are important for deduplication -
+      # other would be deleted later
       cursor.execute("""
                      SELECT fid, tile_width, tile_height
                      FROM images
                      WHERE image_crc32 = %s AND image_md5 = %s AND
                            image_width = %s AND image_height = %s AND
-                           iid = fid AND status IN (%s, %s, %s)
-                     ORDER BY status DESC, fid ASC;
-                     """, row + (IMAGE_STATUS_REMOVED,
-                                 IMAGE_STATUS_COMPLETED,
-                                 IMAGE_STATUS_ACCEPTED))
+                           status IN (%s, %s)
+                     GROUP BY fid, tile_width, tile_height
+                     ORDER BY MAX(CASE WHEN iid = fid THEN status
+                                  ELSE %s END) DESC, fid ASC;
+                     """,
+                     row + (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_ACCEPTED,
+                            IMAGE_STATUS_MIN))
       suspected = cursor.fetchall()
       while len(suspected) > 0:
         fid, tileWidth, tileHeight = suspected.pop(0)
@@ -814,23 +816,22 @@ class TileBase(dbBase):
         os.remove(original)
         suspected = newSuspected
 
-    # look for removed original images (original == still linked to its own tiles)
+    # look for tile stacks requiring renaming/deletion
     cursor.execute("""
-                   SELECT fid
+                   SELECT fid, MIN(CASE WHEN status != %s THEN iid
+                                   ELSE NULL END) AS new_fid
                    FROM images
-                   WHERE fid = iid AND status = %s;
-                   """, (IMAGE_STATUS_REMOVED,))
-    for (fid,) in cursor.fetchall():
+                   WHERE fid IS NOT NULL
+                   GROUP BY fid
+                   HAVING MIN(CASE WHEN status != %s THEN iid
+                              ELSE NULL END) != fid
+                          OR BOOL_AND(status = %s);
+                   """, (IMAGE_STATUS_REMOVED, IMAGE_STATUS_REMOVED,
+                         IMAGE_STATUS_REMOVED))
+    for fid, newFid in cursor.fetchall():
       path = os.path.join(self.tileDir, '%d' % fid)
-      newFid = self._getOneValue("""
-                                 SELECT MIN(iid)
-                                 FROM images
-                                 WHERE fid = %s AND status != %s;
-                                 """,
-                                 (fid, IMAGE_STATUS_REMOVED),
-                                 cursor = cursor)
       if newFid is None:
-        # no present images found
+        # all images assigned to the stack are deleted
         print "No images assigned to tile stack of ID %d. Removing." % fid
         shutil.rmtree(path)
 
