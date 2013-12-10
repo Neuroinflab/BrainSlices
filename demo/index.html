@@ -13,6 +13,7 @@
   <script src="static/js/draggable_div.js" type="text/javascript"></script>
   <script src="static/js/image_manager.js" type="text/javascript"></script>
   <script src="static/js/synchronized_stacks.js" type="text/javascript"></script>
+  <script src="static/js/main.js" type="text/javascript"></script>
   <script type="text/javascript">
 
 var move = false;
@@ -54,6 +55,8 @@ function test()
 }
 
 var stacks = null;
+var layerManager = null;
+var ajaxProvider = null;
 var images = ['050',
               '051',
               '052',
@@ -63,7 +66,7 @@ var images = ['050',
 
 function arrangeInterface()
 {
-	stacks.arrangeInterface();
+	layerManager.arrangeInterface();
 }
 
 function rearrangeInterface()
@@ -74,7 +77,7 @@ function rearrangeInterface()
   var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
 
   stacks.rearrange(nx, ny, width);
-  stacks.arrangeInterface();
+  layerManager.arrangeInterface();
 }
 
 function compressStacks()
@@ -88,7 +91,7 @@ function compressStacks()
       stacks.load(0, images[i], true);
     }
   }
-  stacks.arrangeInterface();
+  layerManager.arrangeInterface();
   $('#nx').val(stacks.nx);
   $('#ny').val(stacks.ny);
 }
@@ -112,7 +115,7 @@ function decompressStacks()
     stacks.load(i, images[images.length - 1 - i], true);
   }
 
-  stacks.arrangeInterface();
+  layerManager.arrangeInterface();
   $('#nx').val(stacks.nx);
   $('#ny').val(stacks.ny);
 }
@@ -122,13 +125,16 @@ $(document).ready(function()
   var nx = $('#nx').val();
   var ny = $('#ny').val();
 
+  ajaxProvider = new CAjaxProvider();
   stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
                                           $('#controlPanel [name="synchronization"]:checked').length != 0,
                                           $('#controlPanel [name="zoom"]').val(),
                                           $('#x').val(), $('#y').val(),
                                           null, null,
                                           $('#controlPanel'),
-                                          true, true, false);
+                                          'static/gfx', ajaxProvider);
+  layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
+                                   ajaxProvider, true, true, false, true);
 
   $('#sliceDisplay').bind('mousemove', processMove);
   $('#sliceDisplay').bind('mousedown', startMove);
@@ -138,7 +144,7 @@ $(document).ready(function()
   for (var z = 0; z < images.length; z++)
   {
     var id = images[z];
-    stacks.addTileLayer(id, 'images/' + id, 0, 'Slice no ' + id);
+    layerManager.addTileLayer(id, 'images/' + id, 0, 'Slice no ' + id);
   }
 
   arrangeInterface();

@@ -40,61 +40,36 @@ var STATUS_MAP = {'0': 'UPLOADING',
 
 
 /*****************************************************************************\
- * Class: CLoginManager                                                      *
+ * Class: CAjaxProvider                                                      *
  *                                                                           *
- * A class of objects that store (and monitors) information about session    *
- * state at client side.                                                     *
+ * A class of objects that provide basic ajax interface (in way used by more *
+ * sophisticated objects.                                                    *
  *                                                                           *
  * Attributes:                                                               *
- *   logged - State of the session (true if logged, false if not, null if    *
- *            the state is unknown just after instantatiation of the         *
- *            object). Boolean                                               *
- *   loggedAs - Login if logged, null otherwise. String                      *
- *   onlogin - Triggers to be executed when the state changes to logged      *
- *             (both after login and instantation of the object).            *
- *             Array of functions                                            *
- *   onlogout - Triggers to be executed when the state changes to not logged *
- *              (both after logout  and instantation of the object).         *
- *              Array of functions                                           *
  *   destroyed - A flag indicating if the object is awaiting for destruction *
  *               (AJAX requests are disabled). Boolean                       *
  *   awaiting - A number of ongoing AJAX requests. Integer                   *
+ *   cleanup - A function to be called when destroyed and all triggered AJAX *
+ *             requests returned.                                            *
  *                                                                           *
  *****************************************************************************
- * Constructor: CLoginManager                                                *
+ * Constructor: CCAjaxProvider                                               *
  *                                                                           *
  * Initialize the object.                                                    *
  *                                                                           *
  * Parameters:                                                               *
- *   onlogin - Trigger(s) to be executed when the state changes to logged    *
- *             (both after login and instantation of the object).            *
- *             function or Array of functions or null or undefined           *
- *   onlogout - Trigger(s) to be executed when the state changes to not      *
- *              logged (both after logout and instantation of the object).   *
- *              function or Array of functions or null or undefined          *
- *   finalFunction - Trigger to be executed when the state of session is     *
- *                   known (after login and instantation of the object).     *
- *                   function or null or undefined                           *
+ *   cleanup - A function to be called when destroyed and all triggered AJAX *
+ *             requests returned.                                            *
 \*****************************************************************************/
-function CLoginManager(onlogin, onlogout, finalFunction)
+function CAjaxProvider(cleanup)
 {
-  this.logged = null;
-  this.loggedAs = null;
-
-  this.onlogin = onlogin == null ? [] : (onlogin instanceof Array ?
-                                         onlogin.slice(0) :
-                                         [onlogin]);
-  this.onlogout = onlogout == null ? [] : (onlogout instanceof Array ?
-                                           onlogout.slice(0) :
-                                           [onlogout]);
-
   this.destroyed = false;
   this.awaiting = 0;
-  this.checkLogged(finalFunction);
+  this.cleanup = cleanup;
 }
 
 /*****************************************************************************\
- * Method: ajaxAux                                                           *
+ * Method: ajax                                                              *
  *                                                                           *
  * Send an AJAX request to the server, pass the received JSON object to the  *
  * provided handler.                                                         *
@@ -107,8 +82,8 @@ function CLoginManager(onlogin, onlogout, finalFunction)
  *   type - An HTTP method of the request. 'POST' by default. String.        *
  *   options - Any other jQuery.ajax options.                                *
 \*****************************************************************************/
-CLoginManager.prototype.ajaxAux = function(url, successHandler, data,
-                                           errorHandler, type, options)
+CAjaxProvider.prototype.ajax = function(url, successHandler, data,
+                                        errorHandler, type, options)
 {
   var thisInstance = this;
   if (!(this.destroyed))
@@ -160,6 +135,149 @@ CLoginManager.prototype.ajaxAux = function(url, successHandler, data,
 }
 
 /*****************************************************************************\
+ * Destructor: destroy                                                       *
+ *                                                                           *
+ * Prepare the object for being disposed.                                    *
+\*****************************************************************************/
+CAjaxProvider.prototype.destroy = function()
+{
+  this.destroyed = true; //mark the object as destroyed
+  if (this.awaiting == 0 && this.cleanup != null)
+  {
+    this.cleanup();
+    this.cleanup = null;
+  }
+}
+
+
+/*****************************************************************************\
+ * Class: CLoginManager                                                      *
+ *                                                                           *
+ * A class of objects that store (and monitors) information about session    *
+ * state at client side.                                                     *
+ *                                                                           *
+ * Attributes:                                                               *
+ *   logged - State of the session (true if logged, false if not, null if    *
+ *            the state is unknown just after instantatiation of the         *
+ *            object). Boolean                                               *
+ *   loggedAs - Login if logged, null otherwise. String                      *
+ *   onlogin - Triggers to be executed when the state changes to logged      *
+ *             (both after login and instantation of the object).            *
+ *             Array of functions                                            *
+ *   onlogout - Triggers to be executed when the state changes to not logged *
+ *              (both after logout  and instantation of the object).         *
+ *              Array of functions                                           *
+ *#  destroyed - A flag indicating if the object is awaiting for destruction *
+ *#              (AJAX requests are disabled). Boolean                       *
+ *#  awaiting - A number of ongoing AJAX requests. Integer                   *
+ *   ajaxProvider - An object of <CAjaxProvider> class.
+ *                                                                           *
+ *****************************************************************************
+ * Constructor: CLoginManager                                                *
+ *                                                                           *
+ * Initialize the object.                                                    *
+ *                                                                           *
+ * Parameters:                                                               *
+ *   onlogin - Trigger(s) to be executed when the state changes to logged    *
+ *             (both after login and instantation of the object).            *
+ *             function or Array of functions or null or undefined           *
+ *   onlogout - Trigger(s) to be executed when the state changes to not      *
+ *              logged (both after logout and instantation of the object).   *
+ *              function or Array of functions or null or undefined          *
+ *   finalFunction - Trigger to be executed when the state of session is     *
+ *                   known (after login and instantation of the object).     *
+ *                   function or null or undefined                           *
+\*****************************************************************************/
+function CLoginManager(onlogin, onlogout, finalFunction)
+{
+  this.logged = null;
+  this.loggedAs = null;
+
+  this.onlogin = onlogin == null ? [] : (onlogin instanceof Array ?
+                                         onlogin.slice(0) :
+                                         [onlogin]);
+  this.onlogout = onlogout == null ? [] : (onlogout instanceof Array ?
+                                           onlogout.slice(0) :
+                                           [onlogout]);
+
+  var thisInstane = this;
+  this.ajaxProvider = new CAjaxProvider(function()
+                                        {
+                                          thisInstane.onlogin = [];
+                                          thisInstane.onlogout = [];
+                                        });
+//  this.destroyed = false;
+//  this.awaiting = 0;
+  this.checkLogged(finalFunction);
+}
+
+/*****************************************************************************\
+ * Method: ajaxAux                                                           *
+ *                                                                           *
+ * Send an AJAX request to the server, pass the received JSON object to the  *
+ * provided handler.                                                         *
+ *                                                                           *
+ * Parameters:                                                               *
+ *   url - An URL of the requested resource. String                          *
+ *   successHandler - A handler of the successful AJAX request execution.    *
+ *   data - Optional data for the AJAX request.                              *
+ *   errorHandler - An optional handler of the AJAX request execution error. *
+ *   type - An HTTP method of the request. 'POST' by default. String.        *
+ *   options - Any other jQuery.ajax options.                                *
+\*****************************************************************************/
+//CLoginManager.prototype.ajaxAux = function(url, successHandler, data,
+//                                           errorHandler, type, options)
+//{
+//  var thisInstance = this;
+//  if (!(this.destroyed))
+//  {
+//    var ajaxData = {
+//      type: type == null ? 'POST' : type,
+//      url: url,
+//      dataType: 'json',
+//      error: errorHandler != null ?
+//             errorHandler :
+//             function(xhr, textStatus, errorThrown)
+//             {
+//               var errormsg = "Server returned error:\n";
+//               errormsg += "Ready state :" + xhr.readyState + "\n";
+//               errormsg += "Status " + xhr.status + ", " + errorThrown + "\n";
+//               //errormsg += "Response text" + xhr.responseText 
+//               alert(errormsg);
+//             },
+//      success: successHandler,
+//      complete: function(jqXHR, textStatus)
+//                {
+//                  //notify the object about completion of the AJAX request
+//                  thisInstance.awaiting--;
+//
+//                  if (thisInstance.destroyed && thisInstance.awaiting == 0)
+//                  {
+//                    //if the object is marked as destroyed and there is
+//                    //no AJAX requests in progress - trigger the delayed
+//                    //object destruction
+//                    thisInstance.destroy();
+//                  }
+//                }
+//    };
+//    
+//    if (options)
+//    {
+//      $.extend(ajaxData, options); // Merge all other options passed as is
+//    }
+//  
+//    if (data != null)
+//    {
+//      ajaxData.data = data;
+//    }
+//  
+//    this.awaiting++;
+//
+//    return $.ajax(ajaxData);
+//  }
+//}
+
+/*****************************************************************************\
  * Method: ajax                                                              *
  *                                                                           *
  * Send an AJAX request to the server, check the received                    *
@@ -178,7 +296,7 @@ CLoginManager.prototype.ajaxAux = function(url, successHandler, data,
 CLoginManager.prototype.ajax = function(url, successHandler, data, errorHandler, type, options)
 {
   var thisInstance = this;
-  return this.ajaxAux(url, 
+  return this.ajaxProvider.ajax(url, 
                       function(response)
                       {
                         if (response.logged && thisInstance.logged != true)
@@ -212,7 +330,7 @@ CLoginManager.prototype.ajax = function(url, successHandler, data, errorHandler,
 CLoginManager.prototype.checkLogged = function(finalFunction)
 {
   var thisInstance = this;
-  this.ajaxAux('/user/logged', function(response)
+  this.ajaxProvider.ajax('/user/logged', function(response)
     {
       if (response.logged)
       {
@@ -274,14 +392,15 @@ CLoginManager.prototype.logoutHandler = function()
 \*****************************************************************************/
 CLoginManager.prototype.destroy = function()
 {
-  this.destroyed = true; //mark the object as destroyed
-
-  if (this.awaiting == 0)
-  {
-    //if there is no AJAX requests in progress destroy the object immediately
-    this.onlogin = [];
-    this.onlogout = [];
-  }
+  this.ajaxProvider.destroy();
+//  this.destroyed = true; //mark the object as destroyed
+//
+//  if (this.awaiting == 0)
+//  {
+//    //if there is no AJAX requests in progress destroy the object immediately
+//    this.onlogin = [];
+//    this.onlogout = [];
+//  }
 }
 
 /*****************************************************************************\
@@ -299,7 +418,7 @@ CLoginManager.prototype.login = function(login, password, onSuccess, onFailure)
 {
   var thisInstance = this;
 
-  this.ajaxAux('/user/login', function(response)
+  this.ajaxProvider.ajax('/user/login', function(response)
     {
       if (response.logged)
       {
