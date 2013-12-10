@@ -619,15 +619,17 @@ CLayerStack.prototype.loadFromCache = function(cache, id, quality)
 
 
 
-function CLayerManager($layerList, stacks, doNotRemove, doNotAdjust, doNotDownload)
+function CLayerManager($layerList, stacks, ajaxProvider, doNotRemove, doNotAdjust, doNotDownload, doNotDelete)
 {
   this.stacks = stacks;
   this.images = stacks.images; // just a shortcut
   this.$layerList = $layerList;
+  this.ajaxProvider = ajaxProvider;
 
   this.adjustmentEnabled = doNotAdjust != true;
   this.removalEnabled = doNotAdjust != true;
   this.downloadEnabled = doNotDownload != true;
+  this.deletionEnabled = doNotDelete != true;
   this.loadButtons = {} // AssocArray of Arrays
 
   this.layers = [];
@@ -718,23 +720,32 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
     layer.$adjust = $adjust;
   }
 
+  if (this.deletionEnabled)
+  {
+    layer.$del = $('<input type="checkbox" class="recyclableElement">');
+  }
+
   this.layers.splice(zIndex, 0, layer);
 
 
   var finishCaching = update ?
-                      function()
+                      function(image)
                       {
+                        layer.image = image;
                         thisInstance.updateOrder();
                       } :
-                      null;
+                      function(image)
+                      {
+                        layer.image = image;
+                      };
 
   if (info == null)
   {
-    this.images.cacheTiledImage(id, path, update ? finishCaching : null, $iface);
+    this.images.cacheTiledImage(id, path, finishCaching, $iface);
   }
   else
   {
-    this.images.cacheTiledImageOffline(id, path, info, update ? finishCaching : null, $iface);
+    this.images.cacheTiledImageOffline(id, path, info, finishCaching, $iface);
   }
   // onSuccess shall update interface and z-indices
   return id;
@@ -828,6 +839,13 @@ CLayerManager.prototype.arrangeInterface = function()
       $listItem.append($cell);
     }
 
+    if (this.deletionEnabled)
+    {
+      $cell = $('<td></td>');
+      $cell.append(layer.$del);
+      $listItem.append($cell);
+    }
+
     this.images.bindImageRow(id, $listItem);
 
     $layerList.append($listItem);
@@ -839,7 +857,7 @@ CLayerManager.prototype.arrangeInterface = function()
 CLayerManager.prototype.layerDelB = function(z)
 {
   var thisInstance = this;
-  var $delB = $('<button>Delete</button>');
+  var $delB = $('<button>Remove</button>');
   $delB.bind('click', function()
   {
     thisInstance.removeLayerByZ(z);
@@ -933,13 +951,16 @@ CLayerManager.prototype.removeLayer = function(id)
   this.stacks.removeLayer(id);
 }
 
-CLayerManager.prototype.removeLayerByZ = function(z)
+CLayerManager.prototype.removeLayerByZ = function(z, updateIface)
 {
   //XXX warning: z might be greater than this.layers.length !!!
   var id = this.layers[z].id;
   this.layers.splice(z, 1);
   this.removeLayer(id);
-  this.arrangeInterface();
+  if (updateIface == null || updateIface)
+  {
+    this.arrangeInterface();
+  }
 }
 
 CLayerManager.prototype.flush = function()
@@ -1011,6 +1032,66 @@ CLayerManager.prototype.removeStack = function(id, doNotDestroy)
 CLayerManager.prototype.unloadAll = function(id)
 {
   return this.stacks.unloadAll(id);
+}
+
+CLayerManager.prototype.deleteImages = function()
+{
+  var toDelete = [];
+  var deleteMapping = {};
+  for (var i = this.layers.length - 1; i >= 0; i--)
+  {
+    var layer = this.layers[i];
+    if (layer.$del == null) continue;
+    if (layer.$del.filter(':checked').length == 0) continue;
+    if (layer.image == null) continue;
+    var iid = layer.image.info.iid;
+    toDelete.push(iid);
+    deleteMapping[iid] = i;
+  }
+
+  if (toDelete.length > 0 &&
+      confirm("Do you really want to delete " +
+              (toDelete.length == 1 ?
+               "the image" :
+               toDelete.length + " images") + " permanently?"))
+  {
+    var thisInstance = this;
+    this.ajaxProvider.ajax('/upload/deleteImages',
+                           function(response)
+                           {
+                             if (!response.status)
+                             {
+                               alert(response.message);
+                               return;
+                             }
+                             var data = response.data;
+                             if (data.length != toDelete.length)
+                             {
+                               alert("Some of images not found in the database.");
+                             }
+
+                             var preserved = false;
+                             for (var i = 0; i < data.length; i++)
+                             {
+                               var item = data[i];
+                               if (item[1])
+                               {
+                                 thisInstance.removeLayerByZ(deleteMapping[item[0]],
+                                                             false);
+                               }
+                               else
+                               {
+                                 preserved = true;
+                               }
+                             }
+                             if (preserved)
+                             {
+                               alert("Not enough privileges to delete some of images.");
+                             }
+                             thisInstance.arrangeInterface();
+                           },
+                           {iids: toDelete.join(',')});
+  }
 }
 
 CLayerManager.prototype.destroy = function()

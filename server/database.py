@@ -22,6 +22,7 @@
 ###############################################################################
 
 # requires python-psycopg2 package
+# PostgreSQL v. 9.1+ required
 import psycopg2
 import psycopg2.extras
 import psycopg2.pool

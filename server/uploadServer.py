@@ -34,7 +34,7 @@ from server import jsonStd, generateJson, Server, serveContent, ensureLogged,\
 from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
                     GetBrokenDuplicatesRequest, GetImagesStatusesRequest,\
-                    UpdateMetadataRequest
+                    UpdateMetadataRequest, DeleteImagesRequest
 
 from tileBase import NO_PRIVILEGE
 
@@ -191,10 +191,28 @@ class UploadServer(Generator, Server):
                                       imageTop = top, status = status):
         result.append((iid, True))
 
-      print iid, top, left, ps, status
-
     return generateJson(result, logged = True)
 
+
+  @cherrypy.expose
+  @serveContent(DeleteImagesRequest)
+  @ensureLogged
+  def deleteImages(self, uid, request):
+    # TODO: expand the stub
+    result = []
+    for iid in request.iids:
+      privileges = self.tileBase.getPrivileges(iid, uid)
+      if privileges is None:
+        continue
+
+      if privileges[2] == NO_PRIVILEGE:
+        result.append((iid, False))
+        continue
+
+      if self.tileBase.deleteImage(iid):
+        result.append((iid, True))
+
+    return generateJson(result, logged = True)
 
 #class UploadServer(Server):
 #  def __init__(self, servicePath, tileBase):
