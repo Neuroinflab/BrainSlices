@@ -694,11 +694,15 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   // making the layer-related row
   var $row =  $('<tr></tr>');
   var $drag = $('<td draggable="true">' + label + '</td>');
+  //XXX: might be quite useful combined with single image view
+  var url = document.createElement('a');
+  url.href = path;
+  url = url.href;
   $drag.bind('dragstart', function(ev)
   {
     ev.originalEvent.dataTransfer.setData('Z', layer.z);
-//    ev.originalEvent.dataTransfer.setData('text/plain', path);
-//    ev.originalEvent.dataTransfer.setData('text/uri-list', path);
+    ev.originalEvent.dataTransfer.setData('text/plain', url);
+    ev.originalEvent.dataTransfer.setData('text/uri-list', url);
   });
 
   $drag.bind('dragover', function(ev)
