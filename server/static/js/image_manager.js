@@ -43,84 +43,6 @@ CImageManager.prototype.destroy = function()
   }
 }
 
-CImageManager.prototype.bindImageInterface = function(id, iface)
-{
-  if (id in this.images)
-  {
-    var image = this.images[id];
-
-    if (iface != null)
-    {
-      image.iface = iface;
-      var thisInstance = this;
-
-      image.updateHandler = function()
-      {
-        var imageLeft = parseFloat(iface.find('input.imageLeft').val());
-        var imageTop = parseFloat(iface.find('input.imageTop').val());
-        var pixelSize = parseFloat(iface.find('input.pixelSize').val());
-        image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
-        //thisInstance.updateImage(id, imageLeft, imageTop, pixelSize, false);
-      }
-
-      image.statusChangeHandler = function()
-      {
-        var status = parseInt(iface.find('select[name="status"]').val());
-        image.updateInfo(null, null, null, status, false);
-        //thisInstance.updateImageStatus(id, status);
-      }
-
-      iface.find('input').bind('change', image.updateHandler);
-      iface.find('select[name="status"]').bind('change', image.statusChangeHandler);
-    }
-    else
-    {
-      if (image.iface != null)
-      {
-        if (image.updateHandler != null)
-        {
-          image.iface.find('input').unbind('change', image.updateHandler);
-        }
-
-        if (image.statusChangeHandler != null)
-        {
-          image.iface.find('select[name="status"]').unbind('change', image.statusChangeHandler);
-        }
-      }
-
-      image.updateHandler = null;
-      image.statusChangeHandler = null;
-      image.iface = null;
-    }
-
-    image.updateInterface();
-    return true;
-  }
-  return false;
-}
-
-CImageManager.prototype.bindImageRow = function(id, $row)
-{
-  if (id in this.images)
-  {
-    var image = this.images[id];
-    if ($row != null)
-    {
-      if (image.changed)
-      {
-        $row.addClass('changed');
-      }
-      else if ($row.hasClass('changed'))
-      {
-        $row.removeClass('changed');
-      }
-    }
-    this.images[id].$row = $row;
-    return true;
-  }
-  return false;
-}
-
 CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
                                                pixelSize, updateIFace)
 {
@@ -255,13 +177,13 @@ CImageManager.prototype.updateImageInterface = function(id)
   return false;
 }
 
-CImageManager.prototype.updateCachedTiledImage = function(id, path, onSuccess, iface)
+CImageManager.prototype.updateCachedTiledImage = function(id, path, onSuccess, onUpdate, $row)
 {
   this.removeCachedImage(id);
-  this.cacheTiledImage(id, path, onSuccess, iface);
+  this.cacheTiledImage(id, path, onSuccess, onUpdate, $row);
 }
 
-CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSuccess, iface, zIndex)
+CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSuccess, onUpdate, $row, zIndex)
 {
   if (!this.has(id))
   {
@@ -277,8 +199,8 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
     cachedImage.path = path;
     cachedImage.type = 'tiledImage';
     cachedImage.cacheId = 0;
-    cachedImage.iface = iface;
-    cachedImage.$row = null; //???
+    cachedImage.onUpdate = onUpdate;
+    cachedImage.$row = $row;
     cachedImage.id = id;
     cachedImage.z = zIndex != null ? zIndex : 0;
 
@@ -324,18 +246,9 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
 
     cachedImage.updateInterface = function()
     {
-      if (cachedImage.iface != null)
+      if (cachedImage.onUpdate != null)
       {
-        var iface = cachedImage.iface;
-        var info = cachedImage.info;
-        iface.find('input.imageLeft').val(info.imageLeft);
-        iface.find('span.imageLeft').html(info.imageLeft);
-        iface.find('input.imageTop').val(info.imageTop);
-        iface.find('span.imageTop').html(info.imageTop);
-        iface.find('input.pixelSize').val(info.pixelSize);
-        iface.find('span.pixelSize').html(info.pixelSize);
-        iface.find('select[name="status"]').val(info.status);
-        iface.find('span.status').html(STATUS_MAP[info.status]);
+        cachedImage.onUpdate();
       }
     }
 
@@ -375,17 +288,6 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
 
     cachedImage.destroy = function()
     {
-      // redundant with bindImageInterface
-      if (cachedImage.updateHandler != null)
-      {
-        cachedImage.iface.find('input').unbind('change', cachedImage.updateHandler);
-      }
-
-      if (cachedImage.statusChangeHandler != null)
-      {
-        cachedImage.iface.find('select[name="status"]').unbind('change', cachedImage.statusChangeHandler);
-      }
-
       var references = cachedImage.references;
       for (var cacheId in references)
       {
@@ -393,13 +295,15 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
         references[cacheId].references = null;
       }
 
+      cachedImage.onUpdate = null;
       cachedImage.updateInterface = null;
       cachedImage.update = null;
       cachedImage.destroy = null;
     }
 
+    cachedImage.onUpdate = onUpdate;
+
     this.images[id] = cachedImage;
-    this.bindImageInterface(id, iface);
     cachedImage.reset();
   }
 
@@ -409,7 +313,7 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
   }
 }
 
-CImageManager.prototype.cacheTiledImage = function(id, path, onSuccess, iface, zIndex)
+CImageManager.prototype.cacheTiledImage = function(id, path, onSuccess, onUpdate, $row, zIndex)
 {
   var thisInstance = this;
   this.ajaxProvider.ajax(path + '/info.json',
@@ -417,7 +321,7 @@ CImageManager.prototype.cacheTiledImage = function(id, path, onSuccess, iface, z
                          {
                            if (data.status)
                            {
-                             thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, iface, zIndex);
+                             thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, onUpdate, $row, zIndex);
                            }
                            else
                            {
@@ -520,18 +424,6 @@ CImageManager.prototype.removeCachedImage = function(id)
   }
 }
 
-CImageManager.prototype.asyncGetCachedImage = function(id, path, onSuccess, imageInterface)
-{
-  // return if executed immediately
-  if (id in this.images && onSuccess != null)
-  {
-    onSuccess(this.images[id]);
-    return true;
-  }
-  this.cacheTiledImage(id, path, onSuccess, imageInterface);
-  return false;
-}
-
 CImageManager.prototype.getCachedImage = function(id)
 {
   if (id in this.images)
@@ -539,44 +431,6 @@ CImageManager.prototype.getCachedImage = function(id)
     return this.images[id];
   }
   return null;
-}
-
-//XXX: obsolete???
-function loadCachedTileLayer(cache, id)
-{
-  return function (path, parentDiv, onSuccess, pixelSize,
-                   focusPointX, focusPointY, zIndex, opacity, quality)
-  {
-    cache.asyncGetCachedImage(id, path, function(cachedImage)
-    {
-      var data = cachedImage.info;
-      var tileLayer = new CTileLayer(parentDiv,
-                                     data.imageWidth,
-                                     data.imageHeight,
-                                     data.pixelSize,
-                                     cachedImage.path + '/tiles',
-                                     data.imageLeft,
-                                     data.imageTop,
-                                     pixelSize,
-                                     focusPointX,
-                                     focusPointY,
-                                     quality,
-                                     null, null,
-                                     data.tileWidth,
-                                     data.tileHeight,
-                                     false,
-                                     zIndex,
-                                     opacity,
-                                     cachedImage.references,
-                                     cachedImage.cacheId++);
-      onSuccess(tileLayer);
-    });
-  };
-}
-
-CLayerStack.prototype.loadCachedTileLayer = function(cache, id, path, zIndex, quality)
-{
-  this.loadLayer(id, loadCachedTileLayer(cache, id), path, zIndex, quality);
 }
 
 function loadFromCache(cache, id)
@@ -650,13 +504,8 @@ CLayerManager.prototype.isAdjusted = function(id)
   return this.images.adjust != null && id in this.images.adjust;
 }
 
-CLayerManager.prototype.bindImageInterface = function(id, iface)
-{
-  return this.images.bindImageInterface(id, iface);
-}
-
 CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
-                                              info, update)
+                                                info, update)
 {
   if (update == null)
   {
@@ -688,8 +537,6 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   layer.label = label;
   layer.path = path;
   layer.z = null; //to be for sure updated
-
-  var $iface = null;
 
   // making the layer-related row
   var $row =  $('<tr></tr>');
@@ -769,18 +616,19 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   $row.append($visibility);
 
   //adjustment
+  var onUpdate = null;
   if (this.adjustmentEnabled)
   {
     var $adjust = $('<input type="checkbox">');
-    $iface = $('<span style="display: none;">' +
-                '<input type="number" class="imageLeft">' +
-                '<input type="number" class="imageTop">' +
-                '<input type="number" class="pixelSize">' +
-                '<select name="status">' +
-                 '<option value="6">Completed</option>' +
-                 '<option value="7">Accepted</option>' +
-                '</select>' +
-               '</span>');
+    var $iface = $('<span style="display: none;">' +
+                    '<input type="number" class="imageLeft">' +
+                    '<input type="number" class="imageTop">' +
+                    '<input type="number" class="pixelSize">' +
+                    '<select name="status">' +
+                     '<option value="6">Completed</option>' +
+                     '<option value="7">Accepted</option>' +
+                    '</select>' +
+                   '</span>');
 
     $adjust.bind('change', function()
     {
@@ -796,6 +644,40 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
       }
     });
 
+    $iface.find('input').bind('change', function()
+    {
+      if (layer.image != null)
+      {
+        var imageLeft = parseFloat($iface.find('input.imageLeft').val());
+        var imageTop = parseFloat($iface.find('input.imageTop').val());
+        var pixelSize = parseFloat($iface.find('input.pixelSize').val());
+        layer.image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
+      }
+    });
+
+    $iface.find('select[name="status"]').bind('change', function()
+    {
+      var status = parseInt($iface.find('select[name="status"]').val());
+      layer.image.updateInfo(null, null, null, status, false);
+    });
+
+    onUpdate = function()
+    {
+      if (layer.image != null)
+      {
+        var info = layer.image.info;
+        $iface.find('input.imageLeft').val(info.imageLeft);
+        //$iface.find('span.imageLeft').html(info.imageLeft);
+        $iface.find('input.imageTop').val(info.imageTop);
+        //$iface.find('span.imageTop').html(info.imageTop);
+        $iface.find('input.pixelSize').val(info.pixelSize);
+        //$iface.find('span.pixelSize').html(info.pixelSize);
+        $iface.find('select[name="status"]').val(info.status);
+        //$iface.find('span.status').html(STATUS_MAP[info.status]);
+      }
+    }
+
+    //XXX: is that necessary?
     layer.$iface = $iface;
     layer.$adjust = $adjust;
     $row.append($adjust, $iface);
@@ -847,21 +729,28 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
                       function(image)
                       {
                         layer.image = image;
+                        // trigger onUpdate (unable to do while loading
+                        // since image was not assigned
+                        if (image.onUpdate) image.onUpdate();
                         thisInstance.updateOrder();
                       } :
                       function(image)
                       {
                         // layer[i].z might be invalid;
                         layer.image = image;
+                        // trigger onUpdate (unable to do while loading
+                        // since image was not assigned
+                        if (image.onUpdate) image.onUpdate();
                       };
 
   if (info == null)
   {
-    this.images.cacheTiledImage(id, path, finishCaching, $iface);
+    this.images.cacheTiledImage(id, path, finishCaching, onUpdate, $row);
   }
   else
   {
-    this.images.cacheTiledImageOffline(id, path, info, finishCaching, $iface);
+    this.images.cacheTiledImageOffline(id, path, info, finishCaching, onUpdate,
+                                       $row);
   }
   // onSuccess shall update interface and z-indices
   return id;
@@ -932,8 +821,6 @@ CLayerManager.prototype.arrangeInterface = function()
 
     this.loadButtons[id] = loadButtons;
 
-    //TODO: move to addTile...
-    this.images.bindImageRow(id, layer.$row);
     $layerList.append(layer.$row);
   }
   this.$layerList.replaceWith($layerList);
