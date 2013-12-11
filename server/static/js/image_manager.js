@@ -696,7 +696,9 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   var $drag = $('<td draggable="true">' + label + '</td>');
   $drag.bind('dragstart', function(ev)
   {
-    ev.originalEvent.dataTransfer.setData('Text', layer.z);
+    ev.originalEvent.dataTransfer.setData('Z', layer.z);
+//    ev.originalEvent.dataTransfer.setData('text/plain', path);
+//    ev.originalEvent.dataTransfer.setData('text/uri-list', path);
   });
 
   $drag.bind('dragover', function(ev)
@@ -707,12 +709,22 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   $drag.bind('drop', function(ev)
   {
     ev.originalEvent.preventDefault();
-    var srcZ = ev.originalEvent.dataTransfer.getData("Text");
+    var srcZ = ev.originalEvent.dataTransfer.getData("Z");
     var z = layer.z;
     if (srcZ == z) return;
 
     var src = thisInstance.layers.splice(srcZ, 1)[0];
     thisInstance.layers.splice(z, 0, src);
+    src.$row.detach();
+    // DOM objects are in reversed order than layers
+    if (srcZ < z)
+    {
+      layer.$row.before(src.$row);
+    }
+    else
+    {
+      layer.$row.after(src.$row);
+    }
 
     var stop = Math.max(srcZ, z);
     for (var i = Math.min(srcZ, z); i <= stop; i++)
@@ -730,8 +742,6 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
     }
 
     thisInstance.stacks.updateTopZ(stop);
-
-    thisInstance.arrangeInterface();
   });
 
   $row.append($drag);
