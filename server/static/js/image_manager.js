@@ -687,6 +687,7 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   layer.id = id;
   layer.label = label;
   layer.path = path;
+  layer.z = null; //to be for sure updated
 
   var $iface = null;
   if (this.adjustmentEnabled)
@@ -725,6 +726,33 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
     layer.$del = $('<input type="checkbox" class="recyclableElement">');
   }
 
+  if (this.removalEnabled)
+  {
+    layer.$rem = $('<button class="recyclableElement">Remove</button>');
+    layer.$rem.bind('click', function()
+    {
+      var z = layer.z;
+      var layers = thisInstance.layers;
+      var id = layer.id;
+      if (layers[z].id != id)
+      {
+        console.warn('remove button handler: z mismatch for z:' + z +
+                     ', id:' + id);
+        z = 0;
+        while (layers[z].id != id && z < layers.length)
+        {
+          z++;
+        }
+        if (z >= layers.length)
+        {
+          console.error('Layer of id: ' + id + ' not found in layers.');
+          return
+        }
+      }
+      thisInstance.removeLayerByZ(z);
+    });
+  }
+
   this.layers.splice(zIndex, 0, layer);
 
 
@@ -736,6 +764,7 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
                       } :
                       function(image)
                       {
+                        // layer[i].z might be invalid;
                         layer.image = image;
                       };
 
@@ -753,12 +782,18 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
 
 CLayerManager.prototype.updateOrder = function()
 {
-  for (var z = 0; z < this.layers.length; z++)
+  var layers = this.layers;
+  for (var z = 0; z < layers.length; z++)
   {
-    var imageID = this.layers[z].id;
-    if (this.images.has(imageID))
+    var layer = layers[z];
+    if (z != layer.z)
     {
-      this.images.setZ(imageID, z);
+      var imageID = layer.id;
+      this.layers[z].z = z;
+      if (this.images.has(imageID))
+      {
+        this.images.setZ(imageID, z);
+      }
     }
   }
 
@@ -835,7 +870,7 @@ CLayerManager.prototype.arrangeInterface = function()
     if (this.removalEnabled)
     {
       $cell = $('<td></td>');
-      $cell.append(this.layerDelB(z));
+      $cell.append(layer.$rem); //this.layerDelB(z));
       $listItem.append($cell);
     }
 
@@ -854,17 +889,17 @@ CLayerManager.prototype.arrangeInterface = function()
   this.$layerList = $layerList;
 }
 
-CLayerManager.prototype.layerDelB = function(z)
-{
-  var thisInstance = this;
-  var $delB = $('<button>Remove</button>');
-  $delB.bind('click', function()
-  {
-    thisInstance.removeLayerByZ(z);
-  });
-
-  return $delB;
-}
+//CLayerManager.prototype.layerDelB = function(z)
+//{
+//  var thisInstance = this;
+//  var $delB = $('<button>Remove</button>');
+//  $delB.bind('click', function()
+//  {
+//    thisInstance.removeLayerByZ(z);
+//  });
+//
+//  return $delB;
+//}
 
 CLayerManager.prototype.layerDrag = function(z)
 {
@@ -892,7 +927,9 @@ CLayerManager.prototype.layerDrag = function(z)
     var stop = Math.max(srcZ, z);
     for (var i = Math.min(srcZ, z); i <= stop; i++)
     {
-      thisInstance.images.setZ(thisInstance.layers[i].id, i);
+      var layer = thisInstance.layers[i];
+      layer.z = i;
+      thisInstance.images.setZ(layer.id, i);
     }
 
     // update the opacity of bottom and not-bottom layers
@@ -955,11 +992,15 @@ CLayerManager.prototype.removeLayerByZ = function(z, updateIface)
 {
   //XXX warning: z might be greater than this.layers.length !!!
   var id = this.layers[z].id;
+  if (this.layers[z].z != z)
+  {
+    console.warn('removeLayerByZ z mismatch for z:' + z);
+  }
   this.layers.splice(z, 1);
   this.removeLayer(id);
   if (updateIface == null || updateIface)
   {
-    this.arrangeInterface();
+    this.updateOrder();
   }
 }
 
@@ -1088,7 +1129,7 @@ CLayerManager.prototype.deleteImages = function()
                              {
                                alert("Not enough privileges to delete some of images.");
                              }
-                             thisInstance.arrangeInterface();
+                             thisInstance.updateOrder();
                            },
                            {iids: toDelete.join(',')});
   }
