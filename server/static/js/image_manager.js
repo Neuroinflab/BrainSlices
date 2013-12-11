@@ -690,10 +690,75 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   layer.z = null; //to be for sure updated
 
   var $iface = null;
+
+  // making the layer-related row
+  var $row =  $('<tr></tr>');
+  var $drag = $('<td draggable="true">' + label + '</td>');
+  $drag.bind('dragstart', function(ev)
+  {
+    ev.originalEvent.dataTransfer.setData('Text', layer.z);
+  });
+
+  $drag.bind('dragover', function(ev)
+  {
+    ev.originalEvent.preventDefault();
+  });
+
+  $drag.bind('drop', function(ev)
+  {
+    ev.originalEvent.preventDefault();
+    var srcZ = ev.originalEvent.dataTransfer.getData("Text");
+    var z = layer.z;
+    if (srcZ == z) return;
+
+    var src = thisInstance.layers.splice(srcZ, 1)[0];
+    thisInstance.layers.splice(z, 0, src);
+
+    var stop = Math.max(srcZ, z);
+    for (var i = Math.min(srcZ, z); i <= stop; i++)
+    {
+      var lr = thisInstance.layers[i];
+      lr.z = i;
+      thisInstance.images.setZ(lr.id, i);
+    }
+
+    // update the opacity of bottom and not-bottom layers
+    // TODO: a method in CSynchronizedStacksDisplay
+    for (var i = 0; i < thisInstance.stacks.stacks.length; i++)
+    {
+      thisInstance.stacks.stacks[i].setOpacity();
+    }
+
+    thisInstance.stacks.updateTopZ(stop);
+
+    thisInstance.arrangeInterface();
+  });
+
+  $row.append($drag);
+
+  // download link
+  if (this.downloadEnabled)
+  {
+    if (id[0] == 'i')
+    {
+      $row.append('<td><a href="' + path + '/image.png">Download</a></td>');
+    }
+    else
+    {
+      $row.append('<td><br></td>');
+    }
+  }
+
+  // visibility interface
+  var $visibility = $('<td></td>');
+  layer.$visibility = $visibility;
+  $row.append($visibility);
+
+  //adjustment
   if (this.adjustmentEnabled)
   {
-    var $adjust = $('<input type="checkbox" class="recyclableElement">');
-    $iface = $('<span style="display: none;" class="recyclableElement">' +
+    var $adjust = $('<input type="checkbox">');
+    $iface = $('<span style="display: none;">' +
                 '<input type="number" class="imageLeft">' +
                 '<input type="number" class="imageTop">' +
                 '<input type="number" class="pixelSize">' +
@@ -719,16 +784,13 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
 
     layer.$iface = $iface;
     layer.$adjust = $adjust;
+    $row.append($adjust, $iface);
   }
 
-  if (this.deletionEnabled)
-  {
-    layer.$del = $('<input type="checkbox" class="recyclableElement">');
-  }
-
+  //removal
   if (this.removalEnabled)
   {
-    layer.$rem = $('<button class="recyclableElement">Remove</button>');
+    layer.$rem = $('<button>Remove</button>');
     layer.$rem.bind('click', function()
     {
       var z = layer.z;
@@ -751,7 +813,18 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
       }
       thisInstance.removeLayerByZ(z);
     });
+    //XXX: see if there is no problem with chaining method call
+    $row.append($('<td></td>').append(layer.$rem));
   }
+
+  //deletion
+  if (this.deletionEnabled)
+  {
+    layer.$del = $('<input type="checkbox">');
+    $row.append($('<td></td>').append(layer.$del));
+  }
+
+  layer.$row = $row;
 
   this.layers.splice(zIndex, 0, layer);
 
@@ -805,6 +878,7 @@ CLayerManager.prototype.arrangeInterface = function()
 {
   // detaching is crucial for preservation of event handlers
   this.$layerList.find('.recyclableElement').detach();
+  this.$layerList.children('tr').detach();
   var $layerList = $('<tbody></tbody>');
   var nmax = this.stacks.nx * this.stacks.ny;
 
@@ -814,31 +888,40 @@ CLayerManager.prototype.arrangeInterface = function()
     var layer = this.layers[z];
     var id = layer.id;
 
-    var $listItem = $('<tr></tr>');
-    $listItem.append(this.layerDrag(z));
+    //var $listItem = $('<tr></tr>');
+    //$listItem.append(this.layerDrag(z));
 
-    if (this.downloadEnabled)
-    {
-      if (id[0] == 'i')
-      {
-        $listItem.append('<td><a href="' + layer.path + '/image.png">Download</a></td>');
-      }
-      else
-      {
-        $listItem.append('<td><br></td>');
-      }
-    }
+    //if (this.downloadEnabled)
+    //{
+    //  if (id[0] == 'i')
+    //  {
+    //    $listItem.append('<td><a href="' + layer.path + '/image.png">Download</a></td>');
+    //  }
+    //  else
+    //  {
+    //    $listItem.append('<td><br></td>');
+    //  }
+    //}
 
     var loadButtons = id in this.loadButtons ? this.loadButtons[id] : [];
 
-    var $cell = $('<td></td>');
+    //var $cell = $('<td></td>');
+    layer.$visibility.empty();
     for (var n = 0; n < nmax; n++)
     {
+      var $cb = null;
       if (n == loadButtons.length)
       {
-        loadButtons.push(this.layerCB(id, n));
+        var cb = this.layerCB(id, n);
+        $cb = cb.$cb;
+        loadButtons.push(cb);
       }
-      var $cb = loadButtons[n].$cb;
+      else
+      {
+       $cb = loadButtons[n].$cb;
+       $cb.detach();
+      }
+
       if (this.stacks.has(n, id))
       {
         $cb.attr('checked', 'checked');
@@ -847,7 +930,7 @@ CLayerManager.prototype.arrangeInterface = function()
       {
         $cb.filter(':checked').removeAttr('checked');
       }
-      $cell.append($cb);
+      layer.$visibility.append($cb);
     }
 
     var toDismiss = loadButtons.splice(nmax);
@@ -858,32 +941,36 @@ CLayerManager.prototype.arrangeInterface = function()
     }
 
     this.loadButtons[id] = loadButtons;
-    $listItem.append($cell);
+    //$listItem.append($cell);
 
-    if (this.adjustmentEnabled)
-    {
-      $cell = $('<td></td>');
-      $cell.append(layer.$adjust, layer.$iface);
-      $listItem.append($cell);
-    }
+    //if (this.adjustmentEnabled)
+    //{
+    //  $cell = $('<td></td>');
+    //  $cell.append(layer.$adjust, layer.$iface);
+    //  $listItem.append($cell);
+    //}
 
-    if (this.removalEnabled)
-    {
-      $cell = $('<td></td>');
-      $cell.append(layer.$rem); //this.layerDelB(z));
-      $listItem.append($cell);
-    }
+    //if (this.removalEnabled)
+    //{
+    //  $cell = $('<td></td>');
+    //  $cell.append(layer.$rem); //this.layerDelB(z));
+    //  $listItem.append($cell);
+    //}
 
-    if (this.deletionEnabled)
-    {
-      $cell = $('<td></td>');
-      $cell.append(layer.$del);
-      $listItem.append($cell);
-    }
+    //if (this.deletionEnabled)
+    //{
+    //  $cell = $('<td></td>');
+    //  $cell.append(layer.$del);
+    //  $listItem.append($cell);
+    //}
 
-    this.images.bindImageRow(id, $listItem);
+    //this.images.bindImageRow(id, $listItem);
 
-    $layerList.append($listItem);
+    //$layerList.append($listItem);
+
+    //TODO: move to addTile...
+    this.images.bindImageRow(id, layer.$row);
+    $layerList.append(layer.$row);
   }
   this.$layerList.replaceWith($layerList);
   this.$layerList = $layerList;
@@ -900,52 +987,52 @@ CLayerManager.prototype.arrangeInterface = function()
 //
 //  return $delB;
 //}
-
-CLayerManager.prototype.layerDrag = function(z)
-{
-  var thisInstance = this;
-  var $drag = $('<td draggable="true">' + this.layers[z].label + '</td>');
-  $drag.bind('dragstart', function(ev)
-  {
-    ev.originalEvent.dataTransfer.setData('Text', z);
-  });
-
-  $drag.bind('dragover', function(ev)
-  {
-    ev.originalEvent.preventDefault();
-  });
-
-  $drag.bind('drop', function(ev)
-  {
-    ev.originalEvent.preventDefault();
-    var srcZ = ev.originalEvent.dataTransfer.getData("Text");
-    if (srcZ == z) return;
-
-    var src = thisInstance.layers.splice(srcZ, 1)[0];
-    thisInstance.layers.splice(z, 0, src);
-
-    var stop = Math.max(srcZ, z);
-    for (var i = Math.min(srcZ, z); i <= stop; i++)
-    {
-      var layer = thisInstance.layers[i];
-      layer.z = i;
-      thisInstance.images.setZ(layer.id, i);
-    }
-
-    // update the opacity of bottom and not-bottom layers
-    // TODO: a method in CSynchronizedStacksDisplay
-    for (var i = 0; i < thisInstance.stacks.stacks.length; i++)
-    {
-      thisInstance.stacks.stacks[i].setOpacity();
-    }
-
-    thisInstance.stacks.updateTopZ(stop);
-
-    thisInstance.arrangeInterface();
-  });
-
-  return $drag;
-}
+//
+//CLayerManager.prototype.layerDrag = function(z)
+//{
+//  var thisInstance = this;
+//  var $drag = $('<td draggable="true">' + this.layers[z].label + '</td>');
+//  $drag.bind('dragstart', function(ev)
+//  {
+//    ev.originalEvent.dataTransfer.setData('Text', z);
+//  });
+//
+//  $drag.bind('dragover', function(ev)
+//  {
+//    ev.originalEvent.preventDefault();
+//  });
+//
+//  $drag.bind('drop', function(ev)
+//  {
+//    ev.originalEvent.preventDefault();
+//    var srcZ = ev.originalEvent.dataTransfer.getData("Text");
+//    if (srcZ == z) return;
+//
+//    var src = thisInstance.layers.splice(srcZ, 1)[0];
+//    thisInstance.layers.splice(z, 0, src);
+//
+//    var stop = Math.max(srcZ, z);
+//    for (var i = Math.min(srcZ, z); i <= stop; i++)
+//    {
+//      var layer = thisInstance.layers[i];
+//      layer.z = i;
+//      thisInstance.images.setZ(layer.id, i);
+//    }
+//
+//    // update the opacity of bottom and not-bottom layers
+//    // TODO: a method in CSynchronizedStacksDisplay
+//    for (var i = 0; i < thisInstance.stacks.stacks.length; i++)
+//    {
+//      thisInstance.stacks.stacks[i].setOpacity();
+//    }
+//
+//    thisInstance.stacks.updateTopZ(stop);
+//
+//    thisInstance.arrangeInterface();
+//  });
+//
+//  return $drag;
+//}
 
 CLayerManager.prototype.layerCB = function(id, stackId)
 {
