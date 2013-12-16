@@ -53,6 +53,11 @@ function listBatch()
       }
 
       var data = response.data;
+      if (data.length == 0)
+      {
+        return;
+      }
+
       var iids = [];
       var iMap = {};
 
@@ -148,14 +153,38 @@ $(function()
     <table border>
      <thead>
       <tr>
+       <th colspan="3">
+        Image
+       </th>
+       <th colspan="4">
+        Public privileges
+       </th>
+       <th rowspan="2">
+        Groups
+       </th>
+      </tr>
+      <tr>
        <th>
         IID
        </th>
        <th>
-        privileges
+        Filename
        </th>
        <th>
-        groups
+        Thumbnail
+       </th>
+
+       <th>
+        View
+       </th>
+       <th>
+        Edit
+       </th>
+       <th>
+        Annotate
+       </th>
+       <th>
+        Outline
        </th>
       </tr>
      </thead>

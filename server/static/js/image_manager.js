@@ -472,6 +472,207 @@ CLayerStack.prototype.loadFromCache = function(cache, id, quality)
 }
 
 
+function CTableManager($table, onUpdate)
+{
+  this.rows = [];
+  this.length = 0;
+  this.id2row = {};
+  this.$table = $table;
+  this.onUpdate = onUpdate;
+  $table.empty();
+}
+
+CTableManager.prototype.flush = function()
+{
+  var ids = {};
+  for (var id in this.id2row)
+  {
+    ids[id] = null;
+  }
+
+  for (var id in ids)
+  {
+    this.remove(id, this.length == 1)
+  }
+}
+
+CTableManager.prototype.destroy = function()
+{
+  this.flush();
+  this.onUpdate = null;
+}
+
+CTableManager.prototype.remove = function(id, update)
+{
+  if (!id in this.id2row)
+  {
+    return null;
+  }
+
+  var row = this.id2row[id];
+  delete this.id2row[id];
+  var rows = this.rows;
+
+  var index = row.index;
+  if (rows[index].id != id)
+  {
+    console.warn('remove: mismatch for index = ' + index);
+    index = 0;
+    while (rows[index].id != id && index < rows.length)
+    {
+      index++;
+    }
+
+    if (index >= rows.length)
+    {
+      console.error('Row of id: ' + id + ' not found.');
+      return null;
+    }
+  }
+  rows.splice(index, 1);
+  this.length--;
+
+  if (row.onRemove != null)
+  {
+    row.onRemove();
+  }
+
+  if (update == null || update)
+  {
+    this.update(index)
+  }
+
+  return row.$row.detach();
+}
+
+CTableManager.prototype.update = function(from, to)
+{
+  var rows = this.rows;
+  from = from != null ? Math.max(from, 0) : 0;
+  to = to != null ? Math.min(to, rows.length) : rows.length;
+  for (var i = from; i < to; i++)
+  {
+    var row = rows[i];
+    row.index = i;
+    if (row.onUpdate != null)
+    {
+      row.onUpdate(i);
+    }
+  }
+
+  if (this.onUpdate != null)
+  {
+    this.onUpdate();
+  }
+}
+
+CTableManager.prototype.getOrder = function()
+{
+  var ordered = [];
+  for (var i = 0; i < this.length; i++)
+  {
+    ordered.push(this.rows[i].id);
+  }
+  return ordered;
+}
+
+CTableManager.prototype.add = function($row, id, index, onRemove, onUpdate,
+                                       dragMIME)
+{
+  if (id in this.id2row)
+  {
+    return false;
+  }
+
+  if (index == null || index > this.rows.length)
+  {
+    index = this.rows.length;
+  }
+  else if (index < 0)
+  {
+    if (index < -this.rows.length)
+    {
+      index = 0;
+    }
+    else
+    {
+      index = index + this.rows.length;
+    }
+  }
+
+  var row = {
+              $row: $row,
+              id: id,
+              onRemove: onRemove,
+              onUpdate: onUpdate,
+              index: index
+            };
+
+  this.id2row[id] = row;
+
+  var $drag = $row.find('[draggable="true"]');
+  var thisInstance = this;
+
+  $drag.bind('dragstart', function(ev)
+  {
+    ev.originalEvent.dataTransfer.setData('INDEX', row.index);
+    if (dragMIME != null)
+    {
+      for (var i = 0; i < dragMIME.length; i++)
+      {
+        var item = dragMIME[i];
+        ev.originalEvent.dataTransfer.setData(item[0], item[1]);
+      }
+    }
+  });
+
+  $drag.bind('dragover', function(ev)
+  {
+    ev.originalEvent.preventDefault();
+  });
+
+  $drag.bind('drop', function(ev)
+  {
+    ev.originalEvent.preventDefault();
+    var srcIndex = ev.originalEvent.dataTransfer.getData("INDEX");
+    var index = row.index;
+    if (srcIndex == index) return;
+
+    var src = thisInstance.rows.splice(srcIndex, 1)[0];
+    thisInstance.rows.splice(index, 0, src);
+    src.$row.detach();
+    if (srcIndex < index)
+    {
+      row.$row.after(src.$row);
+    }
+    else
+    {
+      row.$row.before(src.$row);
+    }
+
+    thisInstance.update(Math.min(srcIndex, index),
+                        Math.max(srcIndex, index) + 1);
+  });
+
+  this.rows.splice(index, 0, row);
+  if (this.length == index)
+  {
+    this.$table.append($row);
+  }
+  else if (index == 0)
+  {
+    this.$table.prepend($row);
+  }
+  else
+  {
+    this.$table.children().eq(index).before($row);
+  }
+
+  this.length++;
+  //this.update();
+  return true;
+}
+
 
 function CLayerManager($layerList, stacks, ajaxProvider, doNotRemove, doNotAdjust, doNotDownload, doNotDelete)
 {
@@ -484,9 +685,20 @@ function CLayerManager($layerList, stacks, ajaxProvider, doNotRemove, doNotAdjus
   this.removalEnabled = doNotAdjust != true;
   this.downloadEnabled = doNotDownload != true;
   this.deletionEnabled = doNotDelete != true;
-  this.loadButtons = {} // AssocArray of Arrays
 
-  this.layers = [];
+  this.layers = {};
+
+  var thisInstance = this;
+  this.tableManager = new CTableManager($layerList,
+                                        function()
+                                        {
+                                          for (var i = 0; i < thisInstance.stacks.stacks.length; i++)
+                                          {
+                                            thisInstance.stacks.stacks[i].setOpacity();
+                                          }
+
+                                          thisInstance.stacks.updateTopZ(thisInstance.tableManager.length);
+                                        });
 }
 
 CLayerManager.prototype.stopAdjustment = function(id)
@@ -514,15 +726,14 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
 
   var id = 'i' + imageId;
 
-  for (var i = 0; i < this.layers.length; i++)
+  if (id in this.layers)
   {
-    if (this.layers[i].id == id) return; //imposible to add image twice
-    //TODO: maybe it is better to just check if it is already cached???
+    return;
   }
 
   if (zIndex == null || zIndex < 0 || zIndex > this.layers.length)
   {
-    zIndex = this.layers.length;
+    zIndex = this.tableManager.length;
   }
 
   if (label == null)
@@ -536,6 +747,7 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   layer.id = id;
   layer.label = label;
   layer.path = path;
+  layer.loadButtons = [];
   layer.z = null; //to be for sure updated
 
   // making the layer-related row
@@ -545,55 +757,7 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   var url = document.createElement('a');
   url.href = path;
   url = url.href;
-  $drag.bind('dragstart', function(ev)
-  {
-    ev.originalEvent.dataTransfer.setData('Z', layer.z);
-    ev.originalEvent.dataTransfer.setData('text/plain', url);
-    ev.originalEvent.dataTransfer.setData('text/uri-list', url);
-  });
-
-  $drag.bind('dragover', function(ev)
-  {
-    ev.originalEvent.preventDefault();
-  });
-
-  $drag.bind('drop', function(ev)
-  {
-    ev.originalEvent.preventDefault();
-    var srcZ = ev.originalEvent.dataTransfer.getData("Z");
-    var z = layer.z;
-    if (srcZ == z) return;
-
-    var src = thisInstance.layers.splice(srcZ, 1)[0];
-    thisInstance.layers.splice(z, 0, src);
-    src.$row.detach();
-    // DOM objects are in reversed order than layers
-    if (srcZ < z)
-    {
-      layer.$row.before(src.$row);
-    }
-    else
-    {
-      layer.$row.after(src.$row);
-    }
-
-    var stop = Math.max(srcZ, z);
-    for (var i = Math.min(srcZ, z); i <= stop; i++)
-    {
-      var lr = thisInstance.layers[i];
-      lr.z = i;
-      thisInstance.images.setZ(lr.id, i);
-    }
-
-    // update the opacity of bottom and not-bottom layers
-    // TODO: a method in CSynchronizedStacksDisplay
-    for (var i = 0; i < thisInstance.stacks.stacks.length; i++)
-    {
-      thisInstance.stacks.stacks[i].setOpacity();
-    }
-
-    thisInstance.stacks.updateTopZ(stop);
-  });
+  var dragMIME = [['text/plain', url], ['text/uri-list', url]];
 
   $row.append($drag);
 
@@ -684,30 +848,23 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   }
 
   //removal
+  var onRemove = null;
   if (this.removalEnabled)
   {
     layer.$rem = $('<button>Remove</button>');
+
+    onRemove = function()
+    {
+      var id = layer.id;
+      thisInstance.removeLayer(id);
+    };
+
     layer.$rem.bind('click', function()
     {
-      var z = layer.z;
-      var layers = thisInstance.layers;
+      //var z = layer.z;
+      //var layers = thisInstance.layers;
       var id = layer.id;
-      if (layers[z].id != id)
-      {
-        console.warn('remove button handler: z mismatch for z:' + z +
-                     ', id:' + id);
-        z = 0;
-        while (layers[z].id != id && z < layers.length)
-        {
-          z++;
-        }
-        if (z >= layers.length)
-        {
-          console.error('Layer of id: ' + id + ' not found in layers.');
-          return
-        }
-      }
-      thisInstance.removeLayerByZ(z);
+      thisInstance.tableManager.remove(id);
     });
     //XXX: see if there is no problem with chaining method call
     $row.append($('<td></td>').append(layer.$rem));
@@ -722,7 +879,17 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
 
   layer.$row = $row;
 
-  this.layers.splice(zIndex, 0, layer);
+  this.layers[id] = layer;
+
+  this.tableManager.add($row, id, this.tableManager.length - zIndex,
+                        onRemove,
+                        function(index)
+                        {
+                          var z = thisInstance.tableManager.length - 1 - index;
+                          layer.z = z;
+                          thisInstance.images.setZ(id, z);
+                        },
+                        dragMIME);
 
 
   var finishCaching = update ?
@@ -758,39 +925,19 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
 
 CLayerManager.prototype.updateOrder = function()
 {
-  var layers = this.layers;
-  for (var z = 0; z < layers.length; z++)
-  {
-    var layer = layers[z];
-    if (z != layer.z)
-    {
-      var imageID = layer.id;
-      this.layers[z].z = z;
-      if (this.images.has(imageID))
-      {
-        this.images.setZ(imageID, z);
-      }
-    }
-  }
-
-  this.stacks.updateTopZ(this.layers.length - 1);
+  this.tableManager.update();
   this.arrangeInterface();
 }
 
 CLayerManager.prototype.arrangeInterface = function()
 {
-  // detaching is crucial for preservation of event handlers
   this.$layerList.find('.recyclableElement').detach();
-  this.$layerList.children('tr').detach();
-  var $layerList = $('<tbody></tbody>');
   var nmax = this.stacks.nx * this.stacks.ny;
 
-  for (var z = this.layers.length - 1; z >= 0; z--)
+  for (var id in this.layers)
   {
-    var layer = this.layers[z];
-    var id = layer.id;
-
-    var loadButtons = id in this.loadButtons ? this.loadButtons[id] : [];
+    var layer = this.layers[id];
+    var loadButtons = layer.loadButtons;
 
     layer.$visibility.empty();
     for (var n = 0; n < nmax; n++)
@@ -819,12 +966,8 @@ CLayerManager.prototype.arrangeInterface = function()
       item.$cb.unbind('change', item.changeHandler);
     }
 
-    this.loadButtons[id] = loadButtons;
-
-    $layerList.append(layer.$row);
+    layer.loadButtons = loadButtons;
   }
-  this.$layerList.replaceWith($layerList);
-  this.$layerList = $layerList;
 }
 
 
@@ -857,42 +1000,37 @@ CLayerManager.prototype.layerCB = function(id, stackId)
 
 CLayerManager.prototype.removeLayer = function(id)
 {
-  var toDismiss = this.loadButtons[id];
+  var toDismiss = this.layers[id].loadButtons;
   //XXX: redundant with arrangeInterface();
   for (var i = 0; i < toDismiss.lenght; i++)
   {
     var item = toDismiss[i];
     item.$cb.unbind('change', item.changeHandler);
   }
-  delete this.loadButtons[id];
+  delete this.layers[id];
 
   this.stacks.removeLayer(id);
 }
 
-CLayerManager.prototype.removeLayerByZ = function(z, updateIface)
-{
-  //XXX warning: z might be greater than this.layers.length !!!
-  var id = this.layers[z].id;
-  if (this.layers[z].z != z)
-  {
-    console.warn('removeLayerByZ z mismatch for z:' + z);
-  }
-  this.layers.splice(z, 1);
-  this.removeLayer(id);
-  if (updateIface == null || updateIface)
-  {
-    this.updateOrder();
-  }
-}
+//CLayerManager.prototype.removeLayerByZ = function(z, updateIface)
+//{
+//  //XXX warning: z might be greater than this.layers.length !!!
+//  var id = this.layers[z].id;
+//  if (this.layers[z].z != z)
+//  {
+//    console.warn('removeLayerByZ z mismatch for z:' + z);
+//  }
+//  this.layers.splice(z, 1);
+//  this.removeLayer(id);
+//  if (updateIface == null || updateIface)
+//  {
+//    this.updateOrder();
+//  }
+//}
 
 CLayerManager.prototype.flush = function()
 {
-  for (var i = 0; i < this.layers.length; i++)
-  {
-    this.removeLayer(this.layers[i].id);
-  }
-  this.layers = [];
-  this.arrangeInterface();
+  this.tableManager.flush();
 }
 
 //an alias
@@ -924,9 +1062,10 @@ CLayerManager.prototype.loadedImagesOrdered = function()
 {
   var images = this.stacks.loadedImages();
   var ordered = [];
-  for (var i = 0; i < this.layers.length; i++)
+  var order = this.tableManager.getOrder();
+  for (var i = 0; i < order.length; i++)
   {
-    var id = this.layers[i].id;
+    var id = order[i];
     if (id in images)
     {
       ordered.push(id);
@@ -960,15 +1099,15 @@ CLayerManager.prototype.deleteImages = function()
 {
   var toDelete = [];
   var deleteMapping = {};
-  for (var i = this.layers.length - 1; i >= 0; i--)
+  for (var id in this.layers)
   {
-    var layer = this.layers[i];
+    var layer = this.layers[id];
     if (layer.$del == null) continue;
     if (layer.$del.filter(':checked').length == 0) continue;
     if (layer.image == null) continue;
     var iid = layer.image.info.iid;
     toDelete.push(iid);
-    deleteMapping[iid] = i;
+    deleteMapping[iid] = id;
   }
 
   if (toDelete.length > 0 &&
@@ -998,7 +1137,7 @@ CLayerManager.prototype.deleteImages = function()
                                var item = data[i];
                                if (item[1])
                                {
-                                 thisInstance.removeLayerByZ(deleteMapping[item[0]],
+                                 thisInstance.tableManager.remove(deleteMapping[item[0]],
                                                              false);
                                }
                                else
