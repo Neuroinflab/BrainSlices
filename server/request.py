@@ -267,6 +267,9 @@ class Request(object):
     """
     @return: False if invalid, otherwise True
     """
+    if not self.valid:
+      return False
+
     for argument, (condition, transformation) in self._atoms.items():
       self._parseArgument(argument, condition, transformation)
 
@@ -535,6 +538,10 @@ GetImagesStatusesRequest = IidsRequestAux.extend('GetImagesStatusesRequest',
 A class for image status querying.
 """)
 
+GetImagesPrivilegesRequest = IidsRequestAux.extend('GetImagesPrivilegesRequest',
+"""
+A class for image privileges querying.
+""")
 
 DeleteImagesRequest = IidsRequestAux.extend('DeleteImagesRequest',
 """

@@ -356,35 +356,34 @@ function CFileUploader($form, ajaxProvider)
           $batchSelect.append('<option value="' + list[i][0] + '">' +
                          escapeHTML(list[i][1]) + '</option>');
         }
-
-        $form.find('.batch :button').click(function()
-        {
-          var comment = $form.find('.batch :text').val();
-          ajaxProvider.ajax(
-            'newBatch',
-            function(response)
-            {
-              if (!response.status)
-              {
-                alert(response.message);
-                return;
-              }
-              $batchSelect.append('<option value="' + response.data.bid + '">' +
-                             escapeHTML(response.data.comment) + '</option>');
-              $batchSelect.val(response.data.bid);
-            },
-            {comment: comment},
-            null,
-            null,
-            {cache: false});
-        });
       },
       null,
       ajaxErrorHandler,
       'POST',
       {cache: false});
-  }
+  };
 
+  $form.find('.batch :button').click(function()
+  {
+    var comment = $form.find('.batch :text').val();
+    ajaxProvider.ajax(
+      'newBatch',
+      function(response)
+      {
+        if (!response.status)
+        {
+          alert(response.message);
+          return;
+        }
+        $batchSelect.append('<option value="' + response.data.bid + '">' +
+                       escapeHTML(response.data.comment) + '</option>');
+        $batchSelect.val(response.data.bid);
+      },
+      {comment: comment},
+      null,
+      null,
+      {cache: false});
+  });
 
   function updateFiles()
   {

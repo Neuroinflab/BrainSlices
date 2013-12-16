@@ -106,6 +106,26 @@ class TileBase(dbBase):
 
     return rowcount
 
+  #TODO: privileges check???
+  @manageConnection()
+  def getPrivilegesToEdit(self, iid, cursor = None, db = None):
+    public = self._getOneRow("""
+                             SELECT public_image_view, public_image_edit,
+                                    public_image_annotate, public_image_outline
+                             FROM images
+                             WHERE iid = %s;
+                             """, (iid,),
+                             cursor = cursor)
+    if public is None:
+      return
+
+    cursor.execute("""
+                   SELECT gid, image_edit, image_annotate, image_outline
+                   FROM image_privileges
+                   WHERE iid = %s;
+                   """, (iid,))
+    return (public, cursor.fetchall())
+
 
   def canViewImage(self, iid, uid = None, extraFields = ''):
     return self.canAccessImage(iid, uid = uid, extraFields = extraFields,

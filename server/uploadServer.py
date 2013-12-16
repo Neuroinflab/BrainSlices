@@ -34,7 +34,8 @@ from server import jsonStd, generateJson, Server, serveContent, ensureLogged,\
 from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
                     GetBrokenDuplicatesRequest, GetImagesStatusesRequest,\
-                    UpdateMetadataRequest, DeleteImagesRequest
+                    UpdateMetadataRequest, DeleteImagesRequest,\
+                    GetImagesPrivilegesRequest
 
 from tileBase import NO_PRIVILEGE
 
@@ -75,10 +76,20 @@ class UploadServer(Generator, Server):
     upload['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
     self['index'] = upload
 
+    privileges = self.templateEngine('privileges_panel.html')
+    privileges['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
+    self['privileges'] = privileges
+
   @cherrypy.expose
   @serveContent()
   @useTemplate('index')
   def index(self):
+    return [], []
+
+  @cherrypy.expose
+  @serveContent()
+  @useTemplate('privileges')
+  def privileges(self):
     return [], []
 
   @cherrypy.expose
@@ -211,6 +222,21 @@ class UploadServer(Generator, Server):
 
       if self.tileBase.deleteImage(iid):
         result.append((iid, True))
+
+    return generateJson(result, logged = True)
+
+  @cherrypy.expose
+  @serveContent(GetImagesPrivilegesRequest)
+  @ensureLogged
+  def getPrivileges(self, uid, request):
+    result = []
+    for iid in request.iids:
+      #TODO: pass uid to getPrivilegesToEdit to perform privileges check
+      #TODO2: make @manageConnection() NOT handling exceptions if connection
+      #       already provided
+      privileges = self.tileBase.getPrivilegesToEdit(iid)
+      if privileges is not None:
+        result.append((iid,) + privileges)
 
     return generateJson(result, logged = True)
 
