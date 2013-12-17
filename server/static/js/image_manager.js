@@ -484,15 +484,9 @@ function CTableManager($table, onUpdate)
 
 CTableManager.prototype.flush = function()
 {
-  var ids = {};
-  for (var id in this.id2row)
+  for (var i = this.length - 1; i >= 0; i--)
   {
-    ids[id] = null;
-  }
-
-  for (var id in ids)
-  {
-    this.remove(id, this.length == 1)
+    this.remove(this.rows[i].id, this.length == 1);
   }
 }
 
