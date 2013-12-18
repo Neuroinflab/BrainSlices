@@ -1151,21 +1151,13 @@ CLayerManager.prototype.deleteImages = function()
 
 CLayerManager.prototype.destroy = function()
 {
+  this.flush();
+  this.tableManager.destroy();
+  this.tableManager = null;
   this.stacks = null;
   this.images = null;
   this.$layerList = null;
-
-  for (var id in this.loadButtons)
-  {
-    //XXX: redundant with removeLayerByZ()
-    var toDismiss = this.loadButtons[id];
-    for (var i = 0; i < toDismiss.length; i++)
-    {
-      var item = toDismiss[i];
-      item.$cb.unbind('change', item.changeHandler);
-    }
-  }
-  this.loadButtons = null;
+  this.ajaxProvider = null;
   this.layers = null;
   //TODO: check what happens to everything else bound to this.$layerList descendants
 

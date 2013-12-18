@@ -38,6 +38,35 @@ var STATUS_MAP = {'0': 'UPLOADING',
                   '-1': 'REMOVED',
                   '-2': 'ERROR'};
 
+/****************************************************************************\
+ * Function: getThumbnail                                                   *
+ *                                                                          *
+ * Create DOM IMG element containing a thumbnail of the image.              *
+ *                                                                          *
+ * Parameters:                                                              *
+ *   iid - an image identifier in BrainSlices repository                    *
+ *   imageWidth - image width                                               *
+ *   imageHeight - image height                                             *
+ *   width - desired thumbnail width (in pixels; defaults to 128)           *
+ *   height - desired thumbnail height (in pixels; defaults to 128)         *
+\****************************************************************************/
+function getThumbnail(iid, imageWidth, imageHeight, width, height)
+{
+  if (width == null) width = 128;
+  if (height == null) height = 128;
+  if (imageWidth / width > imageHeight / height)
+  {
+    height = Math.round(width * imageHeight / imageWidth);
+  }
+  else
+  {
+    width = Math.round(height * imageWidth / imageHeight);
+  }
+  return $("<img />").attr({src: '/images/'+iid+'/tiles/0/0/0.jpg',
+                            alt: 'thumbnail of image #' + iid}).addClass("polaroid-image").css({width: width + 'px', height: height + 'px'});
+}
+
+
 
 /*****************************************************************************\
  * Class: CAjaxProvider                                                      *

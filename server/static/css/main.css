@@ -247,7 +247,8 @@ form[name=confirmationForm] p
   overflow-y: auto;
 }
 
-#layersConsole .changed
+#layersConsole .changed,
+#privilegesPanel .privilegeChanged
 {
   background: #FED;
 }

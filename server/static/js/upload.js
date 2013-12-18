@@ -791,25 +791,6 @@ function CFileUploader($form, ajaxProvider)
     }
   }
   
-  /*
-   * Returns image thumbnail object for the given iid
-   */
-  function getThumbnail(iid, width, height)
-  {
-    var w = 128;
-    var h = 128;
-    if (width > height)
-    {
-      h = Math.round(128 * height / width);
-    }
-    else
-    {
-      w = Math.round(128 * width / height);
-    }
-    return $("<img />").attr({src: '../images/'+iid+'/tiles/0/0/0.jpg',
-                              alt: 'thumbnail of image #' + iid}).addClass("polaroid-image").css({width: w + 'px', height: h + 'px'});
-  }
-  
   /**
    * Preprocess list of files for upload according to the user choice and
    * request upload.
