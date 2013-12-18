@@ -295,10 +295,8 @@ function listBatch()
           //$privilegesList.empty();
 
           var data = response.data;
-          console.debug(data);
           for (var j = 0; j < data.length; j++)
           {
-            console.debug(j);
             var item = data[j];
 
             var iid = item[0];
@@ -329,7 +327,6 @@ function listBatch()
                 var $td = $('<td></td>').append($cb);
                 res.push($td);
               }
-              console.debug(res);
               return res;
             }
             var cbs = getCBs(iid);
