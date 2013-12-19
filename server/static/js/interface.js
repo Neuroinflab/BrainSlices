@@ -329,6 +329,11 @@ function CTableManager($table, onUpdate)
   $table.empty();
 }
 
+CTableManager.prototype.has = function(id)
+{
+  return id in this.id2row;
+}
+
 CTableManager.prototype.flush = function()
 {
   for (var i = this.length - 1; i >= 0; i--)

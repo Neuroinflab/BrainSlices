@@ -644,7 +644,7 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   }
 
   //removal
-  var onRemove = null;
+
   if (this.removalEnabled)
   {
     layer.$rem = $('<button>Remove</button>');
@@ -679,7 +679,21 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   this.length++;
 
   this.tableManager.add($row, id, this.tableManager.length - zIndex,
-                        onRemove,
+                        function()
+                        {
+                          var id = layer.id;
+                          var toDismiss = thisInstance.layers[id].loadButtons;
+                          //XXX: redundant with arrangeInterface();
+                          for (var i = 0; i < toDismiss.lenght; i++)
+                          {
+                            var item = toDismiss[i];
+                            item.$cb.unbind('change', item.changeHandler);
+                          }
+                          delete thisInstance.layers[id];
+                          thisInstance.length--;
+
+                          thisInstance.stacks.removeLayer(id);
+                        },
                         function(index)
                         {
                           var z = thisInstance.tableManager.length - 1 - index;
@@ -802,17 +816,7 @@ CLayerManager.prototype.layerCB = function(id, stackId)
 
 CLayerManager.prototype.removeLayer = function(id)
 {
-  var toDismiss = this.layers[id].loadButtons;
-  //XXX: redundant with arrangeInterface();
-  for (var i = 0; i < toDismiss.lenght; i++)
-  {
-    var item = toDismiss[i];
-    item.$cb.unbind('change', item.changeHandler);
-  }
-  delete this.layers[id];
-  this.length--;
-
-  this.stacks.removeLayer(id);
+  this.tableManager.remove(id);
 }
 
 CLayerManager.prototype.flush = function()
