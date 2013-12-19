@@ -263,7 +263,9 @@ class TileBase(dbBase):
       cursor.execute("""
                      SELECT filename, iid
                      FROM images
-                     WHERE status > %s AND public_image_view
+                     WHERE status > %s AND (public_image_view OR
+                                            public_image_annotate OR
+                                            public_image_outline)
                         OR status >= %s AND (public_image_edit
                                              OR owner = %s)
                      UNION
@@ -284,7 +286,9 @@ class TileBase(dbBase):
       cursor.execute("""
                      SELECT filename, iid
                      FROM images
-                     WHERE status > %s AND public_image_view
+                     WHERE status > %s AND (public_image_view OR
+                                            public_image_annotate OR
+                                            public_image_outline)
                         OR status >= %s AND public_image_edit
                      ORDER BY filename;
                      """, (IMAGE_STATUS_COMPLETED,
