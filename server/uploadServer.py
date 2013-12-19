@@ -176,10 +176,12 @@ class UploadServer(Generator, Server):
   @ensureLogged
   def batchDetails(self, uid, request):
     details = self.tileBase.getBatchDetails(uid, request.bid)
-    data = [unwrapRow(row, ['imageTop', 'imageLeft', 'imageWidth',
+    data = [unwrapRow(row, ['status', 'viewPrivilege', 'editPrivilege',
+                            'annotatePrivilege', 'outlinePrivilege',
+                            'imageTop', 'imageLeft', 'imageWidth',
                             'imageHeight', 'tileWidth', 'tileHeight',
                             'pixelSize', 'crc32', 'md5', 'iid',
-                            'status', 'invalid', 'sourceCRC32',
+                            'invalid', 'sourceCRC32',
                             'sourceFilesize', 'declaredFilesize',
                             'filename']) for row in details]
     return generateJson(data, logged = True)
@@ -231,10 +233,9 @@ class UploadServer(Generator, Server):
   def getPrivileges(self, uid, request):
     result = []
     for iid in request.iids:
-      #TODO: pass uid to getPrivilegesToEdit to perform privileges check
       #TODO2: make @manageConnection() NOT handling exceptions if connection
       #       already provided
-      privileges = self.tileBase.getPrivilegesToEdit(iid)
+      privileges = self.tileBase.getPrivilegesToEdit(iid, uid)
       if privileges is not None:
         result.append((iid,) + privileges)
 

@@ -100,24 +100,27 @@ class TileBase(dbBase):
     rowcount = 0
     for iid in iids:
       row = self.getPrivileges(iid, uid, cursor = cursor)
-      if row is not None and row[2]:
+      if row is not None and row[2] > NO_PRIVILEGE:
         cursor.execute(query, values + (iid,))
         rowcount += cursor.rowcount
 
     return rowcount
 
-  #TODO: privileges check???
   @manageConnection()
-  def getPrivilegesToEdit(self, iid, cursor = None, db = None):
-    public = self._getOneRow("""
-                             SELECT public_image_view, public_image_edit,
-                                    public_image_annotate, public_image_outline
-                             FROM images
-                             WHERE iid = %s;
-                             """, (iid,),
+  def getPrivilegesToEdit(self, iid, uid = None, cursor = None, db = None):
+    row = self.getPrivileges(iid, uid = uid, extraFields=""",
+                             public_image_view, public_image_edit,
+                             public_image_annotate, public_image_outline""",
                              cursor = cursor)
-    if public is None:
-      return
+    if row is None or row[0] < IMAGE_STATUS_RECEIVED:
+      return None
+
+    if row[2] == NO_PRIVILEGE:
+      return False
+
+    public = row[5:]
+    if row[2] < GROUP_PRIVILEGE:
+      return (public, None)
 
     cursor.execute("""
                    SELECT gid, image_edit, image_annotate, image_outline
@@ -131,9 +134,20 @@ class TileBase(dbBase):
     return self.canAccessImage(iid, uid = uid, extraFields = extraFields,
                                thresholdStatus = IMAGE_STATUS_PREVIEWABLE)
 
-  @provideCursor
   def canAccessImage(self, iid, uid = None, extraFields = '',
                      thresholdStatus = IMAGE_STATUS_COMPLETED, cursor = None):
+    row = self.accessImage(iid, uid = uid, extraFields = extraFields,
+                           thresholdStatus = thresholdStatus,
+                           cursor = cursor)
+    if not row: #row in (False, None):
+      return row
+
+    return row[5:] if extraFields != '' else True
+
+  @provideCursor
+  def accessImage(self, iid, uid = None, extraFields = '',
+                  thresholdStatus = IMAGE_STATUS_COMPLETED,
+                  cursor = None):
     row = self.getPrivileges(iid, uid = uid, extraFields = extraFields,
                              cursor = cursor)
     if row is None: # no image
@@ -145,13 +159,13 @@ class TileBase(dbBase):
 
     if status == IMAGE_STATUS_ACCEPTED: # image technically can be accessed
       if view > NO_PRIVILEGE:
-        return row[5:] if extraFields != '' else True
+        return row
 
       else:
         return False
 
     if edit > NO_PRIVILEGE: # editor privilege
-      return row[5:] if extraFields != '' else True
+      return row
 
     return False
 
@@ -234,12 +248,19 @@ class TileBase(dbBase):
     return None
 
   def info(self, request):
-    return self.canViewImage(request.id,
-                            uid = request.session.get('userID'),
-                            extraFields = """,
-                            image_top, image_left, image_width, image_height,
-                            tile_width, tile_height, pixel_size,
-                            image_crc32, image_md5, iid, status""")
+    return self.accessImage(request.id, uid = request.session.get('userID'),
+                            extraFields = """, image_top, image_left,
+                            image_width, image_height, tile_width,
+                            tile_height, pixel_size, image_crc32, image_md5,
+                            iid""",
+                            thresholdStatus = IMAGE_STATUS_PREVIEWABLE)
+
+    #return self.canViewImage(request.id,
+    #                        uid = request.session.get('userID'),
+    #                        extraFields = """,
+    #                        image_top, image_left, image_width, image_height,
+    #                        tile_width, tile_height, pixel_size,
+    #                        image_crc32, image_md5, iid, status""")
     #if isinstance(row, tuple):
     #  return {'imageTop': row[0],
     #          'imageLeft': row[1],
@@ -335,25 +356,28 @@ class TileBase(dbBase):
   def getBatchDetails(self, uid, bid, cursor = None):
     if bid != None:
       cursor.execute("""
-                     SELECT image_top, image_left, image_width, image_height,
+                     SELECT status, %s, %s, %s, %s,
+                            image_top, image_left, image_width, image_height,
                             tile_width, tile_height, pixel_size,
-                            image_crc32, image_md5, iid, status,
-
+                            image_crc32, image_md5, iid,
                             invalid, source_crc32,
                             source_filesize, declared_size, filename
                      FROM images
                      WHERE owner = %s AND bid = %s;
-                     """, (uid, bid))
+                     """, (OWNER_PRIVILEGE, OWNER_PRIVILEGE, OWNER_PRIVILEGE,
+                           OWNER_PRIVILEGE, uid, bid))
     else:
       cursor.execute("""
-                     SELECT image_top, image_left, image_width, image_height,
+                     SELECT status, %s, %s, %s, %s,
+                            image_top, image_left, image_width, image_height,
                             tile_width, tile_height, pixel_size,
                             image_crc32, image_md5,
-                            iid, status, invalid, source_crc32,
+                            iid, invalid, source_crc32,
                             source_filesize, declared_size, filename
                      FROM images
                      WHERE owner = %s AND bid IS NULL;
-                     """, (uid,))
+                     """, (OWNER_PRIVILEGE, OWNER_PRIVILEGE, OWNER_PRIVILEGE,
+                           OWNER_PRIVILEGE, uid))
 
     #TODO: check for batch existence???
     return cursor.fetchall()
@@ -490,11 +514,11 @@ class TileBase(dbBase):
     '''
     statuses = []
     for iid in iids:
-      row = self.canAccessImage(iid, uid, thresholdStatus = IMAGE_STATUS_RECEIVED,
+      row = self.accessImage(iid, uid, thresholdStatus = IMAGE_STATUS_RECEIVED,
       extraFields = """,
                     image_top, image_left, image_width, image_height,
                     tile_width, tile_height, pixel_size,
-                    image_crc32, image_md5, iid, status""")
+                    image_crc32, image_md5, iid""")
       if row:
         statuses.append(row)
 

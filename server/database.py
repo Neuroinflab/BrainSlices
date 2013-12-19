@@ -50,7 +50,7 @@ dbPool = psycopg2.pool.ThreadedConnectionPool(1, BS_DB_CONNECTIONS_MAX,
 def provideConnection(isolationLevel=psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE):
   def decorator(function):
     def toBeExecuted(self, *args, **kwargs):
-      newConnection = 'connection' not in kwargs
+      newConnection = 'db' not in kwargs
       if newConnection:
         db = self._dbPool.getconn()
         db.set_isolation_level(isolationLevel)
@@ -76,7 +76,7 @@ def provideConnection(isolationLevel=psycopg2.extensions.ISOLATION_LEVEL_SERIALI
 def manageConnection(isolationLevel=psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE):
   def decorator(function):
     def toBeExecuted(self, *args, **kwargs):
-      newConnection = 'connection' not in kwargs
+      newConnection = 'db' not in kwargs
       if newConnection:
         db = self._dbPool.getconn()
         db.set_isolation_level(isolationLevel)
@@ -85,26 +85,28 @@ def manageConnection(isolationLevel=psycopg2.extensions.ISOLATION_LEVEL_SERIALIZ
         kwargs['db'] = db
         kwargs['cursor'] = cursor
 
-      try:
-        while True:
-          try:
-            result = function(self, *args, **kwargs)
+        try:
+          while True:
+            try:
+              result = function(self, *args, **kwargs)
 
-          except TransactionRollbackError:
-            db.rollback()
+            except TransactionRollbackError:
+              db.rollback()
 
-          except:
-            db.rollback()
-            raise
+            except:
+              db.rollback()
+              raise
 
-          else:
-            db.commit()
-            break
+            else:
+              db.commit()
+              break
 
-      finally:
-        if newConnection:
+        finally:
           cursor.close()
           self._dbPool.putconn(db)
+
+      else:
+        result = function(self, *args, **kwargs)
 
       return result
 

@@ -223,10 +223,12 @@ function CLayerStack(parentDiv, zoom, focusPointX, focusPointY, crosshairX, cros
   {
     var factor = ev.originalEvent.detail < 0 || ev.originalEvent.wheelDelta > 0 ? 2. : 0.5;
     var offset = thisInstance.display.offset();
-    var xM = event.clientX - offset.left;
-    var yM = event.clientY - offset.top;
-    var x = thisInstance.pixelSize * (xM - thisInstance.crosshairX) + thisInstance.focusPointX;
-    var y = thisInstance.pixelSize * (yM - thisInstance.crosshairY) + thisInstance.focusPointY;
+    //var xM = event.clientX - offset.left;
+    //var yM = event.clientY - offset.top;
+    //var x = thisInstance.pixelSize * (xM - thisInstance.crosshairX) + thisInstance.focusPointX;
+    //var y = thisInstance.pixelSize * (yM - thisInstance.crosshairY) + thisInstance.focusPointY;
+    var x = thisInstance.mouseX;
+    var y = thisInstance.mouseY;
     //console.debug(x + ',\t' + y)
 
     if (thisInstance.syncStacks != null)

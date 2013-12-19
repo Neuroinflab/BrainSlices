@@ -32,9 +32,11 @@ import template
 import tempfile
 cherrypy._cpreqbody.Part.make_file = lambda x: tempfile.SpooledTemporaryFile(max_size=1024*1024)
 
-def unwrapRow(row, fields=['imageTop', 'imageLeft', 'imageWidth',
+def unwrapRow(row, fields=['status', 'viewPrivilege', 'editPrivilege',
+                           'annotatePrivilege', 'outlinePrivilege',
+                           'imageTop', 'imageLeft', 'imageWidth',
                            'imageHeight', 'tileWidth', 'tileHeight',
-                           'pixelSize', 'crc32', 'md5', 'iid', 'status']):
+                           'pixelSize', 'crc32', 'md5', 'iid']):
   return dict(zip(fields, row))
 
 def jsonStd(data = None, status = True, message = None, logged = False):
