@@ -124,22 +124,62 @@ function listBatch()
                                        cbs[0].filter(':checked').length > 0, 
                                        cbs[1].filter(':checked').length > 0, 
                                        cbs[2].filter(':checked').length > 0, 
-                                       cbs[3].filter(':checked').length > 0);
+                                       cbs[3].filter(':checked').length > 0,
+                                       true);
               }
               for (var i = 0; i < 4; i++)
               {
-                var $cb = $('<input type="checkbox"' + (privileges[i] ? ' checked="checked">' : '>'));
+                var $cb = $('<input type="checkbox">'); // + (privileges[i] ? ' checked="checked">' : '>'));
                 $cb.bind('change', updatePrivileges);
                 cbs.push($cb);
                 var $td = $('<td></td>').append($cb);
                 res.push($td);
               }
-              return res;
+
+              function onUpdate(privilege)
+              {
+                if (privilege.view)
+                {
+                  cbs[0].attr("checked", "checked");
+                }
+                else
+                {
+                  cbs[0].removeAttr("checked");
+                }
+
+                if (privilege.edit)
+                {
+                  cbs[1].attr("checked", "checked");
+                }
+                else
+                {
+                  cbs[1].removeAttr("checked");
+                }
+
+                if (privilege.annotate)
+                {
+                  cbs[2].attr("checked", "checked");
+                }
+                else
+                {
+                  cbs[2].removeAttr("checked");
+                }
+
+                if (privilege.outline)
+                {
+                  cbs[3].attr("checked", "checked");
+                }
+                else
+                {
+                  cbs[3].removeAttr("checked");
+                }
+              }
+              return [res, onUpdate];
             }
             var cbs = getCBs(iid);
             for (var i = 0; i < 4; i++)
             {
-              $row.append(cbs[i]);
+              $row.append(cbs[0][i]);
             }
 
             //for (var i = 0; i < privileges.length; i++)
@@ -148,7 +188,7 @@ function listBatch()
             //}
             $row.append($('<td>' + groups.join(' ') + '</td>'));
 
-            privilegeManager.add(item, $row, null);
+            privilegeManager.add(item, $row, cbs[1]);
             tableManager.add($row, iid);
            // $privilegesList.append($row);
           }
@@ -185,6 +225,27 @@ $(function()
                  });
   privilegeManager = new CImagePrivilegesManager(loginConsole);
   tableManager = new CTableManager($('#privilegesPanel table tbody.layerList'));
+
+  $('#viewPrivilegeAll').bind('change', function()
+  {
+    privilegeManager.changePublic(null,
+                                  $('#viewPrivilegeAll:checked').length > 0);
+  });
+  $('#editPrivilegeAll').bind('change', function()
+  {
+    privilegeManager.changePublic(null, null,
+                                  $('#editPrivilegeAll:checked').length > 0);
+  });
+  $('#annotatePrivilegeAll').bind('change', function()
+  {
+    privilegeManager.changePublic(null, null, null,
+                                  $('#annotatePrivilegeAll:checked').length > 0);
+  });
+  $('#outlinePrivilegeAll').bind('change', function()
+  {
+    privilegeManager.changePublic(null, null, null, null,
+                                  $('#outlinePrivilegeAll:checked').length > 0);
+  });
 });
 
 
@@ -239,6 +300,26 @@ $(function()
       </tr>
      </thead>
      <tfoot>
+      <tr>
+       <th colspan="2">
+        All images
+       </th>
+       <td>
+        <input type="checkbox" id="viewPrivilegeAll">
+       </td>
+       <td>
+        <input type="checkbox" id="editPrivilegeAll">
+       </td>
+       <td>
+        <input type="checkbox" id="annotatePrivilegeAll">
+       </td>
+       <td>
+        <input type="checkbox" id="outlinePrivilegeAll">
+       </td>
+       <td>
+        <button onclick="privilegeManager.reset();">Reset</button>
+       </td>
+      </tr>
      </tfoot>
      <tbody class="layerList">
      </tbody>

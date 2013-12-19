@@ -719,7 +719,6 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
                       } :
                       function(image)
                       {
-                        // layer[i].z might be invalid;
                         layer.image = image;
                         // trigger onUpdate (unable to do while loading
                         // since image was not assigned

@@ -77,7 +77,8 @@ function CImagePrivilegesManager(ajaxProvider)
       }
     };
 
-    privilege.changePublic = function(view, edit, annotate, outline)
+    privilege.changePublic = function(view, edit, annotate, outline,
+                                      doNotUpdate)
     {
       if (view != null) privilege.view = view;
       if (edit != null) privilege.edit = edit;
@@ -87,6 +88,11 @@ function CImagePrivilegesManager(ajaxProvider)
       if (privilege.$row != null)
       {
         privilege.$row.addClass('privilegeChanged');
+      }
+
+      if (doNotUpdate != true && privilege.onUpdate != null)
+      {
+        privilege.onUpdate(privilege);
       }
     };
 
@@ -99,6 +105,8 @@ function CImagePrivilegesManager(ajaxProvider)
       privilege.destroy = null;
       delete privileges[iid]; //autoremove :-)
     }
+
+    privilege.reset();
   };
 
   this.remove = function(iid)
@@ -121,11 +129,12 @@ function CImagePrivilegesManager(ajaxProvider)
     }
   };
 
-  this.changePublic = function(iid, view, edit, annotate, outline)
+  this.changePublic = function(iid, view, edit, annotate, outline,
+                               doNotUpdate)
   {
     this.apply(iid, function(x)
     {
-      x.changePublic(view, edit, annotate, outline);
+      x.changePublic(view, edit, annotate, outline, doNotUpdate);
     });
   };
 
