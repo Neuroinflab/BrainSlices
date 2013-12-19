@@ -1,4 +1,4 @@
-/* File: draggable_div.js */
+/* File: interface.js */
 /*****************************************************************************\
 *                                                                             *
 *    This file is part of BrainSlices Software                                *
@@ -298,3 +298,223 @@ CCloseableDiv.prototype.destroy = function()
   this.closeByKey = null;
 }
 
+
+/*****************************************************************************\
+ * Class: CTableManager                                                      *
+ *                                                                           *
+ * A class managing of HTML-based sequence (table, list etc.) of items which *
+ * order can be changed by dragging.                                         *
+ *                                                                           *
+ * Attributes:                                                               *
+ *   $table - A jQuery object representing the HTML-based sequence.          *
+ *   onUpdate - A trigger to be executed when the content order has changed. *
+ *   rows - An Array containing objects representanting the items.           *
+ *   length - Number of items in the sequence.                               *
+ *   id2row - A mapping of item ifentifier to the object representanting the *
+ *   item.                                                                   *
+ *****************************************************************************
+ * Constructor: CTableManager                                                *
+ *                                                                           *
+ * Parameters:                                                               *
+ *   $table - A jQuery object representing the HTML-based sequence.          *
+ *   onUpdate - A trigger to be executed when the content order has changed. *
+\*****************************************************************************/
+function CTableManager($table, onUpdate)
+{
+  this.rows = [];
+  this.length = 0;
+  this.id2row = {};
+  this.$table = $table;
+  this.onUpdate = onUpdate;
+  $table.empty();
+}
+
+CTableManager.prototype.flush = function()
+{
+  for (var i = this.length - 1; i >= 0; i--)
+  {
+    this.remove(this.rows[i].id, this.length == 1);
+  }
+}
+
+CTableManager.prototype.destroy = function()
+{
+  this.flush();
+  this.onUpdate = null;
+}
+
+CTableManager.prototype.remove = function(id, update)
+{
+  if (!id in this.id2row)
+  {
+    return null;
+  }
+
+  var row = this.id2row[id];
+  delete this.id2row[id];
+  var rows = this.rows;
+
+  var index = row.index;
+  if (rows[index].id != id)
+  {
+    console.warn('remove: mismatch for index = ' + index);
+    index = 0;
+    while (rows[index].id != id && index < rows.length)
+    {
+      index++;
+    }
+
+    if (index >= rows.length)
+    {
+      console.error('Row of id: ' + id + ' not found.');
+      return null;
+    }
+  }
+  rows.splice(index, 1);
+  this.length--;
+
+  if (row.onRemove != null)
+  {
+    row.onRemove();
+  }
+
+  if (update == null || update)
+  {
+    this.update(index)
+  }
+
+  return row.$row.detach();
+}
+
+CTableManager.prototype.update = function(from, to)
+{
+  var rows = this.rows;
+  from = from != null ? Math.max(from, 0) : 0;
+  to = to != null ? Math.min(to, rows.length) : rows.length;
+  for (var i = from; i < to; i++)
+  {
+    var row = rows[i];
+    row.index = i;
+    if (row.onUpdate != null)
+    {
+      row.onUpdate(i);
+    }
+  }
+
+  if (this.onUpdate != null)
+  {
+    this.onUpdate();
+  }
+}
+
+CTableManager.prototype.getOrder = function()
+{
+  var ordered = [];
+  for (var i = 0; i < this.length; i++)
+  {
+    ordered.push(this.rows[i].id);
+  }
+  return ordered;
+}
+
+CTableManager.prototype.add = function($row, id, index, onRemove, onUpdate,
+                                       dragMIME, update)
+{
+  if (update == null) update = true;
+
+  if (id in this.id2row)
+  {
+    return false;
+  }
+
+  if (index == null || index > this.rows.length)
+  {
+    index = this.rows.length;
+  }
+  else if (index < 0)
+  {
+    if (index < -this.rows.length)
+    {
+      index = 0;
+    }
+    else
+    {
+      index = index + this.rows.length;
+    }
+  }
+
+  var row = {
+              $row: $row,
+              id: id,
+              onRemove: onRemove,
+              onUpdate: onUpdate,
+              index: index
+            };
+
+  this.id2row[id] = row;
+
+  var $drag = $row.find('[draggable="true"]');
+  var thisInstance = this;
+
+  $drag.bind('dragstart', function(ev)
+  {
+    ev.originalEvent.dataTransfer.setData('INDEX', row.index);
+    if (dragMIME != null)
+    {
+      for (var i = 0; i < dragMIME.length; i++)
+      {
+        var item = dragMIME[i];
+        ev.originalEvent.dataTransfer.setData(item[0], item[1]);
+      }
+    }
+  });
+
+  $drag.bind('dragover', function(ev)
+  {
+    ev.originalEvent.preventDefault();
+  });
+
+  $drag.bind('drop', function(ev)
+  {
+    ev.originalEvent.preventDefault();
+    var srcIndex = ev.originalEvent.dataTransfer.getData("INDEX");
+    var index = row.index;
+    if (srcIndex == index) return;
+
+    var src = thisInstance.rows.splice(srcIndex, 1)[0];
+    thisInstance.rows.splice(index, 0, src);
+    src.$row.detach();
+    if (srcIndex < index)
+    {
+      row.$row.after(src.$row);
+    }
+    else
+    {
+      row.$row.before(src.$row);
+    }
+
+    thisInstance.update(Math.min(srcIndex, index),
+                        Math.max(srcIndex, index) + 1);
+  });
+
+  this.rows.splice(index, 0, row);
+  if (this.length == index)
+  {
+    this.$table.append($row);
+  }
+  else if (index == 0)
+  {
+    this.$table.prepend($row);
+  }
+  else
+  {
+    this.$table.children().eq(index).before($row);
+  }
+
+  this.length++;
+  if (update)
+  {
+    this.update(index);
+  }
+  return true;
+}
