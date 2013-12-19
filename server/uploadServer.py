@@ -35,7 +35,7 @@ from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
                     GetBrokenDuplicatesRequest, GetImagesStatusesRequest,\
                     UpdateMetadataRequest, DeleteImagesRequest,\
-                    GetImagesPrivilegesRequest
+                    GetImagesPrivilegesRequest, ChangePublicPrivilegesRequest
 
 from tileBase import NO_PRIVILEGE
 
@@ -238,6 +238,17 @@ class UploadServer(Generator, Server):
       if privileges is not None:
         result.append((iid,) + privileges)
 
+    return generateJson(result, logged = True)
+
+  @cherrypy.expose
+  @serveContent(ChangePublicPrivilegesRequest)
+  @ensureLogged
+  def changePublicPrivileges(self, uid, request):
+    result = []
+    for iid, view, edit, annotate, outline in request.privileges:
+      if self.tileBase.setPublicPrivileges(uid, iid, view, edit, annotate, outline) > 0:
+        result.append(iid)
+    
     return generateJson(result, logged = True)
 
 #class UploadServer(Server):

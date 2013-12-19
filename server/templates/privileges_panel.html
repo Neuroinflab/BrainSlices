@@ -168,8 +168,7 @@ function CImagePrivilegesManager(ajaxProvider)
                           var list = response.data;
                           for (var i = 0; i < list.length; i++)
                           {
-                            var item = list[i];
-                            var iid = item[0];
+                            var iid = list[i];
                             if (iid in privileges)
                             {
                               var privilege = privileges[iid];
@@ -184,6 +183,10 @@ function CImagePrivilegesManager(ajaxProvider)
                               {
                                 privilege.$row.removeClass('privilegeChanged');
                               }
+                            }
+                            else
+                            {
+                              console.error('changePublicPrivileges success handler received an unknown iid: ' + iid);
                             }
                           }
                         },
@@ -351,6 +354,11 @@ function listBatch()
   return false;
 }
 
+function savePublicPrivileges()
+{
+  privilegeManager.savePublic();
+}
+
 $(function()
 {
   loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
@@ -396,6 +404,7 @@ $(function()
        </th>
        <th colspan="4">
         Public privileges
+        <button onclick="savePublicPrivileges();">Save</button>
        </th>
        <th rowspan="2">
         Groups

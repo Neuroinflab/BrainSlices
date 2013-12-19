@@ -568,6 +568,18 @@ atoms = {'updated': (lambda x:\
                                            int(x[4])):\
                        [unwrap(y.split(',')) for y in x.split(':')])})
 
+ChangePublicPrivilegesRequest = Request.extend('ChangePublicPrivilegesRequest',
+"""
+A class for image public privileges update.
+""",
+required = 'privileges',
+atoms = {'privileges': (lambda x: len(x) > 0 and\
+                                  all(len(y) == 5 and\
+                                      all(z >= 0 for z in y) and\
+                                      all(z <= 1 for z in y[1:]) for y in x),
+                  lambda x, unwrap = lambda x:\
+                                     [int(x[0])] + [y == '1' for y in x[1:]]:\
+                        [unwrap(y.split(',')) for y in x.split(':')])})
 
 class NewBatchRequest(Request):
   _optional = dict(Request._optional)
