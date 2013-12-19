@@ -678,7 +678,7 @@ CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
   this.layers[id] = layer;
   this.length++;
 
-  this.tableManager.add($row, id, this.length - zIndex,
+  this.tableManager.add($row, id, this.tableManager.length - zIndex,
                         onRemove,
                         function(index)
                         {
