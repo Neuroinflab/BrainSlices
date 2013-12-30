@@ -28,6 +28,102 @@ function CImageManager(ajaxProvider)
   this.adjust = null;
 }
 
+CImageManager.prototype.imagePrototype =
+{
+	reset: function(updateIFace)
+	{
+    this.changed = false;
+		var info = this.info;
+
+    //fix invalid metadata
+    info.imageLeft = info._imageLeft;
+    if (info.imageLeft == undefined)
+    {
+      info.imageLeft = 0;
+      this.changed = true;
+    }
+    info.imageTop = info._imageTop;
+    if (info.imageTop == undefined)
+    {
+      info.imageTop = 0;
+      this.changed = true;
+    }
+    info.pixelSize = info._pixelSize;
+    if (info.pixelSize == undefined)
+    {
+      info.pixelSize = 100000 / info.imageWidth;
+      this.changed = true;
+    }
+    info.status = info._status;
+
+    if (this.$row != null)
+    {
+      if (this.changed)
+      {
+        this.$row.addClass('changed');
+      }
+      else if (this.$row.hasClass('changed'))
+      {
+        this.$row.removeClass('changed');
+      }
+    }
+
+    this.update(updateIFace);
+	},
+
+  updateInterface: function()
+  {
+    if (this.onUpdate != null)
+    {
+      this.onUpdate();
+    }
+  },
+
+  update: function(updateIFace)
+  {
+    var references = this.references;
+    var info = this.info;
+    var imageLeft = info.imageLeft;
+    var imageTop = info.imageTop;
+    var pixelSize = info.pixelSize;
+  
+    for (var cacheId in references) //XXX dangerous
+    {
+      references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
+    }
+
+    if (updateIFace == null || updateIFace)
+    {
+      this.updateInterface();
+    }
+  },
+
+  updateInfo: function(imageLeft, imageTop, pixelSize, status, updateIFace)
+  {
+    this.changed = true;
+    if (this.$row != null)
+    {
+      this.$row.addClass('changed');
+    }
+
+    if (imageLeft != null) this.info.imageLeft = imageLeft;
+    if (imageTop != null) this.info.imageTop = imageTop;
+    if (pixelSize != null) this.info.pixelSize = pixelSize;
+    if (status != null) this.info.status = status;
+    this.update(updateIFace);
+  },
+
+  destroy: function()
+  {
+    var references = this.references;
+    for (var cacheId in references)
+    {
+      // necessary to avoid circular references
+      references[cacheId].references = null;
+    }
+  }
+};
+
 
 CImageManager.prototype.destroy = function()
 {
@@ -187,7 +283,7 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
 {
   if (!this.has(id))
   {
-    var cachedImage = {};
+    var cachedImage = Object.create(this.imagePrototype);//{};
     cachedImage.info = data;
 
     data._imageLeft = data.imageLeft;
@@ -204,102 +300,102 @@ CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSucc
     cachedImage.id = id;
     cachedImage.z = zIndex != null ? zIndex : 0;
 
-    cachedImage.reset = function(updateIFace)
-    {
-      cachedImage.changed = false;
-
-      //fix invalid metadata
-      data.imageLeft = data._imageLeft;
-      if (data.imageLeft == undefined)
-      {
-        data.imageLeft = 0;
-        cachedImage.changed = true;
-      }
-      data.imageTop = data._imageTop;
-      if (data.imageTop == undefined)
-      {
-        data.imageTop = 0;
-        cachedImage.changed = true;
-      }
-      data.pixelSize = data._pixelSize;
-      if (data.pixelSize == undefined)
-      {
-        data.pixelSize = 100000 / data.imageWidth;
-        cachedImage.changed = true;
-      }
-      data.status = data._status;
-
-      if (cachedImage.$row != null)
-      {
-        if (cachedImage.changed)
-        {
-          cachedImage.$row.addClass('changed');
-        }
-        else if (cachedImage.$row.hasClass('changed'))
-        {
-          cachedImage.$row.removeClass('changed');
-        }
-      }
-
-      cachedImage.update(updateIFace);
-    }
-
-    cachedImage.updateInterface = function()
-    {
-      if (cachedImage.onUpdate != null)
-      {
-        cachedImage.onUpdate();
-      }
-    }
-
-    cachedImage.update = function(updateIFace)
-    {
-      var references = cachedImage.references;
-      var info = cachedImage.info;
-      var imageLeft = info.imageLeft;
-      var imageTop = info.imageTop;
-      var pixelSize = info.pixelSize;
-    
-      for (var cacheId in references) //XXX dangerous
-      {
-        references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
-      }
-
-      if (updateIFace == null || updateIFace)
-      {
-        cachedImage.updateInterface();
-      }
-    }
-
-    cachedImage.updateInfo = function(imageLeft, imageTop, pixelSize, status, updateIFace)
-    {
-      cachedImage.changed = true;
-      if (cachedImage.$row != null)
-      {
-        cachedImage.$row.addClass('changed');
-      }
-
-      if (imageLeft != null) cachedImage.info.imageLeft = imageLeft;
-      if (imageTop != null) cachedImage.info.imageTop = imageTop;
-      if (pixelSize != null) cachedImage.info.pixelSize = pixelSize;
-      if (status != null) cachedImage.info.status = status;
-      cachedImage.update(updateIFace);
-    }
-
-    cachedImage.destroy = function()
-    {
-      var references = cachedImage.references;
-      for (var cacheId in references)
-      {
-        // necessary to avoid circular references
-        references[cacheId].references = null;
-      }
-
-      cachedImage.onUpdate = null;
-      cachedImage.updateInterface = null;
-      cachedImage.update = null;
-      cachedImage.destroy = null;
-    }
+//    cachedImage.reset = function(updateIFace)
+//    {
+//      cachedImage.changed = false;
+//
+//      //fix invalid metadata
+//      data.imageLeft = data._imageLeft;
+//      if (data.imageLeft == undefined)
+//      {
+//        data.imageLeft = 0;
+//        cachedImage.changed = true;
+//      }
+//      data.imageTop = data._imageTop;
+//      if (data.imageTop == undefined)
+//      {
+//        data.imageTop = 0;
+//        cachedImage.changed = true;
+//      }
+//      data.pixelSize = data._pixelSize;
+//      if (data.pixelSize == undefined)
+//      {
+//        data.pixelSize = 100000 / data.imageWidth;
+//        cachedImage.changed = true;
+//      }
+//      data.status = data._status;
+//
+//      if (cachedImage.$row != null)
+//      {
+//        if (cachedImage.changed)
+//        {
+//          cachedImage.$row.addClass('changed');
+//        }
+//        else if (cachedImage.$row.hasClass('changed'))
+//        {
+//          cachedImage.$row.removeClass('changed');
+//        }
+//      }
+//
+//      cachedImage.update(updateIFace);
+//    }
+//
+//    cachedImage.updateInterface = function()
+//    {
+//      if (cachedImage.onUpdate != null)
+//      {
+//        cachedImage.onUpdate();
+//      }
+//    }
+//
+//    cachedImage.update = function(updateIFace)
+//    {
+//      var references = cachedImage.references;
+//      var info = cachedImage.info;
+//      var imageLeft = info.imageLeft;
+//      var imageTop = info.imageTop;
+//      var pixelSize = info.pixelSize;
+//    
+//      for (var cacheId in references) //XXX dangerous
+//      {
+//        references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
+//      }
+//
+//      if (updateIFace == null || updateIFace)
+//      {
+//        cachedImage.updateInterface();
+//      }
+//    }
+//
+//    cachedImage.updateInfo = function(imageLeft, imageTop, pixelSize, status, updateIFace)
+//    {
+//      cachedImage.changed = true;
+//      if (cachedImage.$row != null)
+//      {
+//        cachedImage.$row.addClass('changed');
+//      }
+//
+//      if (imageLeft != null) cachedImage.info.imageLeft = imageLeft;
+//      if (imageTop != null) cachedImage.info.imageTop = imageTop;
+//      if (pixelSize != null) cachedImage.info.pixelSize = pixelSize;
+//      if (status != null) cachedImage.info.status = status;
+//      cachedImage.update(updateIFace);
+//    }
+//
+//    cachedImage.destroy = function()
+//    {
+//      var references = cachedImage.references;
+//      for (var cacheId in references)
+//      {
+//        // necessary to avoid circular references
+//        references[cacheId].references = null;
+//      }
+//
+//      cachedImage.onUpdate = null;
+//      cachedImage.updateInterface = null;
+//      cachedImage.update = null;
+//      cachedImage.destroy = null;
+//    }
 
     cachedImage.onUpdate = onUpdate;
 
