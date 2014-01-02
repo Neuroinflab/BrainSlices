@@ -332,7 +332,7 @@ function loadTileLayer(path, parentDiv, onSuccess, pixelSize, focusPointX,
         alert(data.message);
       }
     },
-    error: ajaxErrorHandler
+    error: BrainSlices.ajax.errorHandler
   });
 }
 

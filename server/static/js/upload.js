@@ -67,6 +67,8 @@ function CUploadedImages($table, images)
   this.reset(images);
 }
 
+with (BrainSlices)
+{
 /*****************************************************************************\
  * Method: reset                                                             *
  *                                                                           *
@@ -326,7 +328,7 @@ var MIN_FILE_SIZE = 8;
  *   ajaxProvider - An object providing ajax method (possibly of class       *
  *                  <CLoginManager>).                                        *
 \*****************************************************************************/
-function CFileUploader($form, ajaxProvider)
+var CFileUploader = function($form, ajaxProvider)
 {
   this.$form = $form;
   this.uploaded = new CUploadedImages($form.find('table.uploaded>tbody'));
@@ -358,8 +360,8 @@ function CFileUploader($form, ajaxProvider)
         }
       },
       null,
-      ajaxErrorHandler,
-      'POST',
+      null,
+      null,
       {cache: false});
   };
 
@@ -1177,3 +1179,5 @@ function CFileUploader($form, ajaxProvider)
     uploadNextFile();
   }
 }
+
+};

@@ -20,83 +20,98 @@
 *                                                                             *
 \*****************************************************************************/
 
-/**************************************\
- * Constant: STATUS_MAP               *
- * Mapping of integers to description *
- * strings of statuses taken from     *
- * tileBase.py.                       *
-\**************************************/
-var STATUS_MAP = {'0': 'UPLOADING',
-                  '1': 'RECEIVING',
-                  '2': 'RECEIVED',
-                  '3': 'PROCESSING',
-                  '4': 'IDENTIFIED',
-                  '5': 'TILED',
-                  '6': 'COMPLETED',
-                  '7': 'ACCEPTED',
-                  '-1': 'REMOVED',
-                  '-2': 'ERROR'};
+/*****************************************************************************\
+ * Namespace: BrainSlices                                                    *
+ *                                                                           *
+ * An object emulating namespace for BrainSlices framework                   *
+\*****************************************************************************/
 
-/****************************************************************************\
- * Function: getThumbnail                                                   *
- *                                                                          *
- * Create DOM IMG element containing a thumbnail of the image.              *
- *                                                                          *
- * Parameters:                                                              *
- *   iid - an image identifier in BrainSlices repository                    *
- *   imageWidth - image width                                               *
- *   imageHeight - image height                                             *
- *   width - desired thumbnail width (in pixels; defaults to 128)           *
- *   height - desired thumbnail height (in pixels; defaults to 128)         *
-\****************************************************************************/
-function getThumbnail(iid, imageWidth, imageHeight, width, height)
-{
-  if (width == null) width = 128;
-  if (height == null) height = 128;
-  if (imageWidth / width > imageHeight / height)
+var BrainSlices = {
+  /**************************************\
+   * Constant: STATUS_MAP               *
+   * Mapping of integers to description *
+   * strings of statuses taken from     *
+   * tileBase.py.                       *
+  \**************************************/
+  STATUS_MAP: {'0': 'UPLOADING',
+               '1': 'RECEIVING',
+               '2': 'RECEIVED',
+               '3': 'PROCESSING',
+               '4': 'IDENTIFIED',
+               '5': 'TILED',
+               '6': 'COMPLETED',
+               '7': 'ACCEPTED',
+               '-1': 'REMOVED',
+               '-2': 'ERROR'},
+
+  /**************************************************************************\
+   * Function: getThumbnail                                                 *
+   *                                                                        *
+   * Create DOM IMG element containing a thumbnail of the image.            *
+   *                                                                        *
+   * Parameters:                                                            *
+   *   iid - an image identifier in BrainSlices repository                  *
+   *   imageWidth - image width                                             *
+   *   imageHeight - image height                                           *
+   *   width - desired thumbnail width (in pixels; defaults to 128)         *
+   *   height - desired thumbnail height (in pixels; defaults to 128)       *
+  \**************************************************************************/
+  getThumbnail: function(iid, imageWidth, imageHeight, width, height)
   {
-    height = Math.round(width * imageHeight / imageWidth);
-  }
-  else
+    if (width == null) width = 128;
+    if (height == null) height = 128;
+    if (imageWidth / width > imageHeight / height)
+    {
+      height = Math.round(width * imageHeight / imageWidth);
+    }
+    else
+    {
+      width = Math.round(height * imageWidth / imageHeight);
+    }
+    return $("<img />").attr({src: '/images/'+iid+'/tiles/0/0/0.jpg',
+                              alt: 'thumbnail of image #' + iid}).addClass("polaroid-image").css({width: width + 'px', height: height + 'px'});
+  },
+
+  escapeHTML: function(s)
   {
-    width = Math.round(height * imageWidth / imageHeight);
-  }
-  return $("<img />").attr({src: '/images/'+iid+'/tiles/0/0/0.jpg',
-                            alt: 'thumbnail of image #' + iid}).addClass("polaroid-image").css({width: width + 'px', height: height + 'px'});
-}
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  },
 
-
-
-//OBSOLETED by internal function of CLoginManager.ajaxAux
-function ajaxErrorHandler(xhr, textStatus, errorThrown)
-{
-  var errormsg = "Server returned error:\n";
-  errormsg += "Ready state :" + xhr.readyState + "\n";
-  errormsg += "Status " + xhr.status + ", " + errorThrown + "\n";
-  //errormsg += "Response text" + xhr.responseText 
-  alert(errormsg);
-}
-
-function escapeHTML(s)
-{
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
-}
-
-function validEmail(email, question)
-{
-  if (email.match(/^.+@.+$/) == null)
+  ajax:
   {
-    return false;
-  }
+    errorHandler: function(xhr, textStatus, errorThrown)
+    {
+      var errormsg = "Server returned error:\n";
+      errormsg += "Ready state :" + xhr.readyState + "\n";
+      errormsg += "Status " + xhr.status + ", " + errorThrown + "\n";
+      //errormsg += "Response text" + xhr.responseText
+      console.error('Server returned error:');
+      console.error('Ready state:' + xhr.readyState);
+      console.error('Status ' + xhr.status + ', ' + errorThrown);
+      console.error('Response text: ' + xhr.responseText);
+      alert(errormsg);
+    }
+  },
 
-  if (question != null && email.match(/^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$/) == null)
+  forms:
   {
-    return confirm(question);
+    validEmail: function(email, question)
+    {
+      if (email.match(/^.+@.+$/) == null)
+      {
+        return false;
+      }
+    
+      if (question != null && email.match(/^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$/) == null)
+      {
+        return confirm(question);
+      }
+      return true;
+    },
+    
+    validLogin: function(login)
+    {
+      return login.match(/^[a-z0-9-+_.*]+$/i) != null;
+    }
   }
-  return true;
-}
-
-function validLogin(login)
-{
-  return login.match(/^[a-z0-9-+_.*]+$/i) != null;
 }

@@ -54,7 +54,10 @@ function showPersonalDataDiv()
 
 $(function()
 {
-  loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
+  loginConsole = new BrainSlices.ajax.CUserPanel(
+                     $('#userPanel'),
+                     $('#loginLink'),
+                     $('#logoutLink'),
                      function()
                      {
                        $('#helloMessage').text('Logged as ' + loginConsole.isLoggedAs());

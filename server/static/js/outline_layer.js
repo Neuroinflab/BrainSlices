@@ -120,7 +120,7 @@ function loadOutlineLayer(path, parentDiv, onSuccess, pixelSize,
                                   zIndex,
                                   opacity));
     },
-    error: ajaxErrorHandler
+    error: BrainSlices.ajax.errorHandler
   });
 }
 
