@@ -43,6 +43,10 @@ function hDistanceCommon(distanceUnsafe, toLog, meaning)
 
   switch (u)
   {
+    case 3:
+      unit = ' km';
+      break;
+
     case 2:
       unit = ' m';
       break;
