@@ -55,14 +55,15 @@ function test()
 }
 
 var stacks = null;
+var images = null;
 var layerManager = null;
 var ajaxProvider = null;
-var images = ['050',
-              '051',
-              '052',
-              '053',
-              '054',
-              '055'];
+var imagesList = ['050',
+                  '051',
+                  '052',
+                  '053',
+                  '054',
+                  '055'];
 
 function arrangeInterface()
 {
@@ -82,13 +83,13 @@ function rearrangeInterface()
 
 function compressStacks()
 {
-  var images = stacks.loadedImagesOrdered();
+  var images = layerManager.loadedImagesOrdered();
   stacks.rearrange(1, 1);
   for (var i = 0; i < images.length; i++)
   {
     if (!stacks.has(0, images[i]))
     {
-      stacks.load(0, images[i], true);
+      layerManager.load(0, images[i], true);
     }
   }
   layerManager.arrangeInterface();
@@ -98,7 +99,7 @@ function compressStacks()
 
 function decompressStacks()
 {
-  var images = stacks.loadedImagesOrdered();
+  var images = layerManager.loadedImagesOrdered();
   var nx = $('#nx').val();
   var ny = $('#ny').val();
   var nxCor = nx * ny < images.length ?
@@ -112,7 +113,7 @@ function decompressStacks()
   stacks.rearrange(nxCor, ny, width);
   for (var i = 0; i < images.length; i++)
   {
-    stacks.load(i, images[images.length - 1 - i], true);
+    layerManager.load(i, images[images.length - 1 - i], true);
   }
 
   layerManager.arrangeInterface();
@@ -126,13 +127,14 @@ $(document).ready(function()
   var ny = $('#ny').val();
 
   ajaxProvider = new CAjaxProvider();
+  images = new CImageManager(ajaxProvider);
   stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
                                           $('#controlPanel [name="synchronization"]:checked').length != 0,
                                           $('#controlPanel [name="zoom"]').val(),
                                           $('#x').val(), $('#y').val(),
                                           null, null,
                                           $('#controlPanel'),
-                                          'static/gfx', ajaxProvider);
+                                          'static/gfx', images);
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
                                    ajaxProvider, true, true, false, true);
 
@@ -141,9 +143,9 @@ $(document).ready(function()
   $('body').bind('mouseup', stopMove);
   //$('#sliceDisplay').bind('mouseout', stopMove);
 
-  for (var z = 0; z < images.length; z++)
+  for (var z = 0; z < imagesList.length; z++)
   {
-    var id = images[z];
+    var id = imagesList[z];
     layerManager.addTileLayer(id, 'images/' + id, 0, 'Slice no ' + id);
   }
 

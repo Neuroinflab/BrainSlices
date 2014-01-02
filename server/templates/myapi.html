@@ -139,6 +139,7 @@ function addTest()
 var testSubsets = null;
 var id2name = {};
 var stacks = null;
+var images = null;
 
 $(function()
 {
@@ -152,13 +153,14 @@ $(function()
   var nx = 1;
   var ny = 1;
 
+  images = new CImageManager(loginConsole);
   stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
                                           $('#controlPanel [name="synchronization"]:checked').length != 0,
                                           $('#controlPanel [name="zoom"]').val(),
                                           $('#x').val(), $('#y').val(),
                                           null, null,
                                           $('#controlPanel'),
-                                          '/static/gfx', loginConsole);
+                                          '/static/gfx', images);
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
                                    loginConsole, false, false, false, true);
 

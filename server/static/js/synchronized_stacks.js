@@ -23,8 +23,8 @@
 
 function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
                                     focusPointX, focusPointY, crosshairX,
-                                    crosshairY, $controlPanel, gfx,
-                                    ajaxProvider)
+                                    crosshairY, $controlPanel, gfx, images)
+//                                    ajaxProvider)
 {
   var thisInstance = this;
 
@@ -32,7 +32,7 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
 
   this.stacks = [];
 
-  this.images = new CImageManager(ajaxProvider);
+  this.images = images;//new CImageManager(ajaxProvider);
 
   this.gfx = gfx != null ? gfx : 'static/gfx';
 
@@ -394,27 +394,31 @@ CSynchronizedStacksDisplay.prototype.moveAbsolute = function(dx, dy, id)
     }
   }
 
-  if (adjust)
+  //if (adjust)
+  //{
+  //  //this.images.adjustOffset(dx, dy);
+  //}
+  //else
+  if (!adjust)
   {
-    //this.images.adjustOffset(dx, dy);
-  }
-  else if (this.synchronize || id == null)
-  {
-    for (var i = 0; i < this.stacks.length; i++)
+    if (this.synchronize || id == null)
     {
-      this.stacks[i].moveAbsolute(dx, dy);
-    }
-    this.focusPointX -= dx;
-    this.focusPointY -= dy;
-  }
-  else
-  {
-    this.stacks[id].moveAbsolute(dx, dy);
-    if (id == 0)
-    {
-      // follow the main stack
+      for (var i = 0; i < this.stacks.length; i++)
+      {
+        this.stacks[i].moveAbsolute(dx, dy);
+      }
       this.focusPointX -= dx;
       this.focusPointY -= dy;
+    }
+    else
+    {
+      this.stacks[id].moveAbsolute(dx, dy);
+      if (id == 0)
+      {
+        // follow the main stack
+        this.focusPointX -= dx;
+        this.focusPointY -= dy;
+      }
     }
   }
 }
@@ -555,7 +559,7 @@ CSynchronizedStacksDisplay.prototype.destroy = function()
     this.stacks[i].destroy();
   }
 
-  this.images.destroy();
+  //this.images.destroy();
 
   // if autoresize enabled
   if (this.resizeHandler != null)

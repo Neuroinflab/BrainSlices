@@ -184,6 +184,9 @@ function resetImage(id)
   });
 }
 
+var stacks = null;
+var images = null;
+
 $(document).ready(function()
 {
 	loginConsole = new CUserPanel($('#userPanel'), $('#loginLink'), $('#logoutLink'),
@@ -208,13 +211,14 @@ $(document).ready(function()
   var nx = 1;
   var ny = 1;
 
+  images = new CImageManager(loginConsole);
   stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
                                           $('#controlPanel [name="synchronization"]:checked').length != 0,
                                           $('#controlPanel [name="zoom"]').val(),
                                           $('#x').val(), $('#y').val(),
                                           null, null,
                                           $('#controlPanel'),
-                                          '/static/gfx', loginConsole);
+                                          '/static/gfx', images);
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
                                    loginConsole, false, false, true, false);
   
