@@ -509,7 +509,7 @@
         var login = $form.find('input[name="login"]').val().trim();
         var password = $form.find('input[name="password"]').val();
 
-        thisInstance.$controlPanel.find('.formErrorMessages').hide().html('');
+        thisInstance.$controlPanel.find('.formErrorMessages').hide().empty();
         var permissionToGo = true;
 
         if (!validLogin(login))
@@ -556,7 +556,7 @@
                                             function()
                                             {
                                               thisInstance.$controlPanel.find('.formField').val('');
-                                              thisInstance.$controlPanel.find('.formErrorMessages').hide().html('');
+                                              thisInstance.$controlPanel.find('.formErrorMessages').hide().empty();
                                               thisInstance.onLogin = null;
                                               if (onClose != null)
                                               {
@@ -761,7 +761,7 @@
         $loginForm.hide();
         $confirmationForm.hide();
         $registerForm.find('.formField').val('');
-        $controlPanel.find('.formErrorMessages').html('');
+        $controlPanel.find('.formErrorMessages').empty();
         $registerForm.show();
       };
 
@@ -780,7 +780,7 @@
         var name = $registerForm.find('input[name="name"]').val().trim();
         var email = $registerForm.find('input[name="email"]').val().trim();
 
-        $registerForm.find('.formErrorMessages').hide().html('');
+        $registerForm.find('.formErrorMessages').hide().empty();
 
         var permissionToGo = true;
         if (!validLogin(login))
@@ -878,7 +878,7 @@
         $loginForm.hide();
         //$confirmationForm.hide();
         $regenerateFinalForm.hide();
-        $controlPanel.find('.formErrorMessages').html('');
+        $controlPanel.find('.formErrorMessages').empty();
         $regenerateForm.find('.formField').val('');
         var login = $loginForm.find('input[name="login"]').val();
         $regenerateForm.find('input[name="login"]').val(login);
@@ -889,7 +889,7 @@
 
       this.submitRegeneratePasswordForm = function()
       {
-        $regenerateForm.find('.formErrorMessages').hide().html('');
+        $regenerateForm.find('.formErrorMessages').hide().empty();
         var login = $regenerateForm.find('input[name="login"]').val().trim();
         var email = $regenerateForm.find('input[name="email"]').val().trim();
 
@@ -943,7 +943,7 @@
       {
         $regenerateForm.hide();
         $loginForm.hide();
-        $controlPanel.find('.formErrorMessages').html('');
+        $controlPanel.find('.formErrorMessages').empty();
         $regenerateFinalForm.find('.formField').val('');
         $regenerateFinalForm.find('input[name="login"]').val(login != null ?
                                                              login : '');
@@ -974,7 +974,7 @@
 
       this.submitRegeneratePasswordFinalForm = function()
       {
-        $regenerateFinalForm.find('.formErrorMessages').hide().html('');
+        $regenerateFinalForm.find('.formErrorMessages').hide().empty();
 
         var login = $regenerateFinalForm.find('input[name="login"]').val().trim();
         var password = $regenerateFinalForm.find('input[name="password"]').val();
@@ -1047,7 +1047,7 @@
         var login = $confirmationForm.find('input[name="login"]').val().trim();
         var valid = true;
 
-        $confirmationForm.find('.formErrorMessages').hide().html('');
+        $confirmationForm.find('.formErrorMessages').hide().empty();
         if (!validLogin(login))
         {
           $confirmationForm.find('.loginFieldError').show().html('Provide a valid login.');

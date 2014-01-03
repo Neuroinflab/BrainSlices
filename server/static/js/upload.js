@@ -85,7 +85,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
   CUploadedImages.prototype.reset = function(images)
   {
     this.images = [];
-    this.$table.html('');
+    this.$table.empty();
   
     if (images != null)
     {
@@ -166,7 +166,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
   \*****************************************************************************/
   function makeUploadList(srcFiles, $list, progressBar)
   {
-    $list.html('');
+    $list.empty();
   
     var files = [];
     for (var i = 0; i < srcFiles.length; i++)
@@ -605,7 +605,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                                    },
                                    function()
                                    {
-                                     $dialogContent.html('');
+                                     $dialogContent.empty();
                                      if (setIntervalId != null)
                                      {
                                        clearInterval(setIntervalId);
