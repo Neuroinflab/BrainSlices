@@ -128,7 +128,7 @@ $(document).ready(function()
   var ny = $('#ny').val();
 
   ajaxProvider = new BrainSlices.ajax.CAjaxProvider();
-  images = new CImageManager(ajaxProvider);
+  images = new BrainSlices.api.CImageManager(ajaxProvider);
   stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
                                           $('#controlPanel [name="synchronization"]:checked').length != 0,
                                           $('#controlPanel [name="zoom"]').val(),

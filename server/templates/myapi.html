@@ -158,7 +158,7 @@ $(function()
   var nx = 1;
   var ny = 1;
 
-  images = new CImageManager(loginConsole);
+  images = new BrainSlices.api.CImageManager(loginConsole);
   stacks = new CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
                                           $('#controlPanel [name="synchronization"]:checked').length != 0,
                                           $('#controlPanel [name="zoom"]').val(),

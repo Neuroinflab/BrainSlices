@@ -21,16 +21,10 @@
 *                                                                             *
 \*****************************************************************************/
 
-with ({CTableManager: BrainSlices.gui.CTableManager})
+(function(BS, $, undefined)
 {
-  var CImageManager = function(ajaxProvider)
-  {
-    this.ajaxProvider = ajaxProvider;
-    this.images = {};
-    this.adjust = null;
-  }
-  
-  CImageManager.prototype.imagePrototype =
+  var api = BS.api;
+  var imagePrototype =
   {
   	reset: function(updateIFace)
   	{
@@ -125,353 +119,372 @@ with ({CTableManager: BrainSlices.gui.CTableManager})
       }
     }
   };
-  
-  
-  CImageManager.prototype.destroy = function()
+
+  if (api.CImageManager == null)
   {
-    var images = {};
-    for (var id in this.images)
+    api.CImageManager = function(ajaxProvider)
     {
-      images[id] = null;
+      this.ajaxProvider = ajaxProvider;
+      this.images = {};
+      this.adjust = null;
     }
-  
-    for (var id in images)
+    
+    api.CImageManager.prototype =
     {
-      this.removeCachedImage(id);
-    }
-  }
-  
-  CImageManager.prototype.updateImage = function(id, imageLeft, imageTop,
-                                                 pixelSize, updateIFace)
-  {
-    if (id == null)
-    {
-      for (id in this.images)
+      destroy:
+      function()
       {
-        this.updateImage(id, imageLeft, imageTop, pixelSize);
-      }
-    }
-    else
-    {
-      this.images[id].updateInfo(imageLeft, imageTop, pixelSize, null, updateIFace);
-    }
-  }
-  
-  CImageManager.prototype.propagateImageUpdate = function(image)
-  {
-    alert('Deprecated method CImageManager.propagateImageUpdate called');
-    image.update();
-  }
-  
-  CImageManager.prototype.updateImageStatus = function(id, status, updateIFace)
-  {
-    if (id == null)
-    {
-      for (id in this.images)
+        var images = {};
+        for (var id in this.images)
+        {
+          images[id] = null;
+        }
+      
+        for (var id in images)
+        {
+          this.removeCachedImage(id);
+        }
+      },
+      
+      updateImage:
+      function(id, imageLeft, imageTop, pixelSize, updateIFace)
       {
-        this.updateImageStatus(id, status, updateIFace);
-      }
-    }
-    else
-    {
-      this.images[id].updateInfo(null, null, null, status, updateIFace);
-    }
-  }
-  
-  CImageManager.prototype.apply = function(id, f, updateIFace)
-  {
-    if (id == null)
-    {
-      for (id in this.images)
+        if (id == null)
+        {
+          for (id in this.images)
+          {
+            this.updateImage(id, imageLeft, imageTop, pixelSize);
+          }
+        }
+        else
+        {
+          this.images[id].updateInfo(imageLeft, imageTop, pixelSize, null, updateIFace);
+        }
+      },
+      
+      updateImageStatus:
+      function(id, status, updateIFace)
       {
-        this.apply(id, f, updateIFace);
-      }
-    }
-    else
-    {
-      if (id in this.images)
+        if (id == null)
+        {
+          for (id in this.images)
+          {
+            this.updateImageStatus(id, status, updateIFace);
+          }
+        }
+        else
+        {
+          this.images[id].updateInfo(null, null, null, status, updateIFace);
+        }
+      },
+      
+      apply:
+      function(id, f, updateIFace)
       {
-        f(this.images[id], updateIFace);
-      }
-    }
-  }
-  
-  CImageManager.prototype.saveUpdatedTiled = function()
-  {
-    var changed = [];
-    var changedMapping = {};
-    for (var id in this.images)
-    {
-      if (id[0] == 'i')
+        if (id == null)
+        {
+          for (id in this.images)
+          {
+            this.apply(id, f, updateIFace);
+          }
+        }
+        else
+        {
+          if (id in this.images)
+          {
+            f(this.images[id], updateIFace);
+          }
+        }
+      },
+      
+      saveUpdatedTiled:
+      function()
+      {
+        var changed = [];
+        var changedMapping = {};
+        for (var id in this.images)
+        {
+          if (id[0] == 'i')
+          {
+            var image = this.images[id];
+            if (image.changed)
+            {
+              var info = image.info;
+              changed.push(info.iid + ',' + info.imageLeft + ',' + info.imageTop
+                           + ',' + info.pixelSize + ',' + info.status);
+              changedMapping[info.iid] = image;
+            }
+          }
+        }
+      
+        if (changed.length > 0)
+        {
+          this.ajaxProvider.ajax('/upload/updateMetadata',
+                                 function(response)
+                                 {
+                                   if (!response.status)
+                                   {
+                                     alert(response.message);
+                                     return;
+                                   }
+                                   var changed = response.data;
+      
+                                   for (var i = 0; i < changed.length; i++)
+                                   {
+                                     var item = changed[i];
+                                     var image = changedMapping[item[0]];
+                                     if (item[1])
+                                     {
+                                       var data = image.info;
+                                       data._imageLeft = data.imageLeft;
+                                       data._imageTop = data.imageTop;
+                                       data._pixelSize = data.pixelSize;
+                                       data._status = data.status;
+                                       image.reset(false);
+                                     }
+                                     else
+                                     {
+                                       console.warn('No privileges to change image #' + item[0]);
+                                     }
+                                   }
+                                 },
+                                 {updated: changed.join(':')});
+        }
+      },
+      
+      // propagate zIndex value update across all managed images
+      setZ:
+      function(id, zIndex)
       {
         var image = this.images[id];
-        if (image.changed)
+        image.z = zIndex;
+        var references = image.references;
+      
+        for (var cacheId in references) //XXX dangerous
         {
-          var info = image.info;
-          changed.push(info.iid + ',' + info.imageLeft + ',' + info.imageTop
-                       + ',' + info.pixelSize + ',' + info.status);
-          changedMapping[info.iid] = image;
+          references[cacheId].setZ(zIndex);
         }
-      }
-    }
-  
-    if (changed.length > 0)
-    {
-      this.ajaxProvider.ajax('/upload/updateMetadata',
-                             function(response)
-                             {
-                               if (!response.status)
+      },
+      
+      updateCachedTiledImage:
+      function(id, path, onSuccess, onUpdate, $row)
+      {
+        this.removeCachedImage(id);
+        this.cacheTiledImage(id, path, onSuccess, onUpdate, $row);
+      },
+      
+      cacheTiledImageOffline:
+      function(id, path, data, onSuccess, onUpdate, $row, zIndex)
+      {
+        if (!this.has(id))
+        {
+          var cachedImage = Object.create(imagePrototype);
+          cachedImage.info = data;
+      
+          data._imageLeft = data.imageLeft;
+          data._imageTop = data.imageTop;
+          data._pixelSize = data.pixelSize;
+          data._status = data.status;
+      
+          cachedImage.references = {};
+          cachedImage.path = path;
+          cachedImage.type = 'tiledImage';
+          cachedImage.cacheId = 0;
+          cachedImage.onUpdate = onUpdate;
+          cachedImage.$row = $row;
+          cachedImage.id = id;
+          cachedImage.z = zIndex != null ? zIndex : 0;
+          cachedImage.onUpdate = onUpdate;
+      
+          this.images[id] = cachedImage;
+          cachedImage.reset();
+        }
+      
+        if (onSuccess != null)
+        {
+          onSuccess(this.images[id]);
+        }
+      },
+      
+      cacheTiledImage:
+      function(id, path, onSuccess, onUpdate, $row, zIndex)
+      {
+        var thisInstance = this;
+        this.ajaxProvider.ajax(path + '/info.json',
+                               function(data)
                                {
-                                 alert(response.message);
-                                 return;
-                               }
-                               var changed = response.data;
-  
-                               for (var i = 0; i < changed.length; i++)
-                               {
-                                 var item = changed[i];
-                                 var image = changedMapping[item[0]];
-                                 if (item[1])
+                                 if (data.status)
                                  {
-                                   var data = image.info;
-                                   data._imageLeft = data.imageLeft;
-                                   data._imageTop = data.imageTop;
-                                   data._pixelSize = data.pixelSize;
-                                   data._status = data.status;
-                                   image.reset(false);
+                                   thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, onUpdate, $row, zIndex);
                                  }
                                  else
                                  {
-                                   console.warn('No privileges to change image #' + item[0]);
+                                   alert(data.message);
                                  }
-                               }
-                             },
-                             {updated: changed.join(':')});
-    }
-  }
-  
-  // propagate zIndex value update across all managed images
-  CImageManager.prototype.setZ = function(id, zIndex)
-  {
-    var image = this.images[id];
-    image.z = zIndex;
-    var references = image.references;
-  
-    for (var cacheId in references) //XXX dangerous
-    {
-      references[cacheId].setZ(zIndex);
-    }
-  }
-  
-  CImageManager.prototype.updateImageInterface = function(id)
-  {
-    alert('Deprecated method CImageManager.updateImageInterface used')
-    //shall be moved to separated class???
-    if (id in this.images)
-    {
-      this.images[id].updateInterface();
-      return true;
-    }
-    return false;
-  }
-  
-  CImageManager.prototype.updateCachedTiledImage = function(id, path, onSuccess, onUpdate, $row)
-  {
-    this.removeCachedImage(id);
-    this.cacheTiledImage(id, path, onSuccess, onUpdate, $row);
-  }
-  
-  CImageManager.prototype.cacheTiledImageOffline = function(id, path, data, onSuccess, onUpdate, $row, zIndex)
-  {
-    if (!this.has(id))
-    {
-      var cachedImage = Object.create(this.imagePrototype);//{};
-      cachedImage.info = data;
-  
-      data._imageLeft = data.imageLeft;
-      data._imageTop = data.imageTop;
-      data._pixelSize = data.pixelSize;
-      data._status = data.status;
-  
-      cachedImage.references = {};
-      cachedImage.path = path;
-      cachedImage.type = 'tiledImage';
-      cachedImage.cacheId = 0;
-      cachedImage.onUpdate = onUpdate;
-      cachedImage.$row = $row;
-      cachedImage.id = id;
-      cachedImage.z = zIndex != null ? zIndex : 0;
-      cachedImage.onUpdate = onUpdate;
-  
-      this.images[id] = cachedImage;
-      cachedImage.reset();
-    }
-  
-    if (onSuccess != null)
-    {
-      onSuccess(this.images[id]);
-    }
-  }
-  
-  CImageManager.prototype.cacheTiledImage = function(id, path, onSuccess, onUpdate, $row, zIndex)
-  {
-    var thisInstance = this;
-    this.ajaxProvider.ajax(path + '/info.json',
-                           function(data)
-                           {
-                             if (data.status)
-                             {
-                               thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, onUpdate, $row, zIndex);
-                             }
-                             else
-                             {
-                               alert(data.message);
-                             }
-                           },
-                           null,
-                           null,
-                           'GET');
-  
-   //   //type: 'POST', //causes 412 error on refresh -_-
-  }
-  
-  CImageManager.prototype.startAdjustment = function(id)
-  {
-    if (!(id in this.images))
-    {
-      return false;
-    }
-  
-    if (this.adjust == null)
-    {
-      this.adjust = {};
-    }
-  
-    this.adjust[id] = this.images[id];
-    return true;
-  }
-  
-  CImageManager.prototype.has = function(id)
-  {
-    // might be necessary to provide some kind of id allocation
-    // - image might not be cached yet, but it might be already
-    // being fetched...
-    return id in this.images;
-  }
-  
-  CImageManager.prototype.stopAdjustment = function(id)
-  {
-    if (this.adjust != null && id in this.adjust)
-    {
-      delete this.adjust[id];
-    }
-  
-    if (id == null)
-    {
-      this.adjust = null;
-    }
-    else
-    {
-      for (var i in this.adjust)
+                               },
+                               null,
+                               null,
+                               'GET');
+      
+       //   //type: 'POST', //causes 412 error on refresh -_-
+      },
+      
+      startAdjustment:
+      function(id)
       {
-        //return if adjust not empty
-        return;
-      }
-      this.adjust = null;
-    }
-  }
-  
-  CImageManager.prototype.adjustOffset = function(dx, dy, id)
-  {
-    if (this.adjust == null)
-    {
-      return;
-    }
-  
-  
-    if (id == null)
-    {
-      for (id in this.adjust)
+        if (!(id in this.images))
+        {
+          return false;
+        }
+      
+        if (this.adjust == null)
+        {
+          this.adjust = {};
+        }
+      
+        this.adjust[id] = this.images[id];
+        return true;
+      },
+      
+      has:
+      function(id)
       {
-        this.adjustOffset(dx, dy, id);
+        // might be necessary to provide some kind of id allocation
+        // - image might not be cached yet, but it might be already
+        // being fetched...
+        return id in this.images;
+      },
+      
+      stopAdjustment:
+      function(id)
+      {
+        if (this.adjust != null && id in this.adjust)
+        {
+          delete this.adjust[id];
+        }
+      
+        if (id == null)
+        {
+          this.adjust = null;
+        }
+        else
+        {
+          for (var i in this.adjust)
+          {
+            //return if adjust not empty
+            return;
+          }
+          this.adjust = null;
+        }
+      },
+      
+      adjustOffset:
+      function(dx, dy, id)
+      {
+        if (this.adjust == null)
+        {
+          return;
+        }
+      
+        if (id == null)
+        {
+          for (id in this.adjust)
+          {
+            this.adjustOffset(dx, dy, id);
+          }
+        }
+        else if (id in this.adjust)
+        {
+          var image = this.adjust[id];
+      
+          image.changed = true;
+          if (image.$row != null)
+          {
+            image.$row.addClass('changed');
+          }
+          image.info.imageLeft += dx;
+          image.info.imageTop += dy;
+      
+          image.update();
+        }
+        //TODO: update some offset information?
+      },
+      
+      removeCachedImage:
+      function(id)
+      {
+        if (id in this.images)
+        {
+          this.stopAdjustment(id);
+          var image = this.images[id];
+          image.destroy();
+          delete this.images[id];
+        }
+      },
+      
+      getCachedImage:
+      function(id)
+      {
+        if (id in this.images)
+        {
+          return this.images[id];
+        }
+        return null;
+      },
+
+      getImageLoader:
+      function(id)
+      {
+        if (!(id in this.images))
+        {
+          return null;
+        }
+
+        var cachedImage = this.images[id];
+
+        return function (path, parentDiv, onSuccess, pixelSize,
+                         focusPointX, focusPointY, zIndex, opacity, quality)
+        {
+          //path and zIndex arguments are being ignored
+          var data = cachedImage.info;
+          var tileLayer = new CTileLayer(parentDiv,
+                                         data.imageWidth,
+                                         data.imageHeight,
+                                         data.pixelSize,
+                                         cachedImage.path + '/tiles',
+                                         data.imageLeft,
+                                         data.imageTop,
+                                         pixelSize,
+                                         focusPointX,
+                                         focusPointY,
+                                         quality,
+                                         null, null,
+                                         data.tileWidth,
+                                         data.tileHeight,
+                                         false,
+                                         cachedImage.z,
+                                         opacity,
+                                         cachedImage.references,
+                                         cachedImage.cacheId++);
+            onSuccess(tileLayer);
+        };
       }
     }
-    else if (id in this.adjust)
-    {
-      var image = this.adjust[id];
-  
-      image.changed = true;
-      if (image.$row != null)
-      {
-        image.$row.addClass('changed');
-      }
-      image.info.imageLeft += dx;
-      image.info.imageTop += dy;
-  
-      image.update();
-    }
-    //TODO: update some offset information?
   }
-  
-  CImageManager.prototype.removeCachedImage = function(id)
+  else
   {
-    if (id in this.images)
-    {
-      this.stopAdjustment(id);
-      var image = this.images[id];
-      image.destroy();
-      delete this.images[id];
-    }
+    console.warn('BrainSlices.api.CImageManager already defined');
   }
-  
-  CImageManager.prototype.getCachedImage = function(id)
-  {
-    if (id in this.images)
-    {
-      return this.images[id];
-    }
-    return null;
-  }
-  
-  function loadFromCache(cache, id)
-  {
-    var cachedImage = cache.getCachedImage(id);
-    if (cachedImage == null) return null;
-  
-    return function (path, parentDiv, onSuccess, pixelSize,
-                     focusPointX, focusPointY, zIndex, opacity, quality)
-    {
-      //path and zIndex arguments are being ignored
-      var data = cachedImage.info;
-      var tileLayer = new CTileLayer(parentDiv,
-                                     data.imageWidth,
-                                     data.imageHeight,
-                                     data.pixelSize,
-                                     cachedImage.path + '/tiles',
-                                     data.imageLeft,
-                                     data.imageTop,
-                                     pixelSize,
-                                     focusPointX,
-                                     focusPointY,
-                                     quality,
-                                     null, null,
-                                     data.tileWidth,
-                                     data.tileHeight,
-                                     false,
-                                     cachedImage.z,
-                                     opacity,
-                                     cachedImage.references,
-                                     cachedImage.cacheId++);
-        onSuccess(tileLayer);
-    };
-  }
-  
+ 
+
   CLayerStack.prototype.loadFromCache = function(cache, id, quality)
   {
-    this.loadLayer(id, loadFromCache(cache, id), null, null, quality);
+    this.loadLayer(id, cache.getImageLoader(id), null, null, quality);
   }
-  
-  
+})(BrainSlices, jQuery)
+
+with ({gui: BrainSlices.gui})
+{
   var CLayerManager = function($layerList, stacks, ajaxProvider, doNotRemove,
                                doNotAdjust, doNotDownload, doNotDelete)
   {
@@ -489,16 +502,16 @@ with ({CTableManager: BrainSlices.gui.CTableManager})
     this.length = 0;
   
     var thisInstance = this;
-    this.tableManager = new CTableManager($layerList,
-                                          function()
-                                          {
-                                            for (var i = 0; i < thisInstance.stacks.stacks.length; i++)
-                                            {
-                                              thisInstance.stacks.stacks[i].setOpacity();
-                                            }
+    this.tableManager = new gui.CTableManager($layerList,
+                                              function()
+                                              {
+                                                for (var i = 0; i < thisInstance.stacks.stacks.length; i++)
+                                                {
+                                                  thisInstance.stacks.stacks[i].setOpacity();
+                                                }
   
-                                            thisInstance.stacks.updateTopZ(thisInstance.tableManager.length);
-                                          });
+                                                thisInstance.stacks.updateTopZ(thisInstance.tableManager.length);
+                                              });
   }
   
   CLayerManager.prototype.stopAdjustment = function(id)
