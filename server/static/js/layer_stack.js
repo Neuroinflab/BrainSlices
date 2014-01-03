@@ -21,22 +21,40 @@
 *                                                                             *
 \*****************************************************************************/
 
-function hDistanceCommon(distanceUnsafe, toLog, meaning)
+/**
+ * Function: hDistance
+ *
+ * Parameters:
+ *  distance - a distance to be converted
+ *  significant - affects a precision of the returned string; defaults to 3
+ *  toLog - affects a precision of the returned string; defaults to
+ *          abs(<distance>)
+ *
+ * Returns:
+ *  Human readible string representing given distance.
+ *  A precision of the string is computed based on the <significant> and
+ *  <toLog> parameters:
+ *  1. a suitable SI unit is being chosen for <toLog>,
+ *  2. a minimal precision is taken that for the unit both:
+ *     - preserves integer part of <toLog>,
+ *     - preserves <significant> significant digits of <toLog>.
+ **************************************************************************/
+function hDistance(distance, significant, toLog)
 {
-  var distance = parseFloat(distanceUnsafe);
+  //distance = parseFloat(distance); //unnecessary due to lack of addition
 
   if (distance == 0.)
   {
     return '0';
   }
 
-  meaning = meaning == null? 2 : parseInt(meaning);
+  significant = significant == null ? 2 : parseInt(significant) - 1;
 
   if (toLog == null) toLog = Math.abs(distance);
 
-  var log10floor = Math.floor(Math.log(toLog) * Math.LOG10E);
-  var u = parseInt(Math.floor(log10floor / 3));
-  var n = parseInt(meaning - (log10floor - 3 * u));
+  var log10floor = Math.floor(Math.log(toLog) * Math.LOG10E); // order of toLog
+  var u = parseInt(Math.floor(log10floor / 3)); // order of unit
+  var n = parseInt(significant - (log10floor - 3 * u));
   if (n < 0) n = 0;
 
   var val = (distance / Math.pow(1000, u)).toFixed(n);
@@ -68,19 +86,12 @@ function hDistanceCommon(distanceUnsafe, toLog, meaning)
       break;
 
     default:
-      val = (distance / Math.pow(10, log10floor)).toFixed(meaning);
+      val = (distance / Math.pow(10, log10floor)).toFixed(significant);
       unit = 'e' + (log10floor - 6) + ' m';
   }
 
   return val + unit;
 }
-
-function hDistance(distanceUnsafe, meaning)
-{
-  return hDistanceCommon(distanceUnsafe, null, meaning);
-}
-
-var hDistanceOOM = hDistanceCommon;
 
 function CLayerStack(parentDiv, zoom, focusPointX, focusPointY, crosshairX, crosshairY, mouseXElement, mouseYElement, syncStacks, autoresize, gfx)
 {
@@ -179,12 +190,12 @@ function CLayerStack(parentDiv, zoom, focusPointX, focusPointY, crosshairX, cros
                           {
                             if (thisInstance.mouseXElement != null)
                             {
-                              thisInstance.mouseXElement.html(hDistanceOOM(thisInstance.mouseX, thisInstance.pixelSize));
+                              thisInstance.mouseXElement.html(hDistance(thisInstance.mouseX, null, thisInstance.pixelSize));
                             }
 
                             if (thisInstance.mouseYElement != null)
                             {
-                              thisInstance.mouseYElement.html(hDistanceOOM(thisInstance.mouseY, thisInstance.pixelSize));
+                              thisInstance.mouseYElement.html(hDistance(thisInstance.mouseY, null, thisInstance.pixelSize));
                             }
                           }
 
@@ -332,7 +343,7 @@ CLayerStack.prototype.updateScale = function()
   var k = log10rest < 0.30103 ? 1 : (log10rest < 0.699? 2: 5);
   var scaleSize = k * Math.pow(10, log10floor);
 
-  this.scaleDiv.children('span').html(hDistance(scaleSize, 0));
+  this.scaleDiv.children('span').html(hDistance(scaleSize, 1));
   var scaleImage = this.scaleDiv.children('img');
   scaleImage.width(parseInt(Math.round(2 * scaleSize / this.pixelSize)) + 'px');
   scaleImage.attr('src', this.gfx + '/scale' + k + '.png');

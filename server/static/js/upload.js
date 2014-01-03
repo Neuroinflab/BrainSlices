@@ -67,7 +67,9 @@ function CUploadedImages($table, images)
   this.reset(images);
 }
 
-with (BrainSlices)
+with ({escapeHTML: BrainSlices.gui.escapeHTML,
+       getThumbnail: BrainSlices.gui.getThumbnail,
+       STATUS_MAP: BrainSlices.gui.STATUS_MAP})
 {
 /*****************************************************************************\
  * Method: reset                                                             *

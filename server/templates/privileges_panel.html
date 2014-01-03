@@ -9,7 +9,8 @@
     <script>
 
 
-with (BrainSlices)
+with ({escapeHTML: BrainSlices.gui.escapeHTML,
+       getThumbnail: BrainSlices.gui.getThumbnail})
 {
   var listBatches = function()
   {
