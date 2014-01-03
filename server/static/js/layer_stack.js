@@ -21,77 +21,7 @@
 *                                                                             *
 \*****************************************************************************/
 
-/**
- * Function: hDistance
- *
- * Parameters:
- *  distance - a distance to be converted
- *  significant - affects a precision of the returned string; defaults to 3
- *  toLog - affects a precision of the returned string; defaults to
- *          abs(<distance>)
- *
- * Returns:
- *  Human readible string representing given distance.
- *  A precision of the string is computed based on the <significant> and
- *  <toLog> parameters:
- *  1. a suitable SI unit is being chosen for <toLog>,
- *  2. a minimal precision is taken that for the unit both:
- *     - preserves integer part of <toLog>,
- *     - preserves <significant> significant digits of <toLog>.
- **************************************************************************/
-function hDistance(distance, significant, toLog)
-{
-  //distance = parseFloat(distance); //unnecessary due to lack of addition
-
-  if (distance == 0.)
-  {
-    return '0';
-  }
-
-  significant = significant == null ? 2 : parseInt(significant) - 1;
-
-  if (toLog == null) toLog = Math.abs(distance);
-
-  var log10floor = Math.floor(Math.log(toLog) * Math.LOG10E); // order of toLog
-  var u = parseInt(Math.floor(log10floor / 3)); // order of unit
-  var n = parseInt(significant - (log10floor - 3 * u));
-  if (n < 0) n = 0;
-
-  var val = (distance / Math.pow(1000, u)).toFixed(n);
-
-  switch (u)
-  {
-    case 3:
-      unit = ' km';
-      break;
-
-    case 2:
-      unit = ' m';
-      break;
-
-    case 1:
-      unit = ' mm';
-      break;
-
-    case 0:
-      unit = ' &#956;m';
-      break;
-
-    case -1:
-      unit = ' nm';
-      break;
-
-    case -2:
-      unit = ' pm';
-      break;
-
-    default:
-      val = (distance / Math.pow(10, log10floor)).toFixed(significant);
-      unit = 'e' + (log10floor - 6) + ' m';
-  }
-
-  return val + unit;
-}
+var hDistance = BrainSlices.gui.hDistance;
 
 function CLayerStack(parentDiv, zoom, focusPointX, focusPointY, crosshairX, crosshairY, mouseXElement, mouseYElement, syncStacks, autoresize, gfx)
 {
