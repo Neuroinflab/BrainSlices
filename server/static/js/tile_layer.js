@@ -21,6 +21,8 @@
 *                                                                             *
 \*****************************************************************************/
 
+var api = BrainSlices.api
+
 function CTileLayer(parentDiv, imageWidth, imageHeight, imagePixelSize, path, imageLeft, imageTop, layerPixelSize, focusPointX, focusPointY, quality, crosshairX, crosshairY, tileWidth, tileHeight, autoresize, zIndex, opacity, references, cacheId)
 {
   // CONSTRUCTOR
@@ -74,7 +76,7 @@ function CTileLayer(parentDiv, imageWidth, imageHeight, imagePixelSize, path, im
   this.finishConstruction(crosshairX, crosshairY, autoresize, zIndex, opacity);
 }
 
-CTileLayer.prototype = new CLayerPrototype();
+CTileLayer.prototype = Object.create(api.CLayerPrototype);
 
 CTileLayer.prototype.destroy = function()
 {
@@ -83,18 +85,7 @@ CTileLayer.prototype.destroy = function()
     delete this.references[this.cacheId];
   }
 
-  //REDUNDANT WITH CLayerPrototype.prototype.destroy
-  this.layer.html('');
-
-  // if autoresize enabled
-  if (this.resizeHandler != null)
-  {
-    //this.layer.unbind('resize', this.resizeHandler);
-    $(window).unbind('resize', this.resizeHandler);
-    this.resizeHandler = null;
-  }
-  this.layer.remove();
-  return null;
+  return api.CLayerPrototype.destroy.call(this);
 }
 
 CTileLayer.prototype.updateImage = function(imageLeft, imageTop, imagePixelSize)

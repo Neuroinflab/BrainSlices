@@ -21,6 +21,8 @@
 *                                                                             *
 \*****************************************************************************/
 
+var api = BrainSlices.api;
+
 function COutlineLayer(parentDiv, svg, layerPixelSize, focusPointX, focusPointY, crosshairX, crosshairY, autoresize, zIndex, opacity)
 {
   // CONSTRUCTOR
@@ -41,7 +43,7 @@ function COutlineLayer(parentDiv, svg, layerPixelSize, focusPointX, focusPointY,
   this.finishConstruction(crosshairX, crosshairY, autoresize, zIndex, opacity);
 }
 
-COutlineLayer.prototype = new CLayerPrototype();
+COutlineLayer.prototype = Object.create(api.CLayerPrototype);
 
 // dummy quality settings setter
 COutlineLayer.prototype.setQuality = function(quality)
@@ -124,8 +126,23 @@ function loadOutlineLayer(path, parentDiv, onSuccess, pixelSize,
   });
 }
 
-CLayerStack.prototype.loadOutlineLayer = function(id, path, zIndex)
+
+if (api.CLayerStack == null)
 {
-  this.loadLayer(id, loadOutlineLayer, path, zIndex);
+  console.warn('unable to extend BrainSlices.api.CLayerStack (does not exist)');
+}
+else
+{
+  if ('loadOutlineLayer' in api.CLayerStack.prototype)
+  {
+    console.warn('BrainSlices.api.CLayerStack.prototype.loadOutlineLayer already defined');
+  }
+  else
+  {
+    api.CLayerStack.prototype.loadOutlineLayer = function(id, path, zIndex)
+    {
+      this.loadLayer(id, loadOutlineLayer, path, zIndex);
+    }
+  }
 }
 

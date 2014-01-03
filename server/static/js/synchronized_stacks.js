@@ -21,7 +21,8 @@
 *                                                                             *
 \*****************************************************************************/
 
-var CDraggableDiv = BrainSlices.gui.CDraggableDiv; //XXX
+var gui = BrainSlices.gui; //XXX
+var api = BrainSlices.api;
 
 function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
                                     focusPointX, focusPointY, crosshairX,
@@ -54,7 +55,7 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
   }
   else
   {
-    this.control = new CDraggableDiv($controlPanel);
+    this.control = new gui.CDraggableDiv($controlPanel);
     this.$mouseXElement = $controlPanel.find('.mouseX');
     this.$mouseYElement = $controlPanel.find('.mouseY');
 
@@ -244,10 +245,11 @@ CSynchronizedStacksDisplay.prototype.rearrange = function(nx, ny, width)
                      l + '%; bottom: ' + b + '%; right: ' + r +
                      '%; width: auto; height: auto; overflow: hidden;"></div>');
         this.$displayContainer.append($div);
-        stack = new CLayerStack($div, this.zoom, this.focusPointX,
-                                this.focusPointY, this.crosshairX,
-                                this.crosshairY, this.$mouseXElement,
-                                this.$mouseYElement, this, false, this.gfx);
+        stack = new api.CLayerStack($div, this.zoom, this.focusPointX,
+                                    this.focusPointY, this.crosshairX,
+                                    this.crosshairY, this.$mouseXElement,
+                                    this.$mouseYElement, this, false,
+                                    this.gfx);
         stack.setTransparency(this.transparency);
       }
       id++;

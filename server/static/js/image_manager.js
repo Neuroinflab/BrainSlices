@@ -30,7 +30,7 @@
   	{
       this.changed = false;
   		var info = this.info;
-  
+
       //fix invalid metadata
       info.imageLeft = info._imageLeft;
       if (info.imageLeft == undefined)
@@ -51,7 +51,7 @@
         this.changed = true;
       }
       info.status = info._status;
-  
+
       if (this.$row != null)
       {
         if (this.changed)
@@ -63,10 +63,10 @@
           this.$row.removeClass('changed');
         }
       }
-  
+
       this.update(updateIFace);
   	},
-  
+
     updateInterface: function()
     {
       if (this.onUpdate != null)
@@ -74,7 +74,7 @@
         this.onUpdate();
       }
     },
-  
+
     update: function(updateIFace)
     {
       var references = this.references;
@@ -82,18 +82,18 @@
       var imageLeft = info.imageLeft;
       var imageTop = info.imageTop;
       var pixelSize = info.pixelSize;
-    
+
       for (var cacheId in references) //XXX dangerous
       {
         references[cacheId].updateImage(imageLeft, imageTop, pixelSize).update();
       }
-  
+
       if (updateIFace == null || updateIFace)
       {
         this.updateInterface();
       }
     },
-  
+
     updateInfo: function(imageLeft, imageTop, pixelSize, status, updateIFace)
     {
       this.changed = true;
@@ -101,14 +101,14 @@
       {
         this.$row.addClass('changed');
       }
-  
+
       if (imageLeft != null) this.info.imageLeft = imageLeft;
       if (imageTop != null) this.info.imageTop = imageTop;
       if (pixelSize != null) this.info.pixelSize = pixelSize;
       if (status != null) this.info.status = status;
       this.update(updateIFace);
     },
-  
+
     destroy: function()
     {
       var references = this.references;
@@ -128,7 +128,7 @@
       this.images = {};
       this.adjust = null;
     }
-    
+
     api.CImageManager.prototype =
     {
       destroy:
@@ -139,13 +139,13 @@
         {
           images[id] = null;
         }
-      
+
         for (var id in images)
         {
           this.removeCachedImage(id);
         }
       },
-      
+
       updateImage:
       function(id, imageLeft, imageTop, pixelSize, updateIFace)
       {
@@ -161,7 +161,7 @@
           this.images[id].updateInfo(imageLeft, imageTop, pixelSize, null, updateIFace);
         }
       },
-      
+
       updateImageStatus:
       function(id, status, updateIFace)
       {
@@ -177,7 +177,7 @@
           this.images[id].updateInfo(null, null, null, status, updateIFace);
         }
       },
-      
+
       apply:
       function(id, f, updateIFace)
       {
@@ -196,7 +196,7 @@
           }
         }
       },
-      
+
       saveUpdatedTiled:
       function()
       {
@@ -216,7 +216,7 @@
             }
           }
         }
-      
+
         if (changed.length > 0)
         {
           this.ajaxProvider.ajax('/upload/updateMetadata',
@@ -228,7 +228,7 @@
                                      return;
                                    }
                                    var changed = response.data;
-      
+
                                    for (var i = 0; i < changed.length; i++)
                                    {
                                      var item = changed[i];
@@ -251,7 +251,7 @@
                                  {updated: changed.join(':')});
         }
       },
-      
+
       // propagate zIndex value update across all managed images
       setZ:
       function(id, zIndex)
@@ -259,20 +259,20 @@
         var image = this.images[id];
         image.z = zIndex;
         var references = image.references;
-      
+
         for (var cacheId in references) //XXX dangerous
         {
           references[cacheId].setZ(zIndex);
         }
       },
-      
+
       updateCachedTiledImage:
       function(id, path, onSuccess, onUpdate, $row)
       {
         this.removeCachedImage(id);
         this.cacheTiledImage(id, path, onSuccess, onUpdate, $row);
       },
-      
+
       cacheTiledImageOffline:
       function(id, path, data, onSuccess, onUpdate, $row, zIndex)
       {
@@ -280,12 +280,12 @@
         {
           var cachedImage = Object.create(imagePrototype);
           cachedImage.info = data;
-      
+
           data._imageLeft = data.imageLeft;
           data._imageTop = data.imageTop;
           data._pixelSize = data.pixelSize;
           data._status = data.status;
-      
+
           cachedImage.references = {};
           cachedImage.path = path;
           cachedImage.type = 'tiledImage';
@@ -295,17 +295,17 @@
           cachedImage.id = id;
           cachedImage.z = zIndex != null ? zIndex : 0;
           cachedImage.onUpdate = onUpdate;
-      
+
           this.images[id] = cachedImage;
           cachedImage.reset();
         }
-      
+
         if (onSuccess != null)
         {
           onSuccess(this.images[id]);
         }
       },
-      
+
       cacheTiledImage:
       function(id, path, onSuccess, onUpdate, $row, zIndex)
       {
@@ -325,10 +325,10 @@
                                null,
                                null,
                                'GET');
-      
+
        //   //type: 'POST', //causes 412 error on refresh -_-
       },
-      
+
       startAdjustment:
       function(id)
       {
@@ -336,16 +336,16 @@
         {
           return false;
         }
-      
+
         if (this.adjust == null)
         {
           this.adjust = {};
         }
-      
+
         this.adjust[id] = this.images[id];
         return true;
       },
-      
+
       has:
       function(id)
       {
@@ -354,7 +354,7 @@
         // being fetched...
         return id in this.images;
       },
-      
+
       stopAdjustment:
       function(id)
       {
@@ -362,7 +362,7 @@
         {
           delete this.adjust[id];
         }
-      
+
         if (id == null)
         {
           this.adjust = null;
@@ -377,7 +377,7 @@
           this.adjust = null;
         }
       },
-      
+
       adjustOffset:
       function(dx, dy, id)
       {
@@ -385,7 +385,7 @@
         {
           return;
         }
-      
+
         if (id == null)
         {
           for (id in this.adjust)
@@ -396,7 +396,7 @@
         else if (id in this.adjust)
         {
           var image = this.adjust[id];
-      
+
           image.changed = true;
           if (image.$row != null)
           {
@@ -404,12 +404,12 @@
           }
           image.info.imageLeft += dx;
           image.info.imageTop += dy;
-      
+
           image.update();
         }
         //TODO: update some offset information?
       },
-      
+
       removeCachedImage:
       function(id)
       {
@@ -421,7 +421,7 @@
           delete this.images[id];
         }
       },
-      
+
       getCachedImage:
       function(id)
       {
@@ -475,13 +475,29 @@
   {
     console.warn('BrainSlices.api.CImageManager already defined');
   }
- 
 
-  CLayerStack.prototype.loadFromCache = function(cache, id, quality)
+
+  if (api.CLayerStack == null)
   {
-    this.loadLayer(id, cache.getImageLoader(id), null, null, quality);
+    console.warn('unable to extend BrainSlices.api.CLayerStack (does not exist)');
   }
-})(BrainSlices, jQuery)
+  else
+  {
+    if ('loadFromCache' in api.CLayerStack.prototype)
+    {
+      console.warn('BrainSlices.api.CLayerStack.prototype.loadFromCache already defined');
+    }
+    else
+    {
+      BrainSlices.api.CLayerStack.prototype.loadFromCache = function(cache, id, quality)
+      {
+        this.loadLayer(id, cache.getImageLoader(id), null, null, quality);
+      }
+    }
+  }
+})(BrainSlices, jQuery);
+
+
 
 with ({gui: BrainSlices.gui})
 {
@@ -492,15 +508,15 @@ with ({gui: BrainSlices.gui})
     this.images = stacks.images; // just a shortcut
     this.$layerList = $layerList;
     this.ajaxProvider = ajaxProvider;
-  
+
     this.adjustmentEnabled = doNotAdjust != true;
     this.removalEnabled = doNotAdjust != true;
     this.downloadEnabled = doNotDownload != true;
     this.deletionEnabled = doNotDelete != true;
-  
+
     this.layers = {};
     this.length = 0;
-  
+
     var thisInstance = this;
     this.tableManager = new gui.CTableManager($layerList,
                                               function()
@@ -509,57 +525,57 @@ with ({gui: BrainSlices.gui})
                                                 {
                                                   thisInstance.stacks.stacks[i].setOpacity();
                                                 }
-  
+
                                                 thisInstance.stacks.updateTopZ(thisInstance.tableManager.length);
                                               });
   }
-  
+
   CLayerManager.prototype.stopAdjustment = function(id)
   {
     return this.images.stopAdjustment(id);
   }
-  
+
   CLayerManager.prototype.startAdjustment = function(id)
   {
     return this.images.startAdjustment(id);
   }
-  
+
   CLayerManager.prototype.isAdjusted = function(id)
   {
     return this.images.adjust != null && id in this.images.adjust;
   }
-  
+
   CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
                                                   info, update)
   {
     if (update == null) update = true;
-  
+
     var id = 'i' + imageId;
-  
+
     if (id in this.layers)
     {
       return;
     }
-  
+
     if (zIndex == null || zIndex < 0 || zIndex > this.length)
     {
       zIndex = this.length;
     }
-  
+
     if (label == null)
     {
       label = id;
     }
-  
+
     var thisInstance = this;
-  
+
     var layer = {};
     layer.id = id;
     layer.label = label;
     layer.path = path;
     layer.loadButtons = [];
     layer.z = null; //to be for sure updated
-  
+
     // making the layer-related row
     var $row =  $('<tr></tr>');
     var $drag = $('<td draggable="true">' + label + '</td>');
@@ -568,9 +584,9 @@ with ({gui: BrainSlices.gui})
     url.href = path;
     url = url.href;
     var dragMIME = [['text/plain', url], ['text/uri-list', url]];
-  
+
     $row.append($drag);
-  
+
     // download link
     if (this.downloadEnabled)
     {
@@ -583,12 +599,12 @@ with ({gui: BrainSlices.gui})
         $row.append('<td><br></td>');
       }
     }
-  
+
     // visibility interface
     var $visibility = $('<td></td>');
     layer.$visibility = $visibility;
     $row.append($visibility);
-  
+
     //adjustment
     var onUpdate = null;
     if (this.adjustmentEnabled)
@@ -603,7 +619,7 @@ with ({gui: BrainSlices.gui})
                        '<option value="7">Accepted</option>' +
                       '</select>' +
                      '</span>');
-  
+
       $adjust.bind('change', function()
       {
         if ($adjust.filter(':checked').length  != 0)
@@ -617,7 +633,7 @@ with ({gui: BrainSlices.gui})
           thisInstance.images.stopAdjustment(id);
         }
       });
-  
+
       $iface.find('input').bind('change', function()
       {
         if (layer.image != null)
@@ -628,13 +644,13 @@ with ({gui: BrainSlices.gui})
           layer.image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
         }
       });
-  
+
       $iface.find('select[name="status"]').bind('change', function()
       {
         var status = parseInt($iface.find('select[name="status"]').val());
         layer.image.updateInfo(null, null, null, status, false);
       });
-  
+
       onUpdate = function()
       {
         if (layer.image != null)
@@ -650,25 +666,25 @@ with ({gui: BrainSlices.gui})
           //$iface.find('span.status').html(STATUS_MAP[info.status]);
         }
       }
-  
+
       //XXX: is that necessary?
       layer.$iface = $iface;
       layer.$adjust = $adjust;
       $row.append($adjust, $iface);
     }
-  
+
     //removal
-  
+
     if (this.removalEnabled)
     {
       layer.$rem = $('<button>Remove</button>');
-  
+
       onRemove = function()
       {
         var id = layer.id;
         thisInstance.removeLayer(id);
       };
-  
+
       layer.$rem.bind('click', function()
       {
         //var z = layer.z;
@@ -679,19 +695,19 @@ with ({gui: BrainSlices.gui})
       //XXX: see if there is no problem with chaining method call
       $row.append($('<td></td>').append(layer.$rem));
     }
-  
+
     //deletion
     if (this.deletionEnabled)
     {
       layer.$del = $('<input type="checkbox">');
       $row.append($('<td></td>').append(layer.$del));
     }
-  
+
     layer.$row = $row;
-  
+
     this.layers[id] = layer;
     this.length++;
-  
+
     this.tableManager.add($row, id, this.tableManager.length - zIndex,
                           function()
                           {
@@ -705,7 +721,7 @@ with ({gui: BrainSlices.gui})
                             }
                             delete thisInstance.layers[id];
                             thisInstance.length--;
-  
+
                             thisInstance.stacks.removeLayer(id);
                           },
                           function(index)
@@ -720,8 +736,8 @@ with ({gui: BrainSlices.gui})
                             }
                           },
                           dragMIME, false);
-  
-  
+
+
     var finishCaching = update ?
                         function(image)
                         {
@@ -738,7 +754,7 @@ with ({gui: BrainSlices.gui})
                           // since image was not assigned
                           if (image.onUpdate) image.onUpdate();
                         };
-  
+
     if (info == null)
     {
       this.images.cacheTiledImage(id, path, finishCaching, onUpdate, $row);
@@ -751,23 +767,23 @@ with ({gui: BrainSlices.gui})
     // onSuccess shall update interface and z-indices
     return id;
   }
-  
+
   CLayerManager.prototype.updateOrder = function()
   {
     this.tableManager.update();
     this.arrangeInterface();
   }
-  
+
   CLayerManager.prototype.arrangeInterface = function()
   {
     this.$layerList.find('.recyclableElement').detach();
     var nmax = this.stacks.nx * this.stacks.ny;
-  
+
     for (var id in this.layers)
     {
       var layer = this.layers[id];
       var loadButtons = layer.loadButtons;
-  
+
       layer.$visibility.empty();
       for (var n = 0; n < nmax; n++)
       {
@@ -776,7 +792,7 @@ with ({gui: BrainSlices.gui})
           loadButtons.push(this.layerCB(id, n));
         }
         var $cb = loadButtons[n].$cb;
-  
+
         if (this.stacks.has(n, id))
         {
           $cb.attr('checked', 'checked');
@@ -787,23 +803,23 @@ with ({gui: BrainSlices.gui})
         }
         layer.$visibility.append($cb);
       }
-  
+
       var toDismiss = loadButtons.splice(nmax);
       for (var i = 0; i < toDismiss.length; i++)
       {
         var item = toDismiss[i];
         item.$cb.unbind('change', item.changeHandler);
       }
-  
+
       layer.loadButtons = loadButtons;
     }
   }
-  
-  
+
+
   CLayerManager.prototype.layerCB = function(id, stackId)
   {
     //TODO: use stack instead of stackId???
-    
+
     var thisInstance = this;
     var stack = this.stacks.stacks[stackId];
     var $cb = $('<input type="checkbox" class="recyclableElement">');
@@ -818,31 +834,31 @@ with ({gui: BrainSlices.gui})
         thisInstance.unload(stack.syncId(), id, true);
       }
     };
-  
+
     $cb.bind('change', changeHandler);
-  
+
     var res = {};
     res.$cb = $cb;
     res.changeHandler = changeHandler
     return res;
   }
-  
+
   CLayerManager.prototype.removeLayer = function(id)
   {
     this.tableManager.remove(id);
   }
-  
+
   CLayerManager.prototype.flush = function()
   {
     this.tableManager.flush();
   }
-  
+
   //an alias
   CLayerManager.prototype.load = function(stackId, imageId, doNotUpdateIface)
   {
     this.loadLayerByStack(this.stacks.stacks[stackId], imageId, doNotUpdateIface);
   }
-  
+
   CLayerManager.prototype.loadLayerByStack = function(stack, imageId,
                                                     doNotUpdateIface)
   {
@@ -852,7 +868,7 @@ with ({gui: BrainSlices.gui})
       this.loadButtons[imageId][stack.syncId()].$cb.attr('checked', 'checked');
     }
   }
-  
+
   CLayerManager.prototype.unload = function(stackId, imageId, doNotUpdateIface)
   {
     this.stacks.unload(stackId, imageId);
@@ -861,7 +877,7 @@ with ({gui: BrainSlices.gui})
       this.loadButtons[imageId][stackId].$cb.filter(':checked').removeAttr('checked');
     }
   }
-  
+
   CLayerManager.prototype.loadedImagesOrdered = function()
   {
     var images = this.stacks.loadedImages();
@@ -877,7 +893,7 @@ with ({gui: BrainSlices.gui})
     }
     return ordered;
   }
-  
+
   CLayerManager.prototype.removeStack = function(id, doNotDestroy)
   {
     //remove layer load/unload buttons
@@ -892,13 +908,13 @@ with ({gui: BrainSlices.gui})
     }
     return this.stacks.removeStack(id, doNotDestroy);
   }
-  
+
   //an alias
   CLayerManager.prototype.unloadAll = function(id)
   {
     return this.stacks.unloadAll(id);
   }
-  
+
   CLayerManager.prototype.deleteImages = function()
   {
     var toDelete = [];
@@ -913,7 +929,7 @@ with ({gui: BrainSlices.gui})
       toDelete.push(iid);
       deleteMapping[iid] = id;
     }
-  
+
     if (toDelete.length > 0 &&
         confirm("Do you really want to delete " +
                 (toDelete.length == 1 ?
@@ -934,7 +950,7 @@ with ({gui: BrainSlices.gui})
                                {
                                  alert("Some of images not found in the database.");
                                }
-  
+
                                var preserved = false;
                                for (var i = 0; i < data.length; i++)
                                {
@@ -958,7 +974,7 @@ with ({gui: BrainSlices.gui})
                              {iids: toDelete.join(',')});
     }
   }
-  
+
   CLayerManager.prototype.destroy = function()
   {
     this.flush();
@@ -970,6 +986,6 @@ with ({gui: BrainSlices.gui})
     this.ajaxProvider = null;
     this.layers = null;
     //TODO: check what happens to everything else bound to this.$layerList descendants
-  
+
   }
 }
