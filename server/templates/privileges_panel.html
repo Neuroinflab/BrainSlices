@@ -10,7 +10,8 @@
 
 
 with ({escapeHTML: BrainSlices.gui.escapeHTML,
-       getThumbnail: BrainSlices.gui.getThumbnail})
+       getThumbnail: BrainSlices.gui.getThumbnail,
+       CTableManager: BrainSlices.gui.CTableManager})
 {
   var listBatches = function()
   {
@@ -205,58 +206,57 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
   {
     privilegeManager.savePublic();
   }
+
+  var loginConsole = null;
+  var privilegeManager = null;
+  var tableManager = null;
+  
+  $(function()
+  {
+    loginConsole = new BrainSlices.ajax.CUserPanel(
+                   $('#userPanel'),
+                   $('#loginLink'),
+                   $('#logoutLink'),
+                   function()
+                   {
+                     listBatches();
+                     $('#helloMessage').text('Logged as ' + loginConsole.isLoggedAs());
+                   },
+                   function()
+                   {
+                     listBatches();
+                     $('#helloMessage').text('Not logged in');
+                   },
+                   null,
+                   function()
+                   {
+                     $('.formErrorMessages').text(''); //XXX: is necessary?
+                   });
+    privilegeManager = new CImagePrivilegesManager(loginConsole);
+    tableManager = new CTableManager($('#privilegesPanel table tbody.layerList'));
+  
+    $('#viewPrivilegeAll').bind('change', function()
+    {
+      privilegeManager.changePublic(null,
+                                    $('#viewPrivilegeAll:checked').length > 0);
+    });
+    $('#editPrivilegeAll').bind('change', function()
+    {
+      privilegeManager.changePublic(null, null,
+                                    $('#editPrivilegeAll:checked').length > 0);
+    });
+    $('#annotatePrivilegeAll').bind('change', function()
+    {
+      privilegeManager.changePublic(null, null, null,
+                                    $('#annotatePrivilegeAll:checked').length > 0);
+    });
+    $('#outlinePrivilegeAll').bind('change', function()
+    {
+      privilegeManager.changePublic(null, null, null, null,
+                                    $('#outlinePrivilegeAll:checked').length > 0);
+    });
+  });
 }
-
-var loginConsole = null;
-var privilegeManager = null;
-var tableManager = null;
-
-$(function()
-{
-  loginConsole = new BrainSlices.ajax.CUserPanel(
-                 $('#userPanel'),
-                 $('#loginLink'),
-                 $('#logoutLink'),
-                 function()
-                 {
-                   listBatches();
-                   $('#helloMessage').text('Logged as ' + loginConsole.isLoggedAs());
-                 },
-                 function()
-                 {
-                   listBatches();
-                   $('#helloMessage').text('Not logged in');
-                 },
-                 null,
-                 function()
-                 {
-                   $('.formErrorMessages').text(''); //XXX: is necessary?
-                 });
-  privilegeManager = new CImagePrivilegesManager(loginConsole);
-  tableManager = new CTableManager($('#privilegesPanel table tbody.layerList'));
-
-  $('#viewPrivilegeAll').bind('change', function()
-  {
-    privilegeManager.changePublic(null,
-                                  $('#viewPrivilegeAll:checked').length > 0);
-  });
-  $('#editPrivilegeAll').bind('change', function()
-  {
-    privilegeManager.changePublic(null, null,
-                                  $('#editPrivilegeAll:checked').length > 0);
-  });
-  $('#annotatePrivilegeAll').bind('change', function()
-  {
-    privilegeManager.changePublic(null, null, null,
-                                  $('#annotatePrivilegeAll:checked').length > 0);
-  });
-  $('#outlinePrivilegeAll').bind('change', function()
-  {
-    privilegeManager.changePublic(null, null, null, null,
-                                  $('#outlinePrivilegeAll:checked').length > 0);
-  });
-});
-
 
 
     </script>

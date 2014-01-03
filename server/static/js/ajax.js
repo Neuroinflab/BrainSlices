@@ -551,7 +551,8 @@
       this.loginManager = new ajax.CLoginManager(onlogin, onlogout,
                                                  finalFunction);
 
-      this.closeManager = new CCloseableDiv($controlPanel, null,
+      this.closeManager = new BS.gui.CCloseableDiv(
+                                            $controlPanel, null,
                                             function()
                                             {
                                               thisInstance.$controlPanel.find('.formField').val('');

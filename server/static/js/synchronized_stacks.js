@@ -21,10 +21,11 @@
 *                                                                             *
 \*****************************************************************************/
 
+var CDraggableDiv = BrainSlices.gui.CDraggableDiv; //XXX
+
 function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
                                     focusPointX, focusPointY, crosshairX,
                                     crosshairY, $controlPanel, gfx, images)
-//                                    ajaxProvider)
 {
   var thisInstance = this;
 
@@ -32,7 +33,7 @@ function CSynchronizedStacksDisplay($display, nx, ny, synchronize, zoom,
 
   this.stacks = [];
 
-  this.images = images;//new CImageManager(ajaxProvider);
+  this.images = images;
 
   this.gfx = gfx != null ? gfx : 'static/gfx';
 
