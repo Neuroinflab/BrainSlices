@@ -447,25 +447,25 @@
         {
           //path and zIndex arguments are being ignored
           var data = cachedImage.info;
-          var tileLayer = new CTileLayer(parentDiv,
-                                         data.imageWidth,
-                                         data.imageHeight,
-                                         data.pixelSize,
-                                         cachedImage.path + '/tiles',
-                                         data.imageLeft,
-                                         data.imageTop,
-                                         pixelSize,
-                                         focusPointX,
-                                         focusPointY,
-                                         quality,
-                                         null, null,
-                                         data.tileWidth,
-                                         data.tileHeight,
-                                         false,
-                                         cachedImage.z,
-                                         opacity,
-                                         cachedImage.references,
-                                         cachedImage.cacheId++);
+          var tileLayer = new api.CTileLayer(parentDiv,
+                                             data.imageWidth,
+                                             data.imageHeight,
+                                             data.pixelSize,
+                                             cachedImage.path + '/tiles',
+                                             data.imageLeft,
+                                             data.imageTop,
+                                             pixelSize,
+                                             focusPointX,
+                                             focusPointY,
+                                             quality,
+                                             null, null,
+                                             data.tileWidth,
+                                             data.tileHeight,
+                                             false,
+                                             cachedImage.z,
+                                             opacity,
+                                             cachedImage.references,
+                                             cachedImage.cacheId++);
             onSuccess(tileLayer);
         };
       }
