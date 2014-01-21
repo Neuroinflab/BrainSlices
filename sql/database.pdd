@@ -2,7 +2,7 @@
 
 <DBMODEL Version="1.5" TYPE="PostgreSQL">
 
-<MODELSETTINGS MDDVERSION="1.3.2 (build 750)" ModelProject="" ModelName="database" ModelCompany="" ModelAuthor="" ModelCopyright="" ModelVersion="" ModelVersionAI="0" ModelCreated="2013-01-17 11:06:02" ModelUpdated="2013-11-20 16:43:48" Description="" Annotation="" ZoomFac="100.00" XPos="0" YPos="0" PrintLink="" GenSettings="object GenSettings1: TGenSettings\n  TextCharCase = tccMixed\n  ModelCheck = True\n  DropIfExists = True\n  ISQL = False\n  DBOptions = [dbgoBeginScript, dbgoEndScript]\n  ViewOptions = [viewgoCreate, viewgoDrop, viewgoCreateRule]\n  SPOptions = [spgoCreate]\n  TableOptions = [tblgoCreate, tblgoDrop, tblgoBeginScript, tblgoEndScript, tblgoComment, tblgoCreatePK, tblgoCreateFK, tblgoCreateIndex, tblgoCreateRule, tblgoCreateTrigger, tblgoCreateCHECK, tblgoFieldDefault]\n  OwnerOptions = [owngoSchema, owngoTable, owngoView, owngoSP, owngoSequence, owngoUDT]\n  ACLOptions = [aclgoSchema, aclgoTable, aclgoView, aclgoSP, aclgoSequence]\n  ModifyOptions = [mgoKeepTbls, mgoTraceRenaming]\n  RoleCreate = True\n  RoleWhenCreate = rocrInScript\n  SQLTypeNames = False\nend\n" DisplaySettings="object DisplaySettings1: TDisplaySettings\n  ObjectsDisplay = [edoColumns, edoInhColumns, edoIndices, edoConstraints, edoTriggers, edoRules, edoColTypes, edoFKs, rdoRefName, spdoParameters, spdoResult, spdoParamTypes, spdoParamKind, vdoAttributes, vdoTargets, vdoRules]\n  Color = clWhite\n  ShowIcons = True\n  SnapGrid = True\n  DisplaySnap = True\n  SnapSize = 10\n  ShowPages = True\n  EntityFillColor = clWhite\n  EntityLineColor = clNavy\n  SPFillColor = 13499135\n  SPLineColor = clNavy\n  ViewFillColor = 3329434\n  ViewLineColor = clNavy\n  RefNotation = 0\n  RefColor = clNavy\n  RefLabelColor = clWhite\n  MinimapShapesStyle = mmssFillAndBorder\n  MinimapVisibleAreaStyle = mmvasBitmapShading\n  MinimapBackColor = clWhite\nend\n" DefaultDelete="3" DefaultUpdate="3" DefaultDataType="23" DefaultSchemaID="0" FKPrefix="" QueryDelimiter=";" DBQuoteCharacter="\A" EncloseNames="1" HPageCount="5" VPageCount="5" />
+<MODELSETTINGS MDDVERSION="1.3.2 (build 750)" ModelProject="" ModelName="database" ModelCompany="" ModelAuthor="" ModelCopyright="" ModelVersion="" ModelVersionAI="0" ModelCreated="2013-01-17 11:06:02" ModelUpdated="2014-01-21 13:24:36" Description="" Annotation="" ZoomFac="100.00" XPos="0" YPos="0" PrintLink="" GenSettings="object GenSettings1: TGenSettings\n  TextCharCase = tccMixed\n  ModelCheck = True\n  DropIfExists = True\n  ISQL = False\n  DBOptions = [dbgoBeginScript, dbgoEndScript]\n  ViewOptions = [viewgoCreate, viewgoDrop, viewgoCreateRule]\n  SPOptions = [spgoCreate]\n  TableOptions = [tblgoCreate, tblgoDrop, tblgoBeginScript, tblgoEndScript, tblgoComment, tblgoCreatePK, tblgoCreateFK, tblgoCreateIndex, tblgoCreateRule, tblgoCreateTrigger, tblgoCreateCHECK, tblgoFieldDefault]\n  OwnerOptions = [owngoSchema, owngoTable, owngoView, owngoSP, owngoSequence, owngoUDT]\n  ACLOptions = [aclgoSchema, aclgoTable, aclgoView, aclgoSP, aclgoSequence]\n  ModifyOptions = [mgoKeepTbls, mgoTraceRenaming]\n  RoleCreate = True\n  RoleWhenCreate = rocrInScript\n  SQLTypeNames = False\nend\n" DisplaySettings="object DisplaySettings1: TDisplaySettings\n  ObjectsDisplay = [edoColumns, edoInhColumns, edoIndices, edoConstraints, edoTriggers, edoRules, edoColTypes, edoFKs, rdoRefName, spdoParameters, spdoResult, spdoParamTypes, spdoParamKind, vdoAttributes, vdoTargets, vdoRules]\n  Color = clWhite\n  ShowIcons = True\n  SnapGrid = True\n  DisplaySnap = True\n  SnapSize = 10\n  ShowPages = True\n  EntityFillColor = clWhite\n  EntityLineColor = clNavy\n  SPFillColor = 13499135\n  SPLineColor = clNavy\n  ViewFillColor = 3329434\n  ViewLineColor = clNavy\n  RefNotation = 0\n  RefColor = clNavy\n  RefLabelColor = clWhite\n  MinimapShapesStyle = mmssFillAndBorder\n  MinimapVisibleAreaStyle = mmvasBitmapShading\n  MinimapBackColor = clWhite\nend\n" DefaultDelete="3" DefaultUpdate="3" DefaultDataType="23" DefaultSchemaID="0" FKPrefix="" QueryDelimiter=";" DBQuoteCharacter="\A" EncloseNames="1" HPageCount="5" VPageCount="5" />
 
 <DATABASE Name="Database_1" CharacterSet="" Collate="" CType="" Tablespace="" Owner="" Template="" Comments="" Description="" Annotation="" BeginScript="" EndScript="" Generate="0" />
 
@@ -74,7 +74,7 @@
 
 <METADATA>
 <ENTITIES>
-<ENTITY ID="16423" Name="images" SchemaOID="0" SchemaName="public" OwnerID="16398" OwnerName="skwarki" TablespaceID="0" XPos="30" YPos="250" Temporary="0" OnCommit="" Inherits="" DelayKeyTblUpdates="0" FillColor="16777215" LineColor="8388608" CharacterSet="" Collate="" Comments="" Description="" Annotation="" BeginScript="" EndScript="" Generate="1" ACL="10=arwdDxt\n16398=rwad\n" StorageParams="OIDS=False\n" >
+<ENTITY ID="16423" Name="images" SchemaOID="0" SchemaName="public" OwnerID="16398" OwnerName="skwarki" TablespaceID="0" XPos="30" YPos="340" Temporary="0" OnCommit="" Inherits="" DelayKeyTblUpdates="0" FillColor="16777215" LineColor="8388608" CharacterSet="" Collate="" Comments="" Description="" Annotation="" BeginScript="" EndScript="" Generate="1" ACL="10=arwdDxt\n16398=rwad\n" StorageParams="OIDS=False\n" >
 	<COLUMNS>
 		<COLUMN ID="100" Name="iid" Pos="0" Datatype="23" Type="int4" Width="0" Prec="0" NotNull="1" AutoInc="1" PrimaryKey="1" IsFKey="0" DefaultValue="" QuoteDefault="0" Comments=""></COLUMN>
 		<COLUMN ID="156" Name="fid" Pos="1" Datatype="23" Type="int4" Width="0" Prec="0" NotNull="0" AutoInc="0" PrimaryKey="0" IsFKey="0" DefaultValue="" QuoteDefault="0" Comments=""></COLUMN>
@@ -116,7 +116,7 @@
 		<REFERENCE_END ID="16513" />
 	</REFERENCES_END>
 	<CONSTRAINTS>
-		<CONSTRAINT ID="16432" Name="images_pkey" Kind="2" Expression="" ReferenceIndex="18607" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16432" Name="images_pkey" Kind="2" Expression="" ReferenceIndex="18673" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="100"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -152,7 +152,7 @@
 			<INDEXSORTS COMMATEXT="\A\A"></INDEXSORTS>
 			<INDEXNULLS COMMATEXT="\A\A"></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18607" Name="images_pkey_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16432" StorageParams="" Comments="">
+		<INDEX ID="18673" Name="images_pkey_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16432" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="iid"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
@@ -194,7 +194,7 @@
 		<REFERENCE_BEGIN ID="16529" />
 	</REFERENCES_BEGIN>
 	<CONSTRAINTS>
-		<CONSTRAINT ID="16443" Name="users_pkey" Kind="2" Expression="" ReferenceIndex="18601" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16443" Name="users_pkey" Kind="2" Expression="" ReferenceIndex="18667" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="118"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -202,7 +202,7 @@
 			<CONSTRAINTCOLUMNS COMMATEXT="119"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
-		<CONSTRAINT ID="16452" Name="user_email" Kind="1" Expression="" ReferenceIndex="18602" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16452" Name="user_email" Kind="1" Expression="" ReferenceIndex="18668" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="128"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -213,12 +213,12 @@
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18601" Name="users_pkey_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16443" StorageParams="" Comments="">
+		<INDEX ID="18667" Name="users_pkey_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16443" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="uid"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18602" Name="user_email_idx_ui" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16452" StorageParams="" Comments="">
+		<INDEX ID="18668" Name="user_email_idx_ui" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16452" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="email"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
@@ -226,7 +226,7 @@
 	</INDEXES>
 </ENTITY>
 
-<ENTITY ID="16463" Name="batches" SchemaOID="0" SchemaName="public" OwnerID="16398" OwnerName="skwarki" TablespaceID="0" XPos="510" YPos="30" Temporary="0" OnCommit="" Inherits="" DelayKeyTblUpdates="0" FillColor="16777215" LineColor="8388608" CharacterSet="" Collate="" Comments="" Description="" Annotation="" BeginScript="" EndScript="" Generate="1" ACL="10=arwdDxt\n16398=rwad\n" StorageParams="OIDS=False\n" >
+<ENTITY ID="16463" Name="batches" SchemaOID="0" SchemaName="public" OwnerID="16398" OwnerName="skwarki" TablespaceID="0" XPos="510" YPos="10" Temporary="0" OnCommit="" Inherits="" DelayKeyTblUpdates="0" FillColor="16777215" LineColor="8388608" CharacterSet="" Collate="" Comments="" Description="" Annotation="" BeginScript="" EndScript="" Generate="1" ACL="10=arwdDxt\n16398=rwad\n" StorageParams="OIDS=False\n" >
 	<COLUMNS>
 		<COLUMN ID="136" Name="bid" Pos="0" Datatype="23" Type="int4" Width="0" Prec="0" NotNull="1" AutoInc="1" PrimaryKey="1" IsFKey="0" DefaultValue="" QuoteDefault="0" Comments=""></COLUMN>
 		<COLUMN ID="137" Name="owner" Pos="1" Datatype="23" Type="int4" Width="0" Prec="0" NotNull="1" AutoInc="0" PrimaryKey="0" IsFKey="1" DefaultValue="" QuoteDefault="0" Comments=""></COLUMN>
@@ -241,7 +241,7 @@
 		<REFERENCE_END ID="16504" />
 	</REFERENCES_END>
 	<CONSTRAINTS>
-		<CONSTRAINT ID="16503" Name="" Kind="2" Expression="" ReferenceIndex="18590" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16503" Name="" Kind="2" Expression="" ReferenceIndex="18656" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="136"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -252,7 +252,7 @@
 			<INDEXSORTS COMMATEXT="\A\A"></INDEXSORTS>
 			<INDEXNULLS COMMATEXT="\A\A"></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18590" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16503" StorageParams="" Comments="">
+		<INDEX ID="18656" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16503" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="bid"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
@@ -260,7 +260,7 @@
 	</INDEXES>
 </ENTITY>
 
-<ENTITY ID="16637" Name="properties" SchemaOID="0" SchemaName="public" OwnerID="16398" OwnerName="skwarki" TablespaceID="0" XPos="30" YPos="10" Temporary="0" OnCommit="" Inherits="" DelayKeyTblUpdates="0" FillColor="16777215" LineColor="8388608" CharacterSet="" Collate="" Comments="" Description="" Annotation="" BeginScript="" EndScript="" Generate="1" ACL="10=arwdDxt\n16398=rwad\n" StorageParams="OIDS=False\n" >
+<ENTITY ID="16637" Name="properties" SchemaOID="0" SchemaName="public" OwnerID="16398" OwnerName="skwarki" TablespaceID="0" XPos="10" YPos="0" Temporary="0" OnCommit="" Inherits="" DelayKeyTblUpdates="0" FillColor="16777215" LineColor="8388608" CharacterSet="" Collate="" Comments="" Description="" Annotation="" BeginScript="" EndScript="" Generate="1" ACL="10=arwdDxt\n16398=rwad\n" StorageParams="OIDS=False\n" >
 	<COLUMNS>
 		<COLUMN ID="157" Name="iid" Pos="0" Datatype="23" Type="int4" Width="0" Prec="0" NotNull="1" AutoInc="0" PrimaryKey="1" IsFKey="1" DefaultValue="" QuoteDefault="0" Comments=""></COLUMN>
 		<COLUMN ID="158" Name="property_name" Pos="1" Datatype="25" Type="text" Width="0" Prec="0" NotNull="1" AutoInc="0" PrimaryKey="1" IsFKey="0" DefaultValue="" QuoteDefault="0" Comments=""></COLUMN>
@@ -275,7 +275,7 @@
 		<REFERENCE_END ID="16516" />
 	</REFERENCES_END>
 	<CONSTRAINTS>
-		<CONSTRAINT ID="16515" Name="" Kind="2" Expression="" ReferenceIndex="18596" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16515" Name="" Kind="2" Expression="" ReferenceIndex="18662" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="157,158"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -286,7 +286,37 @@
 			<INDEXSORTS COMMATEXT="\A\A"></INDEXSORTS>
 			<INDEXNULLS COMMATEXT="\A\A"></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18596" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16515" StorageParams="" Comments="">
+		<INDEX ID="18646" Name="properties_type_name" Unique="0" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="0" StorageParams="" Comments="">
+			<INDEXCOLUMNS COMMATEXT="property_name,property_type"></INDEXCOLUMNS>
+			<INDEXSORTS COMMATEXT=","></INDEXSORTS>
+			<INDEXNULLS COMMATEXT=","></INDEXNULLS>
+		</INDEX>
+		<INDEX ID="18647" Name="properties_type_name_iid" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="0" StorageParams="" Comments="">
+			<INDEXCOLUMNS COMMATEXT="iid,property_name,property_type"></INDEXCOLUMNS>
+			<INDEXSORTS COMMATEXT=",,"></INDEXSORTS>
+			<INDEXNULLS COMMATEXT=",,"></INDEXNULLS>
+		</INDEX>
+		<INDEX ID="18648" Name="properties_type_name_string" Unique="0" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="0" StorageParams="" Comments="">
+			<INDEXCOLUMNS COMMATEXT="property_name,property_string,property_type"></INDEXCOLUMNS>
+			<INDEXSORTS COMMATEXT=",,"></INDEXSORTS>
+			<INDEXNULLS COMMATEXT=",,"></INDEXNULLS>
+		</INDEX>
+		<INDEX ID="18649" Name="properties_type_name_number" Unique="0" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="0" StorageParams="" Comments="">
+			<INDEXCOLUMNS COMMATEXT="property_name,property_number,property_type"></INDEXCOLUMNS>
+			<INDEXSORTS COMMATEXT=",,"></INDEXSORTS>
+			<INDEXNULLS COMMATEXT=",,"></INDEXNULLS>
+		</INDEX>
+		<INDEX ID="18650" Name="properties_type_name_iid_string" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="0" StorageParams="" Comments="">
+			<INDEXCOLUMNS COMMATEXT="iid,property_name,property_string,property_type"></INDEXCOLUMNS>
+			<INDEXSORTS COMMATEXT=",,,"></INDEXSORTS>
+			<INDEXNULLS COMMATEXT=",,,"></INDEXNULLS>
+		</INDEX>
+		<INDEX ID="18651" Name="properties_type_name_iid_number" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="0" StorageParams="" Comments="">
+			<INDEXCOLUMNS COMMATEXT="iid,property_name,property_number,property_type"></INDEXCOLUMNS>
+			<INDEXSORTS COMMATEXT=",,,"></INDEXSORTS>
+			<INDEXNULLS COMMATEXT=",,,"></INDEXNULLS>
+		</INDEX>
+		<INDEX ID="18662" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16515" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="iid,property_name"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
@@ -336,11 +366,11 @@
 		<REFERENCE_END ID="16527" />
 	</REFERENCES_END>
 	<CONSTRAINTS>
-		<CONSTRAINT ID="16526" Name="" Kind="2" Expression="" ReferenceIndex="18609" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16526" Name="" Kind="2" Expression="" ReferenceIndex="18675" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="169"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
-		<CONSTRAINT ID="16543" Name="groups_name_administrator" Kind="1" Expression="" ReferenceIndex="18610" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16543" Name="groups_name_administrator" Kind="1" Expression="" ReferenceIndex="18676" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="170,171"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -351,12 +381,12 @@
 			<INDEXSORTS COMMATEXT="\A\A"></INDEXSORTS>
 			<INDEXNULLS COMMATEXT="\A\A"></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18609" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16526" StorageParams="" Comments="">
+		<INDEX ID="18675" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16526" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="gid"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18610" Name="groups_name_administrator_idx_ui" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16543" StorageParams="" Comments="">
+		<INDEX ID="18676" Name="groups_name_administrator_idx_ui" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16543" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="group_name,group_administrator"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
@@ -379,7 +409,7 @@
 		<REFERENCE_END ID="16530" />
 	</REFERENCES_END>
 	<CONSTRAINTS>
-		<CONSTRAINT ID="16528" Name="" Kind="2" Expression="" ReferenceIndex="18612" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16528" Name="" Kind="2" Expression="" ReferenceIndex="18678" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="173,174"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -400,7 +430,7 @@
 			<INDEXSORTS COMMATEXT="\A\A"></INDEXSORTS>
 			<INDEXNULLS COMMATEXT="\A\A"></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18612" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16528" StorageParams="" Comments="">
+		<INDEX ID="18678" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16528" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="gid,uid"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
@@ -424,7 +454,7 @@
 		<REFERENCE_END ID="16534" />
 	</REFERENCES_END>
 	<CONSTRAINTS>
-		<CONSTRAINT ID="16531" Name="" Kind="2" Expression="" ReferenceIndex="18614" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16531" Name="" Kind="2" Expression="" ReferenceIndex="18680" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="176,177"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -440,7 +470,7 @@
 			<INDEXSORTS COMMATEXT="\A\A"></INDEXSORTS>
 			<INDEXNULLS COMMATEXT="\A\A"></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18614" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16531" StorageParams="" Comments="">
+		<INDEX ID="18680" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16531" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="iid,gid"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>
@@ -462,7 +492,7 @@
 		<REFERENCE_END ID="16544" />
 	</REFERENCES_END>
 	<CONSTRAINTS>
-		<CONSTRAINT ID="16535" Name="" Kind="2" Expression="" ReferenceIndex="18615" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
+		<CONSTRAINT ID="16535" Name="" Kind="2" Expression="" ReferenceIndex="18681" FillFactor="" Comments="" TablespaceID="0" Deferrable="0" Method="0">
 			<CONSTRAINTCOLUMNS COMMATEXT="178,179,180"></CONSTRAINTCOLUMNS>
 			<CONSTRAINTOPERATORS COMMATEXT=""></CONSTRAINTOPERATORS>
 		</CONSTRAINT>
@@ -488,7 +518,7 @@
 			<INDEXSORTS COMMATEXT="\A\A"></INDEXSORTS>
 			<INDEXNULLS COMMATEXT="\A\A"></INDEXNULLS>
 		</INDEX>
-		<INDEX ID="18615" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16535" StorageParams="" Comments="">
+		<INDEX ID="18681" Name="_idx_pk" Unique="1" Method="0" Predicate="" TablespaceID="0" ReferenceConstraint="16535" StorageParams="" Comments="">
 			<INDEXCOLUMNS COMMATEXT="iid,gid,uid"></INDEXCOLUMNS>
 			<INDEXSORTS COMMATEXT=""></INDEXSORTS>
 			<INDEXNULLS COMMATEXT=""></INDEXNULLS>

@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2013-11-20 16:44:19
+-- Created on: 2014-01-21 13:24:50
 -- Diagram Version: 
 -- =============================================================================
 
@@ -170,6 +170,49 @@ WITH (
 
 CREATE INDEX "properties_iid" ON "properties" (
 	"iid"
+);
+
+
+CREATE INDEX "properties_type_name" ON "properties" (
+	"property_name", 
+	"property_type"
+);
+
+
+CREATE UNIQUE INDEX "properties_type_name_iid" ON "properties" (
+	"iid", 
+	"property_name", 
+	"property_type"
+);
+
+
+CREATE INDEX "properties_type_name_string" ON "properties" (
+	"property_name", 
+	"property_string", 
+	"property_type"
+);
+
+
+CREATE INDEX "properties_type_name_number" ON "properties" (
+	"property_name", 
+	"property_number", 
+	"property_type"
+);
+
+
+CREATE UNIQUE INDEX "properties_type_name_iid_string" ON "properties" (
+	"iid", 
+	"property_name", 
+	"property_string", 
+	"property_type"
+);
+
+
+CREATE UNIQUE INDEX "properties_type_name_iid_number" ON "properties" (
+	"iid", 
+	"property_name", 
+	"property_number", 
+	"property_type"
 );
 
 
