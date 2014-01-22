@@ -4,7 +4,7 @@
 #                                                                             #
 #    BrainSlices Software                                                     #
 #                                                                             #
-#    Copyright (C) 2012-2013 Jakub M. Kowalski, J. Potworowski                #
+#    Copyright (C) 2012-2014 Jakub M. Kowalski, J. Potworowski                #
 #                                                                             #
 #    This software is free software: you can redistribute it and/or modify    #
 #    it under the terms of the GNU General Public License as published by     #
@@ -54,46 +54,6 @@ class OutlineServer(Server):
     return self.__getOutline(outline)
 
 
-class TileGenerator(object):
-  def __init__(self, tileBase):
-    self.tileBase = tileBase
-
-  def tile(self, request):
-    path = self.tileBase.tile(request)
-    if path:
-      return True, path, "tile.jpg", 'image/jpeg'
-
-    return None
-
-  def source(self, request):
-    path = self.tileBase.source(request)
-    if path:
-      return True, path, 'image_%d.png' % request.id, 'image/png'
-
-    return None
-
-  def info(self, request):
-    data = self.tileBase.info(request)
-    if data:
-      return generateJson(data = unwrapRow(data),
-                          status = data != None,
-                          message = None,
-                          logged = request.session.get('userID') != None)
-
-    return generateJson(status = False,
-                        message = "Image not available in the database."\
-                                  if data is None\
-                                  else "Not enough privileges to access the image.")
-
-  #TODO: remove after tests
-  def _allImages(self, request):
-    uid = request.session.get('userID')
-    data = self.tileBase._allImages(uid)
-    return generateJson(data = data,
-                        status = data != None,
-                        message = None,
-                        logged = uid != None)
-
 #TODO: remove after tests
 class TestImageServer(Server):
   def __init__(self, servicePath):
@@ -118,21 +78,42 @@ class TestImageServer(Server):
 
 class TileServer(Server):
   def __init__(self, tileBase):
-    self.tileGenerator = TileGenerator(tileBase)
+    self.tileBase = tileBase
 
   @serveContent(ImageRequest)
   def __call__(self, request):
-    if request.method == 'tiles':
-      return self.tileGenerator.tile(request)
+    if request.method == 'info.json':
+      data = self.tileBase.info(request)
+      if data:
+        return generateJson(data = unwrapRow(data),
+                            status = data != None,
+                            message = None,
+                            logged = request.session.get('userID') != None)
 
-    elif request.method == 'info.json':
-      return self.tileGenerator.info(request)
+      return generateJson(status = False,
+                          message = "Image not available in the database."\
+                          if data is None\
+                          else "Not enough privileges to access the image.")
+
+    if request.method == 'tiles':
+      path = self.tileBase.tile(request)
+      if path:
+        return True, path, "tile.jpg", 'image/jpeg'
 
     elif request.method == 'image.png':
-      return self.tileGenerator.source(request)
+      path = self.tileBase.source(request)
+      if path:
+        return True, path, 'image_%d.png' % request.id, 'image/png'
+
+    return None
 
   #TODO: remove after tests
   @cherrypy.expose
   @serveContent(Request)
   def _allImages(self, request):
-    return self.tileGenerator._allImages(request)
+    uid = request.session.get('userID')
+    data = self.tileBase._allImages(uid)
+    return generateJson(data = data,
+                        status = data != None,
+                        message = None,
+                        logged = uid != None)
