@@ -75,15 +75,16 @@ def launchImageTiling(iid):
 
 class TileBase(dbBase):
   class SelectBase(object):
-    def getQuery(self):
-      query, cond, data = self._getQuery()
+    @staticmethod
+    def getSelectQuery(*args):
+      _, query, cond, data = reduce(lambda x, y: y.getQuery(x), args, None)
       return ("""
               SELECT tmp0.iid
               FROM %s
               WHERE %s;
-              """ % (query, ' AND '.join(cond)) , data)
+              """ % (' JOIN '.join(query), ' AND '.join(cond)) , data)
 
-    def _getQuery(self):
+    def getQuery(self):
       raise NotImplemented('Abstract class method called.')
 
 
@@ -101,12 +102,12 @@ class TileBase(dbBase):
         #             """ % (IMAGE_STATUS_COMPLETED,
         #                    IMAGE_STATUS_COMPLETED)
         self.cond = """
-                    (%%(tmp)s.status > %d AND (%%(tmp)s.public_image_view OR
-                                          %%(tmp)s.public_image_annotate OR
-                                          %%(tmp)s.public_image_outline)
-                     OR %%(tmp)s.status >= %d AND %%(tmp)s.public_image_edit)
+                    (tmp%%(n)d.status > %d AND (tmp%%(n)s.public_image_view OR
+                                          tmp%%(n)d.public_image_annotate OR
+                                          tmp%%(n)d.public_image_outline)
+                     OR tmp%%(n)d.status >= %d AND tmp%%(n)s.public_image_edit)
                     """ % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_COMPLETED)
-        self.query = 'images AS '
+        self.query = 'images AS tmp%d'
 
       else:
         #self.query = """
@@ -122,35 +123,27 @@ class TileBase(dbBase):
         #             """ % (IMAGE_STATUS_COMPLETED, uid,
         #                    IMAGE_STATUS_COMPLETED, uid, uid)
         self.cond = """
-                    (%%(tmp)s.status > %d AND (%%(tmp)s.public_image_view OR
-                                      %%(tmp)s.public_image_annotate OR
-                                      %%(tmp)s.public_image_outline OR
-                                      %%(tmp)s.uid = %d)
-                     OR %%(tmp)s.status >= %d AND (%%(tmp)s.public_image_edit OR
-                                          %%(tmp)s.owner = %d OR
-                                          %%(tmp)s.uid = %d AND %%(tmp)s.image_edit))
+                    (tmp%%(n)d.status > %d AND (tmp%%(n)s.public_image_view OR
+                                      tmp%%(n)d.public_image_annotate OR
+                                      tmp%%(n)d.public_image_outline OR
+                                      tmp%%(n)d.uid = %d)
+                     OR tmp%%(n)d.status >= %d AND (tmp%%(n)s.public_image_edit OR
+                                          tmp%%(n)d.owner = %d OR
+                                          tmp%%(n)d.uid = %d AND tmp%%(n)s.image_edit))
                     """ % (IMAGE_STATUS_COMPLETED, uid,
                            IMAGE_STATUS_COMPLETED, uid, uid)
-        self.query = '(images LEFT JOIN image_privileges_cache USING (iid)) AS '
+        self.query = '(images LEFT JOIN image_privileges_cache USING (iid)) AS tmp%d'
 
-    def _getQuery(self, n=0):
-      tmp = "tmp%d" % n
-      if self.tail == None:
-        query = self.query + tmp
-        cond = [self.cond % {'tmp': tmp}]
-        data = []
+    def getQuery(self, tail=None):
+      if tail == None:
+        return (1, [self.query % 0], [self.cond % {'n': 0}], [])
 
-      else:
-        subquery, cond, data = self.tail._getQuery(n + 1)
-        query = """
-                %s
-                JOIN %s
-                USING (iid)
-                """ % (self.query + tmp, subquery)
+      n, query, cond, data = tail
 
-        cond.append(self.cond % {'tmp': tmp})
+      query.append(self.query % n + ' USING (uid)')
+      cond.append(self.cond % {'n': n})
 
-      return (query, cond, data)
+      return (n + 1, query, cond, data)
 
   class SelectTag(SelectBase):
     def __init__(self, name, types='t', tail=None):
@@ -159,25 +152,19 @@ class TileBase(dbBase):
       self.cond = [".property_type IN (%s)" % (', '.join("'%s'" % x for x in types)),
                    ".property_name = %s"]
 
-    def _getQuery(self, n=0):
-      tmp = "tmp%d" % n
-      if self.tail == None:
-        query = "properties AS " + tmp
-        cond = [tmp + x for x in self.cond]
-        data = list(self.data)
+    def getQuery(self, tail=None):
+      if tail == None:
+        return (1, ["properties AS tmp0"], ['tmp0' + x for x in self.cond], list(self.data))
 
-      else:
-        subquery, cond, data = self.tail._getQuery(n + 1)
-        query = """
-                properties AS %s
-                JOIN %s
-                USING (iid)
-                """ % (tmp, subquery)
+      
+      n, query, cond, data = tail
 
-        cond.extend(tmp + x for x in self.cond)
-        data.extend(self.data)
+      tmp = 'tmp%d' % n
+      query.append('properties AS ' + tmp + ' USING (uid)')
+      cond.extend(tmp + x for x in self.cond)
+      data.extend(self.data)
 
-      return (query, cond, data)
+      return (n+1, query, cond, data)
 
   class SelectNumber(SelectTag):
     def __init__(self, name, lt=None, eq=None, gt=None, lteq=None, gteq=None,
@@ -190,25 +177,18 @@ class TileBase(dbBase):
                                                       ('<=', lteq),
                                                       ('>=', gteq)] if n != None)
 
-    def _getQuery(self, n=0):
+    def getQuery(self, tail = None):
+      if tail == None:
+        return (1, ["properties AS tmp0"], ['tmp0' + x for x in self.cond], list(self.data))
+
+      n, query, cond, data = tail
+
       tmp = 'tmp%d' % n
-      if self.tail == None:
-        query = "properties AS %s" % tmp
-        cond = [tmp + x for x in self.cond]
-        data = list(self.data)
+      query.append('properties AS ' + tmp + ' USING (uid)')
+      cond.extend(tmp + x for x in self.cond)
+      data.extend(self.data)
 
-      else:
-        subquery, cond, data = self.tail._getQuery(n + 1)
-        query = """
-                properties AS %s
-                JOIN %s
-                USING (iid)
-                """ % (tmp, subquery)
-
-        cond.extend(tmp + x for x in self.cond)
-        data.extend(self.data)
-
-      return (query, cond, data)
+      return (n+1, query, cond, data)
 
   class SelectString(SelectTag):
     def __init__(self, name, eq=None, like=None, similar=None, posix=None,
@@ -223,25 +203,18 @@ class TileBase(dbBase):
       self.cond.extend('.property_number %s %%s' % op for op in cond)
       self.data.extend(data)
 
-    def _getQuery(self, n=0):
+    def getQuery(self, tail = None):
+      if tail == None:
+        return (1, ["properties AS tmp0"], ['tmp0' + x for x in self.cond], list(self.data))
+
+      n, query, cond, data = tail
+
       tmp = 'tmp%d' % n
-      if self.tail == None:
-        query = "properties AS %s" % tmp
-        cond = [tmp + x for x in self.cond]
-        data = list(self.data)
+      query.append('properties AS ' + tmp + ' USING (uid)')
+      cond.extend(tmp + x for x in self.cond)
+      data.extend(self.data)
 
-      else:
-        subquery, cond, data = self.tail._getQuery(n + 1)
-        query = """
-                properties AS %s
-                JOIN %s
-                USING (iid)
-                """ % (tmp, subquery)
-
-        cond.extend(tmp + x for x in self.cond)
-        data.extend(self.data)
-
-      return (query, cond, data)
+      return (n+1, query, cond, data)
 
 
   def __init__(self, db, tileDir, sourceDir):
