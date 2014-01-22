@@ -140,7 +140,7 @@ class TileBase(dbBase):
 
       n, query, cond, data = tail
 
-      query.append(self.query % n + ' USING (uid)')
+      query.append(self.query % n + ' USING (iid)')
       cond.append(self.cond % {'n': n})
 
       return (n + 1, query, cond, data)
@@ -160,7 +160,7 @@ class TileBase(dbBase):
       n, query, cond, data = tail
 
       tmp = 'tmp%d' % n
-      query.append('properties AS ' + tmp + ' USING (uid)')
+      query.append('properties AS ' + tmp + ' USING (iid)')
       cond.extend(tmp + x for x in self.cond)
       data.extend(self.data)
 
@@ -184,7 +184,7 @@ class TileBase(dbBase):
       n, query, cond, data = tail
 
       tmp = 'tmp%d' % n
-      query.append('properties AS ' + tmp + ' USING (uid)')
+      query.append('properties AS ' + tmp + ' USING (iid)')
       cond.extend(tmp + x for x in self.cond)
       data.extend(self.data)
 
@@ -200,7 +200,7 @@ class TileBase(dbBase):
                                                  ('SIMILAR TO', similar),
                                                  ('~', posix)] if s != None])
 
-      self.cond.extend('.property_number %s %%s' % op for op in cond)
+      self.cond.extend('.property_string %s %%s' % op for op in cond)
       self.data.extend(data)
 
     def getQuery(self, tail = None):
@@ -210,7 +210,7 @@ class TileBase(dbBase):
       n, query, cond, data = tail
 
       tmp = 'tmp%d' % n
-      query.append('properties AS ' + tmp + ' USING (uid)')
+      query.append('properties AS ' + tmp + ' USING (iid)')
       cond.extend(tmp + x for x in self.cond)
       data.extend(self.data)
 
