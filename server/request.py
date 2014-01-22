@@ -548,6 +548,11 @@ DeleteImagesRequest = IidsRequestAux.extend('DeleteImagesRequest',
 A class for image deletion.
 """)
 
+GetImagesPropertiesRequest = IidsRequestAux.extend('GetImagesPropertiesRequest',
+"""
+A class for image property querying.
+""")
+
 
 UpdateMetadataRequest = Request.extend('UpdateMetadataRequest',
 """

@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2014-01-21 13:24:50
+-- Created on: 2014-01-22 13:47:12
 -- Diagram Version: 
 -- =============================================================================
 
@@ -157,7 +157,7 @@ CREATE TABLE "properties" (
 	"property_name" text NOT NULL,
 	"property_string" text,
 	"property_number" float8,
-	"property_type" "char",
+	"property_type" "char" NOT NULL,
 	"property_visible" "char",
 	"property_editable" "char",
 	"property_global" bool DEFAULT true,

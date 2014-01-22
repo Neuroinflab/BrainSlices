@@ -52,8 +52,8 @@ class UploadServer(Generator, Server):
   def __init__(self, servicePath, tileBase):
     """
     @type servicePath: str
-    @param templatesPath: A filesystem path to directory containing service
-                          files.
+    @param servicePath: A filesystem path to directory containing service
+                        files.
 
     @type tileBase: L{TileBase}
     @param tileBase: An object supporting image-related manipulations in the

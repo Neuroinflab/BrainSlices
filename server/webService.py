@@ -30,11 +30,13 @@ from cherrypy.lib import static
 from database import db, dbPool
 from userBase import UserBase
 from tileBase import TileBase
+from metaBase import MetaBase
 
 from server import Server, Generator, useTemplate, serveContent
 from uploadServer import UploadServer
 from tileServer import TileServer, TestImageServer, OutlineServer
 from userServer import UserServer
+from metaServer import MetaServer
 
 
 class WebGenerator(Generator):
@@ -66,13 +68,15 @@ class WebService(Server):
 
     tileDir = os.path.join(servicePath, 'tiles')
     sourceDir = os.path.join(servicePath, 'sourceImages')
-    tileBase = TileBase(db, tileDir, sourceDir)
+    tileBase = TileBase(db, dbPool, tileDir, sourceDir)
     userBase = UserBase(db, dbPool)
+    metaBase = MetaBase(db, dbPool)
 
     self.images = TileServer(tileBase)
     self.outlines = OutlineServer(os.path.join(servicePath, 'outlines'))
     self.user = UserServer(servicePath, userBase)
     self.upload = UploadServer(servicePath, tileBase) #TODO: remove servicePath after tests
+    self.meta = MetaServer(metaBase, tileBase, servicePath) # tileBase as privilege manager 
 
     #TODO: remove after tests
     self._testImages = TestImageServer(os.path.join(servicePath, 'testTiles'))

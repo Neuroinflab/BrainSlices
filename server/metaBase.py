@@ -158,11 +158,25 @@ class MetaBase(dbBase):
   def getProperties(self, iid, privileges='a', cursor=None):
     cursor.execute("""
                    SELECT property_name, property_type,
-                          property_number, property_string
+                          property_number, property_string,
+                          property_visible, property_editable
                    FROM properties
                    WHERE iid = %s AND property_visible <= %s;
                    """, (iid, privileges))
-    return dict((n, (pn if t in "fi" else (True if t == 't' else ps)))for n, t, pn, ps in cursor.fetchall())
+    res = {}
+    for n, t, pn, ps, pv, pe in cursor.fetchall():
+      d = {'type': t,
+           'view': pv,
+           'edit': pe}
+      if t in "fi":
+        d['value'] = pn if t == 'f' else int(pn)
+
+      elif t in 'sx':
+        d['value'] = ps
+
+      res[n] = d
+
+    return res
 
   @manageConnection()
   def unsetProperty(self, iid, name, privileges='a', cursor=None, db=None):
