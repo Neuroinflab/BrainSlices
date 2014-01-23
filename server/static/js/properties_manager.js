@@ -283,6 +283,38 @@ var CPropertiesManager = null;
         this.ondestroy();
         this.ondestroy = null;
       }
+    },
+
+    getChanges: function()
+    {
+      var unset = [];
+      for (var name in this.removed)
+      {
+        if (!(name in this.properties))
+        {
+          unset.push(name);
+        }
+      }
+
+      var set = [];
+      for (var name in this.properties)
+      {
+        var property = this.properties[name];
+        if (property.changed || property.new)
+        {
+          var type = property.type;
+          var tmp = {type: type,
+                     name: name,
+                     edit: property.edit,
+                     view: property.view};
+          if (type != 't')
+          {
+            tmp.value = property.value;
+          }
+          set.push(tmp);
+        }
+      }
+      return {set: set, unset: unset};
     }
   }
   
@@ -354,6 +386,20 @@ var CPropertiesManager = null;
       if (!this.hasImage(iid)) return false;
       return this.images[iid].add(name, type, value, onupdate, onremove, $row,
                                   original, edit, view);
+    },
+
+    getChanges: function()
+    {
+      var res = {};
+      for (var iid in this.images)
+      {
+        var changes = this.images[iid].getChanges();
+        if (changes.set.length > 0 || changes.unset.length > 0)
+        {
+          res[iid] = changes;
+        }
+      }
+      return res;
     }
   }
 })(BrainSlices, jQuery)
