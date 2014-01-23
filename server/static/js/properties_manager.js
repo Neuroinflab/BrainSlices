@@ -147,13 +147,14 @@ var CPropertiesManager = null;
   }
 
 
-  function CImageProperties($row, ondestroy)
+  function CImageProperties($row, ondestroy, rowFactory)
   {
     this.properties = {};
     this.removed = {};
     this.$row = $row;
     this.changed = false;
     this.ondestroy = ondestroy;
+		this.rowFactory = rowFactory;
   }
 
 
@@ -167,6 +168,15 @@ var CPropertiesManager = null;
                   edit, view)
     {
       if (this.has(name)) return false;
+
+			if ($row == null && this.rowFactory != null)
+			{
+				var tmp = this.rowFactory(name, type, value, onupdate, onremove,
+				                          original, edit, view);
+				$row = tmp.$row;
+				onupdate = tmp.onupdate;
+				onremove = tmp.onremove;
+			}
 
       if (!original)
       {
@@ -278,6 +288,8 @@ var CPropertiesManager = null;
         this.properties[name].destroy();
       }
 
+			this.rowFactory = null;
+
       if (this.ondestroy)
       {
         this.ondestroy();
@@ -335,11 +347,11 @@ var CPropertiesManager = null;
       return iid in this.images && this.images[iid].has(name);
     },
 
-    addImage: function(iid, $row, ondestroy)
+    addImage: function(iid, $row, ondestroy, rowFactory)
     {
       if (this.hasImage(iid)) return false;
 
-      this.images[iid] = new CImageProperties($row, ondestroy);
+      this.images[iid] = new CImageProperties($row, ondestroy, rowFactory);
       return true;
     },
 

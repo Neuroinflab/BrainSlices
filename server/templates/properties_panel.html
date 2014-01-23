@@ -27,6 +27,127 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        getThumbnail: BrainSlices.gui.getThumbnail,
        CTableManager: BrainSlices.gui.CTableManager})
 {
+  function rowFactory(name, type, value, onupdate, onremove, original, edit, view)
+  {
+    var $li = $('<li></li>');
+    $li.append(name + ': ');
+    var $input = null;
+    if (type != 't')
+    {
+      switch (type)
+      {
+        case 'x':
+          $input = $('<textarea></textarea>');
+          break;
+        case 's':
+          $input = $('<input type="text">');
+          break;
+        case 'i':
+          $input = $('<input type="number" step="1">');
+          break;
+        case 'f':
+          $input = $('<input type="number">');
+      }
+      $input.val(value); // might be a problem with textarea...
+      var thisInstance = this;
+      $input.bind('change',
+                  function()
+                  {
+                    var val = $(this).val();
+                    thisInstance.change(name, val, true);
+                  });
+      $li.append($input);
+    }
+
+    $li.append(' TODO: mark for deletion');
+    if (this.$row != null)
+    {
+      this.$row.find('.propertyList').append($li);
+    }
+    return {$row: $li,
+            onupdate: type != 't' ?
+                      function()
+                      {
+                        $input.val(this.value);
+                        if (onupdate != null)
+                        {
+                          onupdate.call(this);
+                        }
+                      } :
+                      onupdate,
+            onremove: function()
+                      {
+                        $li.remove();
+                        if (onremove)
+                        {
+                          onremove.call(this);
+                        }
+                      }};
+  }
+
+  function makeAddPanel(onsubmit)
+  {
+    var $addPanel = $('<div></div>');
+    var $name = $('<input type="text"></input>');
+    $addPanel.append($name);
+    var $type = $(
+       '<select>' +
+        '<option value="t" selected="selected">Tag</option>' +
+        '<option value="i">Integer</option>' +
+        '<option value="f">Float</option>' +
+        '<option value="s">String</option>' +
+        '<option value="x">Text</option>' +
+       '</select>');
+    $addPanel.append($type);
+    var inputs = {i: $('<input type="number" step="1" value="0" style="display: none;">'),
+                  f: $('<input type="number" value="0" style="display: none;">'),
+                  s: $('<input type="text" style="display: none;">'),
+                  x: $('<textarea style="display: none;"></textarea>')};
+    for (var t in inputs)
+    {
+      $addPanel.append(inputs[t]);
+    }
+
+    $type.bind('change', function()
+               {
+                 var type = $type.val();
+                 for (var t in inputs)
+                 {
+                   if (t == type)
+                   {
+                     inputs[t].show();
+                   }
+                   else
+                   {
+                     inputs[t].hide();
+                   }
+                 }
+               });
+    $addButton = $('<button>Add</button>');
+    $addPanel.append($addButton);
+    $addButton.bind('click', 
+                    function()
+                    {
+                      var name = $name.val().trim();
+                      if (name == '')
+                      {
+                        alert('Property name must be given.');
+                        return;
+                      }
+                      
+
+                      var type = $type.val();
+                      var value = type in inputs ?
+                                  inputs[type].val() :
+                                  null;
+
+                      onsubmit(name, type, value);
+                    });
+    return $addPanel;
+  }
+
+
+  //XXX deprecated
   function makePropertyRow(iid, name, type, value, original, edit, view)
   {
     // propertiesManager is global
@@ -180,92 +301,115 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
                 var $td = $('<td></td>');
                 $row.append($td);
-                var $ul = $('<ul></ul>');
+                var $ul = $('<ul class="propertyList"></ul>');
                 $td.append($ul);
 
                 if (annotate)
                 {
-                  propertiesManager.addImage(iid, $row);
+                  propertiesManager.addImage(iid, $row, null, rowFactory);
                   for (var propertyName in properties)
                   {
                     var property = properties[propertyName];
-                    var $li = makePropertyRow(iid, propertyName,
-                                              property.type,
-                                              property.type != null ?
-                                              property.value :
-                                              null,
-                                              true,
-                                              property.edit,
-                                              property.view);
-                    $ul.append($li);
+                    propertiesManager.add(iid, propertyName, property.type,
+                                          property.type != 't' ?
+                                          property.value :
+                                          null,
+                                          null,
+                                          null,
+                                          null,
+                                          true,
+                                          property.edit,
+                                          property.view);
+
+                    //var $li = makePropertyRow(iid, propertyName,
+                    //                          property.type,
+                    //                          property.type != 't' ?
+                    //                          property.value :
+                    //                          null,
+                    //                          true,
+                    //                          property.edit,
+                    //                          property.view);
+                    //$ul.append($li);
                   }
 
-                  //TODO: use form
-                  var $addPanel = $('<li></li>');
-                  var $name = $('<input type="text"></input>');
-                  $addPanel.append($name);
-                  var $type = $(
-                     '<select>' +
-                      '<option value="t" selected="selected">Tag</option>' +
-                      '<option value="i">Integer</option>' +
-                      '<option value="f">Float</option>' +
-                      '<option value="s">String</option>' +
-                      '<option value="x">Text</option>' +
-                     '</select>');
-                  $addPanel.append($type);
-                  var inputs = {i: $('<input type="number" step="1" value="0" style="display: none;">'),
-                                f: $('<input type="number" value="0" style="display: none;">'),
-                                s: $('<input type="text" style="display: none;">'),
-                                x: $('<textarea style="display: none;"></textarea>')};
-                  for (var t in inputs)
-                  {
-                    $addPanel.append(inputs[t]);
-                  }
+                  ////TODO: use form
+                  //var $addPanel = $('<div></div>');
+                  //var $name = $('<input type="text"></input>');
+                  //$addPanel.append($name);
+                  //var $type = $(
+                  //   '<select>' +
+                  //    '<option value="t" selected="selected">Tag</option>' +
+                  //    '<option value="i">Integer</option>' +
+                  //    '<option value="f">Float</option>' +
+                  //    '<option value="s">String</option>' +
+                  //    '<option value="x">Text</option>' +
+                  //   '</select>');
+                  //$addPanel.append($type);
+                  //var inputs = {i: $('<input type="number" step="1" value="0" style="display: none;">'),
+                  //              f: $('<input type="number" value="0" style="display: none;">'),
+                  //              s: $('<input type="text" style="display: none;">'),
+                  //              x: $('<textarea style="display: none;"></textarea>')};
+                  //for (var t in inputs)
+                  //{
+                  //  $addPanel.append(inputs[t]);
+                  //}
 
-                  $type.bind('change', function()
-                             {
-                               var type = $type.val();
-                               for (var t in inputs)
-                               {
-                                 if (t == type)
-                                 {
-                                   inputs[t].show();
-                                 }
-                                 else
-                                 {
-                                   inputs[t].hide();
-                                 }
-                               }
-                             });
-                  $addButton = $('<button>Add</button>');
-                  $addPanel.append($addButton);
-                  $addButton.bind('click', 
-                                  function()
-                                  {
-                                    var name = $name.val().trim();
-                                    if (name == '')
-                                    {
-                                      alert('Property name must be given.');
-                                      return;
-                                    }
-                                    
-                                    if (propertiesManager.has(iid, name))
-                                    {
-                                      alert('Property already defined.');
-                                      return;
-                                    }
+                  //$type.bind('change', function()
+                  //           {
+                  //             var type = $type.val();
+                  //             for (var t in inputs)
+                  //             {
+                  //               if (t == type)
+                  //               {
+                  //                 inputs[t].show();
+                  //               }
+                  //               else
+                  //               {
+                  //                 inputs[t].hide();
+                  //               }
+                  //             }
+                  //           });
+                  //$addButton = $('<button>Add</button>');
+                  //$addPanel.append($addButton);
+                  //$addButton.bind('click', 
+                  //                function()
+                  //                {
+                  //                  var name = $name.val().trim();
+                  //                  if (name == '')
+                  //                  {
+                  //                    alert('Property name must be given.');
+                  //                    return;
+                  //                  }
+                  //                  
+                  //                  if (propertiesManager.has(iid, name))
+                  //                  {
+                  //                    alert('Property already defined.');
+                  //                    return;
+                  //                  }
 
-                                    var type = $type.val();
-                                    var value = type in inputs ?
-                                                inputs[type].val() :
-                                                null;
+                  //                  var type = $type.val();
+                  //                  var value = type in inputs ?
+                  //                              inputs[type].val() :
+                  //                              null;
 
-                                    var $li = makePropertyRow(iid, name,
-                                                              type, value);
-                                    $addPanel.before($li);
+                  //                  propertiesManager.add(iid, name, type, value);
 
-                                  });
-                  $ul.append($addPanel);
+                  //                  //var $li = makePropertyRow(iid, name,
+                  //                  //                          type, value);
+                  //                  //$addPanel.before($li);
+
+                  //                });
+                  //$td.append($addPanel);
+                  $td.append(makeAddPanel(function(name, type, value)
+                                          {
+                                            if (propertiesManager.has(iid, name))
+                                            {
+                                              alert('Property already defined.');
+                                              return;
+                                            }
+
+                                            propertiesManager.add(iid, name, type, value);
+                                          }));
                 }
                 else
                 {
@@ -341,6 +485,13 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                    });
     tableManager = new CTableManager($('#propertiesPanel table tbody.layerList'));
     propertiesManager = new CPropertiesManager(loginConsole);
+    $('#propertyAddPanel').append(makeAddPanel(function(name, type, value)
+                                  {
+                                    propertiesManager.apply(function()
+                                                            {
+                                                              this.add(name, type, value);
+                                                            });
+                                  }));
   
   });
 }
@@ -382,6 +533,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       </tr>
      </thead>
      <tfoot>
+      <tr>
+       <td colspan="2"></td>
+       <td id="propertyAddPanel"></td>
+       <td></td>
+      </tr>
      </tfoot>
      <tbody class="layerList">
      </tbody>
