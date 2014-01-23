@@ -293,14 +293,19 @@ var CPropertiesManager = null;
   }
 
   CPropertiesManager.prototype = {
-    has: function(iid)
+    hasImage: function(iid)
     {
       return iid in this.images;
     },
 
+    has: function(iid, name)
+    {
+      return iid in this.images && this.images[iid].has(name);
+    },
+
     addImage: function(iid, $row, ondestroy)
     {
-      if (this.has(iid)) return false;
+      if (this.hasImage(iid)) return false;
 
       this.images[iid] = new CImageProperties($row, ondestroy);
       return true;
@@ -308,7 +313,7 @@ var CPropertiesManager = null;
 
     removeImage: function(iid)
     {
-      if (!this.has(iid)) return;
+      if (!this.hasImage(iid)) return;
 
       this.images[iid].destroy();
       delete this.images[iid];
@@ -341,6 +346,14 @@ var CPropertiesManager = null;
                      this.change(name, value, donotupdate);
                    }
                  }, null, iid);
+    },
+
+    add: function(iid, name, type, value, onupdate, onremove, $row, original,
+                  edit, view)
+    {
+      if (!this.hasImage(iid)) return false;
+      return this.images[iid].add(name, type, value, onupdate, onremove, $row,
+                                  original, edit, view);
     }
   }
 })(BrainSlices, jQuery)

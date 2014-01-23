@@ -27,6 +27,54 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        getThumbnail: BrainSlices.gui.getThumbnail,
        CTableManager: BrainSlices.gui.CTableManager})
 {
+  function makePropertyRow(iid, name, type, value, original, edit, view)
+  {
+    // propertiesManager is global
+
+    var $li = $('<li></li>');
+    $li.append(name + ': ');
+    var $input = null;
+    if (type != 't')
+    {
+      switch (type)
+      {
+        case 'x':
+          $input = $('<textarea></textarea>');
+          break;
+        case 's':
+          $input = $('<input type="text">');
+          break;
+        case 'i':
+          $input = $('<input type="number" step="1">');
+          break;
+        case 'f':
+          $input = $('<input type="number">');
+      }
+      $input.val(value); // might be a problem with textarea...
+      $input.bind('change',
+                  function()
+                  {
+                    var val = $(this).val();
+                    propertiesManager.change(iid, name, val, true);
+                  });
+      $li.append($input);
+    }
+
+    propertiesManager.add(iid, name, type, value,
+                          $input != null ?
+                          function()
+                          {
+                            $input.val(this.value);
+                          } : null,
+                          function()
+                          {
+                            this.$row.remove();
+                          },
+                          $li, original, edit, view);
+    $li.append(' TODO: mark for deletion');
+    return $li;
+  }
+
   var listBatches = function()
   {
     // redundant with CFileUploader.listBatches
@@ -138,73 +186,93 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                 if (annotate)
                 {
                   propertiesManager.addImage(iid, $row);
-                }
-
-                for (var propertyName in properties)
-                {
-                  var property = properties[propertyName];
-                  if (annotate)
+                  for (var propertyName in properties)
                   {
-                    // XXX: property privileges are ignored here
-                    (function(propertyName) // XXX closure
-                    {
-                      var $li = $('<li></li>');
-                      $li.append(propertyName + ' ');
-
-
-
-                      var value = null;
-                      var $input = null;
-                      if (property.type != 't')
-                      {
-                        value = property.value;
-                        switch (property.type)
-                        {
-                          case 'x':
-                            $input = $('<textarea></textarea>');
-                            break;
-                          case 's':
-                            $input = $('<input type="text"></input>');
-                            break;
-                          case 'i':
-                            $input = $('<input type="number" step="1"></input>');
-                            break;
-                          case 'f':
-                            $input = $('<input type="number"></input>');
-                        }
-                        $input.val(value); // might be a problem with textarea...
-                        $input.bind('change',
-                                    function()
-                                    {
-                                      var val = $(this).val();
-                                      propertiesManager.change(iid,
-                                                               propertyName,
-                                                               val,
-                                                               true);
-                                    });
-                        $li.append($input);
-                      }
-
-                      propertiesManager.apply(function($input)
-                      {
-                        this.add(propertyName, property.type, value,
-                                 $input != null ?
-                                 function()
-                                 {
-                                   $input.val(this.value);
-                                 } : null,
-                                 function()
-                                 {
-                                   this.$row.remove();
-                                 },
-                                 $li, true, property.edit, property.view);
-                      }, [$input], iid);
-                      $li.append(' TODO: mark for deletion');
-                      $ul.append($li);
-                    })(propertyName); // XXX: END of closure
+                    var property = properties[propertyName];
+                    var $li = makePropertyRow(iid, propertyName,
+                                              property.type,
+                                              property.type != null ?
+                                              property.value :
+                                              null,
+                                              true,
+                                              property.edit,
+                                              property.view);
+                    $ul.append($li);
                   }
-                  else
+
+                  //TODO: use form
+                  var $addPanel = $('<li></li>');
+                  var $name = $('<input type="text"></input>');
+                  $addPanel.append($name);
+                  var $type = $(
+                     '<select>' +
+                      '<option value="t" selected="selected">Tag</option>' +
+                      '<option value="i">Integer</option>' +
+                      '<option value="f">Float</option>' +
+                      '<option value="s">String</option>' +
+                      '<option value="x">Text</option>' +
+                     '</select>');
+                  $addPanel.append($type);
+                  var inputs = {i: $('<input type="number" step="1" value="0" style="display: none;">'),
+                                f: $('<input type="number" value="0" style="display: none;">'),
+                                s: $('<input type="text" style="display: none;">'),
+                                x: $('<textarea style="display: none;"></textarea>')};
+                  for (var t in inputs)
                   {
+                    $addPanel.append(inputs[t]);
+                  }
+
+                  $type.bind('change', function()
+                             {
+                               var type = $type.val();
+                               for (var t in inputs)
+                               {
+                                 if (t == type)
+                                 {
+                                   inputs[t].show();
+                                 }
+                                 else
+                                 {
+                                   inputs[t].hide();
+                                 }
+                               }
+                             });
+                  $addButton = $('<button>Add</button>');
+                  $addPanel.append($addButton);
+                  $addButton.bind('click', 
+                                  function()
+                                  {
+                                    var name = $name.val().trim();
+                                    if (name == '')
+                                    {
+                                      alert('Property name must be given.');
+                                      return;
+                                    }
+                                    
+                                    if (propertiesManager.has(iid, name))
+                                    {
+                                      alert('Property already defined.');
+                                      return;
+                                    }
+
+                                    var type = $type.val();
+                                    var value = type in inputs ?
+                                                inputs[type].val() :
+                                                null;
+
+                                    var $li = makePropertyRow(iid, name,
+                                                              type, value);
+                                    $addPanel.before($li);
+
+                                  });
+                  $ul.append($addPanel);
+                }
+                else
+                {
+                  for (var propertyName in properties)
+                  {
+                    var property = properties[propertyName];
+
                     if (property.type == 't')
                     {
                       $ul.append('<li>'+propertyName+'</li>')
