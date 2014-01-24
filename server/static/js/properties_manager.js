@@ -25,12 +25,35 @@ var CPropertiesManager = null;
 
 (function(BS, $, undefined)
 {
+  function propertyCast(t, v)
+  {
+    switch (t)
+    {
+      case 't':
+        console.warn('an attempt to cast value of a "Tag" type property');
+        return null;
+
+      case 'i':
+        return parseInt(v);
+
+      case 'f':
+        return parseFloat(v);
+
+      default:
+        console.warn('an attempt to cast value of an unknown type property');
+
+      case 'x':
+      case 's':
+        return v;
+    }
+  }
+
   function CProperty(type, value, onupdate, ondestroy, $row, original, edit, view)
   {
     this.type = type;
     if (type != 't')
     {
-      this._value = value;
+      this._value = propertyCast(type, value);
     }
 
     this.onupdate = onupdate;
@@ -103,9 +126,13 @@ var CPropertiesManager = null;
 
     change: function(value, donotupdate)
     {
-      if (this.type == 't') return;
+      if (this.type == 't')
+      {
+        console.warn('an attempt to change "Tag" type property value');
+        return;
+      }
 
-      this.value = value;
+      this.value = propertyCast(this.type, value);
       this.changed = true;
 
       if (!this.new && this.$row != null)
@@ -246,6 +273,11 @@ var CPropertiesManager = null;
         this.properties[name] = property.reset();
       }
 
+      this.notChanged();
+    },
+
+    notChanged: function()
+    {
       this.changed = false;
       if (this.$row != null && this.$row.hasClass('propertyChanged'))
       {
@@ -269,10 +301,51 @@ var CPropertiesManager = null;
         }
       }
 
-      this.changed = false;
-      if (this.$row != null && this.$row.hasClass('propertyChanged'))
+      this.notChanged();
+    },
+
+    accept: function(name, removed)
+    {
+      if (name != null)
       {
-        this.$row.removeClass('propertyChanged');
+        if (removed)
+        {
+          if (name in this.removed)
+          {
+            this.removed[name].destroy();
+            delete this.removed[name];
+          }
+          else
+          {
+            console.warn(name + ' not found in removed properties');
+          }
+        }
+        else
+        {
+          if (name in this.properties)
+          {
+            this.properties[name].accept();
+          }
+          else
+          {
+            console.warn(name + ' not found in properties');
+          }
+        }
+      }
+      else
+      {
+        for (name in this.removed)
+        {
+          this.removed[name].destroy();
+        }
+        this.removed = {};
+
+        for (name in this.properties)
+        {
+          this.properties[name].accept();
+        }
+
+        this.notChanged();
       }
     },
 
@@ -315,18 +388,15 @@ var CPropertiesManager = null;
         if (property.changed || property.new)
         {
           var type = property.type;
-          var tmp = {type: type,
-                     name: name,
-                     edit: property.edit,
-                     view: property.view};
+          var tmp = [name, type, property.view, property.edit];
           if (type != 't')
           {
-            tmp.value = property.value;
+            tmp.push(property.value);
           }
           set.push(tmp);
         }
       }
-      return {set: set, unset: unset};
+      return [unset, set];
     }
   }
   
@@ -402,16 +472,59 @@ var CPropertiesManager = null;
 
     getChanges: function()
     {
-      var res = {};
+      var res = [];
       for (var iid in this.images)
       {
         var changes = this.images[iid].getChanges();
-        if (changes.set.length > 0 || changes.unset.length > 0)
+        if (changes[0].length + changes[1].length > 0)
         {
-          res[iid] = changes;
+          changes.unshift(parseInt(iid));
+          res.push(changes);
         }
       }
       return res;
+    },
+
+    save: function()
+    {
+      var changes = this.getChanges();
+      if (changes.length == 0) return;
+
+      var images = this.images;
+      this.ajaxProvider.ajax('/meta/changeImagesProperties',
+        function(response)
+        {
+          var data = response.data;
+          for (var iid in data)
+          {
+            if (iid in images)
+            {
+              var image = images[iid];
+              var result = data[iid];
+              if (result == true)
+              {
+                image.accept();
+              }
+              else
+              {
+                for (var j = 0; j < 2; j++)
+                {
+                  // j == 0 for removal
+                  var success = result[j];
+                  for (var i = 0; i < success.length; i++)
+                  {
+                    image.accept(success[i], j == 0);
+                  }
+                }
+              }
+            }
+            else
+            {
+              console.warn(iid + ' not found in images');
+            }
+          }
+        },
+        {changes: JSON.stringify(changes)});
     }
   }
 })(BrainSlices, jQuery)

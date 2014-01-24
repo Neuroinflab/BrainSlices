@@ -26,8 +26,11 @@ import cherrypy
 from cherrypy.lib import static
 import json
 
-from request import GetImagesPropertiesRequest
+from request import GetImagesPropertiesRequest, ChangeImagesPropertiesRequest
 from server import generateJson, Generator, Server, serveContent, useTemplate
+
+from tileBase import NO_PRIVILEGE
+
 
 # privileges: o - owner, g - group, a - all # e - 'every logged' ;-)
 
@@ -61,4 +64,44 @@ class MetaServer(Generator, Server):
                         status = True,
                         message = None,
                         logged = uid != None)
+
+  @cherrypy.expose
+  @serveContent(ChangeImagesPropertiesRequest)
+  def changeImagesProperties(self, request):
+    uid = request.session.get('userID')
+    result = []
+    for iid, pUnset, pSet in request.changes:
+      privileges = self.tileBase.getPrivileges(iid, uid)
+      if privileges == None or privileges[3] == NO_PRIVILEGE:
+        continue
+
+      success = True
+      successfullUnset = []
+      for name in pUnset:
+        if self.metaBase.unsetProperty(iid, name):
+          successfullUnset.append(name)
+
+        else:
+          success = False
+
+      successfullSet =[]
+      for prop in pSet:
+        n, t, v, e = prop[:4]
+        if self.metaBase.setProperty(iid, n, prop[4] if t != 't' else None,
+                                     t, v, e):
+          
+          successfullSet.append(n)
+
+        else:
+          success = False
+
+      result.append((iid, True if success else (successfullUnset,
+                                                successfullSet)))
+
+    return generateJson(data = dict(result),
+                        status = True,
+                        message = None,
+                        logged = uid != None)
+
+
 

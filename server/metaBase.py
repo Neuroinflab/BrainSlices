@@ -26,7 +26,8 @@ import psycopg2
 import psycopg2.extras
 
 from database import provideCursor, provideConnection, manageConnection,\
-                     dbBase, TransactionRollbackError, FOREIGN_KEY_VIOLATION
+                     dbBase, TransactionRollbackError, FOREIGN_KEY_VIOLATION,\
+                     UNIQUE_VIOLATION
 
 from tileBase import IMAGE_STATUS_COMPLETED
 
@@ -185,6 +186,7 @@ class MetaBase(dbBase):
                    WHERE iid = %s AND property_name = %s
                          AND property_editable <= %s;
                    """, (iid, name, privileges))
+    return cursor.rowcount == 1
 
   @provideConnection()
   def setProperty(self, iid, name, value=None, t=None,
@@ -214,8 +216,8 @@ class MetaBase(dbBase):
                """
       insert = """
                INSERT INTO properties(property_visible, property_editable,
-                                      iid, property_name)
-               VALUES (%s, %s, %s, %s);
+                                      iid, property_name, property_type)
+               VALUES (%s, %s, %s, %s, 't');
                """
       data = (visible, editable, iid, name)
 

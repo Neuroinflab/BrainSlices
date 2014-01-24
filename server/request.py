@@ -29,6 +29,8 @@ from datetime import datetime
 import re
 from math import isnan, isinf
 
+import json
+
 LOGIN_RE = re.compile('^[a-z0-9-+_.*]+$')
 #EMAIL_RE = re.compile('^((\w|-)+(\.(\w|-)+)*@(\w|-)+(\.(\w|-)+)+)$')
 EMAIL_RE = re.compile('^.+@.+$')
@@ -297,13 +299,13 @@ class Request(object):
     parents = (cls,) + tuple(parents)
     path = []
     required = set([required]) \
-               if isinstance(required, (str, unicode)) \
+               if isinstance(required, basestring) \
                else set(required)
     secret = set([secret]) \
-             if isinstance(secret, (str, unicode)) \
+             if isinstance(secret, basestring) \
              else set(secret)
     binary = set([binary]) \
-             if isinstance(binary, (str, unicode)) \
+             if isinstance(binary, basestring) \
              else set(binary)
     optionalTmp = {}
     atomsTmp = {}
@@ -548,11 +550,6 @@ DeleteImagesRequest = IidsRequestAux.extend('DeleteImagesRequest',
 A class for image deletion.
 """)
 
-GetImagesPropertiesRequest = IidsRequestAux.extend('GetImagesPropertiesRequest',
-"""
-A class for image property querying.
-""")
-
 
 UpdateMetadataRequest = Request.extend('UpdateMetadataRequest',
 """
@@ -700,6 +697,63 @@ class TileRequest(ImageRequest):
 
     return self.valid
 
+
+
+GetImagesPropertiesRequest = IidsRequestAux.extend('GetImagesPropertiesRequest',
+"""
+A class for image property querying.
+""")
+
+_validType = frozenset('tfisx')
+_valueType = {'s': basestring,
+              'x': basestring,
+              'i': int,
+              'f': float}
+_validPriv = frozenset('ago')
+def _ValidAlterImagesProperties(changes):
+  try:
+    if not isinstance(changes, list) or len(changes) == 0:
+      return False
+
+    for altered in changes:
+      if not isinstance(altered, list) or len(altered) != 3:
+        return False
+
+      iid, pUnset, pSet = altered
+      if not isinstance(iid, int) or iid <= 0 or not isinstance(pUnset, list)\
+        or not isinstance(pSet, list) or len(pUnset) + len(pSet) == 0\
+        or any(not isinstance(x, basestring) for x in pUnset):
+        return False
+
+      for prop in pSet:
+        if not isinstance(prop, list) or len(prop) not in (4, 5):
+          return False
+
+        n, t, v, e = prop[:4]
+        if not isinstance(n, basestring) or not t in _validType\
+          or not e in _validPriv or not v in _validPriv:
+          return False
+
+        if t == 't':
+          if len(prop) != 4:
+            return False
+
+        else:
+          if not isinstance(prop[4], _valueType[t]):
+            return False
+
+    return True
+
+  except:
+    return False
+
+
+ChangeImagesPropertiesRequest = Request.extend('ChangeImagesPropertiesRequest',
+"""
+A class for image property altering.
+""",
+required = 'changes',
+atoms = {'changes': (_ValidAlterImagesProperties, json.loads)})
 
 #---------------------------------------------------------------------------
 #----------------------------   TESTS   ------------------------------------
