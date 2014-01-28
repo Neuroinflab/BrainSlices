@@ -84,7 +84,7 @@ class WebService(Server):
     Server.__init__(self)
 
   @cherrypy.expose()
-  @serveContent()
+  @serveContent() #ignores any parameters -> a very nice behaviour for my purpose :-)
   def index(self):
     return self.generator.index()
 

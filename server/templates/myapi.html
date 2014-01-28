@@ -145,9 +145,102 @@ var images = null;
 var stacks = null;
 var layerManager = null;
 
+var state = {iids: [],
+             nx: 1,
+             ny: 1,
+             loaded: [[]],
+             focus: [[0., 0., 1.]],
+             display: 'matrix',
+             sync: true};
+
+function getState(search)
+{
+  var params = search.split('&');
+  var state = {};
+  for (var i = 0; i < params.length; i++)
+  {
+    var pair = params[i].split('=');
+    if (pair.length != 2)
+    {
+      console.warn('Invalid argument: ' + params[i]);
+      continue;
+    }
+
+    var argName = decodeURIComponent(pair[0]);
+    var argVal = decodeURIComponent(pair[1]);
+
+    if (argName in state)
+    {
+      console.warn('Multiple definition of argument: ' + argName);
+      continue;
+    }
+
+    switch (argName)
+    {
+      case 'iids':
+        state.iids = $.map(argVal.split(','), function(x){return parseInt(x);});
+        break;
+
+      case 'nx':
+      case 'ny':
+        state[argName] = parseInt(argVal);
+        break;
+
+      case 'loaded':
+        var loaded = argVal.split(',');
+        for (var j = 0; j < loaded.length; j++)
+        {
+          loaded[j] = $.map(loaded[j].split(':'), function(x){return parseInt(x);});
+        }
+        state.loaded = loaded;
+        break;
+
+      case 'focus':
+        var focus = argVal.split(',');
+        for (var j = 0; j < focus.length; j++)
+        {
+          focus[j] = $.map(focus[j].split(':'), function(x){return parseFloat(x);})
+        }
+        state.focus = focus;
+        break;
+
+      case 'display':
+        state.display = argVal;
+        break;
+
+      case 'sync':
+        state.sync = argVal[0] == 'y';
+        break;
+        
+      default:
+        console.warn('Unknown argument: ' + argName);
+    }
+  }
+
+  //TODO: state validation
+  return state;
+}
+
 $(function()
 {
   //$('#logoutLink').hide();
+  if (window.location.search != '')
+  {
+    var tmp = getState(window.location.search.substring(1));
+    for (var name in tmp)
+    {
+      state[name] = tmp[name];
+    }
+  }
+
+  if (state.sync)
+  {
+    $('#controlPanel [name="synchronization"]').attr("checked", "checked");
+  }
+  else
+  {
+    $('#controlPanel [name="synchronization"]').removeAttr("checked");
+  }
 
   loginConsole = new BrainSlices.ajax.CUserPanel($('#userPanel'),
                                                  $('#loginLink'),
@@ -156,12 +249,14 @@ $(function()
 
 /**********************************************/
 
-  var nx = 1;
-  var ny = 1;
+  var nx = state.nx;
+  var ny = state.ny;
+  $('#nx').val(state.nx);
+  $('#ny').val(state.ny);
 
   images = new BrainSlices.api.CImageManager(loginConsole);
   stacks = new BrainSlices.api.CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
-                                          $('#controlPanel [name="synchronization"]:checked').length != 0,
+                                          state.sync,
                                           $('#controlPanel [name="zoom"]').val(),
                                           $('#x').val(), $('#y').val(),
                                           null, null,
@@ -169,6 +264,34 @@ $(function()
                                           '/static/gfx', images);
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
                                    loginConsole, false, false, false, true);
+
+
+  var loadImageI = 0;
+  function loadNextImage()
+  {
+    if (loadImageI < state.iids.length)
+    {
+      var id = state.iids[loadImageI];
+      layerManager.addTileLayer(id, '/images/' + id,
+                                state.iids.length - loadImageI - 1,
+                                '#'+id, null, null, loadNextImage);
+      loadImageI++;
+    }
+    else
+    {
+      for (var i = 0; i < state.loaded.length; i++)
+      {
+        var loaded = state.loaded[i];
+        for (var j = 0; j < loaded.length; j++)
+        {
+          var id = 'i' + state.iids[loaded[j]]; // XXX UUGLY CODE
+          layerManager.load(i, id);
+        }
+      }
+    }
+  }
+
+  loadNextImage();
 
 //  $('#sliceDisplay').bind('mousemove', processMove);
 //  $('#sliceDisplay').bind('mousedown', startMove);

@@ -68,7 +68,7 @@ with ({gui: BrainSlices.gui})
   }
 
   CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
-                                                  info, update)
+                                                  info, update, onsuccess)
   {
     if (update == null) update = true;
 
@@ -100,7 +100,7 @@ with ({gui: BrainSlices.gui})
 
     // making the layer-related row
     var $row =  $('<tr></tr>');
-    var $drag = $('<td draggable="true">' + label + '</td>');
+    var $drag = $('<td draggable="true">' + label + '</td>');//XXX .append(label) ?
     //XXX: might be quite useful combined with single image view
     var url = document.createElement('a');
     url.href = path;
@@ -268,6 +268,7 @@ with ({gui: BrainSlices.gui})
                           // since image was not assigned
                           if (image.onUpdate) image.onUpdate();
                           thisInstance.updateOrder();
+                          if (onsuccess) onsuccess();
                         } :
                         function(image)
                         {
@@ -275,6 +276,7 @@ with ({gui: BrainSlices.gui})
                           // trigger onUpdate (unable to do while loading
                           // since image was not assigned
                           if (image.onUpdate) image.onUpdate();
+                          if (onsuccess) onsuccess();
                         };
 
     if (info == null)
@@ -387,7 +389,8 @@ with ({gui: BrainSlices.gui})
     this.stacks.loadLayerByStack(stack, imageId);
     if (doNotUpdateIface != true)
     {
-      this.loadButtons[imageId][stack.syncId()].$cb.attr('checked', 'checked');
+      //this.loadButtons[imageId][stack.syncId()].$cb.attr('checked', 'checked');
+      this.layers[imageId].loadButtons[stack.syncId()].$cb.attr('checked', 'checked');
     }
   }
 
