@@ -174,15 +174,15 @@ var CPropertiesManager = null;
   }
 
 
-  function CImageProperties($row, ondestroy, rowFactory, rowFactoryData)
+  function CImageProperties($row, ondestroy, autoAdd, autoAddData)
   {
     this.properties = {};
     this.removed = {};
     this.$row = $row;
     this.changed = false;
     this.ondestroy = ondestroy;
-    this.rowFactory = rowFactory;
-    this.rowFactoryData = rowFactoryData;
+    this.autoAdd = autoAdd;
+    this.autoAddData = autoAddData;
   }
 
 
@@ -353,8 +353,8 @@ var CPropertiesManager = null;
         this.properties[name].destroy();
       }
 
-      this.rowFactory = null;
-      this.rowFactoryData = null;
+      this.autoAdd = null;
+      this.autoAddData = null;
 
       if (this.ondestroy)
       {
@@ -410,12 +410,12 @@ var CPropertiesManager = null;
       return iid in this.images && this.images[iid].has(name);
     },
 
-    addImage: function(iid, $row, ondestroy, rowFactory, rowFactoryData)
+    addImage: function(iid, $row, ondestroy, autoAdd, autoAddData)
     {
       if (this.hasImage(iid)) return false;
 
-      this.images[iid] = new CImageProperties($row, ondestroy, rowFactory,
-                                              rowFactoryData);
+      this.images[iid] = new CImageProperties($row, ondestroy, autoAdd,
+                                              autoAddData);
       return true;
     },
 
@@ -468,14 +468,24 @@ var CPropertiesManager = null;
                       view, extraData)
     {
       if (!this.hasImage(iid)) return false;
-      return this.images[iid].rowFactory(name, type, value, onupdate, onremove,
-                                         original, edit, view, extraData);
+      return this.images[iid].autoAdd(name, type, value, onupdate, onremove,
+                                      original, edit, view, extraData);
     },
 
     remove: function(iid, name)
     {
       if (!this.hasImage(iid)) return;
-      this.images[iid].remove(iid);
+      this.images[iid].remove(name);
+    },
+
+    reset: function(iid)
+    {
+      this.apply(function()
+                 {
+                   this.reset();
+                 },
+                 null,
+                 iid);
     },
 
     getChanges: function()

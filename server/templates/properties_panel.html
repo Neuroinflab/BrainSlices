@@ -30,7 +30,29 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
   var deletionMode = 1;
   var deletionOrders = {};
 
-  function rowFactory(name, type, value, onupdate, onremove, original, edit, view)
+  function deleteProperties()
+  {
+    for (var iid in deletionOrders)
+    {
+      var properties = deletionOrders[iid];
+      var toDismiss = {};
+      for (var name in properties)
+      {
+        if (properties[name])
+        {
+          toDismiss[name] = true;
+        }
+      }
+
+      for (var name in toDismiss)
+      {
+        propertiesManager.remove(iid, name);
+        console.debug(iid + ' ' + name);
+      }
+    }
+  }
+
+  function autoAdd(name, type, value, onupdate, onremove, original, edit, view)
   {
     var $li = $('<li></li>');
     $li.append(name + ': ');
@@ -78,7 +100,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       case 1:
         var $remButton = $('<input type="checkbox">');
         $li.append($remButton);
-        var deletionOrdersIID = this.rowFactoryData;
+        var deletionOrdersIID = this.autoAddData;
         deletionOrdersIID[name] = false;
         $remButton.bind('change',
                         function()
@@ -317,7 +339,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                                                delete deletionOrders[iid];
                                              } :
                                              null,
-                                             rowFactory,
+                                             autoAdd,
                                              deletionMode == 1 ?
                                              deletionOrders[iid] :
                                              null);
@@ -429,7 +451,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      {
        propertiesManager.apply(function()
                                {
-                                 this.add(name, type, value);
+                                 this.autoAdd(name, type, value);
                                });
      },
      Set: function(name, type, value)
@@ -440,11 +462,15 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
          {
            this.remove(name);
          }
-         this.add(name, type, value);
+         this.autoAdd(name, type, value);
        });
      }
     }));
-  
+ 
+    if (deletionMode == 1)
+    {
+      $('#removeProperties').click(deleteProperties).show();
+    }
   });
 }
 
@@ -488,7 +514,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       <tr>
        <td colspan="2"></td>
        <td id="propertyAddPanel"></td>
-       <td><button onclick="propertiesManager.save();">Save</button></td>
+       <td>
+        <button onclick="propertiesManager.save();">Save</button>
+        <button id="removeProperties" style="display: none;">Delete</button>
+        <button onclick="propertiesManager.reset();">Reset</button>
+       </td>
       </tr>
      </tfoot>
      <tbody class="layerList">
