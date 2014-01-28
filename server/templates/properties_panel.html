@@ -30,6 +30,61 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
   var deletionMode = 1;
   var deletionOrders = {};
 
+  function CAutoAddTriggers(data)
+  {
+    this.data = data;
+  };
+  CAutoAddTriggers.prototype = {
+    update: function()
+    {
+      if ('$input' in this.data)
+      {
+        this.data.$input.val(this.value);
+      }
+    },
+
+    destroy: function()
+    {
+      this.data.$row.remove();
+    },
+
+    new: function()
+    {
+      if (this.new)
+      {
+        this.data.$row.addClass('propertyNew');
+      }
+      else if (this.data.$row.hasClass('propertyNew'))
+      {
+        this.data.$row.removeClass('propertyNew');
+      }
+    },
+
+    change: function()
+    {
+      if (this.changed)
+      {
+        this.data.$row.addClass('propertyChanged');
+      }
+      else if (this.data.$row.hasClass('propertyChanged'))
+      {
+        this.data.$row.removeClass('propertyChanged');
+      }
+    },
+
+    remove: function()
+    {
+      if (this.removed)
+      {
+        this.data.$row.hide();
+      }
+      else
+      {
+        this.data.$row.show();
+      }
+    }
+  };
+
   function deleteProperties()
   {
     for (var iid in deletionOrders)
@@ -53,13 +108,16 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     }
   }
 
-  function autoAdd(name, type, value, onupdate, onremove, original, edit, view)
+  function autoAdd(name, type, value, original, edit, view, extraData)
   {
+    var thisInstance = this;
     var $li = $('<li></li>');
-    $li.append(name + ': ');
+    $li.append(name);
+    var data = {$row: $li};
     var $input = null;
     if (type != 't')
     {
+      $li.append(': ');
       switch (type)
       {
         case 'x':
@@ -75,7 +133,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
           $input = $('<input type="number">');
       }
       $input.val(value); // might be a problem with textarea...
-      var thisInstance = this;
+
       $input.bind('change',
                   function()
                   {
@@ -83,7 +141,9 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                     thisInstance.change(name, val, true);
                   });
       $li.append($input);
+      data.$input = $input;
     }
+
 
     switch (deletionMode)
     {
@@ -108,6 +168,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                         {
                           deletionOrdersIID[name] = this.checked;
                         });
+        data.$remButton = $remButton;
         break;
 
     }
@@ -118,25 +179,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     }
 
     return this.add(name, type, value,
-                    type != 't' ?
-                    function()
-                    {
-                      $input.val(this.value);
-                      if (onupdate != null)
-                      {
-                        onupdate.call(this);
-                      }
-                    } :
-                    onupdate,
-                    function()
-                     {
-                       $li.remove();
-                       if (onremove)
-                       {
-                         onremove.call(this);
-                       }
-                     },
-                    $li,
+                    new CAutoAddTriggers(data),
                     original, edit, view);
   }
 
@@ -350,8 +393,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                     propertiesManager.autoAdd(iid, propertyName, property.type,
                                               property.type != 't' ?
                                               property.value :
-                                              null,
-                                              null,
                                               null,
                                               true,
                                               property.edit,

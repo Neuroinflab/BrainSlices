@@ -48,7 +48,13 @@ var CPropertiesManager = null;
     }
   }
 
-  function CProperty(type, value, onupdate, ondestroy, $row, original, edit, view)
+  function getTrigger(name, triggers)
+  {
+    if (triggers == null) return null;
+    return name in triggers ? triggers[name] : null;
+  }
+
+  function CProperty(type, value, triggers, original, edit, view)
   {
     this.type = type;
     if (type != 't')
@@ -56,15 +62,18 @@ var CPropertiesManager = null;
       this._value = propertyCast(type, value);
     }
 
-    this.onupdate = onupdate;
-    this.ondestroy = ondestroy;
-    this.$row = $row;
+    this.onremove = getTrigger('remove', triggers);
+    this.onupdate = getTrigger('update', triggers);
+    this.ondestroy = getTrigger('destroy', triggers);
+    this.onchange = getTrigger('change', triggers);
+    this.onnew = getTrigger('new', triggers);
+    this.data = getTrigger('data', triggers);
     this.new = !original;
     this.removed = false;
 
-    if (!original && $row != null)
+    if (this.onnew)
     {
-      $row.addClass('propertyNew');
+      this.onnew();
     }
 
     this._edit = edit == undefined ? 'a' : edit;
@@ -76,9 +85,9 @@ var CPropertiesManager = null;
     reset: function()
     {
       this.changed = false;
-      if (this.$row != null && this.$row.hasClass('propertyChanged'))
+      if (this.onchange)
       {
-        this.$row.removeClass('propertyChanged');
+        this.onchange();
       }
 
       if (this.type != 't')
@@ -88,29 +97,29 @@ var CPropertiesManager = null;
       this.edit = this._edit;
       this.view = this._view;
 
-      if (this.onupdate != null)
+      if (this.onupdate)
       {
         this.onupdate();
       }
 
       if (this.removed)
       {
-        if (this.$row != null)
-        {
-          this.$row.show();
-        }
         this.removed = false;
+        if (this.onremove)
+        {
+          this.onremove();
+        }
       }
       return this;
     },
 
     remove: function()
     {
-      if (!this.removed && this.$row != null)
+      if (!this.removed && this.onremove)
       {
-        this.$row.hide();
+        this.removed = true;
+        this.onremove();
       }
-      this.removed = true;
       return this;
     },
 
@@ -119,9 +128,13 @@ var CPropertiesManager = null;
       if (this.ondestroy != null)
       {
         this.ondestroy();
-        this.ondestroy = null;
       }
+      this.onremove = null;
       this.onupdate = null;
+      this.ondestroy = null;
+      this.onchange = null;
+      this.onnew = null;
+      this.data = null;
     },
 
     change: function(value, donotupdate)
@@ -135,12 +148,12 @@ var CPropertiesManager = null;
       this.value = propertyCast(this.type, value);
       this.changed = true;
 
-      if (!this.new && this.$row != null)
+      if (!this.new && this.onchange)
       {
-        this.$row.addClass('propertyChanged');
+        this.onchange();
       }
 
-      if (!donotupdate && this.onupdate != null)
+      if (!donotupdate && this.onupdate)
       {
         this.onupdate();
       }
@@ -151,17 +164,14 @@ var CPropertiesManager = null;
       this.changed = false;
       this.new = false;
 
-      if (this.$row != null)
+      if (this.onchange)
       {
-        if (this.$row.hasClass('propertyChanged'))
-        {
-          this.$row.removeClass('propertyChanged');
-        }
+        this.onchange();
+      }
 
-        if (this.$row.hasClass('propertyNew'))
-        {
-          this.$row.removeClass('propertyNew');
-        }
+      if (this.onnew)
+      {
+        this.onnew();
       }
 
       if (this.type != 't')
@@ -192,8 +202,7 @@ var CPropertiesManager = null;
       return name in this.properties; // && !this.properties[name].removed;
     },
   
-    add: function(name, type, value, onupdate, onremove, $row, original,
-                  edit, view)
+    add: function(name, type, value, triggers, original, edit, view)
     {
       if (this.has(name)) return false;
 
@@ -206,8 +215,8 @@ var CPropertiesManager = null;
         }
       }
 
-      this.properties[name] = new CProperty(type, value, onupdate, onremove,
-                                            $row, original, edit, view);
+      this.properties[name] = new CProperty(type, value, triggers, original,
+                                            edit, view);
       return true;
     },
 
@@ -456,20 +465,18 @@ var CPropertiesManager = null;
                  }, null, iid);
     },
 
-    add: function(iid, name, type, value, onupdate, onremove, $row, original,
-                  edit, view)
+    add: function(iid, name, type, value, triggers, original, edit, view)
     {
       if (!this.hasImage(iid)) return false;
-      return this.images[iid].add(name, type, value, onupdate, onremove, $row,
-                                  original, edit, view);
+      return this.images[iid].add(name, type, value, triggers, original,
+                                  edit, view);
     },
 
-    autoAdd: function(iid, name, type, value, onupdate, onremove, original, edit,
-                      view, extraData)
+    autoAdd: function(iid, name, type, value, original, edit, view, extraData)
     {
       if (!this.hasImage(iid)) return false;
-      return this.images[iid].autoAdd(name, type, value, onupdate, onremove,
-                                      original, edit, view, extraData);
+      return this.images[iid].autoAdd(name, type, value, original, edit, view,
+                                      extraData);
     },
 
     remove: function(iid, name)
