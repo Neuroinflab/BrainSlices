@@ -28,8 +28,36 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        CTableManager: BrainSlices.gui.CTableManager})
 {
   var deletionMode = 1;
-  var deletionOrders = {};
+  var deletionOrders = {}; //a very global object
 
+  function CImageAddTriggers(data)
+  {
+    this.data = data;
+  };
+  CImageAddTriggers.prototype = {
+    add: autoAdd,
+    destroy: function()
+    {
+      if (deletionMode == 1)
+      {
+        delete deletionOrders[this.data.iid];
+      }
+    },
+
+    change: function()
+    {
+      if (this.changed)
+      {
+        this.data.$row.addClass('propertyChanged');
+      }
+      else if (this.data.$row.hasClass('propertyChanged'))
+      {
+        this.data.$row.removeClass('propertyChanged');
+      }
+    }
+  };
+
+  //XXX used by function autoAdd used by CImageAddTriggers -_-
   function CAutoAddTriggers(data)
   {
     this.data = data;
@@ -169,7 +197,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       case 1:
         var $remButton = $('<input type="checkbox">');
         $li.append($remButton);
-        var deletionOrdersIID = this.autoAddData;
+        var deletionOrdersIID = this.data.deletionOrders;
         $remButton.bind('change',
                         function()
                         {
@@ -189,10 +217,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
     }
 
-    if (this.$row != null)
-    {
-      this.$row.find('.propertyList').append($li);
-    }
+    this.data.$list.append($li);
 
     return this.add(name, type, value,
                     new CAutoAddTriggers(data),
@@ -376,7 +401,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
                 var $td = $('<td></td>');
                 $row.append($td);
-                var $ul = $('<ul class="propertyList"></ul>');
+                var $ul = $('<ul></ul>');
                 $td.append($ul);
 
                 if (annotate)
@@ -392,17 +417,14 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                       deletionOrders[iid] = {}; 
                     }
                   }
-                  propertiesManager.addImage(iid, $row,
-                                             deletionMode == 1 ?
-                                             function()
-                                             {
-                                               delete deletionOrders[iid];
-                                             } :
-                                             null,
-                                             autoAdd,
-                                             deletionMode == 1 ?
-                                             deletionOrders[iid] :
-                                             null);
+                  var data4image = {$row: $row,
+                                    $list: $ul};
+                  if (deletionMode == 1)
+                  {
+                    data4image.deletionOrders = deletionOrders[iid];
+                    data4image.iid = iid;
+                  }
+                  propertiesManager.addImage(iid, new CImageAddTriggers(data4image));
                   for (var propertyName in properties)
                   {
                     var property = properties[propertyName];
