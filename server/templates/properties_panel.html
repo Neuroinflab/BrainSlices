@@ -46,6 +46,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     destroy: function()
     {
       this.data.$row.remove();
+      if (deletionMode == 1 && this.data.name in this.data.deletionOrders)
+      {
+        // shall cause no error even if iterating over deletionOrders
+        delete this.data.deletionOrders[this.data.name];
+      }
     },
 
     new: function()
@@ -77,10 +82,21 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       if (this.removed)
       {
         this.data.$row.hide();
+        if (deletionMode == 1)
+        {
+          // shall cause no error even if iterating over deletionOrders
+          delete this.data.deletionOrders[this.data.name];
+        }
       }
       else
       {
         this.data.$row.show();
+        if (deletionMode == 1)
+        {
+          //XXX: test for an attribute presence?
+          this.data.$remButton.removeAttr('checked');
+          //this.data.deletionOrders[this.data.name] = false; // shall not exist
+        }
       }
     }
   };
@@ -90,20 +106,12 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     for (var iid in deletionOrders)
     {
       var properties = deletionOrders[iid];
-      var toDismiss = {};
       for (var name in properties)
       {
         if (properties[name])
         {
-          toDismiss[name] = true;
-          properties[name] = false;
+          propertiesManager.remove(iid, name); // IS SAFE :-)
         }
-      }
-
-      for (var name in toDismiss)
-      {
-        propertiesManager.remove(iid, name);
-        console.debug(iid + ' ' + name);
       }
     }
   }
@@ -162,13 +170,21 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         var $remButton = $('<input type="checkbox">');
         $li.append($remButton);
         var deletionOrdersIID = this.autoAddData;
-        deletionOrdersIID[name] = false;
         $remButton.bind('change',
                         function()
                         {
-                          deletionOrdersIID[name] = this.checked;
+                          if (this.checked)
+                          {
+                            deletionOrdersIID[name] = true;
+                          }
+                          else if (name in deletionOrdersIID)
+                          {
+                            delete deletionOrdersIID[name];
+                          }
                         });
         data.$remButton = $remButton;
+        data.name = name;
+        data.deletionOrders = deletionOrdersIID;
         break;
 
     }
@@ -493,7 +509,10 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      {
        propertiesManager.apply(function()
                                {
-                                 this.autoAdd(name, type, value);
+                                 if (!this.has(name))
+                                 {
+                                   this.autoAdd(name, type, value);
+                                 }
                                });
      },
      Set: function(name, type, value)
