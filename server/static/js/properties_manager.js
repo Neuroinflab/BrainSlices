@@ -174,14 +174,15 @@ var CPropertiesManager = null;
   }
 
 
-  function CImageProperties($row, ondestroy, rowFactory)
+  function CImageProperties($row, ondestroy, rowFactory, rowFactoryData)
   {
     this.properties = {};
     this.removed = {};
     this.$row = $row;
     this.changed = false;
     this.ondestroy = ondestroy;
-		this.rowFactory = rowFactory;
+    this.rowFactory = rowFactory;
+    this.rowFactoryData = rowFactoryData;
   }
 
 
@@ -195,15 +196,6 @@ var CPropertiesManager = null;
                   edit, view)
     {
       if (this.has(name)) return false;
-
-			if ($row == null && this.rowFactory != null)
-			{
-				var tmp = this.rowFactory(name, type, value, onupdate, onremove,
-				                          original, edit, view);
-				$row = tmp.$row;
-				onupdate = tmp.onupdate;
-				onremove = tmp.onremove;
-			}
 
       if (!original)
       {
@@ -361,7 +353,8 @@ var CPropertiesManager = null;
         this.properties[name].destroy();
       }
 
-			this.rowFactory = null;
+      this.rowFactory = null;
+      this.rowFactoryData = null;
 
       if (this.ondestroy)
       {
@@ -417,11 +410,12 @@ var CPropertiesManager = null;
       return iid in this.images && this.images[iid].has(name);
     },
 
-    addImage: function(iid, $row, ondestroy, rowFactory)
+    addImage: function(iid, $row, ondestroy, rowFactory, rowFactoryData)
     {
       if (this.hasImage(iid)) return false;
 
-      this.images[iid] = new CImageProperties($row, ondestroy, rowFactory);
+      this.images[iid] = new CImageProperties($row, ondestroy, rowFactory,
+                                              rowFactoryData);
       return true;
     },
 
@@ -468,6 +462,20 @@ var CPropertiesManager = null;
       if (!this.hasImage(iid)) return false;
       return this.images[iid].add(name, type, value, onupdate, onremove, $row,
                                   original, edit, view);
+    },
+
+    autoAdd: function(iid, name, type, value, onupdate, onremove, original, edit,
+                      view, extraData)
+    {
+      if (!this.hasImage(iid)) return false;
+      return this.images[iid].rowFactory(name, type, value, onupdate, onremove,
+                                         original, edit, view, extraData);
+    },
+
+    remove: function(iid, name)
+    {
+      if (!this.hasImage(iid)) return;
+      this.images[iid].remove(iid);
     },
 
     getChanges: function()
