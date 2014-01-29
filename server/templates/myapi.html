@@ -202,37 +202,109 @@ function getState(search)
         break;
 
       case 'shape':
-        state[argName] = $.map(argVal.split(','), function(x){return parseInt(x);});
+        var shape = argVal.split(',');
+        if (shape.length != 2 || isNaN(shape[0]) || isNaN(shape[1]))
+        {
+          console.warn('Invalid shape: ' + argVal);
+          continue;
+        }
+        shape[0] = parseInt(shape[0]);
+        shape[1] = parseInt(shape[1]);
+        if (isNaN(shape[0]) || isNaN(shape[1]) || shape[0] < 1 || shape[1] < 1)
+        {
+          console.warn('Invalid shape (int): ' + argVal);
+          continue;
+        }
+        state.shape = shape;
         break;
 
       case 'loaded':
         var loaded = argVal.split(',');
         for (var j = 0; j < loaded.length; j++)
         {
-          loaded[j] = $.map(loaded[j].split(':'), function(x){return parseInt(x);});
+          var tmp = loaded[j].split(':');
+          for (var k = 0; k < tmp.length; k++)
+          {
+            if (isNaN(tmp[k]))
+            {
+              console.warn('Invalid loaded: ' + tmp[k]);
+              tmp = null;
+              break;
+            }
+            tmp[k] = parseInt(tmp[k]);
+            if (isNaN(tmp[k]) || tmp[k] < 0)
+            {
+              console.warn('Invalid loaded (int): ' + tmp[k]);
+              tmp = null;
+              break;
+            }
+          }
+          if (tmp == null)
+          {
+            loaded = null;
+            break;
+          }
+          loaded[j] = tmp;
         }
+        if (loaded == null) continue;
         state.loaded = loaded;
         break;
 
       case 'focus':
         var focus = argVal.split(',');
+        if (focus.length == 0)
+        {
+          console.warn('Invalid focus');
+          continue;
+        }
         for (var j = 0; j < focus.length; j++)
         {
-          focus[j] = $.map(focus[j].split(':'), function(x){return parseFloat(x);})
+          var pair = focus[j].split(':');
+          if (pair.length != 2 || isNaN(pair[0]) || isNaN(pair[1]))
+          {
+            console.warn('Invalid focus: ' + focus[j]);
+            focus = null;
+            break;
+          }
+          pair = [parseFloat(pair[0]), parseFloat(pair[1])];
+          if (isNaN(pair[0]) || isNaN(pair[1]))
+          {
+            console.warn('Invalid focus (NaN): ' + focus[j]);
+            focus = null;
+            break;
+          }
+          focus[j] = pair;
         }
+        if (focus == null) continue;
         state.focus = focus;
         break;
 
       case 'display':
+        if (argVal != 'matrix' && argVal != 'serial')
+        {
+          console.warn('Invalid display: ' + argVal);
+          continue;
+        }
         state.display = argVal;
         break;
 
       case 'zoom':
-        state.zoom = parseFloat(argVal);
+        var zoom = parseFloat(argVal);
+        if (isNaN(argVal) || isNaN(zoom))
+        {
+          console.warn('Invalid zoom: ' + argVal);
+          continue;
+        }
+        state.zoom = zoom;
         break;
 
       case 'sync':
-        state.sync = argVal[0] == 'y';
+        if (argVal != 'y' && argVal != 'n')
+        {
+          console.warn('Invalid sync: ' + argVal);
+          continue;
+        }
+        state.sync = argVal == 'y';
         break;
         
       default:
@@ -240,7 +312,43 @@ function getState(search)
     }
   }
 
-  //TODO: state validation
+  var n = 'shape' in state ? state.shape[0] * state.shape[1] : 1;
+  if ('focus' in state)
+  {
+    if (state.focus.length > n)
+    {
+      console.warn('Invalid focus (len)');
+      delete state.focus;
+    }
+  }
+
+  if ('loaded' in state)
+  {
+    if (state.loaded.length > n || !('iids' in state))
+    {
+      console.warn('Invalid loaded (len)');
+      delete state.loaded;
+    }
+    else
+    {
+      var niids = state.iids.length;
+      for (var i = 0; i < state.loaded.length; i++)
+      {
+        var loaded = state.loaded[i];
+        for (var j = 0; j < loaded.length; j++)
+        {
+          if (loaded[j] >= niids)
+          {
+            console.warn('Invalid loaded (val)');
+            delete state.loaded;
+            loaded = null;
+            break;
+          }
+        }
+        if (loaded == null) break;
+      }
+    }
+  }
   return state;
 }
 
