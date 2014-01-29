@@ -68,7 +68,7 @@ with ({gui: BrainSlices.gui})
   }
 
   CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
-                                                  info, update, onsuccess)
+                                                  info, update, onsuccess, md5)
   {
     if (update == null) update = true;
 
@@ -268,6 +268,10 @@ with ({gui: BrainSlices.gui})
                           // since image was not assigned
                           if (image.onUpdate) image.onUpdate();
                           thisInstance.updateOrder();
+                          if (md5 != null && md5 != image.info.md5)
+                          {
+                            alert('Checksum mismatch for IID ' + image.info.iid);
+                          }
                           if (onsuccess) onsuccess();
                         } :
                         function(image)
@@ -276,6 +280,10 @@ with ({gui: BrainSlices.gui})
                           // trigger onUpdate (unable to do while loading
                           // since image was not assigned
                           if (image.onUpdate) image.onUpdate();
+                          if (md5 != null && md5 != image.info.md5)
+                          {
+                            alert('Checksum mismatch for IID ' + image.info.iid);
+                          }
                           if (onsuccess) onsuccess();
                         };
 
@@ -290,6 +298,30 @@ with ({gui: BrainSlices.gui})
     }
     // onSuccess shall update interface and z-indices
     return id;
+  }
+
+  CLayerManager.prototype.getState = function()
+  {
+    var state = this.stacks.getState();
+    var iids = this.tableManager.getOrder();
+    var id2ord = {};
+    for (var i = 0; i < iids.length; i++)
+    {
+      var id = iids[i];
+      id2ord[id] = i;
+      var info = this.images.getCachedImage(id).info;
+      iids[i] = [info.iid, info.md5];
+    }
+    state.iids = iids;
+    for (var i = 0; i < state.loaded.length; i++)
+    {
+      state.loaded[i] = $.map(state.loaded[i],
+                              function (id)
+                              {
+                                return id2ord[id];
+                              });
+    }
+    return state;
   }
 
   CLayerManager.prototype.updateOrder = function()

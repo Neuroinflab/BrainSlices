@@ -183,6 +183,31 @@
     
     api.CSynchronizedStacksDisplay.prototype =
     {
+      getState:
+      function()
+      {
+        var state = {shape: [this.nx, this.ny],
+                     zoom: this.zoom,
+                     display: this.width == null ? 'matrix' : 'serial',
+                     sync: this.synchronize};
+        var focus = [];
+        var loaded = [];
+        for (var i = 0; i < this.stacks.length; i++)
+        {
+          var stack = this.stacks[i];
+          var ids = [];
+          for (var id in stack.layers)
+          {
+            ids.push(id);
+          }
+          focus.push([stack.focusPointX, stack.focusPointY]);
+          loaded.push(ids);
+        }
+        state.focus = focus;
+        state.loaded = loaded;
+        return state;
+      },
+
       syncStart:
       function()
       {
@@ -212,7 +237,8 @@
         var idMax = this.stacks.length; //this.nx * this.ny;
         this.nx = parseInt(nx);
         this.ny = parseInt(ny);
-      
+     
+        this.width = width;
         if (width == null)
         {
           this.$display.css({'overflow-x': 'hidden'});

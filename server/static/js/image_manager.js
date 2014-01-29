@@ -491,7 +491,13 @@
     {
       BrainSlices.api.CLayerStack.prototype.loadFromCache = function(cache, id, quality)
       {
-        this.loadLayer(id, cache.getImageLoader(id), null, null, quality);
+        var loader = cache.getImageLoader(id);
+        if (loader == null)
+        {
+          console.warn('id: ' + id + ' not found in cache');
+          return;
+        }
+        this.loadLayer(id, loader, null, null, quality);
       }
     }
   }

@@ -146,8 +146,7 @@ var stacks = null;
 var layerManager = null;
 
 var state = {iids: [],
-             nx: 1,
-             ny: 1,
+             shape: [1, 1],
              loaded: [[]],
              focus: [[0., 0.]],
              display: 'matrix',
@@ -179,12 +178,31 @@ function getState(search)
     switch (argName)
     {
       case 'iids':
-        state.iids = $.map(argVal.split(','), function(x){return parseInt(x);});
+        var iids = [];
+        var tmp = argVal.split(',');
+        for (var i = 0; i < tmp.length; i++)
+        {
+          var pair = tmp[i].split(':');
+          if (pair.length != 2)
+          {
+            console.warn('Invalid iid in iids: ' + iids[i]);
+            continue;
+          }
+
+          var iid = parseInt(pair[0]);
+          if (isNaN(pair[0]) || isNaN(iid)) // applied to the case iid[0] is '' etc.
+          {
+            console.warn('Invalid iid (NaN) in iids: ' + iids[i]);
+            continue;
+          }
+
+          iids.push([iid, pair[1]]);
+        }
+        state.iids = iids;
         break;
 
-      case 'nx':
-      case 'ny':
-        state[argName] = parseInt(argVal);
+      case 'shape':
+        state[argName] = $.map(argVal.split(','), function(x){return parseInt(x);});
         break;
 
       case 'loaded':
@@ -247,10 +265,10 @@ $(function()
 
 /**********************************************/
 
-  var nx = state.nx;
-  var ny = state.ny;
-  $('#nx').val(state.nx);
-  $('#ny').val(state.ny);
+  var nx = state.shape[0];
+  var ny = state.shape[1];
+  $('#nx').val(nx);
+  $('#ny').val(ny);
   $('#x').val(state.focus[0][0]);
   $('#y').val(state.focus[0][1]);
 
@@ -263,6 +281,11 @@ $(function()
                                           $('#controlPanel'),
                                           '/static/gfx', images);
   stacks.updateZoomPanel();
+  if (state.display == 'serial') // != 'matrix'
+  {
+    stacks.rearrange(nx, ny, parseInt(Math.max(100, 66 * nx / ny)) + '%');
+  }
+
   for (var i = 0; i < state.focus.length; i++)
   {
     stacks.setFocusPoint(state.focus[i][0], state.focus[i][1], i);
@@ -287,10 +310,12 @@ $(function()
   {
     if (loadImageI < state.iids.length)
     {
-      var id = state.iids[loadImageI];
+      var pair = state.iids[loadImageI];
+      var id = pair[0];
       layerManager.addTileLayer(id, '/images/' + id,
                                 state.iids.length - loadImageI - 1,
-                                '#'+id, null, null, loadNextImage);
+                                '#'+id, null, null, loadNextImage,
+                                pair[1]);
       loadImageI++;
     }
     else
@@ -300,7 +325,7 @@ $(function()
         var loaded = state.loaded[i];
         for (var j = 0; j < loaded.length; j++)
         {
-          var id = 'i' + state.iids[loaded[j]]; // XXX UUGLY CODE
+          var id = 'i' + state.iids[loaded[j]][0]; // XXX UUGLY CODE
           layerManager.load(i, id);
         }
       }
