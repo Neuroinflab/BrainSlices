@@ -307,7 +307,7 @@
       },
 
       cacheTiledImage:
-      function(id, path, onSuccess, onUpdate, $row, zIndex)
+      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid)
       {
         var thisInstance = this;
         this.ajaxProvider.ajax(path + '/info.json',
@@ -315,14 +315,26 @@
                                {
                                  if (data.status)
                                  {
-                                   thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, onUpdate, $row, zIndex);
+                                   if (isValid == null || isValid(data.data))
+                                   {
+                                     thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, onUpdate, $row, zIndex);
+                                   }
                                  }
                                  else
                                  {
-                                   alert(data.message);
+                                   if (onFailure)
+                                   {
+                                     onFailure(data.message);
+                                   }
+                                   else
+                                   {
+                                     alert(data.message);
+                                   }
                                  }
                                },
                                null,
+                               onFailure != null ?
+                               BS.ajax.customErrorHandler(onFailure) :
                                null,
                                'GET');
 

@@ -168,6 +168,22 @@ var BrainSlices = {
       console.error('Status ' + xhr.status + ', ' + errorThrown);
       console.error('Response text: ' + xhr.responseText);
       alert(errormsg);
+    },
+
+    customErrorHandler: function(onFailure)
+    {
+      return function(xhr, textStatus, errorThrown)
+      {
+        var errormsg = "Server returned error:\n";
+        errormsg += "Ready state :" + xhr.readyState + "\n";
+        errormsg += "Status " + xhr.status + ", " + errorThrown + "\n";
+        //errormsg += "Response text" + xhr.responseText
+        console.error('Server returned error:');
+        console.error('Ready state:' + xhr.readyState);
+        console.error('Status ' + xhr.status + ', ' + errorThrown);
+        console.error('Response text: ' + xhr.responseText);
+        onFailure(errormsg);
+      }
     }
   },
 

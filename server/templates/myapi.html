@@ -180,19 +180,19 @@ function getState(search)
       case 'iids':
         var iids = [];
         var tmp = argVal.split(',');
-        for (var i = 0; i < tmp.length; i++)
+        for (var j = 0; j < tmp.length; j++)
         {
-          var pair = tmp[i].split(':');
+          var pair = tmp[j].split(':');
           if (pair.length != 2)
           {
-            console.warn('Invalid iid in iids: ' + iids[i]);
+            console.warn('Invalid iid in iids: ' + tmp[i]);
             continue;
           }
 
           var iid = parseInt(pair[0]);
           if (isNaN(pair[0]) || isNaN(iid)) // applied to the case iid[0] is '' etc.
           {
-            console.warn('Invalid iid (NaN) in iids: ' + iids[i]);
+            console.warn('Invalid iid (NaN) in iids: ' + tmp[i]);
             continue;
           }
 
@@ -306,17 +306,37 @@ $(function()
 
 
   var loadImageI = 0;
+  var loadedImages = [];
   function loadNextImage()
   {
     if (loadImageI < state.iids.length)
     {
-      var pair = state.iids[loadImageI];
+      var imageI = loadImageI++;
+      var pair = state.iids[imageI];
       var id = pair[0];
-      layerManager.addTileLayer(id, '/images/' + id,
-                                state.iids.length - loadImageI - 1,
-                                '#'+id, null, null, loadNextImage,
-                                pair[1]);
-      loadImageI++;
+      var md5 = pair[1].toLowerCase();
+
+      id = layerManager.addTileLayer(id, '/images/' + id,
+                                     state.iids.length - imageI - 1,
+                                     '#'+id, null, null, loadNextImage,
+                                     function(msg)
+                                     {
+                                       alert(msg);
+                                       loadedImages[imageI] = null;
+                                       loadNextImage();
+                                     },
+                                     function(info)
+                                     {
+                                       if (info.md5.toLowerCase() != md5)
+                                       {
+                                         alert('Image of iid ' + info.iid + ' has been changed.')
+                                         loadedImages[imageI] = null;
+                                         loadNextImage();
+                                         return false;
+                                       }
+                                       return true;
+                                     });
+      loadedImages.push(id);
     }
     else
     {
@@ -325,8 +345,11 @@ $(function()
         var loaded = state.loaded[i];
         for (var j = 0; j < loaded.length; j++)
         {
-          var id = 'i' + state.iids[loaded[j]][0]; // XXX UUGLY CODE
-          layerManager.load(i, id);
+          var id = loadedImages[loaded[j]];
+          if (id != null)
+          {
+            layerManager.load(i, id);
+          }
         }
       }
     }

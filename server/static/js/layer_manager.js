@@ -68,7 +68,8 @@ with ({gui: BrainSlices.gui})
   }
 
   CLayerManager.prototype.addTileLayer = function(imageId, path, zIndex, label,
-                                                  info, update, onsuccess, md5)
+                                                  info, update, onsuccess,
+                                                  onfailure, isvalid)
   {
     if (update == null) update = true;
 
@@ -201,12 +202,6 @@ with ({gui: BrainSlices.gui})
     {
       layer.$rem = $('<button>Remove</button>');
 
-      onRemove = function()
-      {
-        var id = layer.id;
-        thisInstance.removeLayer(id);
-      };
-
       layer.$rem.bind('click', function()
       {
         //var z = layer.z;
@@ -268,10 +263,6 @@ with ({gui: BrainSlices.gui})
                           // since image was not assigned
                           if (image.onUpdate) image.onUpdate();
                           thisInstance.updateOrder();
-                          if (md5 != null && md5 != image.info.md5)
-                          {
-                            alert('Checksum mismatch for IID ' + image.info.iid);
-                          }
                           if (onsuccess) onsuccess();
                         } :
                         function(image)
@@ -280,21 +271,34 @@ with ({gui: BrainSlices.gui})
                           // trigger onUpdate (unable to do while loading
                           // since image was not assigned
                           if (image.onUpdate) image.onUpdate();
-                          if (md5 != null && md5 != image.info.md5)
-                          {
-                            alert('Checksum mismatch for IID ' + image.info.iid);
-                          }
                           if (onsuccess) onsuccess();
                         };
 
     if (info == null)
     {
-      this.images.cacheTiledImage(id, path, finishCaching, onUpdate, $row);
+      this.images.cacheTiledImage(id, path, finishCaching, onUpdate, $row, null,
+                                  onfailure, isvalid == null ? null :
+                                  function(info)
+                                  {
+                                    if (!isvalid(info))
+                                    {
+                                      thisInstance.removeLayer(id);
+                                      return false;
+                                    }
+                                    return true;
+                                  });
     }
     else
     {
-      this.images.cacheTiledImageOffline(id, path, info, finishCaching, onUpdate,
-                                         $row);
+      if (isvalid != null && !isvalid(info))
+      {
+        thisInstance.removeLayer(id);
+      }
+      else
+      {
+        this.images.cacheTiledImageOffline(id, path, info, finishCaching, onUpdate,
+                                           $row);
+      }
     }
     // onSuccess shall update interface and z-indices
     return id;
