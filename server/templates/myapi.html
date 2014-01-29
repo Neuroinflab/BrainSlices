@@ -149,9 +149,10 @@ var state = {iids: [],
              nx: 1,
              ny: 1,
              loaded: [[]],
-             focus: [[0., 0., 1.]],
+             focus: [[0., 0.]],
              display: 'matrix',
-             sync: true};
+             sync: true,
+             zoom: 10.};
 
 function getState(search)
 {
@@ -208,6 +209,10 @@ function getState(search)
         state.display = argVal;
         break;
 
+      case 'zoom':
+        state.zoom = parseFloat(argVal);
+        break;
+
       case 'sync':
         state.sync = argVal[0] == 'y';
         break;
@@ -233,14 +238,7 @@ $(function()
     }
   }
 
-  if (state.sync)
-  {
-    $('#controlPanel [name="synchronization"]').attr("checked", "checked");
-  }
-  else
-  {
-    $('#controlPanel [name="synchronization"]').removeAttr("checked");
-  }
+
 
   loginConsole = new BrainSlices.ajax.CUserPanel($('#userPanel'),
                                                  $('#loginLink'),
@@ -253,15 +251,33 @@ $(function()
   var ny = state.ny;
   $('#nx').val(state.nx);
   $('#ny').val(state.ny);
+  $('#x').val(state.focus[0][0]);
+  $('#y').val(state.focus[0][1]);
 
   images = new BrainSlices.api.CImageManager(loginConsole);
   stacks = new BrainSlices.api.CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
-                                          state.sync,
-                                          $('#controlPanel [name="zoom"]').val(),
-                                          $('#x').val(), $('#y').val(),
+                                          false, state.zoom,
+                                          state.focus[0][0],
+                                          state.focus[0][1],
                                           null, null,
                                           $('#controlPanel'),
                                           '/static/gfx', images);
+  stacks.updateZoomPanel();
+  for (var i = 0; i < state.focus.length; i++)
+  {
+    stacks.setFocusPoint(state.focus[i][0], state.focus[i][1], i);
+  }
+
+  if (state.sync)
+  {
+    stacks.syncStart();
+    $('#controlPanel [name="synchronization"]').attr("checked", "checked");
+  }
+  else
+  {
+    $('#controlPanel [name="synchronization"]').removeAttr("checked");
+  }
+
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
                                    loginConsole, false, false, false, true);
 
