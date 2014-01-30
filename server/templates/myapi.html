@@ -153,7 +153,7 @@ var state = {iids: [],
              sync: true,
              zoom: 10.};
 
-function getState(search)
+function parseState(search)
 {
   var params = search.split('&');
   var state = {};
@@ -177,6 +177,44 @@ function getState(search)
 
     switch (argName)
     {
+      case 'display':
+        if (argVal != 'matrix' && argVal != 'serial')
+        {
+          console.warn('Invalid display: ' + argVal);
+          continue;
+        }
+        state.display = argVal;
+        break;
+
+      case 'focus':
+        var focus = argVal.split(',');
+        if (focus.length == 0)
+        {
+          console.warn('Invalid focus');
+          continue;
+        }
+        for (var j = 0; j < focus.length; j++)
+        {
+          var pair = focus[j].split(':');
+          if (pair.length != 2 || isNaN(pair[0]) || isNaN(pair[1]))
+          {
+            console.warn('Invalid focus: ' + focus[j]);
+            focus = null;
+            break;
+          }
+          pair = [parseFloat(pair[0]), parseFloat(pair[1])];
+          if (isNaN(pair[0]) || isNaN(pair[1]))
+          {
+            console.warn('Invalid focus (NaN): ' + focus[j]);
+            focus = null;
+            break;
+          }
+          focus[j] = pair;
+        }
+        if (focus == null) continue;
+        state.focus = focus;
+        break;
+
       case 'iids':
         var iids = [];
         var tmp = argVal.split(',');
@@ -190,7 +228,7 @@ function getState(search)
           }
 
           var iid = parseInt(pair[0]);
-          if (isNaN(pair[0]) || isNaN(iid)) // applied to the case iid[0] is '' etc.
+          if (isNaN(pair[0]) || isNaN(iid) || iid < 1) // applied to the case iid[0] is '' etc.
           {
             console.warn('Invalid iid (NaN) in iids: ' + tmp[i]);
             continue;
@@ -199,23 +237,6 @@ function getState(search)
           iids.push([iid, pair[1]]);
         }
         state.iids = iids;
-        break;
-
-      case 'shape':
-        var shape = argVal.split(',');
-        if (shape.length != 2 || isNaN(shape[0]) || isNaN(shape[1]))
-        {
-          console.warn('Invalid shape: ' + argVal);
-          continue;
-        }
-        shape[0] = parseInt(shape[0]);
-        shape[1] = parseInt(shape[1]);
-        if (isNaN(shape[0]) || isNaN(shape[1]) || shape[0] < 1 || shape[1] < 1)
-        {
-          console.warn('Invalid shape (int): ' + argVal);
-          continue;
-        }
-        state.shape = shape;
         break;
 
       case 'loaded':
@@ -250,52 +271,39 @@ function getState(search)
         state.loaded = loaded;
         break;
 
-      case 'focus':
-        var focus = argVal.split(',');
-        if (focus.length == 0)
+      case 'shape':
+        var shape = argVal.split(',');
+        if (shape.length != 2 || isNaN(shape[0]) || isNaN(shape[1]))
         {
-          console.warn('Invalid focus');
+          console.warn('Invalid shape: ' + argVal);
           continue;
         }
-        for (var j = 0; j < focus.length; j++)
+        shape[0] = parseInt(shape[0]);
+        shape[1] = parseInt(shape[1]);
+        if (isNaN(shape[0]) || isNaN(shape[1]) || shape[0] < 1 || shape[1] < 1)
         {
-          var pair = focus[j].split(':');
-          if (pair.length != 2 || isNaN(pair[0]) || isNaN(pair[1]))
-          {
-            console.warn('Invalid focus: ' + focus[j]);
-            focus = null;
-            break;
-          }
-          pair = [parseFloat(pair[0]), parseFloat(pair[1])];
-          if (isNaN(pair[0]) || isNaN(pair[1]))
-          {
-            console.warn('Invalid focus (NaN): ' + focus[j]);
-            focus = null;
-            break;
-          }
-          focus[j] = pair;
+          console.warn('Invalid shape (int): ' + argVal);
+          continue;
         }
-        if (focus == null) continue;
-        state.focus = focus;
+        state.shape = shape;
         break;
 
-      case 'display':
-        if (argVal != 'matrix' && argVal != 'serial')
+      case 'show':
+        var pair = argVal.split(':');
+        if (pair.length != 2 || isNaN(pair[0]))
         {
-          console.warn('Invalid display: ' + argVal);
+          console.warn('Invalid show: ' + argVal);
           continue;
         }
-        state.display = argVal;
-        break;
-
-      case 'zoom':
-        var zoom = parseFloat(argVal);
-        if (isNaN(argVal) || isNaN(zoom))
+        var iid = parseInt(pair[0]);
+        if (isNaN(iid) || iid < 1)
         {
-          console.warn('Invalid zoom: ' + argVal);
+          console.warn('Invalid iid: ' + iid);
           continue;
         }
-        state.zoom = zoom;
+        state.iids = [[iid, pair[1]]];
+        state.loaded = [[0]];
+        state.shape = [1, 1];
         break;
 
       case 'sync':
@@ -307,6 +315,16 @@ function getState(search)
         state.sync = argVal == 'y';
         break;
         
+      case 'zoom':
+        var zoom = parseFloat(argVal);
+        if (isNaN(argVal) || isNaN(zoom))
+        {
+          console.warn('Invalid zoom: ' + argVal);
+          continue;
+        }
+        state.zoom = zoom;
+        break;
+
       default:
         console.warn('Unknown argument: ' + argName);
     }
@@ -357,7 +375,7 @@ $(function()
   //$('#logoutLink').hide();
   if (window.location.search != '')
   {
-    var tmp = getState(window.location.search.substring(1));
+    var tmp = parseState(window.location.search.substring(1));
     for (var name in tmp)
     {
       state[name] = tmp[name];
