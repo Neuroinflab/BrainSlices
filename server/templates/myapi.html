@@ -653,14 +653,17 @@ $(function()
         var $tr = $('<tr><td>#' + iid + '</td></tr>');
         var $td = $('<td></td>');
         $tr.append($td);
-        $td.append(BrainSlices.gui.getThumbnail(iid));
+        // XXX: a hack :-/
+        $td.append(BrainSlices.gui.getThumbnail(iid, 1, 1, 60, 60));
         $td = $('<td></td>');
         $tr.append($td);
-        var $ul = $('<dl></dl>');
+        var $ul = $('<ul></ul>');
         $td.append($ul);
         for (var name in properties)
         {
-          $ul.append('<dt>' + name + '</dt>');
+          var $li = $('<li>' + name + '</li>');
+          $ul.append($li);
+          //$ul.append('<dt>' + name + '</dt>');
           var property = properties[name];
           switch (property.type)
           {
@@ -668,7 +671,8 @@ $(function()
             case 'x':
             case 'f':
             case 'i':
-              $ul.append('<dd>' + property.value + '</dd>');
+              //$ul.append('<dd>' + property.value + '</dd>');
+              $li.append(': ' + property.value);
               break;
 
             case 't':
@@ -684,9 +688,9 @@ $(function()
         {
           $button.click(function()
           {
-            var z = $('#z').val();
+            //var z = $('#z').val();
             //global
-            layerManager.addTileLayer(iid, '/images/' + iid, z, '#' + iid); 
+            layerManager.addTileLayer(iid, '/images/' + iid, null, '#' + iid); 
           });
         })(iid);
         $tbody.append($tr);
