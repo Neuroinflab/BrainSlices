@@ -31,25 +31,26 @@ from database import provideCursor, provideConnection, manageConnection,\
 
 from tileBase import IMAGE_STATUS_COMPLETED
 
+def unwrapProperties(type_, number, string, visible, editable):
+  prop = {'type': type_,
+          'view': visible,
+          'edit': editable}
+  if type_ in 'fi':
+    prop['value'] = number if type_ == 'f' else int(number)
+
+  elif type_ in 'sx':
+    prop['value'] = string
+
+  return prop
 
 class MetaBase(dbBase):
   class SelectBase(object):
-    @staticmethod
-    def getSelectQuery(*args):
-      _, query, cond, data = reduce(lambda x, y: y.getQuery(x), args, None)
-      return ("""
-              SELECT tmp0.iid
-              FROM %s
-              WHERE %s;
-              """ % (' JOIN '.join(query), ' AND '.join(cond)) , data)
-
     def getQuery(self):
       raise NotImplemented('Abstract class method called.')
 
 
   class SelectVisible(SelectBase):
-    def __init__(self, uid=None, tail=None):
-      self.tail = tail
+    def __init__(self, uid=None):
       if uid == None:
         self.cond = """
                     (tmp%%(n)d.status > %d AND (tmp%%(n)s.public_image_view OR
@@ -84,9 +85,8 @@ class MetaBase(dbBase):
       return (n + 1, query, cond, data)
 
   class SelectTag(SelectBase):
-    def __init__(self, name, types='t', tail=None):
+    def __init__(self, name, types='t'):
       self.data = [name]
-      self.tail = tail
       self.cond = [".property_type IN (%s)" % (', '.join("'%s'" % x for x in types)),
                    ".property_name = %s"]
 
@@ -105,9 +105,8 @@ class MetaBase(dbBase):
       return (n+1, query, cond, data)
 
   class SelectNumber(SelectTag):
-    def __init__(self, name, lt=None, eq=None, gt=None, lteq=None, gteq=None,
-                 tail=None):
-      super(self.__class__, self).__init__(name, tail=tail, types='if')
+    def __init__(self, name, lt=None, eq=None, gt=None, lteq=None, gteq=None):
+      super(self.__class__, self).__init__(name, types='if')
 
       self.cond.extend('.property_number %s %d' % (op, n) for (op, n) in [('<', lt),
                                                       ('=', eq),
@@ -129,9 +128,8 @@ class MetaBase(dbBase):
       return (n+1, query, cond, data)
 
   class SelectString(SelectTag):
-    def __init__(self, name, eq=None, like=None, similar=None, posix=None,
-                 tail=None):
-      super(self.__class__, self).__init__(name, tail=tail, types='sx')
+    def __init__(self, name, eq=None, like=None, similar=None, posix=None):
+      super(self.__class__, self).__init__(name, types='sx')
 
       cond, data = zip(*[(op, s) for (op, s) in [('=' , eq),
                                                  ('LIKE', like),
@@ -164,18 +162,8 @@ class MetaBase(dbBase):
                    FROM properties
                    WHERE iid = %s AND property_visible <= %s;
                    """, (iid, privileges))
-    res = {}
-    for n, t, pn, ps, pv, pe in cursor.fetchall():
-      d = {'type': t,
-           'view': pv,
-           'edit': pe}
-      if t in "fi":
-        d['value'] = pn if t == 'f' else int(pn)
-
-      elif t in 'sx':
-        d['value'] = ps
-
-      res[n] = d
+    res = dict((row[0], unwrapProperties(*row[1:]))\
+               for row in cursor)
 
     return res
 
@@ -267,6 +255,52 @@ class MetaBase(dbBase):
       else:
         db.commit()
         return True
+
+  @provideCursor
+  def searchImages(self, selectors, limit=None, cursor=None):
+    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors, None)
+    query = """
+            SELECT tmp0.iid
+            FROM %s
+            WHERE %s
+            %s;
+            """ % (' JOIN '.join(tables), ' AND '.join(cond),
+                   ('%d' % limit) if limit != None else '')
+
+    cursor.execute(query, data)
+    return cursor.fetchall()
+
+  @provideCursor
+  def searchImagesProperties(self, selectors, limit=None, cursor=None):
+    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors,
+                                   (1, ["properties AS tmp0"], [], []))
+    query = """
+            SELECT tmp0.iid, tmp0.property_name, tmp0.property_type,
+                   tmp0.property_number, tmp0.property_string,
+                   tmp0.property_visible, tmp0.property_editable
+            FROM %s
+            WHERE %s
+            ORDER BY tmp0.iid
+            """ % (' JOIN '.join(tables), ' AND '.join(cond))
+    cursor.execute(query, data)
+    res = []
+    if cursor.rowcount > 0:
+      lastIID, name, t, n, s, v, e = cursor.fetchone()
+      last = {name: unwrapProperties(t, n, s, v, e)}
+      for iid, name, t, n, s, v, e in cursor:
+        if iid != lastIID:
+          res.append([lastIID, last])
+          if limit != None and len(res) >= limit:
+            return res
+
+          last = {}
+
+        lastIID = iid
+        last[name] = unwrapProperties(t, n, s, v, e)
+
+      res.append([lastIID, last])
+
+    return res
 
 if __name__ == '__main__':
   from database import db, dbPool

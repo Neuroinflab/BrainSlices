@@ -747,13 +747,72 @@ def _ValidAlterImagesProperties(changes):
   except:
     return False
 
-
 ChangeImagesPropertiesRequest = Request.extend('ChangeImagesPropertiesRequest',
 """
 A class for image property altering.
 """,
 required = 'changes',
 atoms = {'changes': (_ValidAlterImagesProperties, json.loads)})
+
+
+def _ValidSearchImages(query):
+  try:
+    if not isinstance(query, list):
+      return False
+
+    for prop in query:
+      if not isinstance(prop, list):
+        return False
+
+      name, t = prop[:2]
+      if not isinstance(name, basestring) or not t in ('t', 's', 'f'):
+        return False
+
+      if t == 't':
+        if len(prop) != 2:
+          return False
+
+        continue
+
+      if len(prop) != 3:
+        return False
+
+      conditions = prop[2]
+
+      if not isinstance(conditions, dict):
+        return False
+
+      if t == 's':
+        if len(conditions) > 1: #XXX
+          return False
+
+        if any(k not in ('eq', 'like', 'similar', 'posix') or
+               not isinstance(v, basestring) for (k, v) in conditions.items()):
+          return False
+          
+      else:
+        if len(conditions) > 2 or \
+          'eq' in conditions and len(conditions) != 1 or \
+          'lteq' in conditions and 'lt' in conditions or \
+          'gteq' in conditions and 'gt' in conditions:
+          return False
+
+        if any(k not in ('eq', 'lt', 'gt', 'lteq', 'gteq')
+               or not isinstance(v, (int, long, float)) for (k, v) in conditions.items()):
+          return False
+
+    return True
+
+  except:
+    print 'exception'
+    return False
+
+SearchImagesRequest = Request.extend('SearchImagesRequest',
+"""
+A class for image searching.
+""",
+required = 'query',
+atoms = {'query': (_ValidSearchImages, json.loads)})
 
 #---------------------------------------------------------------------------
 #----------------------------   TESTS   ------------------------------------

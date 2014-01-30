@@ -26,10 +26,12 @@ import cherrypy
 from cherrypy.lib import static
 import json
 
-from request import GetImagesPropertiesRequest, ChangeImagesPropertiesRequest
+from request import GetImagesPropertiesRequest, ChangeImagesPropertiesRequest,\
+                    SearchImagesRequest
 from server import generateJson, Generator, Server, serveContent, useTemplate
 
 from tileBase import NO_PRIVILEGE
+from metaBase import MetaBase
 
 
 # privileges: o - owner, g - group, a - all # e - 'every logged' ;-)
@@ -44,6 +46,8 @@ class MetaServer(Generator, Server):
 
     self.metaBase = metaBase
     self.tileBase = tileBase
+    self.selectorClass = {'f': MetaBase.SelectNumber,
+                          's': MetaBase.SelectString,}
 
   @cherrypy.expose
   @serveContent()
@@ -104,4 +108,16 @@ class MetaServer(Generator, Server):
                         logged = uid != None)
 
 
-
+  @cherrypy.expose
+  @serveContent(SearchImagesRequest)
+  def searchImages(self, request):
+    uid = request.session.get('userID')
+    selectors = [self.selectorClass[prop[1]](prop[0], **prop[2]) if prop[1] != 't'\
+                 else MetaBase.SelectTag(prop[0]) for prop in request.query]
+    selectors.append(MetaBase.SelectVisible(uid))
+    result = self.metaBase.searchImagesProperties(selectors)
+    return generateJson(data = result,
+                        status = True,
+                        message = None,
+                        logged = uid != None)
+    

@@ -1,15 +1,64 @@
+      <div id="searchResults" style="max-height: 10ex; overflow-y: auto;">
+       <table>
+        <thead>
+         <tr>
+          <th>
+           IID
+          </th>
+          <th>
+           Thumbnail
+          </th>
+          <th>
+           Properties
+          </th>
+          <th>
+           Load
+          </th>
+         </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+        <tbody>
+        </tbody>
+       </table>
+      </div>
+
+      <table id="searchPanel">
+       <thead>
+        <tr>
+         <th>
+          Property
+         </th>
+         <th>
+          Condition 
+         </th>
+        </tr>
+       </thead>
+       <tfoot>
+        <tr>
+         <td>
+          <input id="searchPropertyName">
+         </td>
+         <td>
+          <select id="searchPropertyType">
+           <option value="t">Tag</option>
+           <option value="s">Text</option>
+           <option value="f">Number</option>
+          </select>
+          <button id="searchPropertyAdd">Add</button>
+          <button id="searchPropertySearch">Search</button>
+         </td>
+        </tr>
+       </tfoot>
+       <tbody>
+       </tbody>
+      </table>
+
       <form onsubmit="return addLayer();">
        <select id="id">
        </select>
        Z-index: <input type="text" id="z", value="0">
        <input type="submit" value="Add">
       </form>
-      <hr>
-      <label>
-       Test tile set
-       <select id="testSet" onchange="testSetChanged();"></select>
-       <select id="testSubset"></select>
-       <button onclick="addTest()"> AddTest </button>
-      </label>
       <hr>
       <button onclick="addOutlineLayer()"> AddOutline 320 </button>
