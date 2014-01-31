@@ -31,7 +31,7 @@ var CPropertiesSearch = null;
     return name in triggers ? triggers[name] : null;
   }
 
-  var reduceType = {s: 's', x: 's', t: 't', i: 'f', f: 'f'};
+  var reduceType = {s: 's', x: 'x', t: 't', i: 'f', f: 'f'};
   var allowedOperators = {'t': {},
                           's': {is: true,
                                 like: true,
@@ -41,7 +41,9 @@ var CPropertiesSearch = null;
                                 gt: true,
                                 lt: true,
                                 gteq: true,
-                                lteq: true}}
+                                lteq: true},
+                          'x': {match: true,
+                                plain: true}}
 
   function CPropertyCondition(type, triggers)
   {

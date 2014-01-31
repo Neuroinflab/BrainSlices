@@ -765,7 +765,7 @@ def _ValidSearchImages(query):
         return False
 
       name, t = prop[:2]
-      if not isinstance(name, basestring) or not t in ('t', 's', 'f'):
+      if not isinstance(name, basestring) or not t in ('t', 's', 'f', 'x'):
         return False
 
       if t == 't':
@@ -782,13 +782,19 @@ def _ValidSearchImages(query):
       if not isinstance(conditions, dict):
         return False
 
-      if t == 's':
+      if t in 'sx':
         if len(conditions) > 1: #XXX
           return False
 
-        if any(k not in ('eq', 'like', 'similar', 'posix') or
-               not isinstance(v, basestring) for (k, v) in conditions.items()):
-          return False
+        if t == 's':
+          if any(k not in ('eq', 'like', 'similar', 'posix') or
+                 not isinstance(v, basestring) for (k, v) in conditions.items()):
+            return False
+
+        else:
+          if any(k not in ('match', 'plain') or not isinstance(v, basestring)\
+                 for (k, v) in conditions.items()):
+            return False
           
       else:
         if len(conditions) > 2 or \

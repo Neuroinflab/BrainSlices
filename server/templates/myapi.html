@@ -499,13 +499,30 @@ $(function()
 
       switch (type)
       {
+        case 'x':
+          var $op = $('<select>'
+                      +'<option>match</option>'
+                      +'<option>plain</option>'
+                      +'</select>');
+          $td.append($op);
+          var $input = $('<input type="text">');
+          $td.append($input);
+          var change = function()
+          {
+            searchEngine.reset(name);
+            searchEngine.set(name, $op.val(), $input.val());
+          }
+          $op.change(change);
+          $input.change(change);
+          break;
+
         case 's':
           var $op = $('<select>'
                       +'<option>is</option>'
                       +'<option>like</option>'
                       +'<option>similar</option>'
                       +'<option>posix</option>'
-                      +'</select>')
+                      +'</select>');
           $td.append($op);
           var $input = $('<input type="text">');
           $td.append($input);
@@ -524,7 +541,7 @@ $(function()
                       +'<option>gt</option>'
                       +'<option>gteq</option>'
                       +'<option>---</option>'
-                      +'</select>')
+                      +'</select>');
           $td.append($op);
           var $input = $('<input type="number">');
           $td.append($input);
@@ -532,7 +549,7 @@ $(function()
                       +'<option selected="selected">lt</option>'
                       +'<option>lteq</option>'
                       +'<option>---</option>'
-                      +'</select>')
+                      +'</select>');
           $td.append($op2);
           var $input2 = $('<input type="number" disabled="disabled">');
           $td.append($input2);

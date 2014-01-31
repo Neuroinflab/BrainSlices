@@ -47,7 +47,9 @@ class MetaServer(Generator, Server):
     self.metaBase = metaBase
     self.tileBase = tileBase
     self.selectorClass = {'f': MetaBase.SelectNumber,
-                          's': MetaBase.SelectString,}
+                          's': MetaBase.SelectString,
+                          'x': MetaBase.SelectText,
+                          't': MetaBase.SelectTag,}
 
   @cherrypy.expose
   @serveContent()
@@ -112,8 +114,10 @@ class MetaServer(Generator, Server):
   @serveContent(SearchImagesRequest)
   def searchImages(self, request):
     uid = request.session.get('userID')
-    selectors = [self.selectorClass[prop[1]](prop[0], **prop[2]) if prop[1] != 't'\
-                 else MetaBase.SelectTag(prop[0]) for prop in request.query]
+    selectors = [self.selectorClass[prop[1]](prop[0], *prop[2:])
+                 if prop[1] == 't' else\
+                 self.selectorClass[prop[1]](prop[0], **prop[2])\
+                 for prop in request.query]
     selectors.append(MetaBase.SelectVisible(uid))
     result = self.metaBase.searchImagesProperties(selectors)
     return generateJson(data = result,

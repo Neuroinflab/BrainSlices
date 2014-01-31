@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2014-01-22 13:47:12
+-- Created on: 2014-01-31 21:26:36
 -- Diagram Version: 
 -- =============================================================================
 
@@ -173,46 +173,58 @@ CREATE INDEX "properties_iid" ON "properties" (
 );
 
 
-CREATE INDEX "properties_type_name" ON "properties" (
-	"property_name", 
-	"property_type"
+CREATE INDEX "properties_Tag" ON "properties" (
+	"property_name"
 );
 
 
-CREATE UNIQUE INDEX "properties_type_name_iid" ON "properties" (
+CREATE UNIQUE INDEX "properties_Tag_iid" ON "properties" (
 	"iid", 
-	"property_name", 
-	"property_type"
+	"property_name"
 );
 
 
-CREATE INDEX "properties_type_name_string" ON "properties" (
-	"property_name", 
-	"property_string", 
-	"property_type"
-);
-
-
-CREATE INDEX "properties_type_name_number" ON "properties" (
-	"property_name", 
+CREATE INDEX "properties_Number" ON "properties" (
 	"property_number", 
-	"property_type"
+	"property_name"
 );
 
 
-CREATE UNIQUE INDEX "properties_type_name_iid_string" ON "properties" (
-	"iid", 
-	"property_name", 
-	"property_string", 
-	"property_type"
-);
-
-
-CREATE UNIQUE INDEX "properties_type_name_iid_number" ON "properties" (
-	"iid", 
-	"property_name", 
+CREATE UNIQUE INDEX "properties_Number_iid" ON "properties" (
 	"property_number", 
-	"property_type"
+	"property_name", 
+	"iid"
+);
+
+
+CREATE INDEX "properties_Text" ON "properties" (
+	"property_name", 
+	(to_tsvector('english', property_string))
+);
+
+
+CREATE INDEX "properties_Text_iid" ON "properties" (
+	"property_name", 
+	(to_tsvector('english', property_string)), 
+	"iid"
+);
+
+
+CREATE INDEX "properties_String" ON "properties" (
+	"property_name", 
+	(lower(property_string))
+);
+
+
+CREATE UNIQUE INDEX "properties_String_iid" ON "properties" (
+	"property_name", 
+	(lower(property_string)), 
+	"iid"
+);
+
+
+CREATE INDEX "properties_tsvector" ON "properties" USING GIN (
+	(to_tsvector('english', property_string))
 );
 
 

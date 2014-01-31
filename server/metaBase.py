@@ -86,20 +86,20 @@ class MetaBase(dbBase):
 
   class SelectTag(SelectBase):
     def __init__(self, name, types='t'):
-      self.data = [name]
-      self.cond = [".property_type IN (%s)" % (', '.join("'%s'" % x for x in types)),
-                   ".property_name = %s"]
+      self.data = [name.lower()]
+      self.cond = ["%%s.property_type IN (%s)" % (', '.join("'%s'" % x for x in types)),
+                   "%s.property_name = %%s"]
 
     def getQuery(self, tail=None):
       if tail == None:
-        return (1, ["properties AS tmp0"], ['tmp0' + x for x in self.cond], list(self.data))
+        return (1, ["properties AS tmp0"], [x % 'tmp0' for x in self.cond], list(self.data))
 
       
       n, query, cond, data = tail
 
       tmp = 'tmp%d' % n
       query.append('properties AS ' + tmp + ' USING (iid)')
-      cond.extend(tmp + x for x in self.cond)
+      cond.extend(x % tmp for x in self.cond)
       data.extend(self.data)
 
       return (n+1, query, cond, data)
@@ -108,7 +108,7 @@ class MetaBase(dbBase):
     def __init__(self, name, lt=None, eq=None, gt=None, lteq=None, gteq=None):
       super(self.__class__, self).__init__(name, types='if')
 
-      self.cond.extend('.property_number %s %d' % (op, n) for (op, n) in [('<', lt),
+      self.cond.extend('%%s.property_number %s %f' % (op, n) for (op, n) in [('<', lt),
                                                       ('=', eq),
                                                       ('>', gt),
                                                       ('<=', lteq),
@@ -116,13 +116,13 @@ class MetaBase(dbBase):
 
     def getQuery(self, tail = None):
       if tail == None:
-        return (1, ["properties AS tmp0"], ['tmp0' + x for x in self.cond], list(self.data))
+        return (1, ["properties AS tmp0"], [x % 'tmp0' for x in self.cond], list(self.data))
 
       n, query, cond, data = tail
 
       tmp = 'tmp%d' % n
       query.append('properties AS ' + tmp + ' USING (iid)')
-      cond.extend(tmp + x for x in self.cond)
+      cond.extend(x % tmp for x in self.cond)
       data.extend(self.data)
 
       return (n+1, query, cond, data)
@@ -136,18 +136,44 @@ class MetaBase(dbBase):
                                                  ('SIMILAR TO', similar),
                                                  ('~', posix)] if s != None])
 
-      self.cond.extend('.property_string %s %%s' % op for op in cond)
+      self.cond.extend('LOWER(%%s.property_string) %s %%%%s' % op for op in cond)
       self.data.extend(data)
 
     def getQuery(self, tail = None):
       if tail == None:
-        return (1, ["properties AS tmp0"], ['tmp0' + x for x in self.cond], list(self.data))
+        return (1, ["properties AS tmp0"], [x % tmp0 for x in self.cond], list(self.data))
 
       n, query, cond, data = tail
 
       tmp = 'tmp%d' % n
       query.append('properties AS ' + tmp + ' USING (iid)')
-      cond.extend(tmp + x for x in self.cond)
+      cond.extend(x % tmp for x in self.cond)
+      data.extend(self.data)
+
+      return (n+1, query, cond, data)
+
+
+  class SelectText(SelectTag):
+    def __init__(self, name, match=None, plain=None):
+      super(self.__class__, self).__init__(name, types='x')
+
+      cond, data = zip(*[(op, s) for (op, s) in \
+                         [('', match),
+                          ('PLAIN', plain)]\
+                         if s != None])
+
+      self.cond.extend("TO_TSVECTOR('english', %%s.property_string) @@ %sTO_TSQUERY('english', %%%%s)" % op for op in cond)
+      self.data.extend(data)
+
+    def getQuery(self, tail = None):
+      if tail == None:
+        return (1, ["properties AS tmp0"], [x % tmp0 for x in self.cond], list(self.data))
+
+      n, query, cond, data = tail
+
+      tmp = 'tmp%d' % n
+      query.append('properties AS ' + tmp + ' USING (iid)')
+      cond.extend(x % tmp for x in self.cond)
       data.extend(self.data)
 
       return (n+1, query, cond, data)
@@ -173,7 +199,7 @@ class MetaBase(dbBase):
                    DELETE FROM properties
                    WHERE iid = %s AND property_name = %s
                          AND property_editable <= %s;
-                   """, (iid, name, privileges))
+                   """, (iid, name.lower(), privileges))
     return cursor.rowcount == 1
 
   @provideConnection()
@@ -207,7 +233,7 @@ class MetaBase(dbBase):
                                       iid, property_name, property_type)
                VALUES (%s, %s, %s, %s, 't');
                """
-      data = (visible, editable, iid, name)
+      data = (visible, editable, iid, name.lower())
 
     else:
       if t in "if":
@@ -228,7 +254,7 @@ class MetaBase(dbBase):
                                       property_editable, iid, property_name)
                VALUES (%%s, %%s, %%s, %%s, %%s, %%s);
                """ % field
-      data = (t, value, visible, editable, iid, name)
+      data = (t, value, visible, editable, iid, name.lower())
 
     while True:
       try:
