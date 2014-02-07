@@ -470,15 +470,21 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
                 $td = $('<td></td>');
                 $row.append($td);
+
                 var $button = $('<button>X</button>');
                 $td.append($button);
-
-
-
                 $button.bind('click',
                              function()
                              {
                                tableManager.remove(iid);
+                             });
+
+                var $button = $('<button>Revert</button>');
+                $td.append($button);
+                $button.bind('click',
+                             function()
+                             {
+                               propertiesManager.reset(iid);
                              });
 
                 tableManager.add($row, iid, null,
@@ -600,7 +606,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        <td>
         <button onclick="propertiesManager.save();">Save</button>
         <button id="removeProperties" style="display: none;">Delete</button>
-        <button onclick="propertiesManager.reset();">Reset</button>
+        <button onclick="propertiesManager.reset();">Revert</button>
        </td>
       </tr>
      </tfoot>
