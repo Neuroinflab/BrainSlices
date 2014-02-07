@@ -36,14 +36,21 @@
        </thead>
        <tfoot>
         <tr>
-         <td>
-          <input id="searchPropertyName">
+         <td colspan="2">
+          Create a new filter for
+          <select id="searchPropertyMode">
+           <option value="all" selected="selected">any field</option>
+           <option value="name">field of name:</option>
+          </select>
+          <input id="searchPropertyName" style="display: none;">.
          </td>
-         <td>
+        </tr>
+        <tr>
+         <td colspan="2">
           <select id="searchPropertyType">
            <option value="t">Tag</option>
            <option value="s">String</option>
-           <option value="x">Text</option>
+           <option value="x" selected="selected">Text</option>
            <option value="f">Number</option>
           </select>
           <button id="searchPropertyAdd">Add</button>

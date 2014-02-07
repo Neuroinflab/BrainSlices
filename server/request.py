@@ -708,43 +708,51 @@ _validType = frozenset('tfisx')
 _valueType = {'s': basestring,
               'x': basestring,
               'i': int,
-              'f': float}
+              'f': (int, float)}
 _validPriv = frozenset('ago')
 def _ValidAlterImagesProperties(changes):
+  #print changes
   try:
     if not isinstance(changes, list) or len(changes) == 0:
       return False
 
     for altered in changes:
       if not isinstance(altered, list) or len(altered) != 3:
+        #print 'a'
         return False
 
       iid, pUnset, pSet = altered
       if not isinstance(iid, int) or iid <= 0 or not isinstance(pUnset, list)\
         or not isinstance(pSet, list) or len(pUnset) + len(pSet) == 0\
         or any(not isinstance(x, basestring) for x in pUnset):
+        #print 'b'
         return False
 
       for prop in pSet:
         if not isinstance(prop, list) or len(prop) not in (4, 5):
+          #print 'c', prop
           return False
 
         n, t, v, e = prop[:4]
         if not isinstance(n, basestring) or not t in _validType\
           or not e in _validPriv or not v in _validPriv:
+          #print 'd', prop
           return False
 
         if t == 't':
           if len(prop) != 4:
+            #print 'e'
             return False
 
         else:
           if not isinstance(prop[4], _valueType[t]):
+            #print 'f', prop
             return False
 
     return True
 
   except:
+    #print 'exc'
     return False
 
 ChangeImagesPropertiesRequest = Request.extend('ChangeImagesPropertiesRequest',
@@ -755,57 +763,66 @@ required = 'changes',
 atoms = {'changes': (_ValidAlterImagesProperties, json.loads)})
 
 
+def _ValidSearchProperty(prop):
+  try:
+    t = prop[0]
+    if t == 't':
+      return len(prop) == 1
+
+    if len(prop) != 2 or t not in ('s', 'f', 'x'):
+      return False
+
+    conditions = prop[1]
+    if not isinstance(conditions, dict):
+      return False
+
+    if t in 'sx':
+      if len(conditions) > 1: #XXX
+        return False
+
+      if t == 's':
+        if any(k not in ('eq', 'like', 'similar', 'posix') or
+               not isinstance(v, basestring) for (k, v) in conditions.items()):
+          return False
+
+      else:
+        if any(k not in ('match', 'plain') or not isinstance(v, basestring)\
+               for (k, v) in conditions.items()):
+          return False
+        
+    else:
+      if len(conditions) > 2 or \
+        'eq' in conditions and len(conditions) != 1 or \
+        'lteq' in conditions and 'lt' in conditions or \
+        'gteq' in conditions and 'gt' in conditions:
+        return False
+
+      if any(k not in ('eq', 'lt', 'gt', 'lteq', 'gteq')
+             or not isinstance(v, (int, long, float)) for (k, v) in conditions.items()):
+        return False
+
+    return True
+
+  except:
+    return False
+
 def _ValidSearchImages(query):
   try:
     if not isinstance(query, list):
       return False
 
-    for prop in query:
-      if not isinstance(prop, list):
+    properties, nonames = query
+
+    for prop in properties:
+      if not isinstance(prop, list) or not isinstance(prop[0], basestring):
         return False
 
-      name, t = prop[:2]
-      if not isinstance(name, basestring) or not t in ('t', 's', 'f', 'x'):
+      if not _ValidSearchProperty(prop[1:]):
         return False
 
-      if t == 't':
-        if len(prop) != 2:
-          return False
-
-        continue
-
-      if len(prop) != 3:
+    for prop in nonames:
+      if not isinstance(prop, list) or not _ValidSearchProperty(prop):
         return False
-
-      conditions = prop[2]
-
-      if not isinstance(conditions, dict):
-        return False
-
-      if t in 'sx':
-        if len(conditions) > 1: #XXX
-          return False
-
-        if t == 's':
-          if any(k not in ('eq', 'like', 'similar', 'posix') or
-                 not isinstance(v, basestring) for (k, v) in conditions.items()):
-            return False
-
-        else:
-          if any(k not in ('match', 'plain') or not isinstance(v, basestring)\
-                 for (k, v) in conditions.items()):
-            return False
-          
-      else:
-        if len(conditions) > 2 or \
-          'eq' in conditions and len(conditions) != 1 or \
-          'lteq' in conditions and 'lt' in conditions or \
-          'gteq' in conditions and 'gt' in conditions:
-          return False
-
-        if any(k not in ('eq', 'lt', 'gt', 'lteq', 'gteq')
-               or not isinstance(v, (int, long, float)) for (k, v) in conditions.items()):
-          return False
 
     return True
 

@@ -124,6 +124,8 @@ var CPropertiesSearch = null;
     {
       this.ajaxProvider = ajaxProvider;
       this.properties = {};
+      this.any = {};
+      this.nAny = 0;
       this.ondestroy = getTrigger('destroy', triggers);
       this.data = getTrigger('data', triggers);
       this.autoAdd = getTrigger('add', triggers);
@@ -131,6 +133,24 @@ var CPropertiesSearch = null;
 
     CPropertiesSearch.prototype =
     {
+      addAny:
+      function(type, triggers)
+      {
+        var n = this.nAny++;
+        this.any[n] = new CPropertyCondition(type, triggers);
+        return n;
+      },
+
+      removeAny:
+      function(n)
+      {
+        if (n in this.any)
+        {
+          this.any[n].destroy();
+          delete this.any[n];
+        }
+      },
+
       add:
       function(name, type, triggers)
       {
@@ -158,13 +178,18 @@ var CPropertiesSearch = null;
       function()
       {
         var res = [];
+        var any = [];
         for (var name in this.properties)
         {
           var tmp = this.properties[name].get();
           tmp.unshift(name);
           res.push(tmp);
         }
-        return res;
+        for (var n in this.any)
+        {
+          any.push(this.any[n].get());
+        }
+        return [res, any];
       },
 
       has:
@@ -183,8 +208,21 @@ var CPropertiesSearch = null;
         }
       },
 
+      resetAny:
+      function(n)
+      {
+        if (n in this.any)
+        {
+          this.any[n].reset();
+        }
+        else
+        {
+          console.warn(n + ' not found in this.any.');
+        }
+      },
+
       reset:
-      function(name)
+      function(name, n)
       {
         if (name != null)
         {
@@ -197,6 +235,13 @@ var CPropertiesSearch = null;
           this.properties[name].destroy();
         }
         this.properties = {};
+        this.nAny = 0;
+
+        for (var n in this.any)
+        {
+          this.any[n].destroy();
+        }
+        this.any = {};
       },
 
       search:
@@ -217,6 +262,15 @@ var CPropertiesSearch = null;
         if (property in this.properties)
         {
           this.properties[property].set(name, value);
+        }
+      },
+
+      setAny:
+      function(n, name, value)
+      {
+        if (n in this.any)
+        {
+          this.any[n].set(name, value);
         }
       }
     }

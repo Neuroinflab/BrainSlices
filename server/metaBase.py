@@ -43,8 +43,13 @@ def unwrapProperties(type_, number, string, visible, editable):
 
   return prop
 
+
 class MetaBase(dbBase):
   class SelectBase(object):
+    def __init__(self):
+      self.data = []
+      self.cond = []
+
     def getQuery(self):
       raise NotImplemented('Abstract class method called.')
 
@@ -84,11 +89,16 @@ class MetaBase(dbBase):
 
       return (n + 1, query, cond, data)
 
+
   class SelectTag(SelectBase):
-    def __init__(self, name, types='t'):
-      self.data = [name.lower()]
-      self.cond = ["%%s.property_type IN (%s)" % (', '.join("'%s'" % x for x in types)),
-                   "%s.property_name = %%s"]
+    def __init__(self, name = None):
+      if name != None:
+        self.data = [name.lower()]
+        self.cond = ["%s.property_name = %%s"]
+
+      else:
+        self.data = []
+        self.cond = []
 
     def getQuery(self, tail=None):
       if tail == None:
@@ -104,9 +114,10 @@ class MetaBase(dbBase):
 
       return (n+1, query, cond, data)
 
+
   class SelectNumber(SelectTag):
-    def __init__(self, name, lt=None, eq=None, gt=None, lteq=None, gteq=None):
-      super(self.__class__, self).__init__(name, types='if')
+    def __init__(self, name=None, lt=None, eq=None, gt=None, lteq=None, gteq=None):
+      super(self.__class__, self).__init__(name)
 
       self.cond.extend('%%s.property_number %s %f' % (op, n) for (op, n) in [('<', lt),
                                                       ('=', eq),
@@ -127,9 +138,10 @@ class MetaBase(dbBase):
 
       return (n+1, query, cond, data)
 
+
   class SelectString(SelectTag):
-    def __init__(self, name, eq=None, like=None, similar=None, posix=None):
-      super(self.__class__, self).__init__(name, types='sx')
+    def __init__(self, name=None, eq=None, like=None, similar=None, posix=None):
+      super(self.__class__, self).__init__(name)
 
       cond, data = zip(*[(op, s) for (op, s) in [('=' , eq),
                                                  ('LIKE', like),
@@ -154,8 +166,8 @@ class MetaBase(dbBase):
 
 
   class SelectText(SelectTag):
-    def __init__(self, name, match=None, plain=None):
-      super(self.__class__, self).__init__(name, types='x')
+    def __init__(self, name=None, match=None, plain=None):
+      super(self.__class__, self).__init__(name)
 
       cond, data = zip(*[(op, s) for (op, s) in \
                          [('', match),
@@ -220,41 +232,41 @@ class MetaBase(dbBase):
     else:
       t = t[0]
 
-    if t == 't':
+    name = name.lower()
+
+    if t in 'tsx':
       update = """
                UPDATE properties
-               SET property_type = 't', property_visible = %s,
-                   property_editable = %s
+               SET property_type = %s, property_string = %s,
+                   property_visible = %s, property_editable = %s,
+                   property_number = NULL
                WHERE iid = %s AND property_name = %s
                      AND property_editable <= %s;
                """
       insert = """
-               INSERT INTO properties(property_visible, property_editable,
-                                      iid, property_name, property_type)
-               VALUES (%s, %s, %s, %s, 't');
+               INSERT INTO properties(property_type, property_string,
+                                      property_visible, property_editable,
+                                      iid, property_name)
+               VALUES (%s, %s, %s, %s, %s, %s);
                """
-      data = (visible, editable, iid, name.lower())
+      data = (t, name if t == 't' else value, visible, editable, iid, name)
 
-    else:
-      if t in "if":
-        field = 'property_number'
-
-      elif t in "sx":
-        field = 'property_string'
-
+    else: # 'i' or 'f'
       update = """
                UPDATE properties
-               SET property_type = %%s, %s = %%s,
-                   property_visible = %%s, property_editable = %%s
-               WHERE iid = %%s AND property_name = %%s
-                     AND property_editable <= %%s;
-               """ % field
+               SET property_type = %s, property_number = %s,
+                   property_string = %s,
+                   property_visible = %s, property_editable = %s
+               WHERE iid = %s AND property_name = %s
+                     AND property_editable <= %s;
+               """
       insert = """
-               INSERT INTO properties(property_type, %s, property_visible,
+               INSERT INTO properties(property_type, property_number,
+                                      property_string, property_visible,
                                       property_editable, iid, property_name)
-               VALUES (%%s, %%s, %%s, %%s, %%s, %%s);
-               """ % field
-      data = (t, value, visible, editable, iid, name.lower())
+               VALUES (%s, %s, %s, %s, %s, %s, %s);
+               """
+      data = (t, value, str(value), visible, editable, iid, name)
 
     while True:
       try:

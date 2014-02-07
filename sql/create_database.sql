@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 2014-01-31 21:26:36
+-- Created on: 2014-02-07 17:39:29
 -- Diagram Version: 
 -- =============================================================================
 
@@ -223,8 +223,14 @@ CREATE UNIQUE INDEX "properties_String_iid" ON "properties" (
 );
 
 
-CREATE INDEX "properties_tsvector" ON "properties" USING GIN (
+CREATE INDEX "properties_Any" ON "properties" USING GIN (
 	(to_tsvector('english', property_string))
+);
+
+
+CREATE INDEX "properties_Any_iid" ON "properties" (
+	(to_tsvector('english', property_string)), 
+	"iid"
 );
 
 

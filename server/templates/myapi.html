@@ -493,67 +493,49 @@ $(function()
     data: $('table#searchPanel tbody'),
     add: function(name, type)
     {
-      var $row = $('<tr><th>' + name + ' (' + type + ')</th></tr>');
-      var $td = $('<td></td>');
-      $row.append($td);
-
-      switch (type)
+      var change, remove, n, $op, $op2, $input, $input2;
+      // list of variables for my convenience
+      if (name == null)
       {
-        case 'x':
-          var $op = $('<select>'
-                      +'<option>match</option>'
-                      +'<option>plain</option>'
-                      +'</select>');
-          $td.append($op);
-          var $input = $('<input type="text">');
-          $td.append($input);
-          var change = function()
-          {
-            searchEngine.reset(name);
-            searchEngine.set(name, $op.val(), $input.val());
-          }
-          $op.change(change);
-          $input.change(change);
-          break;
+        remove = function()
+        {
+          // global
+          searchEngine.removeAny(n);
+        }
 
-        case 's':
-          var $op = $('<select>'
-                      +'<option>is</option>'
-                      +'<option>like</option>'
-                      +'<option>similar</option>'
-                      +'<option>posix</option>'
-                      +'</select>');
-          $td.append($op);
-          var $input = $('<input type="text">');
-          $td.append($input);
-          var change = function()
+        change = type == 'f' ?
+          function()
           {
-            searchEngine.reset(name);
-            searchEngine.set(name, $op.val(), $input.val());
-          }
-          $op.change(change);
-          $input.change(change);
-          break;
+            var op = $op.val();
+            var op2 = $op2.val();
+            searchEngine.resetAny(n);
+            if (op != 'eq' && op2 != '---')
+            {
+              searchEngine.setAny(n, op2, parseFloat($input2.val()));
+            }
 
-        case 'f':
-          var $op = $('<select>'
-                      +'<option selected="selected">eq</option>'
-                      +'<option>gt</option>'
-                      +'<option>gteq</option>'
-                      +'<option>---</option>'
-                      +'</select>');
-          $td.append($op);
-          var $input = $('<input type="number">');
-          $td.append($input);
-          var $op2 = $('<select disabled="disabled">'
-                      +'<option selected="selected">lt</option>'
-                      +'<option>lteq</option>'
-                      +'<option>---</option>'
-                      +'</select>');
-          $td.append($op2);
-          var $input2 = $('<input type="number" disabled="disabled">');
-          $td.append($input2);
-          var change = function()
+            if (op != '---')
+            {
+              searchEngine.setAny(n, op, parseFloat($input.val()));
+            }
+          } :
+
+          function()
+          {
+            searchEngine.resetAny(n);
+            searchEngine.setAny(n, $op.val(), $input.val());
+          };
+      }
+      else
+      {
+        remove = function()
+        {
+          // global
+          searchEngine.remove(name);
+        }
+
+        change = type == 'f' ?
+          function()
           {
             var op = $op.val();
             var op2 = $op2.val();
@@ -569,7 +551,69 @@ $(function()
               searchEngine.set(name, op, parseFloat($input.val()));
             }
 
-          }
+          } :
+          function()
+          {
+            searchEngine.reset(name);
+            searchEngine.set(name, $op.val(), $input.val());
+          };
+      }
+
+      var $row = $('<tr><th>' + 
+                   (name != null ?
+                    (name + ' (' + type + ')') :
+                    ('(any field of type ' + type + ')')) +
+                   '</th></tr>');
+      var $td = $('<td></td>');
+      $row.append($td);
+
+      switch (type)
+      {
+        case 'x':
+          $op = $('<select>'
+                  +'<option>match</option>'
+                  +'<option>plain</option>'
+                  +'</select>');
+          $td.append($op);
+          $input = $('<input type="text">');
+          $td.append($input);
+          $op.change(change);
+          $input.change(change);
+          break;
+
+        case 's':
+          $op = $('<select>'
+                  +'<option>is</option>'
+                  +'<option>like</option>'
+                  +'<option>similar</option>'
+                  +'<option>posix</option>'
+                  +'</select>');
+          $td.append($op);
+          $input = $('<input type="text">');
+          $td.append($input);
+          $op.change(change);
+          $input.change(change);
+          break;
+
+        case 'f':
+          $op = $('<select>'
+                  +'<option selected="selected">eq</option>'
+                  +'<option>gt</option>'
+                  +'<option>gteq</option>'
+                  +'<option>---</option>'
+                  +'</select>');
+          $td.append($op);
+          $input = $('<input type="number">');
+          $td.append($input);
+          $op2 = $('<select disabled="disabled">'
+                  +'<option selected="selected">lt</option>'
+                  +'<option>lteq</option>'
+                  +'<option>---</option>'
+                  +'</select>');
+          $td.append($op2);
+          $input2 = $('<input type="number" disabled="disabled">');
+          $td.append($input2);
+
           $op.change(change);
           $op2.change(change);
           $input.change(change);
@@ -617,43 +661,58 @@ $(function()
           break;
       }
 
-
       var $remButton = $('<button>X</button>');
       $td.append($remButton);
-      $remButton.click(function()
-      {
-        // global
-        searchEngine.remove(name);
-      });
+      $remButton.click(remove);
 
       this.data.append($row);
-      this.add(name, type, {
-        data: {$row: $row},
-        destroy:
-        function()
-        {
-          this.data.$row.remove();
-        }});
+      var triggers = {data: {$row: $row},
+                      destroy:
+                      function()
+                      {
+                        this.data.$row.remove();
+                      }};
+      if (name != null)
+      {
+        this.add(name, type, triggers);
+      }
+      else
+      {
+        n = this.addAny(type, triggers);
+      }
     }
   });
 
   $('#searchPropertyAdd').click(function()
   {
-    var name = $('#searchPropertyName').val().trim();
-    if (name != '')
+    var name = $('#searchPropertyMode').val() == 'name' ? 
+               $('#searchPropertyName').val().trim() :
+               null;
+    if (name == '')
     {
-      if (searchEngine.has(name))
-      {
-        alert('Property ' + name + ' already selected.');
-      }
-      else
-      {
-        searchEngine.autoAdd(name, $('#searchPropertyType').val());
-      }
+      alert('Empty property name given.');
+      return;
+    }
+
+    if (name != null && searchEngine.has(name))
+    {
+      alert('Property ' + name + ' already selected.');
     }
     else
     {
-      alert('Empty property name given.');
+      searchEngine.autoAdd(name, $('#searchPropertyType').val());
+    }
+  });
+
+  $('#searchPropertyMode').change(function()
+  {
+    if ($(this).val() == 'name')
+    {
+      $('#searchPropertyName').show();
+    }
+    else
+    {
+      $('#searchPropertyName').hide();
     }
   });
 
