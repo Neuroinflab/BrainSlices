@@ -3,9 +3,12 @@
   <title>Skrawki engine - test site.</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
   <link rel="icon" type="image/vnd.microsoft.icon" href="/static/gfx/nut.ico"/>
+  <link rel="stylesheet" type="text/css" href="/static/css/overcast/jquery-ui-1.10.4.custom.min.css" />
   <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
   <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
-  <script src="/static/js/jquery.js" type="text/javascript"></script>
+  <!--<script src="/static/js/jquery.js" type="text/javascript"></script>-->
+  <script src="/static/js/jquery-1.10.2.js" type="text/javascript"></script>
+  <script src="/static/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
   <script src="/static/js/html5slider.js" type="text/javascript"></script>
   <script src="/static/js/common.js" type="text/javascript"></script>
   <script src="/static/js/layer_stack.js" type="text/javascript"></script>
@@ -704,17 +707,17 @@ $(function()
     }
   });
 
-  $('#searchPropertyMode').change(function()
-  {
-    if ($(this).val() == 'name')
-    {
-      $('#searchPropertyName').show();
-    }
-    else
-    {
-      $('#searchPropertyName').hide();
-    }
-  });
+//  $('#searchPropertyMode').change(function()
+//  {
+//    if ($(this).val() == 'name')
+//    {
+//      $('#searchPropertyName').show();
+//    }
+//    else
+//    {
+//      $('#searchPropertyName').hide();
+//    }
+//  });
 
   $('#searchPropertySearch').click(function()
   {
@@ -775,16 +778,87 @@ $(function()
   });
 
 
-  loginConsole.ajax('/images/_allImages',
+  loginConsole.ajax('/meta/getPropertyList',
                     function(data)
                     {
-		                	for (var i in data.data)
-		                	{
-		                		$('select#id').append('<option value="' +
-                                              data.data[i][1] + '">' +
-                                              data.data[i][0] + '</option>');
-		                		id2name[data.data[i][1]] = data.data[i][0];
-		                	}
+                      if (data.status)
+                      {
+                        var properties = [];
+                        for (var name in data.data)
+                        {
+                          properties.push({name: name,
+                                           label: name,
+                                           data: data.data[name]});
+                        }
+
+                        var $span = $('#searchProperty').addClass("select-property ui-widget");
+                        var $select = $('<select></select>').appendTo($span)
+                                      .attr('id', 'searchPropertyMode')
+                                      .addClass('ui-widget ui-widget-content ui-state-default ui-corner-left')
+                                      .append('<option value="all" selected="selected">any field</option>')
+                                      .append('<option value="name">field of name:</option>');
+                        var $input = $('<input type="text">').appendTo($span)
+                                     .attr('id', 'searchPropertyName')
+                                     .addClass('ui-widget ui-widget-content ui-state-default')
+                                     .autocomplete({source: properties,
+                                                    minLength: 0,
+                                                    change: function(e, ui)
+                                                    {
+                                                      $('#searchPropertyType>option[value!="t"]').attr('disabled', 'disabled').hide();
+                                                      if (ui)
+                                                      {
+                                                        var data = ui.item.data;
+                                                        for (var i = 0; i < data.length; i++)
+                                                        {
+                                                          $('#searchPropertyType>option[value="' + data[i] + '"]').removeAttr('disabled').show();
+                                                        }
+                                                      }
+                                                    }
+                                                  });
+
+                        var wasOpen = false;
+                        var $a = $('<a>')
+                         .appendTo($span)
+                         .button({
+                           icons: {
+                             primary: "ui-icon-triangle-1-s"
+                           },
+                           text: false})
+                         .removeClass('ui-corner-all')
+                         .addClass('select-property-toggle ui-corner-right')
+                         .mousedown(function()
+                         {
+                           wasOpen = $input.autocomplete('widget').is( ":visible" );
+                         })
+                         .click(function()
+                         {
+                           $input.focus();
+                           if (wasOpen) return;
+
+                           $input.autocomplete('search', '');
+                         });
+
+                        $select.change(function()
+                        {
+                          if ($(this).val() == 'name')
+                          {
+                            $input.show();
+                            $a.show();
+                            $select.removeClass('ui-corner-right');
+                          }
+                          else
+                          {
+                            $input.hide();
+                            $a.hide();
+                            $select.addClass('ui-corner-right');
+                          }
+                        })
+                        .change();
+                      }
+                      else
+                      {
+                        alert(data.message);
+                      }
                     });
 
 

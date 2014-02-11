@@ -27,7 +27,7 @@ from cherrypy.lib import static
 import json
 
 from request import GetImagesPropertiesRequest, ChangeImagesPropertiesRequest,\
-                    SearchImagesRequest
+                    SearchImagesRequest, Request
 from server import generateJson, Generator, Server, serveContent, useTemplate
 
 from tileBase import NO_PRIVILEGE
@@ -108,6 +108,14 @@ class MetaServer(Generator, Server):
                         status = True,
                         message = None,
                         logged = uid != None)
+
+  @cherrypy.expose
+  @serveContent(Request)
+  def getPropertyList(self, request):
+    return generateJson(data = self.metaBase.getPropertyList(),
+                        status = True,
+                        message = None,
+                        logged = request.session.get('userID') != None)
 
 
   @cherrypy.expose

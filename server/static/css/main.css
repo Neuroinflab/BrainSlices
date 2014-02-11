@@ -15,7 +15,7 @@ div.modalwin
   border: 2px solid #CCC;
   border-radius: 15px;
   font-size: 14px;
-  z-index: 101;
+  z-index: 96;
   background: #fff;
   color: #7F7F7F;
   position: relative;
@@ -69,7 +69,7 @@ div.overlay
   top:0px;
   bottom:0px;
   right:0px;
-  z-index:3000;
+  z-index: 95;
   background:rgba(0,0,0,0.1);
   text-align:center;
 }
@@ -281,4 +281,28 @@ form[name=confirmationForm] p
 #upload table.uploaded
 {
 /*  table-layout: fixed;*/
+}
+
+.select-property
+{
+  position: relative;
+  display: inline-block;
+  padding-right: 2.2em;
+}
+
+.select-property>select,
+.select-property>input
+{
+  margin: 0;
+/*  padding: 0.3em;*/
+}
+
+.select-property>.select-property-toggle
+{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  margin-left: -1px;
+  padding: 0;
 }

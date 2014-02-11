@@ -295,6 +295,19 @@ class MetaBase(dbBase):
         return True
 
   @provideCursor
+  def getPropertyList(self, cursor=None):
+    cursor.execute("""
+                   SELECT
+                   property_name, BOOL_OR(property_number IS NOT NULL),
+                   BOOL_OR(property_type != 't')
+                   FROM properties
+                   GROUP BY property_name
+                   ORDER BY property_name
+                   """)
+    return dict((name, ('f' if number else '') + ('x' if string else ''))\
+                for (name, number, string) in cursor)
+
+  @provideCursor
   def searchImages(self, selectors, limit=None, cursor=None):
     _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors, None)
     query = """
