@@ -707,17 +707,6 @@ $(function()
     }
   });
 
-//  $('#searchPropertyMode').change(function()
-//  {
-//    if ($(this).val() == 'name')
-//    {
-//      $('#searchPropertyName').show();
-//    }
-//    else
-//    {
-//      $('#searchPropertyName').hide();
-//    }
-//  });
 
   $('#searchPropertySearch').click(function()
   {
@@ -777,83 +766,239 @@ $(function()
     });
   });
 
+  $.widget('brainslices.propertybox', $.ui.autocomplete,
+  {
+    _renderMenu: function($ul, items)
+    {
+      var thisInstance = this;
+      var lastData = null;
+      $.each(items, function(index, item)
+      {
+        if (item.data != null && lastData == null)
+        {
+          $ul.append('<li class="ui-autocomplete-category">Field names</li>');
+        }
+        lastData = item.data;
+        thisInstance._renderItemData($ul, item);
+      });
+    }
+  });
+
+  $.widget('brainslices.newpropertyfilter',
+  {
+    options:
+    {
+      typeLabels:
+      {
+        t: 'Tag',
+        f: 'Number',
+        x: 'Text'
+      },
+
+      anyLabel: '--- any field ---'
+    },
+
+    _create: function()
+    {
+      this.$wrapper = $('<span>')
+        .addClass('brainslices-newpropertyfilter')
+        .appendTo(this.element);
+      this._createPropertybox();
+      this._createTypeSelect('tfx');
+      this._createSubmitButton();
+    },
+
+    _createPropertybox: function()
+    {
+      var source = this.options.source;
+      var anyLabel = this.options.anyLabel;
+      this.didSelect = false;
+
+      var $span = $('<span>')
+        .addClass("select-property ui-widget")
+        .appendTo(this.$wrapper);
+      var $input = $('<input>')
+        .attr(
+        {
+          title: '',
+          type: 'text',
+          value: anyLabel
+        })
+        .tooltip()
+        .addClass('ui-widget-content ui-state-default ui-corner-left')
+        .propertybox(
+        {
+          source: function(request, response)
+          {
+            var properties = [{value: anyLabel,
+                               label: anyLabel,
+                               data: null}];
+            var filter = new RegExp(
+              $.ui.autocomplete.escapeRegex(request.term),
+              'i');
+
+            for (var name in source)
+            {
+              if (!request.term || filter.test(name))
+              {
+                properties.push({value: name,
+                                 label: name,
+                                 data: source[name]});
+              }
+            }
+            response(properties);
+          },
+          minLength: 0
+        })
+        .keypress($.proxy(function(e)
+        {
+          if (e.keyCode == 13)
+          {
+            this.$input.blur();
+            //this._propertyChange();
+          }
+        }, this))
+        .appendTo($span);
+
+      this.$input = $input;
+      this._on(this.$input,
+      {
+        propertyboxselect: '_propertySelect',
+        propertyboxchange: '_propertyChange'
+      });
+
+      var wasOpen = false;
+      var $a = $('<a>')
+        .appendTo($span)
+        .button(
+        {
+          icons: {primary: "ui-icon-triangle-1-s"},
+          text: false
+        })
+        .removeClass('ui-corner-all')
+        .addClass('select-property-toggle ui-corner-right')
+        .attr('title', 'Show all possible fields')
+        .tooltip()
+        .mousedown(function()
+        {
+          wasOpen = $input.propertybox('widget').is( ":visible" );
+        })
+        .click(function()
+        {
+          $input.focus();
+          if (wasOpen) return;
+
+          $input.propertybox('search', '');
+        });
+
+    },
+
+    _createTypeSelect: function()
+    {
+      this.$types = $('<select>')
+        .appendTo(this.$wrapper);
+
+      this._updateTypeSelect('fxt');
+    },
+
+    _createSubmitButton: function()
+    {
+      var $a = $('<a>')
+        .button({label: 'Add'})
+        .click($.proxy(this, '_onSubmit'))
+        .appendTo(this.$wrapper);
+    },
+
+    _updateTypeSelect: function(types)
+    {
+      this.$types.empty();
+      if (!types) return;
+      var typeLabels = this.options.typeLabels;
+      for (var i = 0; i < types.length; i++)
+      {
+        var t = types[i];
+        var label = t in typeLabels ? typeLabels[t] : t;
+        this.$types.append('<option value="' + t + '">' + label + '</option>');
+      }
+    },
+
+    _propertySelect: function(event, ui)
+    {
+      this._propertyChange(event, ui);
+      this.$input.blur();
+    },
+
+    _propertyChange: function(event, ui)
+    {
+      if (ui && ui.item)
+      {
+        var data = ui.item.data;
+        this._updateTypeSelect(data != null ? data + 't' : 'fxt');
+        this.propertyName = data != null ? ui.item.value : null;
+        console.debug('direct match');
+        return;
+      }
+
+      var value = this.$input.val().trim().toLowerCase();
+      this.propertyName = value;
+      var valid = false;
+      var thisInstance = this;
+      $.each(this.options.source, function(name, type)
+      {
+        if (name === value)
+        {
+          valid = true;
+          thisInstance._updateTypeSelect(type + 't');
+          console.debug('indirect match');
+          return false;
+        }
+      });
+
+      if (valid) return;
+
+      this.$input
+        .attr('title', value + ' does not match any database field')
+        .tooltip('open');
+
+      this._updateTypeSelect('fxt');
+      this._delay(function()
+      {
+        this.$input
+          .tooltip('close')
+          .attr('title', '');
+      }, 2500);
+
+    },
+
+    _onSubmit: function()
+    {
+      var type = this.$types.val();
+
+      this.options.submit(this.propertyName, type);
+    }
+  });
+
 
   loginConsole.ajax('/meta/getPropertyList',
                     function(data)
                     {
                       if (data.status)
                       {
-                        var properties = [];
-                        for (var name in data.data)
+                        $('#searchProperty').newpropertyfilter(
                         {
-                          properties.push({name: name,
-                                           label: name,
-                                           data: data.data[name]});
-                        }
-
-                        var $span = $('#searchProperty').addClass("select-property ui-widget");
-                        var $select = $('<select></select>').appendTo($span)
-                                      .attr('id', 'searchPropertyMode')
-                                      .addClass('ui-widget ui-widget-content ui-state-default ui-corner-left')
-                                      .append('<option value="all" selected="selected">any field</option>')
-                                      .append('<option value="name">field of name:</option>');
-                        var $input = $('<input type="text">').appendTo($span)
-                                     .attr('id', 'searchPropertyName')
-                                     .addClass('ui-widget ui-widget-content ui-state-default')
-                                     .autocomplete({source: properties,
-                                                    minLength: 0,
-                                                    change: function(e, ui)
-                                                    {
-                                                      $('#searchPropertyType>option[value!="t"]').attr('disabled', 'disabled').hide();
-                                                      if (ui)
-                                                      {
-                                                        var data = ui.item.data;
-                                                        for (var i = 0; i < data.length; i++)
-                                                        {
-                                                          $('#searchPropertyType>option[value="' + data[i] + '"]').removeAttr('disabled').show();
-                                                        }
-                                                      }
-                                                    }
-                                                  });
-
-                        var wasOpen = false;
-                        var $a = $('<a>')
-                         .appendTo($span)
-                         .button({
-                           icons: {
-                             primary: "ui-icon-triangle-1-s"
-                           },
-                           text: false})
-                         .removeClass('ui-corner-all')
-                         .addClass('select-property-toggle ui-corner-right')
-                         .mousedown(function()
-                         {
-                           wasOpen = $input.autocomplete('widget').is( ":visible" );
-                         })
-                         .click(function()
-                         {
-                           $input.focus();
-                           if (wasOpen) return;
-
-                           $input.autocomplete('search', '');
-                         });
-
-                        $select.change(function()
-                        {
-                          if ($(this).val() == 'name')
+                          source: data.data,
+                          submit: function(name, type)
                           {
-                            $input.show();
-                            $a.show();
-                            $select.removeClass('ui-corner-right');
+                            if (name != null && searchEngine.has(name))
+                            {
+                              alert('Property ' + name + ' already selected.');
+                            }
+                            else
+                            {
+                              searchEngine.autoAdd(name, type);
+                            }
                           }
-                          else
-                          {
-                            $input.hide();
-                            $a.hide();
-                            $select.addClass('ui-corner-right');
-                          }
-                        })
-                        .change();
+                        });
                       }
                       else
                       {

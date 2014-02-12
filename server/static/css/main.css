@@ -294,15 +294,26 @@ form[name=confirmationForm] p
 .select-property>input
 {
   margin: 0;
+
+/*  -moz-box-sizing: content-box;
+  box-sizing: content-box;*/
+/*  height: 1.5em;*/
 /*  padding: 0.3em;*/
 }
 
 .select-property>.select-property-toggle
 {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 0px;
+  bottom: 0px;
   right: 0;
   margin-left: -1px;
+  margin-right: 0;
   padding: 0;
+}
+
+.brainslices-newpropertyfilter
+{
+  font-size: 14px;
+  display: inline-block;
 }
