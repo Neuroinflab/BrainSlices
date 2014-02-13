@@ -866,10 +866,6 @@ $(function()
 
     _createPropertybox: function()
     {
-      var source = this.options.source;
-      var anyLabel = this.options.anyLabel;
-      this.didSelect = false;
-
       var $span = $('<span>')
         .addClass("select-property ui-widget")
         .appendTo(this.$wrapper);
@@ -878,32 +874,13 @@ $(function()
         {
           title: '',
           type: 'text',
-          value: anyLabel
+          value: '' //this.options.anyLabel
         })
         .tooltip()
         .addClass('ui-widget-content ui-state-default ui-corner-left')
         .propertybox(
         {
-          source: function(request, response)
-          {
-            var properties = [{value: anyLabel,
-                               label: anyLabel,
-                               data: null}];
-            var filter = new RegExp(
-              $.ui.autocomplete.escapeRegex(request.term),
-              'i');
-
-            for (var name in source)
-            {
-              if (!request.term || filter.test(name))
-              {
-                properties.push({value: name,
-                                 label: name,
-                                 data: source[name]});
-              }
-            }
-            response(properties);
-          },
+          source: $.proxy(this, '_source'),
           minLength: 0
         })
         .keypress($.proxy(function(e)
@@ -1051,17 +1028,49 @@ $(function()
 
     },
 
+    _source:
+    function(request, response)
+    {
+      var properties = [{value: this.options.anyLabel,
+                         label: this.options.anyLabel,
+                         data: null}];
+      var filter = new RegExp(
+        $.ui.autocomplete.escapeRegex(request.term),
+        'i');
+
+      var source = this.options.source;
+      for (var name in source)
+      {
+        if (!request.term || filter.test(name))
+        {
+          properties.push({value: name,
+                           label: name,
+                           data: source[name]});
+        }
+      }
+      response(properties);
+    },
+
     _onSubmit: function()
     {
       var type = this.$types.val();
-
-      console.debug(this)
 
       this.options.submit(this.propertyName, type, this.filter.detach());
       this.filter = new CFilterPanel('<div>')
         .make(type)
         .appendTo(this.$wrapper);
       // UPS - would be before Add button :-D
+    },
+
+    destroy:
+    function()
+    {
+      this.$wrapper.remove();
+      if (this.filter)
+      {
+        this.filter.destroy();
+        delete this.filter;
+      }
     }
   });
 
