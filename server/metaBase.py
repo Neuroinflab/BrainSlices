@@ -353,6 +353,42 @@ class MetaBase(dbBase):
 
     return res
 
+  @provideCursor
+  def searchImagesPropertiesSize(self, selectors, limit=None, cursor=None):
+    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors,
+                                   (1, ["properties AS tmp0",
+                                        "images AS img USING (iid)"], [], []))
+    query = """
+            SELECT tmp0.iid, tmp0.property_name, tmp0.property_type,
+                   tmp0.property_number, tmp0.property_string,
+                   tmp0.property_visible, tmp0.property_editable,
+                   img.image_width, img.image_height
+            FROM %s
+            WHERE %s
+            ORDER BY tmp0.iid
+            """ % (' JOIN '.join(tables), ' AND '.join(cond))
+    cursor.execute(query, data)
+    res = []
+    if cursor.rowcount > 0:
+      lastIID, name, t, n, s, v, e, lastW, lastH = cursor.fetchone()
+      last = {name: unwrapProperties(t, n, s, v, e)}
+      for iid, name, t, n, s, v, e, w, h in cursor:
+        if iid != lastIID:
+          res.append([lastIID, last, [lastW, lastH]])
+          if limit != None and len(res) >= limit:
+            return res
+
+          last = {}
+          lastIID = iid
+          lastW = w
+          lastH = h
+
+        last[name] = unwrapProperties(t, n, s, v, e)
+
+      res.append([lastIID, last, [lastW, lastH]])
+
+    return res
+
 if __name__ == '__main__':
   from database import db, dbPool
   mb = MetaBase(db, dbPool)

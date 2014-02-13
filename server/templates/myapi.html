@@ -774,11 +774,12 @@ $(function()
         var row = result[i];
         var iid = row[0];
         var properties = row[1];
+        var size = row[2];
         var $tr = $('<tr><td>#' + iid + '</td></tr>');
         var $td = $('<td></td>');
         $tr.append($td);
         // XXX: a hack :-/
-        $td.append(BrainSlices.gui.getThumbnail(iid, 1, 1, 60, 60));
+        $td.append(BrainSlices.gui.getThumbnail(iid, size[0], size[1], 60, 60));
         $td = $('<td></td>');
         $tr.append($td);
         var $ul = $('<ul></ul>');

@@ -72,8 +72,12 @@ var BrainSlices = {
       {
         width = Math.round(height * imageWidth / imageHeight);
       }
-      return $("<img />").attr({src: '/images/'+iid+'/tiles/0/0/0.jpg',
-                                alt: 'thumbnail of image #' + iid}).addClass("polaroid-image").css({width: width + 'px', height: height + 'px'});
+      return $("<img />")
+               .attr({src: '/images/'+iid+'/tiles/0/0/0.jpg',
+                      alt: 'thumbnail of image #' + iid})
+               .addClass("polaroid-image")
+               .css({width: width + 'px',
+                     height: height + 'px'});
     },
 
     /**
