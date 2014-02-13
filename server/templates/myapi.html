@@ -869,6 +869,8 @@ $(function()
       var $span = $('<span>')
         .addClass("select-property ui-widget")
         .appendTo(this.$wrapper);
+
+      this.propertyName = ''; //null
       var $input = $('<input>')
         .attr(
         {
@@ -1053,6 +1055,20 @@ $(function()
 
     _onSubmit: function()
     {
+      if (this.propertyName == '')
+      {
+        this.$input
+          .attr('title', 'An empty property name provided.')
+          .tooltip('open');
+        this._delay(function()
+        {
+          this.$input
+            .tooltip('close')
+            .attr('title', '');
+        }, 2500);
+        return;
+      }
+
       var type = this.$types.val();
 
       this.options.submit(this.propertyName, type, this.filter.detach());
