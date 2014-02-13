@@ -554,7 +554,7 @@ $(function()
           var $input2 = $('<input type="number" disabled="disabled" value="0">')
             .appendTo(this.$row);
 
-          var change = function()
+          this.change = function()
           {
             thisInstance.reset();
             var op = $op.val();
@@ -571,7 +571,7 @@ $(function()
             }
           };
 
-          $op.change(change)
+          $op.change(this.change)
             .change(function()
             {
               if ($op.val() == 'eq')
@@ -597,7 +597,7 @@ $(function()
                 $input.removeAttr('disabled');
               }
             });
-          $op2.change(change)
+          $op2.change(this.change)
             .change(function()
             {
               if ($op2.val() == '---')
@@ -609,25 +609,28 @@ $(function()
                 $input2.removeAttr('disabled');
               }
             });
-          $input.change(change);
-          $input2.change(change);
+          $input.change(this.change);
+          $input2.change(this.change);
 
           this.$row.show();
           break;
 
         case 'x':
+          this.change = function()
+          {
+            thisInstance.set('plain', $(this).val());
+          };
           $input = $('<input type="text">')
             .appendTo(this.$row)
-            .change(function()
-            {
-              thisInstance.set('plain', $(this).val());
-            });
+            .change(this.change);
           this.$row.show();
           break;
 
         default:
+          this.change = function(){};
           break;
       }
+      return this;
     },
 
     detach:
@@ -658,6 +661,7 @@ $(function()
       delete this.onreset;
       this.$row.remove();
       delete this.$row;
+      delete this.change;
     }
   }
 
@@ -666,9 +670,9 @@ $(function()
   searchEngine = new CPropertiesSearch(loginConsole,
   {
     data: $('table#searchPanel tbody'),
-    add: function(name, type, conditions)
+    add: function(name, type, filter)
     {
-      var change, remove, n, $op, $op2, $input, $input2;
+      var change, remove, n;
       // list of variables for my convenience
       if (name == null)
       {
@@ -678,37 +682,16 @@ $(function()
           searchEngine.removeAny(n);
         }
 
-        switch (type)
-        {
-          case 'f':
-            change = function()
-            {
-              var op = $op.val();
-              var op2 = $op2.val();
-              searchEngine.resetAny(n);
-              if (op != 'eq' && op2 != '---')
-              {
-                searchEngine.setAny(n, op2, parseFloat($input2.val()));
-              }
+        filter.triggers(
+          function(op, value)
+          {
+            searchEngine.setAny(n, op, value);
+          },
+          function()
+          {
+            searchEngine.resetAny(n);
+          });
 
-              if (op != '---')
-              {
-                searchEngine.setAny(n, op, parseFloat($input.val()));
-              }
-            };
-            break;
-
-          case 'x':
-            change = function()
-            {
-              searchEngine.resetAny(n);
-              searchEngine.setAny(n, 'plain', $input.val());
-            };
-            break;
-
-          default:
-            break;
-        }
       }
       else
       {
@@ -718,39 +701,15 @@ $(function()
           searchEngine.remove(name);
         }
 
-        switch(type)
-        {
-          case 'f':
-            change = function()
-            {
-              var op = $op.val();
-              var op2 = $op2.val();
-              searchEngine.reset(name);
-
-              if (op != 'eq' && op2 != '---')
-              {
-                searchEngine.set(name, op2, parseFloat($input2.val()));
-              }
-
-              if (op != '---')
-              {
-                searchEngine.set(name, op, parseFloat($input.val()));
-              }
-
-            };
-            break;
-
-          case 'x':
-            change = function()
-            {
-              searchEngine.reset(name);
-              searchEngine.set(name, 'plain', $input.val());
-            };
-            break;
-
-          default:
-            break;
-        }
+        filter.triggers(
+          function(op, value)
+          {
+            searchEngine.set(name, op, value);
+          },
+          function()
+          {
+            searchEngine.reset(name);
+          });
       }
 
       var $row = $('<tr><th>' + 
@@ -761,24 +720,10 @@ $(function()
       var $td = $('<td></td>');
       $row.append($td);
 
-      switch (type)
-      {
-        case 'x':
-//          $op = $('<select>'
-//                  +'<option>match</option>'
-//                  +'<option>plain</option>'
-//                  +'</select>');
-//          $td.append($op);
-          $input = $('<input type="text">');
-          if (conditions && 'plain' in conditions)
-          {
-            $input.val(conditions.plain);
-          }
-          $td.append($input);
-//          $op.change(change);
-          $input.change(change);
-          break;
+      filter.appendTo($td);
 
+//      switch (type)
+//      {
 //        case 's':
 //          $op = $('<select>'
 //                  +'<option>is</option>'
@@ -793,105 +738,6 @@ $(function()
 //          $input.change(change);
 //          break;
 
-        case 'f':
-          $op = $('<select>'
-                  +'<option selected="selected">eq</option>'
-                  +'<option>gt</option>'
-                  +'<option>gteq</option>'
-                  +'<option>---</option>'
-                  +'</select>');
-          $td.append($op);
-          $input = $('<input type="number">');
-          $td.append($input);
-          $op2 = $('<select disabled="disabled">'
-                  +'<option selected="selected">lt</option>'
-                  +'<option>lteq</option>'
-                  +'<option>---</option>'
-                  +'</select>');
-          $td.append($op2);
-          $input2 = $('<input type="number" disabled="disabled">');
-          $td.append($input2);
-
-          if (conditions)
-          {
-            for (var op in conditions)
-            {
-              switch (op)
-              {
-                case 'eq':
-                  $op2.attr('disabled', 'disabled');
-                  $input2.attr('disabled', 'disabled');
-                case 'gt':
-                case 'gteq':
-                  $op.val(op);
-                  $input.val(conditions[op]);
-                  break;
-
-                case 'lt':
-                case 'lteq':
-                  $op2.val(op);
-                  $input2.val(conditions[op]);
-                  $input2.removeAttr('disabled');
-                  break;
-
-                default:
-                  console.warn('unknown condition: ' + op + ' : ' + conditions[op]);
-                  break;
-              }
-            }
-            if (!('eq' in conditions))
-            {
-              $op2.removeAttr('disabled');
-            }
-          }
-
-          $op.change(change);
-          $op2.change(change);
-          $input.change(change);
-          $input2.change(change);
-          $op.change(function()
-          {
-            if ($op.val() == 'eq')
-            {
-              $op2.attr('disabled', 'disabled');
-              $input2.attr('disabled', 'disabled');
-            }
-            else
-            {
-              $op2.removeAttr('disabled');
-              if ($op2.val() != '---')
-              {
-                $input2.removeAttr('disabled');
-              }
-            }
-
-            if ($op.val() == '---')
-            {
-              $input.attr('disabled', 'disabled');
-            }
-            else
-            {
-              $input.removeAttr('disabled');
-            }
-          });
-
-          $op2.change(function()
-          {
-            if ($op2.val() == '---')
-            {
-              $input2.attr('disabled', 'disabled');
-            }
-            else
-            {
-              $input2.removeAttr('disabled');
-            }
-          });
-          break;
-
-        default:
-          break;
-      }
-
       var $remButton = $('<button>X</button>');
       $td.append($remButton);
       $remButton.click(remove);
@@ -901,6 +747,7 @@ $(function()
                       destroy:
                       function()
                       {
+                        filter.destroy();
                         this.data.$row.remove();
                       }};
       if (name != null)
@@ -912,10 +759,7 @@ $(function()
         n = this.addAny(type, triggers);
       }
 
-      if (conditions && change)
-      {
-        change();
-      }
+      filter.change();
     }
   });
 
@@ -1111,19 +955,8 @@ $(function()
         .appendTo(this.$wrapper);
 
       var thisInstance = this;
-      this.filters = new CFilterPanel('<div>',
-        function(name, value)
-        {
-          thisInstance.conditions[name] = value;
-        },
-        function()
-        {
-          thisInstance.conditions = {};
-        })
+      this.filter = new CFilterPanel('<div>')
         .appendTo(this.$wrapper);
-
-      //this.$filters = $('<div>')
-      //  .appendTo(this.$wrapper);
 
       this._updateTypeSelect('fxt');
     },
@@ -1154,7 +987,7 @@ $(function()
     _changeTypeSelect: function()
     {
       var t = this.$types.val();
-      this.filters.make(t);
+      this.filter.make(t);
     },
 
     _createSubmitButton: function()
@@ -1222,7 +1055,13 @@ $(function()
     {
       var type = this.$types.val();
 
-      this.options.submit(this.propertyName, type, this.conditions);
+      console.debug(this)
+
+      this.options.submit(this.propertyName, type, this.filter.detach());
+      this.filter = new CFilterPanel('<div>')
+        .make(type)
+        .appendTo(this.$wrapper);
+      // UPS - would be before Add button :-D
     }
   });
 
@@ -1235,7 +1074,7 @@ $(function()
                         $('#searchProperty').newpropertyfilter(
                         {
                           source: data.data,
-                          submit: function(name, type, conditions)
+                          submit: function(name, type, filter)
                           {
                             if (name != null && searchEngine.has(name))
                             {
@@ -1243,7 +1082,7 @@ $(function()
                             }
                             else
                             {
-                              searchEngine.autoAdd(name, type, conditions);
+                              searchEngine.autoAdd(name, type, filter);
                             }
                           }
                         });
