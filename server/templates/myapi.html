@@ -489,6 +489,178 @@ $(function()
   loadNextImage();
 
 
+  function CFilterPanel(row, set, reset)
+  {
+    this.triggers(set, reset);
+    this.reset();
+    this.$row = $(row ? row : '<span>');
+  }
+
+  CFilterPanel.prototype = 
+  {
+    set:
+    function(name, value)
+    {
+      if (this.onset)
+      {
+        this.onset(name, value);
+      }
+      return this;
+    },
+
+    reset:
+    function()
+    {
+      if (this.onreset)
+      {
+        this.onreset();
+      }
+      return this;
+    },
+
+    triggers:
+    function(set, reset)
+    {
+      this.onset = set;
+      this.onreset = reset;
+      return this;
+    },
+
+    make:
+    function(t)
+    {
+      this.$row.hide().empty();
+      var $input;
+      var thisInstance = this;
+      switch (t)
+      {
+        case 'f':
+          var $op = $('<select>'
+                      +'<option selected="selected">eq</option>'
+                      +'<option>gt</option>'
+                      +'<option>gteq</option>'
+                      +'<option>---</option>'
+                      +'</select>')
+            .appendTo(this.$row);
+          $input = $('<input type="number" value="0">')
+            .appendTo(this.$row);
+
+          var $op2 = $('<select disabled="disabled">'
+                       +'<option>lt</option>'
+                       +'<option>lteq</option>'
+                       +'<option selected="selected">---</option>'
+                       +'</select>')
+            .appendTo(this.$row);
+          var $input2 = $('<input type="number" disabled="disabled" value="0">')
+            .appendTo(this.$row);
+
+          var change = function()
+          {
+            thisInstance.reset();
+            var op = $op.val();
+            var op2 = $op2.val();
+
+            if (op != 'eq' && op2 != '---')
+            {
+              thisInstance.set(op2, parseFloat($input2.val()));
+            }
+
+            if (op != '---')
+            {
+              thisInstance.set(op, parseFloat($input.val()));
+            }
+          };
+
+          $op.change(change)
+            .change(function()
+            {
+              if ($op.val() == 'eq')
+              {
+                $op2.attr('disabled', 'disabled');
+                $input2.attr('disabled', 'disabled');
+              }
+              else
+              {
+                $op2.removeAttr('disabled');
+                if ($op2.val() != '---')
+                {
+                  $input2.removeAttr('disabled');
+                }
+              }
+
+              if ($op.val() == '---')
+              {
+                $input.attr('disabled', 'disabled');
+              }
+              else
+              {
+                $input.removeAttr('disabled');
+              }
+            });
+          $op2.change(change)
+            .change(function()
+            {
+              if ($op2.val() == '---')
+              {
+                $input2.attr('disabled', 'disabled');
+              }
+              else
+              {
+                $input2.removeAttr('disabled');
+              }
+            });
+          $input.change(change);
+          $input2.change(change);
+
+          this.$row.show();
+          break;
+
+        case 'x':
+          $input = $('<input type="text">')
+            .appendTo(this.$row)
+            .change(function()
+            {
+              thisInstance.set('plain', $(this).val());
+            });
+          this.$row.show();
+          break;
+
+        default:
+          break;
+      }
+    },
+
+    detach:
+    function()
+    {
+      this.$row.detach();
+      return this;
+    },
+
+    appendTo:
+    function($dst)
+    {
+      this.$row.appendTo($dst);
+      return this;
+    },
+
+    prependTo:
+    function($dst)
+    {
+      this.$row.prependTo($dst);
+      return this;
+    },
+
+    destroy:
+    function()
+    {
+      delete this.onchange;
+      delete this.onreset;
+      this.$row.remove();
+      delete this.$row;
+    }
+  }
+
 
   // try to use tableManager? sort mathod would be necessary ;-)
   searchEngine = new CPropertiesSearch(loginConsole,
@@ -659,12 +831,17 @@ $(function()
                 case 'lteq':
                   $op2.val(op);
                   $input2.val(conditions[op]);
+                  $input2.removeAttr('disabled');
                   break;
 
                 default:
                   console.warn('unknown condition: ' + op + ' : ' + conditions[op]);
                   break;
               }
+            }
+            if (!('eq' in conditions))
+            {
+              $op2.removeAttr('disabled');
             }
           }
 
@@ -933,8 +1110,20 @@ $(function()
       this.$types = $('<select>')
         .appendTo(this.$wrapper);
 
-      this.$filters = $('<div>')
+      var thisInstance = this;
+      this.filters = new CFilterPanel('<div>',
+        function(name, value)
+        {
+          thisInstance.conditions[name] = value;
+        },
+        function()
+        {
+          thisInstance.conditions = {};
+        })
         .appendTo(this.$wrapper);
+
+      //this.$filters = $('<div>')
+      //  .appendTo(this.$wrapper);
 
       this._updateTypeSelect('fxt');
     },
@@ -957,114 +1146,15 @@ $(function()
                            + label + '</option>');
       }
 
+      this.$types.change($.proxy(this, '_changeTypeSelect'));
+
       this._changeTypeSelect();
     },
 
     _changeTypeSelect: function()
     {
-      this.$filters.hide().empty();
-      var $input, conditions = {};
-      this.conditions = conditions;
-
       var t = this.$types.val();
-      switch (t)
-      {
-        case 'f':
-          var $op = $('<select>'
-                      +'<option selected="selected">eq</option>'
-                      +'<option>gt</option>'
-                      +'<option>gteq</option>'
-                      +'<option>---</option>'
-                      +'</select>')
-            .appendTo(this.$filters);
-          $input = $('<input type="number" value="0">')
-            .appendTo(this.$filters);
-
-          var $op2 = $('<select disabled="disabled">'
-                       +'<option>lt</option>'
-                       +'<option>lteq</option>'
-                       +'<option selected="selected">---</option>'
-                       +'</select>')
-            .appendTo(this.$filters);
-          var $input2 = $('<input type="number" disabled="disabled" value="0">')
-            .appendTo(this.$filters);
-
-          var change = function()
-          {
-            var op = $op.val();
-            var op2 = $op2.val();
-            for (var condition in conditions)
-            {
-              delete conditions[condition];
-            }
-
-            if (op != 'eq' && op2 != '---')
-            {
-              conditions[op2] = parseFloat($input2.val());
-            }
-
-            if (op != '---')
-            {
-              conditions[op] = parseFloat($input.val());
-            }
-          };
-
-          $op.change(change)
-            .change(function()
-            {
-              if ($op.val() == 'eq')
-              {
-                $op2.attr('disabled', 'disabled');
-                $input2.attr('disabled', 'disabled');
-              }
-              else
-              {
-                $op2.removeAttr('disabled');
-                if ($op2.val() != '---')
-                {
-                  $input2.removeAttr('disabled');
-                }
-              }
-
-              if ($op.val() == '---')
-              {
-                $input.attr('disabled', 'disabled');
-              }
-              else
-              {
-                $input.removeAttr('disabled');
-              }
-            });
-          $op2.change(change)
-            .change(function()
-            {
-              if ($op2.val() == '---')
-              {
-                $input2.attr('disabled', 'disabled');
-              }
-              else
-              {
-                $input2.removeAttr('disabled');
-              }
-            });
-          $input.change(change);
-          $input2.change(change);
-
-          this.$filters.show();
-          break;
-
-        case 'x':
-          $input = $('<input type="text">')
-            .appendTo(this.$filters)
-            .change(function()
-            {
-              conditions.plain = $(this).val();
-            });
-          break;
-
-        default:
-          break;
-      }
+      this.filters.make(t);
     },
 
     _createSubmitButton: function()
@@ -1074,7 +1164,6 @@ $(function()
         .click($.proxy(this, '_onSubmit'))
         .appendTo(this.$wrapper);
     },
-
 
     inSelect: false,
 
@@ -1133,7 +1222,7 @@ $(function()
     {
       var type = this.$types.val();
 
-      this.options.submit(this.propertyName, type);
+      this.options.submit(this.propertyName, type, this.conditions);
     }
   });
 
@@ -1146,7 +1235,7 @@ $(function()
                         $('#searchProperty').newpropertyfilter(
                         {
                           source: data.data,
-                          submit: function(name, type)
+                          submit: function(name, type, conditions)
                           {
                             if (name != null && searchEngine.has(name))
                             {
@@ -1154,7 +1243,7 @@ $(function()
                             }
                             else
                             {
-                              searchEngine.autoAdd(name, type);
+                              searchEngine.autoAdd(name, type, conditions);
                             }
                           }
                         });
