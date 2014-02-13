@@ -527,8 +527,9 @@ $(function()
     },
 
     make:
-    function(t)
+    function(t, data)
     {
+      console.debug(t)
       this.$row.hide().empty();
       var $input;
       var thisInstance = this;
@@ -618,9 +619,22 @@ $(function()
         case 'x':
           this.change = function()
           {
-            thisInstance.set('plain', $(this).val());
+            thisInstance.set('plain', $input.val());
           };
           $input = $('<input type="text">')
+            .val('')
+            .appendTo(this.$row)
+            .change(this.change);
+          this.$row.show();
+          break;
+
+        case 'e':
+          this.change = function()
+          {
+            thisInstance.set('is', $input.val());
+          };
+          $input = $('<input type="text">')
+            .autocomplete({source: data})
             .appendTo(this.$row)
             .change(this.change);
           this.$row.show();
@@ -849,7 +863,8 @@ $(function()
       {
         t: 'Tag',
         f: 'Number',
-        x: 'Text'
+        x: 'Text',
+        e: 'Enumerative'
       },
 
       anyLabel: '--- any field ---'
@@ -938,7 +953,7 @@ $(function()
       this.filter = new CFilterPanel('<div>')
         .appendTo(this.$wrapper);
 
-      this._updateTypeSelect('fxt');
+      this._updateTypeSelect('fxte');
     },
 
     _updateTypeSelect: function(types, selected)
@@ -967,7 +982,23 @@ $(function()
     _changeTypeSelect: function()
     {
       var t = this.$types.val();
-      this.filter.make(t);
+      if (t == 'e')
+      {
+        var data = [];
+        if (this.propertyName == null)
+        {
+          data = this.options.enumeratedAll;
+        }
+        else if (this.propertyName in this.options.enumerated)
+        {
+          data = this.options.enumerated[this.propertyName];
+        }
+        this.filter.make(t, data);
+      }
+      else
+      {
+        this.filter.make(t);
+      }
     },
 
     _createSubmitButton: function()
@@ -1097,9 +1128,27 @@ $(function()
                     {
                       if (data.status)
                       {
+                        var enumerated = data.data[1];
+                        var enumeratedAll = {};
+                        for (var name in enumerated)
+                        {
+                          $.each(enumerated[name],
+                                 function(i, v)
+                                 {
+                                   enumeratedAll[v] = null;
+                                 });
+                        }
+                        enumeratedAll = $.map(enumeratedAll, function(v, k)
+                                                             {
+                                                               return k;
+                                                             });
+                        enumeratedAll.sort();
+
                         $('#searchProperty').newpropertyfilter(
                         {
-                          source: data.data,
+                          source: data.data[0],
+                          enumerated: enumerated,
+                          enumeratedAll: enumeratedAll,
                           submit: function(name, type, filter)
                           {
                             if (name != null && searchEngine.has(name))

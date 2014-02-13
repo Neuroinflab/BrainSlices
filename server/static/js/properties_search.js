@@ -31,9 +31,9 @@ var CPropertiesSearch = null;
     return name in triggers ? triggers[name] : null;
   }
 
-  var reduceType = {s: 's', x: 'x', t: 't', i: 'f', f: 'f'};
+//  var reduceType = {e: 'e', s: 'x', x: 'x', t: 't', i: 'f', f: 'f'};
   var allowedOperators = {'t': {},
-                          's': {is: true,
+                          'e': {is: true,
                                 like: true,
                                 similar: true,
                                 posix: true},

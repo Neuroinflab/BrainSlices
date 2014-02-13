@@ -47,7 +47,7 @@ class MetaServer(Generator, Server):
     self.metaBase = metaBase
     self.tileBase = tileBase
     self.selectorClass = {'f': MetaBase.SelectNumber,
-                          's': MetaBase.SelectString,
+                          'e': MetaBase.SelectString,
                           'x': MetaBase.SelectText,
                           't': MetaBase.SelectTag,}
 
@@ -112,7 +112,8 @@ class MetaServer(Generator, Server):
   @cherrypy.expose
   @serveContent(Request)
   def getPropertyList(self, request):
-    return generateJson(data = self.metaBase.getPropertyList(),
+    return generateJson(data = [self.metaBase.getPropertyList(),
+                                self.metaBase.getEnumeratedPropertyList()],
                         status = True,
                         message = None,
                         logged = request.session.get('userID') != None)

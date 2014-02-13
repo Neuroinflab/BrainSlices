@@ -44,6 +44,7 @@ var CPropertiesManager = null;
 
       case 'x':
       case 's':
+      case 'e':
         return v;
     }
   }

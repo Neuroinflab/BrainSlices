@@ -160,6 +160,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
           $input = $('<textarea></textarea>');
           break;
         case 's':
+        case 'e':
           $input = $('<input type="text">');
           break;
         case 'i':
@@ -236,11 +237,13 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         '<option value="f">Float</option>' +
         '<option value="s">String</option>' +
         '<option value="x">Text</option>' +
+        '<option value="e">Enumerative</option>' +
        '</select>');
     $addPanel.append($type);
     var inputs = {i: $('<input type="number" step="1" value="0" style="display: none;">'),
                   f: $('<input type="number" value="0" style="display: none;">'),
                   s: $('<input type="text" style="display: none;">'),
+                  e: $('<input type="text" style="display: none;">'),
                   x: $('<textarea style="display: none;"></textarea>')};
     for (var t in inputs)
     {

@@ -234,7 +234,7 @@ class MetaBase(dbBase):
 
     name = name.lower()
 
-    if t in 'tsx':
+    if t in 'tsxe':
       update = """
                UPDATE properties
                SET property_type = %s, property_string = %s,
@@ -299,13 +299,40 @@ class MetaBase(dbBase):
     cursor.execute("""
                    SELECT
                    property_name, BOOL_OR(property_number IS NOT NULL),
-                   BOOL_OR(property_type != 't')
+                   BOOL_OR(property_type != 't'),
+                   BOOL_OR(property_type = 'e')
                    FROM properties
                    GROUP BY property_name
-                   ORDER BY property_name
                    """)
-    return dict((name, ('f' if number else '') + ('x' if string else ''))\
-                for (name, number, string) in cursor)
+    return dict((name, ('f' if number else '') + ('x' if string else '')\
+                       + ('e' if enum else ''))\
+                for (name, number, string, enum) in cursor)
+
+  @provideCursor
+  def getEnumeratedPropertyList(self, cursor=None):
+    cursor.execute("""
+                   SELECT
+                   property_name, LOWER(property_string) AS s
+                   FROM properties
+                   WHERE property_type = 'e'
+                   GROUP BY property_name, s
+                   ORDER BY property_name;
+                   """)
+    res = {}
+    if cursor.rowcount > 0:
+      lastName, value = cursor.fetchone()
+      last = [value]
+      for name, value in cursor:
+        if name != lastName:
+          res[lastName] = last
+          lastName = name
+          last = []
+
+        last.append(value)
+
+      res[lastName] = last
+
+    return res
 
   @provideCursor
   def searchImages(self, selectors, limit=None, cursor=None):
@@ -345,8 +372,8 @@ class MetaBase(dbBase):
             return res
 
           last = {}
+          lastIID = iid
 
-        lastIID = iid
         last[name] = unwrapProperties(t, n, s, v, e)
 
       res.append([lastIID, last])

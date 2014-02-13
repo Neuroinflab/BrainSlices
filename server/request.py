@@ -704,8 +704,9 @@ GetImagesPropertiesRequest = IidsRequestAux.extend('GetImagesPropertiesRequest',
 A class for image property querying.
 """)
 
-_validType = frozenset('tfisx')
-_valueType = {'s': basestring,
+_validType = frozenset('tfisxe')
+_valueType = {'e': basestring,
+              's': basestring,
               'x': basestring,
               'i': int,
               'f': (int, float)}
@@ -769,24 +770,25 @@ def _ValidSearchProperty(prop):
     if t == 't':
       return len(prop) == 1
 
-    if len(prop) != 2 or t not in ('s', 'f', 'x'):
+    if len(prop) != 2 or t not in ('e', 'f', 'x'):
       return False
 
     conditions = prop[1]
     if not isinstance(conditions, dict):
       return False
 
-    if t in 'sx':
+    if t in 'ex':
       if len(conditions) > 1: #XXX
         return False
 
-      if t == 's':
-        if any(k not in ('eq', 'like', 'similar', 'posix') or
+      if t == 'e':
+        if any(k != 'eq' or #not in ('eq', 'like', 'similar', 'posix') or
                not isinstance(v, basestring) for (k, v) in conditions.items()):
           return False
 
       else:
-        if any(k not in ('match', 'plain') or not isinstance(v, basestring)\
+        if any(k != 'plain' or #not in ('match', 'plain') or
+               not isinstance(v, basestring)\
                for (k, v) in conditions.items()):
           return False
         
