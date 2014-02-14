@@ -140,16 +140,14 @@ class MetaBase(dbBase):
 
 
   class SelectString(SelectTag):
-    def __init__(self, name=None, eq=None, like=None, similar=None, posix=None):
+    def __init__(self, name=None, oneof = None):
       super(self.__class__, self).__init__(name)
 
-      cond, data = zip(*[(op, s) for (op, s) in [('=' , eq),
-                                                 ('LIKE', like),
-                                                 ('SIMILAR TO', similar),
-                                                 ('~', posix)] if s != None])
+      if oneof:
+        self.cond.append('LOWER(%%s.property_string) in (%s)' % \
+                         ', '.join(['%%s'] * len(oneof)))
 
-      self.cond.extend('LOWER(%%s.property_string) %s %%%%s' % op for op in cond)
-      self.data.extend(data)
+        self.data.extend(oneof)
 
     def getQuery(self, tail = None):
       if tail == None:
@@ -166,16 +164,18 @@ class MetaBase(dbBase):
 
 
   class SelectText(SelectTag):
-    def __init__(self, name=None, match=None, plain=None):
+    def __init__(self, name=None, plain=None):
       super(self.__class__, self).__init__(name)
 
-      cond, data = zip(*[(op, s) for (op, s) in \
-                         [('', match),
-                          ('PLAIN', plain)]\
-                         if s != None])
-
-      self.cond.extend("TO_TSVECTOR('english', %%s.property_string) @@ %sTO_TSQUERY('english', %%%%s)" % op for op in cond)
-      self.data.extend(data)
+      #cond, data = zip(*[(op, s) for (op, s) in \
+      #                   [('', match),
+      #                    ('PLAIN', plain)]\
+      #                   if s != None])
+      #self.cond.extend("TO_TSVECTOR('english', %%s.property_string) @@ %sTO_TSQUERY('english', %%%%s)" % op for op in cond)
+      #self.data.extend(data)
+      if plain != None:
+        self.cond.appent("TO_TSVECTOR('english', %s.property_string) @@ PLAINTO_TSQUERY('english', %%s)")
+        self.data.append(plain)
 
     def getQuery(self, tail = None):
       if tail == None:

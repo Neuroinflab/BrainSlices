@@ -125,11 +125,11 @@ class MetaServer(Generator, Server):
     uid = request.session.get('userID')
     properties, nonames = request.query
     selectors = [self.selectorClass[prop[1]](prop[0], *prop[2:])\
-                 if prop[1] == 't' else\
+                 if prop[1] in 'tex' else\
                  self.selectorClass[prop[1]](prop[0], **prop[2])\
                  for prop in properties] \
               + [self.selectorClass[prop[0]](None, *prop[1:])\
-                 if prop[0] == 't' else\
+                 if prop[0] == 'tx' else\
                  self.selectorClass[prop[0]](None, **prop[1])\
                  for prop in nonames]
     selectors.append(MetaBase.SelectVisible(uid))

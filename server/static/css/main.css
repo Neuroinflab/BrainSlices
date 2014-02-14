@@ -283,6 +283,11 @@ form[name=confirmationForm] p
 /*  table-layout: fixed;*/
 }
 
+#searchPanel .filter-invalid
+{
+  background: #FED;
+}
+
 .select-property
 {
   position: relative;

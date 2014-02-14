@@ -529,7 +529,6 @@ $(function()
     make:
     function(t, data)
     {
-      console.debug(t)
       this.$row.hide().empty();
       var $input;
       var thisInstance = this;
@@ -629,14 +628,58 @@ $(function()
           break;
 
         case 'e':
-          this.change = function()
+          var change = function()
           {
-            thisInstance.set('is', $input.val());
+            thisInstance.set('is',
+                             $input
+                               .filter(':checked')
+                               .map(function(i, item)
+                                 {
+                                   return item.value;
+                                   return $(item).val();
+                                 })
+                               .toArray());
           };
-          $input = $('<input type="text">')
-            .autocomplete({source: data})
-            .appendTo(this.$row)
-            .change(this.change);
+          this.change = change;
+          
+          var $cb = $('<input>')
+                      .attr(
+                        {
+                          type: 'checkbox',
+                          checked: 'checked'
+                        })
+                      .change(function()
+                      {
+                        stupidCheckbox = this
+                        stupidInput = $input
+                        $input.prop('checked', this.checked);
+                        change();
+                      });
+          this.$row
+            .append($('<label>')
+                      .text('check all')
+                      .prepend($cb))
+            .append('<br>');
+          $input = $([]);
+          for (var i = 0; i < data.length; i++)
+          {
+            $cb = $('<input>')
+                    .attr(
+                      {
+                        type: 'checkbox',
+                        value: data[i],
+                        checked: 'checked'
+                      })
+                    .change(this.change);
+
+            $.merge($input, $cb);
+            this.$row
+              .append($('<label>')
+                        .text(data[i])
+                        .prepend($cb))
+              .append(' ');
+          }
+          //$input.button();
           this.$row.show();
           break;
 
@@ -763,6 +806,18 @@ $(function()
                       {
                         filter.destroy();
                         this.data.$row.remove();
+                      },
+                      valid:
+                      function(valid)
+                      {
+                        if (valid)
+                        {
+                          this.data.$row.removeClass('filter-invalid');
+                        }
+                        else
+                        {
+                          this.data.$row.addClass('filter-invalid');
+                        }
                       }};
       if (name != null)
       {
@@ -780,7 +835,7 @@ $(function()
 
   $('#searchPropertySearch').click(function()
   {
-    searchEngine.search(function(result)
+    var search = searchEngine.search(function(result)
     {
       var $tbody = $('#searchResults table tbody').empty();
       for (var i = 0; i < result.length; i++)
@@ -835,6 +890,11 @@ $(function()
         $tbody.append($tr);
       }
     });
+
+    if (!search)
+    {
+      alert('Chosen filters can not match any images.');
+    }
   });
 
   $.widget('brainslices.propertybox', $.ui.autocomplete,
@@ -953,7 +1013,7 @@ $(function()
       this.filter = new CFilterPanel('<div>')
         .appendTo(this.$wrapper);
 
-      this._updateTypeSelect('fxte');
+      this._updateTypeSelect('fxt');
     },
 
     _updateTypeSelect: function(types, selected)
@@ -985,11 +1045,7 @@ $(function()
       if (t == 'e')
       {
         var data = [];
-        if (this.propertyName == null)
-        {
-          data = this.options.enumeratedAll;
-        }
-        else if (this.propertyName in this.options.enumerated)
+        if (this.propertyName in this.options.enumerated)
         {
           data = this.options.enumerated[this.propertyName];
         }
@@ -1102,10 +1158,22 @@ $(function()
       }
 
       var type = this.$types.val();
+      var data = null;
+      if (type == 'e')
+      {
+        if (this.propertyName in this.options.enumerated)
+        {
+          data = this.options.enumerated[this.propertyName];
+        }
+        else
+        {
+          data = [];
+        }
+      }
 
       this.options.submit(this.propertyName, type, this.filter.detach());
       this.filter = new CFilterPanel('<div>')
-        .make(type)
+        .make(type, data)
         .appendTo(this.$wrapper);
       // UPS - would be before Add button :-D
     },
@@ -1129,26 +1197,11 @@ $(function()
                       if (data.status)
                       {
                         var enumerated = data.data[1];
-                        var enumeratedAll = {};
-                        for (var name in enumerated)
-                        {
-                          $.each(enumerated[name],
-                                 function(i, v)
-                                 {
-                                   enumeratedAll[v] = null;
-                                 });
-                        }
-                        enumeratedAll = $.map(enumeratedAll, function(v, k)
-                                                             {
-                                                               return k;
-                                                             });
-                        enumeratedAll.sort();
 
                         $('#searchProperty').newpropertyfilter(
                         {
                           source: data.data[0],
                           enumerated: enumerated,
-                          enumeratedAll: enumeratedAll,
                           submit: function(name, type, filter)
                           {
                             if (name != null && searchEngine.has(name))

@@ -774,26 +774,18 @@ def _ValidSearchProperty(prop):
       return False
 
     conditions = prop[1]
-    if not isinstance(conditions, dict):
-      return False
 
-    if t in 'ex':
-      if len(conditions) > 1: #XXX
+    if t == 'e':
+      if not isinstance(conditions, list) or len(conditions) == 0 or\
+        any(not isinstance(v, basestring) for v in conditions):
         return False
 
-      if t == 'e':
-        if any(k != 'eq' or #not in ('eq', 'like', 'similar', 'posix') or
-               not isinstance(v, basestring) for (k, v) in conditions.items()):
-          return False
-
-      else:
-        if any(k != 'plain' or #not in ('match', 'plain') or
-               not isinstance(v, basestring)\
-               for (k, v) in conditions.items()):
-          return False
+    elif t == 'x':
+      if not isinstance(conditions, basestring):
+        return False
         
-    else:
-      if len(conditions) > 2 or \
+    else: # t == 'f'
+      if not isinstance(conditions, dict) or len(conditions) > 2 or \
         'eq' in conditions and len(conditions) != 1 or \
         'lteq' in conditions and 'lt' in conditions or \
         'gteq' in conditions and 'gt' in conditions:

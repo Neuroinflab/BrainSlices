@@ -33,17 +33,13 @@ var CPropertiesSearch = null;
 
 //  var reduceType = {e: 'e', s: 'x', x: 'x', t: 't', i: 'f', f: 'f'};
   var allowedOperators = {'t': {},
-                          'e': {is: true,
-                                like: true,
-                                similar: true,
-                                posix: true},
+                          'e': {is: true},
                           'f': {eq: true,
                                 gt: true,
                                 lt: true,
                                 gteq: true,
                                 lteq: true},
-                          'x': {match: true,
-                                plain: true}}
+                          'x': {plain: true}}
 
   function CPropertyCondition(type, triggers)
   {
@@ -52,6 +48,7 @@ var CPropertiesSearch = null;
 
     this.ondestroy = getTrigger('destroy', triggers);
     this.data = getTrigger('data', triggers);
+    this.onvalid = getTrigger('valid', triggers);
     this.reset();
   }
 
@@ -87,28 +84,33 @@ var CPropertiesSearch = null;
     function()
     {
       var res = [this.type];
-      if (this.type != 't')
+      switch (this.type)
       {
-        /*var tmp = [];
-        for (var name in this.conditions)
-        {
-          tmp.push([name, this.conditions[name]]);
-        }*/
+        case 'f':
+          var tmp = $.extend({}, this.conditions);
+          res.push(tmp);
+          break;
 
-        var tmp = {};
-        for (var name in this.conditions)
-        {
-          if (name == 'is')
+        case 'x':
+          res.push(this.conditions.plain);
+          break;
+
+        case 'e':
+          if (this.conditions.is.length == 0)
           {
-            tmp.eq = this.conditions.is;
+            if (this.onvalid) this.onvalid(false);
+            return false;
           }
-          else
-          {
-            tmp[name] = this.conditions[name];
-          }
-        }
-        res.push(tmp);
+          res.push(this.conditions.is);
+          break;
+
+        case 't':
+          break;
+
+        default:
+          console.warn('unknown property type: ' + t);
       }
+      if (this.onvalid) this.onvalid(true);
       return res;
     }
   }
@@ -179,15 +181,19 @@ var CPropertiesSearch = null;
       {
         var res = [];
         var any = [];
+        var tmp;
         for (var name in this.properties)
         {
-          var tmp = this.properties[name].get();
+          tmp = this.properties[name].get();
+          if (!tmp) return false;
           tmp.unshift(name);
           res.push(tmp);
         }
         for (var n in this.any)
         {
-          any.push(this.any[n].get());
+          tmp = this.any[n].get();
+          if (!tmp) return false;
+          any.push(tmp);
         }
         return [res, any];
       },
@@ -247,13 +253,16 @@ var CPropertiesSearch = null;
       search:
       function(onsuccess)
       {
+        var query = this.get();
+        if (!query) return false;
         this.ajaxProvider.ajax('/meta/searchImages',
                                function(result)
                                {
                                  // caching etc.
                                  if (onsuccess) onsuccess(result.data);
                                },
-                               {query: JSON.stringify(this.get())});
+                               {query: JSON.stringify(query)});
+        return true;
       },
 
       set:
