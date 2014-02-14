@@ -1,5 +1,6 @@
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="/static/css/overcast/jquery-ui-1.10.4.custom.min.css" />
     <link rel="stylesheet" type="text/css" href="../static/css/main.css">
     <style type="text/css">
      tr.propertyChanged
@@ -16,10 +17,13 @@
      }
     </style>
     <script src="/static/js/common.js" type="text/javascript"></script>
-    <script src="/static/js/jquery.js" type="text/javascript"></script>
+    <script src="/static/js/jquery-1.10.2.js" type="text/javascript"></script>
+    <script src="/static/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
     <script src="/static/js/interface.js" type="text/javascript"></script>
     <script src="/static/js/ajax.js" type="text/javascript"></script>
     <script src="/static/js/properties_manager.js" type="text/javascript"></script>
+
+    <script src="/static/js/widgets.js" type="text/javascript"></script>
     <script>
 
 
@@ -27,23 +31,12 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        getThumbnail: BrainSlices.gui.getThumbnail,
        CTableManager: BrainSlices.gui.CTableManager})
 {
-  var deletionMode = 0;
-  var deletionOrders = {}; //a very global object
-
   function CImageAddTriggers(data)
   {
     this.data = data;
   };
   CImageAddTriggers.prototype = {
     add: autoAdd,
-    destroy: function()
-    {
-      if (deletionMode == 1)
-      {
-        delete deletionOrders[this.data.iid];
-      }
-    },
-
     change: function()
     {
       if (this.changed)
@@ -74,11 +67,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     destroy: function()
     {
       this.data.$row.remove();
-      if (deletionMode == 1 && this.data.name in this.data.deletionOrders)
-      {
-        // shall cause no error even if iterating over deletionOrders
-        delete this.data.deletionOrders[this.data.name];
-      }
     },
 
     new: function()
@@ -110,39 +98,13 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       if (this.removed)
       {
         this.data.$row.hide();
-        if (deletionMode == 1)
-        {
-          // shall cause no error even if iterating over deletionOrders
-          delete this.data.deletionOrders[this.data.name];
-        }
       }
       else
       {
         this.data.$row.show();
-        if (deletionMode == 1)
-        {
-          //XXX: test for an attribute presence?
-          this.data.$remButton.removeAttr('checked');
-          //this.data.deletionOrders[this.data.name] = false; // shall not exist
-        }
       }
     }
   };
-
-  function deleteProperties()
-  {
-    for (var iid in deletionOrders)
-    {
-      var properties = deletionOrders[iid];
-      for (var name in properties)
-      {
-        if (properties[name])
-        {
-          propertiesManager.remove(iid, name); // IS SAFE :-)
-        }
-      }
-    }
-  }
 
   function autoAdd(name, type, value, original, edit, view, extraData)
   {
@@ -169,54 +131,52 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         case 'f':
           $input = $('<input type="number">');
       }
+
       $input.val(value); // might be a problem with textarea...
 
-      $input.bind('change',
+      $input.bind(type != 'e' ? 'change' : 'comboboxchange',
                   function()
                   {
                     var val = $input.val();
                     thisInstance.change(name, val, true);
                   });
       $li.append($input);
+      if (type == 'e')
+      {
+        $input.combobox(
+        {
+          source: function(request, response)
+          {
+            var suggestions = [];
+            if (name in enumeratedProperties)
+            {
+              var filter = new RegExp(
+                $.ui.autocomplete.escapeRegex(request.term), 'i');
+
+              $.each(enumeratedProperties[name], function(i, v)
+              {
+                if (!request.term || filter.test(v))
+                {
+                  suggestions.push(v);
+                }
+              });
+            }
+            response(suggestions);
+          }
+        });
+      }
       data.$input = $input;
     }
 
 
-    switch (deletionMode)
-    {
-      case 0:
-        var $remButton = $('<button>X</button>');
-        $li.append($remButton);
+    var $remButton = $('<button>X</button>');
+    $li.append($remButton);
 
-        $remButton.bind('click',
-                        function()
-                        {
-                          thisInstance.remove(name);
-                        });
-        break;
-
-      case 1:
-        var $remButton = $('<input type="checkbox">');
-        $li.append($remButton);
-        var deletionOrdersIID = this.data.deletionOrders;
-        $remButton.bind('change',
-                        function()
-                        {
-                          if (this.checked)
-                          {
-                            deletionOrdersIID[name] = true;
-                          }
-                          else if (name in deletionOrdersIID)
-                          {
-                            delete deletionOrdersIID[name];
-                          }
-                        });
-        data.$remButton = $remButton;
-        data.name = name;
-        data.deletionOrders = deletionOrdersIID;
-        break;
-
-    }
+    $remButton.bind('click',
+                    function()
+                    {
+                      thisInstance.remove(name);
+                    });
 
     this.data.$list.append($li);
 
@@ -225,11 +185,81 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                     original, edit, view);
   }
 
+  var suggestedProperties = {};
+  var enumeratedProperties = {};
+
   function makeAddPanel(onsubmit)
   {
     var $addPanel = $('<div></div>');
-    var $name = $('<input type="text"></input>');
-    $addPanel.append($name);
+    var suggestedEnumerated = [];
+    //var inSelect = false;
+    function nameChanged()
+    {
+      //if (inSelect) return;
+      var name = $name.val().trim().toLowerCase();
+      console.debug(name);
+      $type.children('option').removeClass('suggested-type');
+      if (name in suggestedProperties)
+      {
+        var suggested = suggestedProperties[name];
+        var $options = $type.children('option[value="t"]');
+        for (var i = 0; i < suggested.length; i++)
+        {
+          $.merge($options,
+                  $type.children('option[value="'+ suggested[i] + '"]'));
+          switch(suggested[i])
+          {
+            case 'x':
+              $.merge($options, $type.children('option[value="s"]'));
+              break
+
+            case 'f':
+              $.merge($options, $type.children('option[value="i"]'));
+              break
+
+            case 'e':
+              suggestedEnumerated = name in enumeratedProperties ?
+                                    enumeratedProperties[name] : [];
+              break;
+
+            default:
+              break;
+          }
+        }
+        $options.addClass('suggested-type');
+      }
+    }
+
+    function source(request, response)
+    {
+      var suggestions = [];
+      var filter = new RegExp(
+        $.ui.autocomplete.escapeRegex(request.term), 'i');
+
+      $.each(suggestedEnumerated, function(i, v)
+      {
+        if (!request.term || filter.test(v))
+        {
+          suggestions.push(v);
+        }
+      });
+
+      response(suggestions);
+    }
+
+    var $name = $('<input type="text"></input>')
+      .appendTo($addPanel)
+      .combobox({source: $.map(suggestedProperties,
+                               function(v, k){return k;})})
+      .on('comboboxchange', nameChanged);
+//      .on('comboboxselect', function(event, ui)
+//      {
+//        inSelect = true;
+//        $name.val(ui.item.value).blur();
+//        inSelect = false;
+//        nameChanged();
+//      });
+
     var $type = $(
        '<select>' +
         '<option value="t" selected="selected">Tag</option>' +
@@ -243,11 +273,20 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     var inputs = {i: $('<input type="number" step="1" value="0" style="display: none;">'),
                   f: $('<input type="number" value="0" style="display: none;">'),
                   s: $('<input type="text" style="display: none;">'),
-                  e: $('<input type="text" style="display: none;">'),
+                  e: $('<input type="text">'),
                   x: $('<textarea style="display: none;"></textarea>')};
+    var inputBases = {};
     for (var t in inputs)
     {
-      $addPanel.append(inputs[t]);
+      inputBases[t] = inputs[t];
+    }
+    inputBases.e = $('<span>')
+      .css('display', 'none')
+      .append(inputs.e);
+    inputs.e.combobox({source: source});
+    for (var t in inputBases)
+    {
+      inputBases[t].appendTo($addPanel);
     }
 
     $type.bind('change', function()
@@ -257,11 +296,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                  {
                    if (t == type)
                    {
-                     inputs[t].show();
+                     inputBases[t].show();
                    }
                    else
                    {
-                     inputs[t].hide();
+                     inputBases[t].hide();
                    }
                  }
                });
@@ -409,24 +448,8 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
                 if (annotate)
                 {
-                  if (deletionMode == 1)
-                  {
-                    if (iid in deletionOrders)
-                    {
-                      console.warn(iid + ' already in deletionOrders');
-                    }
-                    else
-                    {
-                      deletionOrders[iid] = {}; 
-                    }
-                  }
                   var data4image = {$row: $row,
                                     $list: $ul};
-                  if (deletionMode == 1)
-                  {
-                    data4image.deletionOrders = deletionOrders[iid];
-                    data4image.iid = iid;
-                  }
                   propertiesManager.addImage(iid, new CImageAddTriggers(data4image));
                   for (var propertyName in properties)
                   {
@@ -532,37 +555,50 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                    {
                      $('.formErrorMessages').text(''); //XXX: is necessary?
                    });
+
+    loginConsole.ajax('/meta/getPropertyList',
+      function(data)
+      {
+        if (data.status)
+        {
+          suggestedProperties = data.data[0];
+          enumeratedProperties = data.data[1];
+
+          $('#propertyAddPanel').append(makeAddPanel(
+          {Add:
+           function(name, type, value)
+           {
+             propertiesManager.apply(function()
+                                     {
+                                       if (!this.has(name))
+                                       {
+                                         this.autoAdd(name, type, value);
+                                       }
+                                     });
+           },
+           Set: function(name, type, value)
+           {
+             propertiesManager.apply(function()
+             {
+               if (this.has(name))
+               {
+                 this.remove(name);
+               }
+               this.autoAdd(name, type, value);
+             });
+           }
+          }));
+ 
+        }
+        else
+        {
+          alert(data.message);
+        }
+      });
+
     tableManager = new CTableManager($('#propertiesPanel table tbody.layerList'));
     propertiesManager = new CPropertiesManager(loginConsole);
-    $('#propertyAddPanel').append(makeAddPanel(
-    {Add:
-     function(name, type, value)
-     {
-       propertiesManager.apply(function()
-                               {
-                                 if (!this.has(name))
-                                 {
-                                   this.autoAdd(name, type, value);
-                                 }
-                               });
-     },
-     Set: function(name, type, value)
-     {
-       propertiesManager.apply(function()
-       {
-         if (this.has(name))
-         {
-           this.remove(name);
-         }
-         this.autoAdd(name, type, value);
-       });
-     }
-    }));
- 
-    if (deletionMode == 1)
-    {
-      $('#removeProperties').click(deleteProperties).show();
-    }
+
   });
 }
 
@@ -608,7 +644,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        <td id="propertyAddPanel"></td>
        <td>
         <button onclick="propertiesManager.save();">Save</button>
-        <button id="removeProperties" style="display: none;">Delete</button>
         <button onclick="propertiesManager.reset();">Revert</button>
        </td>
       </tr>

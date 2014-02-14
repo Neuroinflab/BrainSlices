@@ -38,7 +38,7 @@ def unwrapProperties(type_, number, string, visible, editable):
   if type_ in 'fi':
     prop['value'] = number if type_ == 'f' else int(number)
 
-  elif type_ in 'sx':
+  elif type_ in 'esx':
     prop['value'] = string
 
   return prop

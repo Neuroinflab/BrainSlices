@@ -288,7 +288,8 @@ form[name=confirmationForm] p
   background: #FED;
 }
 
-.select-property
+.select-property,
+.brainslices-combobox
 {
   position: relative;
   display: inline-block;
@@ -306,7 +307,8 @@ form[name=confirmationForm] p
 /*  padding: 0.3em;*/
 }
 
-.select-property>.select-property-toggle
+.select-property>.propertyboxsearch-toggle,
+.combobox-toggle
 {
   position: absolute;
   top: 0px;
@@ -321,4 +323,9 @@ form[name=confirmationForm] p
 {
   font-size: 14px;
   display: inline-block;
+}
+
+option.suggested-type
+{
+  background: #EFD;
 }

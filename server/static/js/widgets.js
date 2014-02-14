@@ -258,8 +258,7 @@ var CFilterPanel = null;
   }
 
 
-
-  $.widget('brainslices.propertybox', $.ui.autocomplete,
+  $.widget('brainslices.propertyboxsearch', $.ui.autocomplete,
   {
     _renderMenu: function($ul, items)
     {
@@ -277,6 +276,115 @@ var CFilterPanel = null;
     }
   });
 
+
+  $.widget('brainslices.combobox',
+  {
+    options:
+    {
+      autocomplete: 'autocomplete',
+    },
+
+    _create:
+    function()
+    {
+      this.$wrapper = $('<span>')
+        .addClass('brainslices-combobox')
+        .insertAfter(this.element)
+        .append(this.element.detach());
+
+      var autocomplete = this.options.autocomplete;
+      this.classes = {}
+      $.each(['ui-widget-content', 'ui-state-default', 'ui-corner-left'],
+        $.proxy(function(i, v)
+        {
+          if (!this.element.hasClass(v))
+          {
+            this.element.addClass(v);
+            this.classes[v] = true;
+          }
+        }, this));
+
+      this.element
+        [this.options.autocomplete](
+        {
+          source: this.options.source,
+          minLength: 0
+        })
+        .bind('keypress', this.enter);
+
+      var handlers = {};
+      handlers[this.options.autocomplete + 'select'] = function(event, ui) 
+      {
+        //console.debug('select - element.val()', this.element.val(), ui)
+        this.element
+          .val(ui.item.value)
+          .blur();
+      }
+      this._on(handlers);
+ 
+      handlers = {};
+      $.each(['change'], $.proxy(function(i, v) // 'select'
+        {
+          handlers[this.options.autocomplete + v] = function(event, ui)
+          {
+            //console.debug(v);
+            this._trigger(v, event, ui);
+          }
+        }, this));
+
+      this._on(handlers);
+
+      var wasOpen = false;
+      var $input = this.element;
+      var $a = $('<a>')
+        .button(
+        {
+          icons: {primary: "ui-icon-triangle-1-s"},
+          text: false
+        })
+        .removeClass('ui-corner-all')
+        .addClass('combobox-toggle ui-corner-right')
+        .attr('title', 'Show all possible fields')
+        .tooltip()
+        .mousedown(function()
+        {
+          wasOpen = $input[autocomplete]('widget').is( ":visible" );
+        })
+        .click(function()
+        {
+          $input.focus();
+          if (wasOpen) return;
+          $input[autocomplete]('search', '');
+        })
+        .appendTo(this.$wrapper);
+    },
+
+    destroy:
+    function()
+    {
+      this.element
+        .detach()
+        .insertBefore(this.wrapper)
+        .unbind('keypress', this.enter);
+      this.wrapper.remove();
+      $.each(this.classes,
+        $.proxy(function(k, v)
+        {
+          this.element.removeClass(k);
+        }, this));
+    },
+
+    enter:
+    function(event)
+    {
+      if (event.keyCode == 13)
+      {
+        $(this).blur();
+      }
+    }
+  });
+
+
   $.widget('brainslices.newpropertyfilter',
   {
     options:
@@ -292,7 +400,8 @@ var CFilterPanel = null;
       anyLabel: '--- any field ---'
     },
 
-    _create: function()
+    _create:
+    function()
     {
       this.$wrapper = $('<span>')
         .addClass('brainslices-newpropertyfilter')
@@ -302,7 +411,8 @@ var CFilterPanel = null;
       this._createSubmitButton();
     },
 
-    _createPropertybox: function()
+    _createPropertybox:
+    function()
     {
       var $span = $('<span>')
         .addClass("select-property ui-widget")
@@ -318,7 +428,7 @@ var CFilterPanel = null;
         })
         .tooltip()
         .addClass('ui-widget-content ui-state-default ui-corner-left')
-        .propertybox(
+        .propertyboxsearch(
         {
           source: $.proxy(this, '_source'),
           minLength: 0
@@ -336,8 +446,8 @@ var CFilterPanel = null;
       this.$input = $input;
       this._on(this.$input,
       {
-        propertyboxselect: '_propertySelect',
-        propertyboxchange: '_propertyChange'
+        propertyboxsearchselect: '_propertySelect',
+        propertyboxsearchchange: '_propertyChange'
       });
 
       var wasOpen = false;
@@ -349,19 +459,19 @@ var CFilterPanel = null;
           text: false
         })
         .removeClass('ui-corner-all')
-        .addClass('select-property-toggle ui-corner-right')
+        .addClass('propertyboxsearch-toggle ui-corner-right')
         .attr('title', 'Show all possible fields')
         .tooltip()
         .mousedown(function()
         {
-          wasOpen = $input.propertybox('widget').is( ":visible" );
+          wasOpen = $input.propertyboxsearch('widget').is( ":visible" );
         })
         .click(function()
         {
           $input.focus();
           if (wasOpen) return;
 
-          $input.propertybox('search', '');
+          $input.propertyboxsearch('search', '');
         });
 
     },
