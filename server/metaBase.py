@@ -174,7 +174,7 @@ class MetaBase(dbBase):
       #self.cond.extend("TO_TSVECTOR('english', %%s.property_string) @@ %sTO_TSQUERY('english', %%%%s)" % op for op in cond)
       #self.data.extend(data)
       if plain != None:
-        self.cond.appent("TO_TSVECTOR('english', %s.property_string) @@ PLAINTO_TSQUERY('english', %%s)")
+        self.cond.append("TO_TSVECTOR('english', %s.property_string) @@ PLAINTO_TSQUERY('english', %%s)")
         self.data.append(plain)
 
     def getQuery(self, tail = None):
