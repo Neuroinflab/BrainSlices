@@ -36,7 +36,7 @@ from optparse import OptionParser
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),
                                              '../server')))
 
-from database import db
+from database import db, dbPool
 from tileBase import TileBase, IMAGE_STATUS_RECEIVED, \
                      IMAGE_STATUS_PROCESSING, IMAGE_STATUS_IDENTIFIED, \
                      IMAGE_STATUS_TILED, IMAGE_STATUS_COMPLETED, \
@@ -55,7 +55,7 @@ directoryName = os.path.abspath(os.path.dirname(__file__))
 serverDirectory = os.path.abspath(os.path.join(directoryName, '../server'))
 sourceDirectory = os.path.join(serverDirectory, 'sourceImages')
 tileDirectory = os.path.join(serverDirectory, 'tiles')
-tb = TileBase(db, tileDirectory, sourceDirectory)
+tb = TileBase(db, dbPool, tileDirectory, sourceDirectory)
 
 class CorruptedImageError(Exception):
   pass
@@ -115,6 +115,16 @@ class imageTiler(object):
       raise KeyError("Source image #%d not found in processing queue. Image status = %s, source image status = %d." % (self.iid, status, source_status))
 
   def __identify(self):
+    # JPEG2000 walkaround
+    fh = open(self.source, 'rb')
+    magick = fh.read(10)
+    fh.close()
+    if magick == '\x00\x00\x00\x0cjP  \r\n':
+      self.invalid = 'The format JPEG 2000 is not supported yet. Sorry.'
+      tb.imageInvalid(self.iid, self.invalid)
+      os.remove(self.source)
+      raise NotImplementedError
+
     identify = ['identify', '-regard-warnings']
     identify += ['-format', '%w %h %m ---XRES---\n%x\n---YRES---\n%y\n---COLORSPACE---\n%[colorspace]\n---CHANNELS---\n%[channels]\n---LABEL---\n%l\n---COMMENT---\n%c\n---PROPERTIES---\n%[*]']
     identify += [self.source]

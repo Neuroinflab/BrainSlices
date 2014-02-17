@@ -441,7 +441,10 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     {
       var proper = [];
       var tooBig = [], tooSmall = [], nonImage = [];
-      var imageType = /image.*/;
+      var imageType = /image\/.*/;
+
+      // JPEG2000 nokaut
+      var jp2 = [], jp2re = /image\/(?:jp[2xm]|mj2)/;
 
       for (var i = 0; i < files.length; i++)
       {
@@ -461,6 +464,14 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
           nonImage.push(file.name);
           continue;
         }
+
+        // JPEG2000 nokaut
+        if (filterImages && file.type.match(jp2re))
+        {
+          jp2.push(file.name);
+          continue;
+        }
+
         proper.push(file);
       }
 
@@ -481,8 +492,15 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
         if (nonImage.length > 0)
         {
-          msg += 'Files of non-image type:' + nonImage.join(', ') + '.\n';
+          msg += 'Files of non-image type: ' + nonImage.join(', ') + '.\n';
         }
+
+        // JPEG2000 nokaut
+        if (jp2.length > 0)
+        {
+          msg += 'Files of unsupported (sorry) JPEG 2000 type: ' + jp2.join(', ') + '.\n';
+        }
+
         alert(msg);
       }
       return proper;
