@@ -21,6 +21,63 @@
 *                                                                             *
 \*****************************************************************************/
 
+/**
+ * Console fix in case browser does not support some methods
+\************************************************************/
+(function($, undefined)
+{
+  //a console fix
+  function consoleLog()
+  {
+    console.log.apply(console, arguments);
+  }
+
+  var consolePredefined = 
+  {
+    log: function()
+    {
+      $('#debugConsole')
+        .append($('<li>')
+                  .text(arguments.join('\n')));
+    },
+    warn: consoleLog,
+    error: consoleLog,
+    assert: function()
+    {
+      if (arguments.length > 0 && !arguments[0])
+      {
+        console.error.apply(console, srguments.slice(1));
+      }
+    },
+    debug: consoleLog,
+    info: consoleLog
+  }
+
+  if (typeof(console) == 'undefined')
+  {
+    console = {};
+  }
+
+  for (var method in consolePredefined)
+  {
+    if ((!method in console))
+    {
+      console[method] = consolePredefined[method];
+    }
+  }
+
+  if (!('assert' in console))
+  {
+    console.assert = function(condition, msg)
+    {
+      if (!condition)
+      {
+        console.error(msg);
+      }
+    }
+  }
+})(jQuery);
+
 /*****************************************************************************\
  * Namespace: BrainSlices                                                    *
  *                                                                           *
