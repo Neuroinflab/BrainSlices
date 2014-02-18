@@ -249,13 +249,410 @@ var CFilterPanel = null;
     destroy:
     function()
     {
-      delete this.onchange;
-      delete this.onreset;
       this.$row.remove();
-      delete this.$row;
-      delete this.change;
+      for (var name in this)
+      {
+        delete this[name];
+      }
     }
   }
+
+
+  $.widget('brainslices.propertyfilter',
+  {
+    options: 
+    {
+      type: 't',
+      triggers: {},
+      defaults: {}
+    },
+
+    defaults:
+    {
+      t: null,
+      f: {gteq: 0},
+      x: '',
+      e: {}
+    },
+
+    _create:
+    function()
+    {
+      this.$wrapper = $('<span>')
+                        .addClass('brainslices-propertyfilter')
+                        .appendTo(this.element);
+
+    },
+
+    _init:
+    function()
+    {
+      this.options = this._fixOptions(this.options);
+
+      console.debug('init');
+      this.$wrapper.hide().empty();
+      switch (this.options.type)
+      {
+        case 't':
+          break;
+
+        case 'f':
+          this._createFloat();
+          this.$wrapper.show();
+          break;
+
+        case 'x':
+          this._createText();
+          this.$wrapper.show();
+          break;
+
+        case 'e':
+          this._createEnumerative();
+          this.$wrapper.show();
+          break;
+
+        default:
+          break;
+      }
+    },
+
+    _createEnumerative:
+    function()
+    {
+      var options = this.options;
+      var conditions = options.conditions;
+      var $wrapper = this.$wrapper;
+
+      function change()
+      {
+        $input.each(function(i, element)
+        {
+          conditions[element.value] = element.checked;
+        });
+        if (options.change)
+        {
+          options.change(conditions);
+        }
+      }
+
+      var $cb = $('<input>')
+                  .attr('type', 'checkbox')
+                  .change(function()
+                  {
+                    $input.prop('checked', this.checked);
+                    change();
+                  });
+
+      $wrapper
+        .append($('<label>')
+                  .text('check all')
+                  .prepend($cb))
+        .append('<br>');
+
+      var $input = $([]);
+      var order = [];
+      for (var key in conditions)
+      {
+        order.push(key);
+      }
+      order.sort();
+      $.each(order, function(i, key)
+      {
+        var $cb = $('<input>')
+                    .attr(
+                    {
+                      type: 'checkbox',
+                      value: key,
+                      checked: conditions[key]
+                    })
+                    .change(change);
+        $.merge($input, $cb);
+        $wrapper
+          .append($('<label>')
+                  .text(key)
+                  .prepend($cb))
+          .append(' ');
+      });
+    },
+
+    _createText:
+    function()
+    {
+      var options = this.options;
+      function change()
+      {
+        options.conditions = $input.val();
+        if (options.change)
+        {
+          options.change(options.conditions);
+        }
+      }
+      var $input = $('<input>')
+                      .attr({type: 'text',
+                             value: this.options.conditions})
+                      .appendTo(this.$wrapper)
+                      .change(change);
+
+    },
+
+    _makeFloatSelect:
+    function(conditions, options)
+    {
+      var $select = $('<select>');
+      var val = null;
+
+      $.each(options, function(i, v)
+      {
+        var $option = $('<option>')
+                        .text(v)
+                        .appendTo($select);
+        if (v in conditions)
+        {
+          $option.prop('selected', true);
+          val = conditions[v];
+        }
+      });
+
+      var $option = $('<option>')
+                      .text('---')
+                      .appendTo($select);
+      var $input = $('<input>')
+                     .attr({type: 'number',
+                            value: val != null ? val : 0});
+      if (val == null)
+      {
+        $option.prop('selected', true);
+        $input.prop('disabled', true);
+      }
+      return {$select: $select, $input: $input};
+    },
+
+    _createFloat:
+    function()
+    {
+      var options = this.options;
+      var conditions = options.conditions;
+
+      var op1 = this._makeFloatSelect(conditions, ['eq', 'gt', 'gteq']);
+      var op2 = this._makeFloatSelect(conditions, ['lt', 'lteq']);
+
+      function change()
+      {
+        var conditions = {};
+        var op1 = $select1.val();
+
+        if (op1 != 'eq')
+        {
+          $select2.prop('disabled', false);
+          var op2 = $select2.val();
+          if (op2 != '---')
+          {
+            $input2.prop('disabled', false);
+            conditions[op2] = parseFloat($input2.val());
+          }
+          else
+          {
+            $input2.prop('disabled', true);
+          }
+        }
+        else
+        {
+          $select2.prop('disabled', true);
+        }
+
+        if (op1 != '---')
+        {
+          $input1.prop('disabled', false);
+          conditions[op1] = parseFloat($input1.val());
+        }
+        else
+        {
+          $input1.prop('disabled', true);
+        }
+
+        options.conditions = conditions;
+        if (options.change)
+        {
+          options.change(conditions);
+        }
+      }
+
+      var $select1 = op1.$select.change(change);
+      var $input1 = op1.$input.change(change);
+      var $select2 = op2.$select.change(change);
+      var $input2 = op2.$input.change(change);
+
+      this.$wrapper
+        .append($select1)
+        .append($input1)
+        .append($select2)
+        .append($input2);
+    },
+
+    _fixOptions:
+    function(options)
+    {
+      // working with a deep copy
+      options = $.extend(true, {}, options);
+
+      var defaults;
+      if ('defaults' in options)
+      {
+        defaults = options.defaults;
+        for (var k in this.defaults)
+        {
+          if (!(k in defaults))
+          {
+            if (k == 'e' || k == 'f')
+            {
+              defaults[k] = $.extend({}, this.defaults[k]);
+            }
+            else
+            {
+              defaults[k] = this.defaults[k];
+            }
+          }
+        }
+      }
+      else if ('defaults' in this.options)
+      {
+        options.defaults = defaults = this.options.defaults;
+      }
+      else
+      { 
+        options.defaults = defaults = $.extend(true, {}, this.defaults);
+      }
+
+      if ('type' in options)
+      {
+        var t = options.type;
+
+        if (!('conditions' in options))
+        {
+          if (t == 'f' || t == 'e')
+          {
+            //object
+            options.conditions = $.extend({}, defaults[t]);
+          }
+          else
+          {
+            // a kind of a primitive
+            options.conditions = defaults[t];
+          }
+        }
+
+        console.debug(options)
+
+        // type/condition validation
+        var conditions = options.conditions;
+        switch (t)
+        {
+          case 't':
+            console.assert(conditions == null,
+                           'Bad conditions given for Tag type filter');
+            break;
+
+          case 'f':
+            console.assert(typeof(conditions) == 'object',
+                           'Not an object given for Number type filter');
+            var lt = false, gt = false, eq = false;
+            for (var cond in conditions)
+            {
+              console.assert(typeof(conditions[cond]) == 'number',
+                             'Not a number given for Number type  filter');
+              switch (cond)
+              {
+                case 'lt':
+                case 'lteq':
+                  console.assert(!eq && !lt,
+                                 'Conflicting conditions given for Number type filter');
+                  lt = true;
+                  break;
+
+                case 'gt':
+                case 'gteq':
+                  console.assert(!eq && !gt,
+                                 'Conflicting conditions given for Number type filter');
+                  gt = true;
+                  break;
+
+                case 'eq':
+                  console.assert(!lt && !gt,
+                                 'Conflicting conditions given for Number type filter');
+                  eq = true;
+                  break;
+
+                default:
+                  console.assert(false, 'Unknown condition (' + cond + ') given for Number type filter');
+              }
+
+              console.assert(lt || gt || eq,
+                             'No condition given for Number type filter');
+
+            }
+            break;
+
+          case 'e':
+            console.assert(typeof(conditions) == 'object',
+                           'Not an object given for Enumerative type filter');
+            break;
+
+          case 'x':
+            console.assert(typeof(conditions) == 'string',
+                           'Not a string given for Text type filter');
+            break;
+
+          default:
+            console.assert(false, 'Unknown type given');
+        }
+      }
+
+      return options;
+    },
+
+    _setOptions:
+    function(options)
+    {
+      if (options) options = this._fixOptions(options);
+      this._super(options);
+    },
+
+    _setOption:
+    function(key, value)
+    {
+      console.debug(key, value);
+      switch (key)
+      {
+        case 'type':
+        case 'conditions':
+        case 'defaults':
+          this.options[key] = value;
+          break;
+
+        case 'conditions':
+        case 'type':
+          this.options[key] = value;
+          // some update?
+          break;
+
+        case 'change':
+          this.options[key] = value;
+          value(this.options.conditions);
+          break;
+
+        default:
+          break;
+      }
+
+      this._super(key, value);
+    },
+
+    _destroy:
+    function()
+    {
+      this.$wrapper.remove();
+    }
+  });
 
 
   $.widget('brainslices.propertyboxsearch', $.ui.autocomplete,
@@ -359,7 +756,7 @@ var CFilterPanel = null;
         .appendTo(this.$wrapper);
     },
 
-    destroy:
+    _destroy:
     function()
     {
       this.element
@@ -482,7 +879,8 @@ var CFilterPanel = null;
         .appendTo(this.$wrapper);
 
       var thisInstance = this;
-      this.filter = new CFilterPanel('<div>')
+      this.filter = //new CFilterPanel('<div>')
+        $('<div>')
         .appendTo(this.$wrapper);
 
       this._updateTypeSelect('fxt');
@@ -516,16 +914,22 @@ var CFilterPanel = null;
       var t = this.$types.val();
       if (t == 'e')
       {
-        var data = [];
+        var data = {}; //[];
         if (this.propertyName in this.options.enumerated)
         {
-          data = this.options.enumerated[this.propertyName];
+          //data = this.options.enumerated[this.propertyName];
+          $.each(this.options.enumerated[this.propertyName], function(i, v)
+          {
+            data[v] = true;
+          });
         }
-        this.filter.make(t, data);
+        this.filter.propertyfilter({type: 'e', conditions: data});
+        //this.filter.make(t, data);
       }
       else
       {
-        this.filter.make(t);
+        //this.filter.make(t);
+        this.filter.propertyfilter({type: t});
       }
     },
 
@@ -650,7 +1054,7 @@ var CFilterPanel = null;
       // UPS - would be before Add button :-D
     },
 
-    destroy:
+    _destroy:
     function()
     {
       this.$wrapper.remove();
