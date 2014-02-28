@@ -489,8 +489,6 @@ $(function()
   loadNextImage();
 
 
-
-
   // try to use tableManager? sort mathod would be necessary ;-)
   searchEngine = new CPropertiesSearch(loginConsole,
   {
@@ -507,16 +505,46 @@ $(function()
           searchEngine.removeAny(n);
         }
 
-        filter.triggers(
-          function(op, value)
-          {
-            searchEngine.setAny(n, op, value);
-          },
-          function()
-          {
-            searchEngine.resetAny(n);
-          });
+        // a lot of unnecessary conversions
+        switch (type)
+        {
+          case 't':
+            change = null;
+            break;
 
+          case 'f':
+            change = function(conditions)
+            {
+              searchEngine.resetAny(n);
+              for (var op in conditions)
+              {
+                var value = conditions[op];
+                searchEngine.setAny(n, op, value);
+              }
+            };
+            break;
+
+          case 'x':
+            change = function(conditions)
+            {
+              searchEngine.setAny(n, 'plain', conditions);
+            };
+            break;
+
+          case 'e':
+            change = function(conditions)
+            {
+              var tmp = [];
+              for (var val in conditions)
+              {
+                if (conditions[val])
+                {
+                  tmp.push(val);
+                }
+              }
+              searchEngine.setAny(n, 'is', tmp);
+            }
+        }
       }
       else
       {
@@ -526,16 +554,48 @@ $(function()
           searchEngine.remove(name);
         }
 
-        filter.triggers(
-          function(op, value)
-          {
-            searchEngine.set(name, op, value);
-          },
-          function()
-          {
-            searchEngine.reset(name);
-          });
+        switch (type)
+        {
+          case 't':
+            change = null;
+            break;
+
+          case 'f':
+            change = function(conditions)
+            {
+              searchEngine.reset(name);
+              for (var op in conditions)
+              {
+                var value = conditions[op];
+                searchEngine.set(name, op, value);
+              }
+            };
+            break;
+
+          case 'x':
+            change = function(conditions)
+            {
+              searchEngine.set(name, 'plain', conditions);
+            };
+            break;
+
+          case 'e':
+            change = function(conditions)
+            {
+              var tmp = [];
+              for (var val in conditions)
+              {
+                if (conditions[val])
+                {
+                  tmp.push(val);
+                }
+              }
+              searchEngine.set(name, 'is', tmp);
+            }
+        }
       }
+
+
 
       var $row = $('<tr><th>' + 
                    (name != null ?
@@ -572,7 +632,6 @@ $(function()
                       destroy:
                       function()
                       {
-                        filter.destroy();
                         this.data.$row.remove();
                       },
                       valid:
@@ -596,7 +655,8 @@ $(function()
         n = this.addAny(type, triggers);
       }
 
-      filter.change();
+      filter.propertyfilter('option', 'change', change);
+      //filter.change();
     }
   });
 

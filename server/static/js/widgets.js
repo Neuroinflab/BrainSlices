@@ -263,7 +263,6 @@ var CFilterPanel = null;
     options: 
     {
       type: 't',
-      triggers: {},
       defaults: {}
     },
 
@@ -637,7 +636,10 @@ var CFilterPanel = null;
 
         case 'change':
           this.options[key] = value;
-          value(this.options.conditions);
+          if (value)
+          {
+            value(this.options.conditions);
+          }
           break;
 
         default:
@@ -1048,8 +1050,9 @@ var CFilterPanel = null;
       }
 
       this.options.submit(this.propertyName, type, this.filter.detach());
-      this.filter = new CFilterPanel('<div>')
-        .make(type, data)
+      this.filter = //new CFilterPanel('<div>')
+        //.make(type, data)
+        $('<div>')
         .appendTo(this.$wrapper);
       // UPS - would be before Add button :-D
     },

@@ -228,10 +228,14 @@ var CPropertiesSearch = null;
       },
 
       reset:
-      function(name, n)
+      function(name)
       {
         if (name != null)
         {
+          if (!(name  in this.properties))
+          {
+            console.debug(name, this.properties)
+          }
           this.properties[name].reset();
           return;
         }

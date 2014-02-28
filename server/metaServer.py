@@ -129,7 +129,7 @@ class MetaServer(Generator, Server):
                  self.selectorClass[prop[1]](prop[0], **prop[2])\
                  for prop in properties] \
               + [self.selectorClass[prop[0]](None, *prop[1:])\
-                 if prop[0] == 'tx' else\
+                 if prop[0] in 'tx' else\
                  self.selectorClass[prop[0]](None, **prop[1])\
                  for prop in nonames]
     selectors.append(MetaBase.SelectVisible(uid))
