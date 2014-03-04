@@ -210,6 +210,41 @@ var BrainSlices = {
       return val + unit;
     },
 
+    hSize: 
+    function(size, space)
+    {
+    /**
+     * Function: hSize
+     *
+     * Parameters:
+     *   size - A number of bytes.
+     *   space - string to be used as separator between number and units.
+     *
+     * Returns:
+     *   Human-readible string representing given amount of data.
+     *************************************************************/
+      if (!space) space = '\xa0'; //'&nbsp;'
+
+      if (size < 1024)
+      {
+        return size + space + 'B';
+      }
+
+      if (size < 1024 * 1024)
+      {
+        return (size / 1024.).toFixed(1) + space + 'KiB';
+      }
+      if (size < 1024 * 1024 * 1024)
+      {
+        return (size / (1024. * 1024)).toFixed(1) + space + 'MiB';
+      }
+      if (size < 1024. * 1024 * 1024 * 1024)
+      {
+        return (size / (1024. * 1024 * 1024)).toFixed(1) + space + 'GiB';
+      }
+      return (size / (1024. * 1024 * 1024 * 1024)).toFixed(1) + space + 'TiB';
+    },
+
     escapeHTML: function(s)
     {
       return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");

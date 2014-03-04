@@ -24,9 +24,11 @@
 
 with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP})
 {
-  var listBatch = function()
+  var batchDetails = function()
   {
-    var bid = $('.batch select').val();
+  // Fetch info about images in selected batch
+  // and append them to the uploaded files table
+    var bid = $('#batchId').val();
     var query = (bid == 'None') ? '' : 'bid=' + bid;
   
     loginConsole.ajax('/upload/batchDetails',
@@ -82,6 +84,73 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP})
     return false;
   }
 
+}
+
+function listBatches()
+{
+  // fetch list of available batches
+  // and update #batchId select
+  var $batchSelect = $('#batchId')
+    .html('<option value="None" selected="selected">None</option>');
+
+  loginConsole.ajax(
+    '/upload/batchList',
+    function(response)
+    {
+      if (!response.status)
+      {
+        alert(response.message);
+        return;
+      }
+
+      var list = response.data;
+      for (var i = 0; i < list.length; i++)
+      {
+        $batchSelect.append('<option value="' + list[i][0] + '">' +
+                            BrainSlices.gui.escapeHTML(list[i][1]) + '</option>');
+      }
+    },
+    null, null, null,
+    {cache: false});
+}
+
+function newBatch()
+{
+  // create (and select) a new batch
+  var comment = $('#newBatchComment').val();
+  var $batchSelect = $('#batchId');
+
+  loginConsole.ajax(
+    '/upload/newBatch',
+    function(response)
+    {
+      if (!response.status)
+      {
+        alert(response.message);
+        return;
+      }
+      $batchSelect.append('<option value="' + response.data.bid + '">' +
+                     BrainSlices.gui.escapeHTML(response.data.comment) + '</option>');
+      $batchSelect.val(response.data.bid);
+    },
+    {comment: comment},
+    null,
+    null,
+    {cache: false});
+}
+
+function uploadFiles()
+{
+
+  fileUploader.submit($('#filesForUpload')[0].files,
+                      $('#filterImageType').prop('checked'));
+}
+
+function updateFiles()
+{
+  // a dummy call just to see if an error message is being displayed
+  fileUploader.filterImageFiles($('#filesForUpload')[0].files,
+                                $('#filterImageType').prop('checked'));
 }
 
 function rearrangeInterface()
@@ -206,19 +275,54 @@ $(document).ready(function()
 	            //                      loginConsole.isLoggedAs() + ']');
               if (fileUploader != null)
               {
-                fileUploader.listBatches();
+                listBatches();
               }
 	          },
 	          function()
             {
               if (fileUploader != null)
               {
-                fileUploader.listBatches();
+                listBatches();
               }
             });
 	
-  uploadedFiles = new CUploadedImages($('#upload table.uploaded>tbody'));
-  fileUploader = new CFileUploader($('#upload'), loginConsole, uploadedFiles);
+  uploadedFiles = new CUploadedImages($('#upload table.uploaded>tbody'),
+                                      null,
+                                      $('#upload_status_message'));
+  fileUploader = new CFileUploader(
+    loginConsole, uploadedFiles, $('#brokenDuplicatePanel'),
+    function(callback)
+    {
+      var $batchSelect = $('#batchId');
+
+      var bid = $batchSelect.val();
+      if (bid != 'None')
+      {
+        callback(parseInt(bid));
+        return;
+      }
+
+      loginConsole.ajax(
+        '/upload/newBatch',
+        function(response)
+        {
+          if (!response.status)
+          {
+            alert(response.message);
+            return;
+          }
+
+          $batchSelect.append('<option value="'
+                              + response.data.bid + '">'
+                              + BrainSlices.gui.escapeHTML(response.data.comment)
+                              + '</option>');
+          $batchSelect.val(response.data.bid);
+          callback(response.data.bid);
+        },
+        null, null, null,
+        {cache: false});
+    });
+
   var nx = 1;
   var ny = 1;
 

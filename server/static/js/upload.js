@@ -46,7 +46,8 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        getThumbnail: BrainSlices.gui.getThumbnail,
        STATUS_MAP: BrainSlices.gui.STATUS_MAP,
        CCloseableDiv: BrainSlices.gui.CCloseableDiv,
-       CTableManager: BrainSlices.gui.CTableManager})
+       CTableManager: BrainSlices.gui.CTableManager,
+       hSize: BrainSlices.gui.hSize})
 {
   /**
    * Class: CUploadedImages
@@ -59,6 +60,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
    *   table - CTableManager object managing information displayed to the user
    *   nextId - An unique ID of next appended image.
    *   lowId  - The lowest valid ID (for debug purposes).
+   *   $msg - jQuery object representing message field.
    *
    *******************************
    * Constructor: CUploadedImages
@@ -69,11 +71,13 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
    *   $table - jQuery object representing TABLE (or TBODY, THEAD, TFOOT etc.)
    *            element providing information about uploaded files to the user
    *   images - images objects to be appended (if any).
+   *   $msg - jQuery object representing message field.
   \**************************************************************************/
-  function CUploadedImages($table, images)
+  function CUploadedImages($table, images, $msg)
   {
     this.table = new BrainSlices.gui.CTableManager($table);
     this.nextId = 0;
+    this.$msg = $msg;
     this.reset(images);
   }
 
@@ -109,6 +113,22 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       }
 
       return ids;
+    },
+
+    message:
+    function(msg)
+    {
+      if (this.$msg)
+      {
+        this.$msg
+          .hide()
+          .text(msg)
+          .show();
+      }
+      else
+      {
+        alert(msg);
+      }
     },
 
     getIds:
@@ -158,6 +178,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       var $iid = $('<td></td>');
       var $crc32 = $('<td></td>');
       var $row = $('<tr></tr>')
+//                    .prop('draggable', true)
                     .append($('<td></td>')
                       .prop('draggable', true)
                       .text(image.name))
@@ -176,50 +197,18 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                   size: image.size,
                   name: image.name};
 
-      //TODO: customize?
+      this.table.add($row, id, null, null, null, null, null, data);
+
       if (!('uploaded' in image))
       {
-        $size.text(image.size + 'bytes ready for upload.');
+        $size.text(hSize(image.size) + ' ready for upload.');
         $crc32.html('<br>');
         $iid.html('<br>');
       }
       else
       {
-        $progress.attr('value', image.uploaded);
-
-        if (!('crc32' in image))
-        {
-          $size.text('Calculating MD5 of ' + image.size + 'bytes.');
-          $crc32.html('<br>');
-        }
-        else
-        {
-          $crc32.text(("00000000" + (image.crc32 > 0 ? 
-                                    image.crc32 :
-                                    0x100000000 - image.crc32).toString(16))
-                      .substr(-8));
-          if ('iid' in image)
-          {
-            $iid.text(image.iid);
-          }
-          else
-          {
-            $iid.html('<br>');
-          }
-
-          if (image.uploaded != image.size)
-          {
-            $size.text(image.uploaded + ' of ' + image.size
-                       + ' bytes uploaded.');
-          }
-          else
-          {
-            $size.text('Upload completed (' + image.size + ' bytes).');
-          }
-        }
+        this.update(id, image.uploaded, image.crc32, image.iid);
       }
-
-      this.table.add($row, id, null, null, null, null, null, data);
 
       return id;
     },
@@ -268,12 +257,14 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
       var image = this.table.get(id);
       image.uploaded = uploaded;
+      var size = hSize(image.size);
+      var hUploaded = hSize(uploaded);
 
       image.$progress.prop('value', uploaded);
 
       if (crc32 == null)
       {
-        image.$size.text('Calculating MD5 of ' + image.size + ' bytes.');
+        image.$size.text('Calculating MD5 (' + hUploaded + ' of ' + size + ').');
       }
       else
       {
@@ -290,12 +281,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
         if (uploaded != image.size)
         {
-          image.$size.text(uploaded + ' of ' + image.size
-                           + ' bytes uploaded.');
+          image.$size.text(hUploaded + ' of ' + size + ' uploaded.');
         }
         else
         {
-          image.$size.text('Upload completed (' + image.size + ' bytes).');
+          image.$size.text('Upload completed (' + size + ').');
         }
       }
     },
@@ -306,7 +296,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     /**
      * Function: getUploadMonitor
      *
-     * Prepere a custom XHR for progress bar update. i
+     * Prepere a custom XHR for progress bar update.
      *
      * Parameters:
      *   id - An identifier in uploaded object.
@@ -316,7 +306,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      * Return:
      *   The XHR object.
     \*****************************************************************/
-      var uploaded = this;
+      var uploadedFiles = this;
       return function()
       {
         var myXhr = $.ajaxSettings.xhr();
@@ -326,7 +316,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
             'loadstart',
             function()
             {
-              uploaded.update(id, offset, crc32, iid);
+              uploadedFiles.update(id, offset, crc32, iid);
             }, false);
           myXhr.upload.addEventListener(
             'progress',
@@ -334,7 +324,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
             {
               if (e.lengthComputable)
               {
-                uploaded.update(id, offset + Math.round(e.loaded * fraction / e.total),
+                uploadedFiles.update(id, offset + Math.round(e.loaded * fraction / e.total),
                                 crc32, iid);
               }
             },
@@ -343,7 +333,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
             'load',
             function()
             {
-              uploaded.update(id, offset + fraction, crc32, iid);
+              uploadedFiles.update(id, offset + fraction, crc32, iid);
             },
             false);
           myXhr.upload.addEventListener(
@@ -431,76 +421,65 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
    * A quick and dirty stub of a class of object handling file upload panel.   *
    *                                                                           *
    * Attributes:                                                               *
-   *   $form - A jQuery object representing the file upload form/panel.        *
    *   uploaded - A <CUploadedImages> object to provide user with information  *
    *              about uploaded files.                                        *
    *                                                                           *
-   * Possible improvements:                                                    *
-   *   - Removal of single request upload.                                     *
-   *   - Split of constructor code into several methods to allow more flexible *
-   *     batches management.                                                   *
-   *   - Important panel elements identified by jQuery in more unequivocal     *
-   *     way than ':file' or 'button' - possible with a special class?         *
    *****************************************************************************
    * Constructor: CFileUploader                                                *
    *                                                                           *
    * Initialize the object.                                                    *
    *                                                                           *
    * Parameters:                                                               *
-   *   $form - A jQuery object representing the file upload form/panel.        *
    *   ajaxProvider - An object providing ajax method (possibly of class       *
    *                  <CLoginManager>).                                        *
-   *   uploaded - A <CUploadedImages> object to provide user with information  *
-   *              about uploaded files.                                        *
+   *   uploadedFiles - A <CUploadedImages> object to provide user with         *
+   *                   information about uploaded files.                       *
+   *   $dialog - A jQuery object representing dialog window                    *
+   *   getBatchId - A function executed when necessary to get an identifier    *
+   *                of the selected batch. The function has one parameter:
+   *                a callback to be executed with identifier (passed as an    *
+   *                integer argument).                                         *
   \*****************************************************************************/
-  var CFileUploader = function($form, ajaxProvider, uploaded)
+  var CFileUploader = function(ajaxProvider, uploadedFiles, $dialog, getBatchId)
   {
-    this.$form = $form;
-    this.uploaded = uploaded;
+    this.uploaded = uploadedFiles;
 
     var files = [];
-    var keys = [];
     var ids = {}; // files selected for upload but not uploaded yet
+    // was a good idea when the object was listening to file list changes 
     var iid2id = {};
 
     var thisInstance = this;
-    var $batchSelect = $form.find('.batch select');
 
     this.reset = function()
     {
+    /**
+     * Method: reset
+     *
+     * Remove from uploaded table all files.
+     ***************************************************************/
       this.uploaded.reset();
       ids = {};
       iid2id = {};
-      updateFiles();
-    };
-
-    this.listBatches = function()
-    {
-      $batchSelect.html('<option value="None" selected="selected">None</option>');
-      ajaxProvider.ajax(
-        'batchList',
-        function(response)
-        {
-          if (!response.status)
-          {
-            alert(response.message);
-            return;
-          }
-          var list = response.data;
-          for (var i = 0; i < list.length; i++)
-          {
-            $batchSelect.append('<option value="' + list[i][0] + '">' +
-                           escapeHTML(list[i][1]) + '</option>');
-          }
-        },
-        null,
-        null,
-        null,
-        {cache: false});
     };
 
     this.append = function(name, size, uploaded, iid, crc32)
     {
+    /**
+     * Method: append
+     *
+     * Append a file to the upload table.
+     *
+     * Parameters:
+     *   name - A label of the file.
+     *   size - Declared size of the file.
+     *   uploaded - Size of already uploaded part of the file.
+     *   iid - An identifier of the file in the database.
+     *   crc32 - A checksum of the uploaded part of the file.
+     *
+     * Returns:
+     *   An identifier in the uploaded table.
+     **********************************************************/
       var id = this.uploaded.append({name: name,
                                      size: size,
                                      uploaded: uploaded,
@@ -512,83 +491,145 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         iid2id[iid] = id;
       }
 
+      return id;
     };
 
-    $form.find('.batch :button').click(function()
+    this.remove = function(id)
     {
-      var comment = $form.find('.batch :text').val();
-      ajaxProvider.ajax(
-        'newBatch',
-        function(response)
-        {
-          if (!response.status)
-          {
-            alert(response.message);
-            return;
-          }
-          $batchSelect.append('<option value="' + response.data.bid + '">' +
-                         escapeHTML(response.data.comment) + '</option>');
-          $batchSelect.val(response.data.bid);
-        },
-        {comment: comment},
-        null,
-        null,
-        {cache: false});
-    });
+    /**
+     * Method: remove
+     *
+     * An alias to <CUploadedImages.remove>(id).
+     *
+     * Parameters:
+     *   id - A parameter to be passed to <CUploadedImages.remove>.
+     ****************************************************************/
+      this.uploaded.remove(id);
+    };
 
-    function updateFiles()
+    var afterUpload = null;
+
+    this.submit = function(fileList, filter, finalFunction)
     {
+    /**
+     * Method: submit
+     *
+     * Upload files.
+     *
+     * Parameters:
+     *   fileList - An array of files to be uploaded.
+     *   filter - Flag indicating whether to filter out non-image types.
+     *   finalFunction - A callback to be called after upload is completed.
+     ***********************************************************************/
+      afterUpload = finalFunction;
+      files = this.filterImageFiles(fileList, filter);
+      files.sort(imageCMP);
+
       var id;
 
-      files = filterImageFiles($form.find(':file')[0].files,
-                               $form.find('input[name="filter"]:checked').length > 0);
-      files.sort(imageCMP);
       for (id in ids)
       {
-        uploaded.remove(id);
+        uploadedFiles.remove(id);
       }
       ids = {};
 
       for (var i = 0; i < files.length; i++)
       {
-        id = uploaded.append(files[i]);
-        files[i] = {file: files[i],
+        var file = files[i];
+        id = uploadedFiles.append(file);
+        files[i] = {file: file,
                     id: id};
         ids[id] = true;
       }
-    }
 
-    $form.find(':file').change(updateFiles);
-    $form.find('input[name="filter"]').change(updateFiles);
-
-    var cFilesUploaded = 0; // has the count of files that are completely uploaded
-    var isUploadComplete = false;
-
-    $form.find('.uploadNew :button').click(function()
-    {
-      if (files.length > 0)
-      {
-        $("#upload_status_message").hide().text("Preparing upload...").show();
-        isUploadComplete = false;
-        calc_files_keys_and_trigger_upload();
-      }
-      else
+      if (files.length == 0)
       {
         alert('No files to upload.');
+        return;
       }
-    });
+
+      uploadedFiles.message("Preparing upload...")
+      calcMD5();
+    };
+
+    function calcMD5()
+    {
+      // Calculation of MD5 checksum
+      var chunkSize = 1024 * 1024; // 1 MB chunks for generating MD5 hash key
+
+      var currentFile = 0;
+      var currentChunk = 0;
+      var nChunks = null;
+      var spark = null;
+      var file = null;
+      var item = null;
+      var id = null;
+
+      function digestNextChunk()
+      {
+        if (currentFile == files.length)
+        {
+          return checkDuplicates(); //trigger file upload
+        }
+
+        if (currentChunk == 0)
+        {
+          // file processing initization
+          item = files[currentFile];
+          file = item.file;
+          id = item.id;
+          nChunks = Math.ceil(file.size / chunkSize);
+          spark = new SparkMD5.ArrayBuffer();
+          uploadedFiles.update(id, 0);
+        }
+
+        if (currentChunk == nChunks)
+        {
+          item.key = spark.end();
+          item.size = file.size;
+          item.name = file.name;
+          item.type = file.type;
+          uploadedFiles.update(id, file.size);
+          currentFile++;
+          currentChunk = 0;
+          return digestNextChunk();
+        }
+
+        var fileReader = new FileReader();
+        fileReader.onload = function(e)
+        {
+          spark.append(e.target.result);
+          currentChunk++;
+          uploadedFiles.update(id, currentChunk * chunkSize);
+          return digestNextChunk();
+        };
+        fileReader.onerror = function(e)
+        {
+          console.warn("File Key Computation: Something went wrong.");
+          alert("Reading File: Something went wrong.\nRefresh page and retry.");
+          throw 'MD5 computation error. Upload cannot continue'
+        };
+        var start = currentChunk * chunkSize,
+            end = ((start + chunkSize) >= file.size) ?
+                  file.size :
+                  start + chunkSize;
+
+        fileReader.readAsArrayBuffer(file.slice(start, end));
+      };
+      digestNextChunk();
+    };
+
 
 
     /**
-     * Function: filterImageFiles
-     *
-     * An internal function of <CFileUploader> constructor.
+     * Method: filterImageFiles
      *
      * Filter out files of improper size and (optionally)
      * of non image type.
      *
      * Parameters:
-     *   files - an array of files
+     *   files - An array of files.
+     *   filterImages - A switch whether to filter image files.
      *
      * Returns:
      *   filtered array of files
@@ -596,7 +637,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      * Todo:
      *   more sophisticated file type filtering
      ********************************************************/
-    function filterImageFiles(files, filterImages)
+    this.filterImageFiles = function(files, filterImages)
     {
       var proper = [];
       var tooBig = [], tooSmall = [], nonImage = [];
@@ -666,83 +707,14 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     }
 
     /*
-     * Adds 'key' property to file objects
-     * MD5 hash of file contents. Optimized approach, as file is loaded into memory in chunks
-     */
-    function calc_files_keys_and_trigger_upload()
-    {
-      var chunkSize = 1024 * 1024; // 1 MB chunks for generating MD5 hash key
-      keys = [];
-
-      var currentFile = 0;
-      var currentChunk = 0;
-      var nChunks = null;
-      var spark = null;
-      var file = null;
-      var id = null;
-
-      function digestNextChunk()
-      {
-        if (currentFile == files.length)
-        {
-          return checkDuplicates(); //trigger file upload
-        }
-
-        if (currentChunk == 0)
-        {
-          // file processing initization
-          file = files[currentFile].file;
-          id = files[currentFile].id;
-          nChunks = Math.ceil(file.size / chunkSize);
-          spark = new SparkMD5.ArrayBuffer();
-          uploaded.update(id, 0);
-        }
-
-        if (currentChunk == nChunks)
-        {
-          keys.push({key: spark.end(),
-                     file: file,
-                     size: file.size,
-                     name: file.name,
-                     type: file.type,
-                     id: id});
-          uploaded.update(id, file.size);
-          currentFile++;
-          currentChunk = 0;
-          return digestNextChunk();
-        }
-
-        var fileReader = new FileReader();
-        fileReader.onload = function(e)
-        {
-          spark.append(e.target.result);
-          currentChunk++;
-          uploaded.update(id, currentChunk * chunkSize);
-          return digestNextChunk();
-        };
-        fileReader.onerror = function(e)
-        {
-          console.warn("File Key Computation: Something went wrong.");
-          alert("Reading File: Something went wrong.\nRefresh page and retry.");
-          throw 'MD5 computation error. Upload cannot continue'
-        };
-        var start = currentChunk * chunkSize,
-            end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
-
-        fileReader.readAsArrayBuffer(file.slice(start, end));
-      };
-      digestNextChunk();
-    }
-
-    /*
      * Query server for duplicates
      */
     function checkDuplicates()
     {
       var details = [];
-      for (var i = 0; i < keys.length; i++)
+      for (var i = 0; i < files.length; i++)
       {
-        var file = keys[i]
+        var file = files[i]
         details.push(file.key + ',' + file.size)
       }
       ajaxOptions = {async: false};
@@ -771,7 +743,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     }
 
     var to_refresh = [];
-    var $dialog = $('#brokenDuplicatePanel');
     var $dialogContent = $dialog.find('.content');
     var setIntervalId = null;
     var dialog = new CCloseableDiv($dialog,
@@ -801,7 +772,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       var duplicate_iids = [];
       to_refresh = []; //XXX: almost global
 
-      for (var i = 0; i < keys.length; i++)
+      for (var i = 0; i < files.length; i++)
       {
         var file_data = data[i];
         var broken = file_data[0];
@@ -811,7 +782,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         {
           show_dialog = true;
           var $div = $('<div />');
-          $div.append($("<h3 />").text(keys[i].name + ":"));
+          $div.append($("<h3 />").text(files[i].name + ":"));
 
           if (broken.length > 0)
           {
@@ -878,11 +849,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
           $take_no_action.append($("<span />").text(" take no action"));
           $div.append($take_no_action);
           $dialogContent.append($div);
-          keys[i].$div = $div;
+          files[i].$div = $div;
         }
         else
         {
-          keys[i].$div = null;
+          files[i].$div = null;
         }
 
         // $dialog_content.append($("<hr />").css("margin", "10px"));
@@ -914,7 +885,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                                       }, 20*1000);
         }
 
-        $("#upload_status_message").hide().text("Pick what to do...").show();
+        uploadedFiles.message("Pick what to do...");
         refreshStatusForIids(duplicate_iids);
       }
       else
@@ -982,13 +953,13 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     {
       dialog.close();
 
-      var cFiles = keys.length;
+      var cFiles = files.length;
       // XXX
       //var $selected_radios = $("#dialog form").find("input:checked");
       var to_upload = [];
       for (var i = 0; i < cFiles; i++)
       {
-        var file = keys[i];
+        var file = files[i];
         var $radio_ref = file.$div;
 
         if ($radio_ref)
@@ -996,7 +967,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
           var val = $radio_ref.find("input:checked").val();
           if (val == 'cancel')
           {
-            uploaded.remove(file.id);
+            uploadedFiles.remove(file.id);
             delete ids[file.id];
             continue;
           }
@@ -1009,7 +980,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
             if (file.iid in iid2id)
             {
               var id = iid2id[file.iid];
-              uploaded.remove(id);
+              uploadedFiles.remove(id);
               delete ids[id];
               iid2id[file.iid] = file.id;
             }
@@ -1020,7 +991,10 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       start_file_upload(to_upload);
     }
 
-    $dialog.find('.confirmation_button').bind('click', addUploadFileProperties);
+    $dialog.find('.confirmation_button')
+              .unbind('click')
+              .bind('click', addUploadFileProperties);
+
 
     /*
      * Triggers the upload process. Opens MAX_SIMULTANEOUS_UPLOADS threads for parallel uploads
@@ -1029,10 +1003,13 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     {
       if (files.length == 0)
       {
-        //nothing to do, do not bother me, bro
+        uploadedFiles.message("Nothing to upload.");
         return;
       }
 
+      uploadedFiles.message("Uploading...");
+
+      // check whether there are new files for upload
   		var uploadNewFiles = false;
   		for (var i = 0; i < files.length; i++)
   		{
@@ -1043,54 +1020,29 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
   			}
   		}
 
-      /*
-       * Final function called after all uploads are completesd
-       */
-      function do_upload_complete()
+      if (!uploadNewFiles || !getBatchId)
       {
-        $("#upload_status_message").hide().text("Upload complete!").show();
-        alert('All images uploaded');
-        $("form#upload")[0].reset();
-        iCurrentFileForUpload = 0;  // reset the index of current file being uploaded to zero
-        cFilesUploaded = 0; // reset the total number of files uploaded
-        isUploadComplete = true; // flag that helps prevent some threads being calling upload function again
-      }
-
-      var bid = $batchSelect.val();
-      if (bid != 'None' || !uploadNewFiles)
-      {
-        uploadChunkedFiles(files,
-                           CHUNK_SIZE,
-                           do_upload_complete,
-                           parseInt(bid),
-                           thisInstance.uploaded);
+        uploadChunkedFiles(files, CHUNK_SIZE);
       }
       else
       {
-        ajaxProvider.ajax(
-          'newBatch',
-          function(response)
-          {
-            if (!response.status)
-            {
-              alert(response.message);
-              return;
-            }
-            $batchSelect.append('<option value="' + response.data.bid + '">' +
-                           escapeHTML(response.data.comment) + '</option>');
-            $batchSelect.val(response.data.bid);
-            uploadChunkedFiles(files,
-                               CHUNK_SIZE,
-                               do_upload_complete,
-                               response.data.bid,
-                               thisInstance.uploaded);
-          },
-          null, null, null,
-          {cache: false});
+        // if yes - get bid
+        getBatchId(function(bid)
+        {
+          uploadChunkedFiles(files, CHUNK_SIZE, bid);
+        });
       }
-
     }
 
+    /*
+     * Final function called after all uploads are completesd
+     */
+    function do_upload_complete()
+    {
+      uploadedFiles.message("Upload completed!");
+      alert('All images uploaded');
+      if (afterUpload) afterUpload(true);
+    }
 
     /**
      * Function: uploadChunkedFiles
@@ -1105,18 +1057,13 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      *
      *   cSize - An integer indicating the maximal size of data chunk to be send
      *           (defaults to <CHUNK_SIZE>).
-     *   finalFunction - A no argument function to be called when all filas has
-     *                   been successfully uploaded.
      *   bid - A unique repository batch identifier. In not null, the uploaded
      *         files would be assigned to that batch.
-     *   uploadedFilesCollection - <CUploadedImages> object providing user with
-     *                             information about uploaded files.
      *
      * Possible improvements:
      *   - The way the upload of the first file starts?
      **************************************************************************/
-    function uploadChunkedFiles(files, cSize, finalFunction, bid,
-                                uploadedFilesCollection)
+    function uploadChunkedFiles(files, cSize, bid)
     {
       if (cSize == null)
       {
@@ -1137,7 +1084,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        *
        * Parameters:
        *   blob - A Blob (or File) object to be uploaded.
-       *   id - An identifier of the file in uploadedFilesCollection.
+       *   id - An identifier of the file in uploadedFiles.
        *
        * Returns:
        *   The handler (see <sendNextChunk> for details).
@@ -1216,7 +1163,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                               {processData: false,
                                contentType: false,
                                cache: false,
-                               xhr: uploadedFilesCollection.getUploadMonitor(
+                               xhr: uploadedFiles.getUploadMonitor(
                                       id, offset,
                                       Math.min(cSize, blob.size - offset),
                                       response.data.crc32,
@@ -1225,9 +1172,8 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
           else
           {
             // if there is no more data to sent finish the file upload
-            uploadedFilesCollection.update(id, response.data.size,
-                                           response.data.crc32,
-                                           response.data.iid);
+            uploadedFiles.update(id, response.data.size, response.data.crc32,
+                                 response.data.iid);
             uploaded++;
             inProgress--;
             if (fileNo < files.length)
@@ -1238,10 +1184,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
             {
               if (uploaded >= files.length)
               {
-                if (finalFunction != null)
-                {
-                  finalFunction();
-                }
+                do_upload_complete();
                 return;
               }
             }
@@ -1301,8 +1244,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
           if (file.iid != null)
           {
-            uploadedFilesCollection.update(file.id, file.uploaded,
-                                           file.crc32, file.iid);
+            uploadedFiles.update(file.id, file.uploaded, file.crc32, file.iid);
             getSendNextChunkFunction(file.file, file.id)
             ({
               status: true,
@@ -1327,8 +1269,8 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
               cache: false,
               contentType: false,
               processData: false,
-              xhr: uploadedFilesCollection.getUploadMonitor(file.id, 0,
-                                    Math.min(cSize, total), 0)};
+              xhr: uploadedFiles.getUploadMonitor(file.id, 0,
+                                                  Math.min(cSize, total), 0)};
             ajaxProvider.ajax(
               'uploadNewImage',
               getSendNextChunkFunction(file.file, file.id),
