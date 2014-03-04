@@ -495,7 +495,7 @@ class TileBase(dbBase):
     User must also privilege to view the image for it to be considered as a broken upload
     """
     cursor.execute('''
-                   SELECT iid, source_filesize, filename
+                   SELECT iid, source_filesize, filename, source_crc32
                    FROM images 
                    WHERE source_md5 = %s AND declared_size = %s
                                          AND status IN (%s, %s);

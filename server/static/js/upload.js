@@ -42,235 +42,357 @@ function imageCMP(a, b)
   return a.size - b.size;
 }
 
-/*****************************************************************************\
- * Class: CUploadedImages                                                    *
- *                                                                           *
- * A stub of a class that stores information about uploaded images.          *
- *                                                                           *
- * Attributes:                                                               *
- *   $table - jQuery object representing TABLE (or TBODY, THEAD, TFOOT etc.) *
- *            element providing information about uploaded files to the user *
- *   images - Array of objects describing the uploaded files.                *
- *                                                                           *
- *****************************************************************************
- * Constructor: CUploadedImages                                              *
- *                                                                           *
- * Initialize the object.                                                    *
- *                                                                           *
- * Parameters:                                                               *
- *   $table - Object assigned to attribute $table of constructed object.     *
- *   images - Value of attribute images (defaults to []).                    *
-\*****************************************************************************/
-function CUploadedImages($table, images)
-{
-  this.$table = $table;
-  this.reset(images);
-}
-
 with ({escapeHTML: BrainSlices.gui.escapeHTML,
        getThumbnail: BrainSlices.gui.getThumbnail,
        STATUS_MAP: BrainSlices.gui.STATUS_MAP,
-       CCloseableDiv: BrainSlices.gui.CCloseableDiv})
+       CCloseableDiv: BrainSlices.gui.CCloseableDiv,
+       CTableManager: BrainSlices.gui.CTableManager})
 {
-  /*****************************************************************************\
-   * Method: reset                                                             *
-   *                                                                           *
-   * Replace information about uploaded files with information provided        *
-   * (preserving the order).                                                   *
-   *                                                                           *
-   * Parameters:                                                               *
-   *   images - A list of objects describing uploaded files (see <append> for  *
-   *            details).                                                      *
-  \*****************************************************************************/
-  CUploadedImages.prototype.reset = function(images)
+  /**
+   * Class: CUploadedImages
+   *
+   * A stub of a class that stores information about uploaded images.
+   *
+   * TODO: Reimplement this
+   *
+   * Attributes:
+   *   table - CTableManager object managing information displayed to the user
+   *   nextId - An unique ID of next appended image.
+   *   lowId  - The lowest valid ID (for debug purposes).
+   *
+   *******************************
+   * Constructor: CUploadedImages
+   *
+   * Initialize the object.
+   *
+   * Parameters:
+   *   $table - jQuery object representing TABLE (or TBODY, THEAD, TFOOT etc.)
+   *            element providing information about uploaded files to the user
+   *   images - images objects to be appended (if any).
+  \**************************************************************************/
+  function CUploadedImages($table, images)
   {
-    this.images = [];
-    this.$table.empty();
+    this.table = new BrainSlices.gui.CTableManager($table);
+    this.nextId = 0;
+    this.reset(images);
+  }
 
-    if (images != null)
+  CUploadedImages.prototype =
+  {
+    /**
+     * Method: reset
+     *
+     * Replace information about uploaded files with information provided
+     * (preserving the order).
+     *
+     * Parameters:
+     *   images - A list of objects describing uploaded files (see <append>
+     *            for details). Defaults to [] if not given or null.
+     *
+     * Returns:
+     *   An Array of Ids assigned to images.
+    \***********************************************************************/
+    reset:
+    function(images)
     {
-      for (var i = 0; i < images.length; i++)
+      this.table.flush();
+      this.lowId = this.nextId;
+
+      var ids = [];
+
+      if (images != null)
       {
-        this.append(images[i]);
+        for (var i = 0; i < images.length; i++)
+        {
+          ids.push(this.append(images[i]));
+        }
       }
-    }
-  }
 
-  /*****************************************************************************\
-   * Method: append                                                            *
-   *                                                                           *
-   * Append information about uploaded file.                                   *
-   *                                                                           *
-   * Parameters:                                                               *
-   *   image - An object describing the uploaded file. The object should have  *
-   *           at least the following attributes:                              *
-   *           - name - name of the file,                                      *
-   *           - size - number of uploaded bytes,                              *
-   *           - iid - unique identifier of the file in the repositoty,        *
-   *           - crc32 - CRC32 checksum of the uploaded data.                  *
-  \*****************************************************************************/
-  CUploadedImages.prototype.append = function(image)
-  {
-    this.images.push(image);
-    var crc32 = ("00000000" + (image.crc32 > 0 ? image.crc32 : 0x100000000 - image.crc32).toString(16)).substr(-8);
-    this.$table.append('<tr><td>' + image.name + '</td><td>' + image.size +
-                       '</td><td>' + image.iid + '</td><td>' + crc32 +
-                       '</td></tr>');
-  }
+      return ids;
+    },
 
-  /*****************************************************************************\
-   * Method: sort                                                              *
-   *                                                                           *
-   * Sort the displayed uploaded files by name, then by sise (see <imageCMP>)  *
-  \*****************************************************************************/
-  CUploadedImages.prototype.sort = function()
-  {
-    this.images.sort(imageCMP);
-    this.reset(this.images);
-  }
-
-  /*****************************************************************************\
-   * Section: Image upload functions                                           *
-   *                                                                           *
-   * Quick and dirty functions for image upload                                *
-  \*****************************************************************************/
-
-  /*****************************************************************************\
-   * Topic: standart JSON object                                               *
-   *                                                                           *
-   * The response returned by the server after AJAX query is a standarised     *
-   * JSON object.                                                              *
-   *                                                                           *
-   * Attributes:                                                               *
-   *   status - A boolean indicating if the requested operation has succeeded. *
-   *   logged - A boolean indicating if the user is logged to the repository.  *
-   *   message - A string containing an user-friendly message (important in    *
-   *             case of a failure).                                           *
-   *   data - Additional data provided by the server.                          *
-  \*****************************************************************************/
-
-  /*****************************************************************************\
-   * Function: makeUploadList                                                  *
-   *                                                                           *
-   * Fill DOM list element with items representing files for upload. Items are *
-   * ordered by name, then by file size.                                       *
-   *                                                                           *
-   * Parameters:                                                               *
-   *   srcFiles - An array of File objectsi.                                   *
-   *   $list - jQuery object representing UL or OL element.                    *
-   *   progressBar - boolean indicating whether provide a progress bar for the *
-   *                 item.                                                     *
-   *                                                                           *
-   * Returns:                                                                  *
-   *   An ordered array of files.                                              *
-  \*****************************************************************************/
-  function makeUploadList(srcFiles, $list, progressBar)
-  {
-    $list.empty();
-
-    var files = [];
-    for (var i = 0; i < srcFiles.length; i++)
+    getIds:
+    function()
     {
-      files.push(srcFiles[i]);
-    }
+    /**
+     * Method: getIds
+     *
+     * Returns:
+     *    An Array of Ids assigned to images (in currently displayed order).
+     **********************************************************************/
+      return this.table.getOrder();
+    },
 
-    files.sort(imageCMP);
-
-    for (var i = 0; i < files.length; i++)
+    append:
+    function(image)
     {
-      var file = files[i];
-      $list.append('<li>' + file.name + ' (' + file.type + ', ' + file.size +
-                   ')' + (progressBar ? ' <progress max="1" value="0"></progress>':'') +
-                   '</li>');
-    }
+    /**
+     * Method: append
+     *
+     * Append information about uploaded file.
+     *
+     * Parameters:
+     *   image - An object describing the uploaded file. The object should
+     *           have the following attributes:
+     *           - name - name of the file,
+     *           - size - size of the file,
+     *           - uploaded - number of already uploaded bytes
+     *                        (if not given assumed the MD5 computation
+     *                         has not started yet),
+     *           - crc32 - CRC32 checksum of the uploaded file
+     *                     (if not given assumed the upload has not started
+     *                      yet - only MD5 computation),
+     *           - iid - An IID assigned to the file by the server
+     *                   (if not given assumed data has not reached the server
+     *                   yet).
+     *
+     * Returns:
+     *   An ID assigned to the image.
+    \************************************************************************/
+      var id = this.nextId++;
 
-    return files;
-  }
+      var data = {size: image.size};
+      var $progress = $('<progress></progress>')
+                        .attr('max', image.size);
+      var $size = $('<span></span>');
+      var $iid = $('<td></td>');
+      var $crc32 = $('<td></td>');
+      var $row = $('<tr></tr>')
+                    .append($('<td></td>')
+                      .prop('draggable', true)
+                      .text(image.name))
+                    .append($('<td></td>')
+                      .append($progress)
+                      .append($size))
+                    .append($iid)
+                    .append($crc32);
 
-  /*****************************************************************************\
-   * Function: getUploadMonitor                                                *
-   *                                                                           *
-   * Prepere a custom XHR for progress bar update. i                           *
-   *                                                                           *
-   * Parameters:                                                               *
-   *   $progress - jQuery object representing PROGRESS element.                *
-   *   offset - Number of bytes uploaded in previous requests.                 *
-   *   fraction - A fraction (of total number) of bytes to be uploaded in      *
-   *              the request.                                                 *
-   *   total - A total number of bytes of the upload.                          *
-   *                                                                           *
-   * Return:                                                                   *
-   *   The XHR object.                                                         *
-  \*****************************************************************************/
-  function getUploadMonitor($progress, offset, fraction, total)
-  {
-    return function()
-    {
-      var myXhr = $.ajaxSettings.xhr();
-      if (myXhr.upload) // check if upload property exists
+
+      var data = {$row: $row,
+                  $progress: $progress,
+                  $size: $size,
+                  $iid: $iid,
+                  $crc32: $crc32,
+                  size: image.size,
+                  name: image.name};
+
+      //TODO: customize?
+      if (!('uploaded' in image))
       {
-        myXhr.upload.addEventListener(
-          'loadstart',
-          function()
+        $size.text(image.size + 'bytes ready for upload.');
+        $crc32.html('<br>');
+        $iid.html('<br>');
+      }
+      else
+      {
+        $progress.attr('value', image.uploaded);
+
+        if (!('crc32' in image))
+        {
+          $size.text('Calculating MD5 of ' + image.size + 'bytes.');
+          $crc32.html('<br>');
+        }
+        else
+        {
+          $crc32.text(("00000000" + (image.crc32 > 0 ? 
+                                    image.crc32 :
+                                    0x100000000 - image.crc32).toString(16))
+                      .substr(-8));
+          if ('iid' in image)
           {
-            $progress.attr(
-            {
-              value: offset,
-              max: total
-            });
-          }, false);
-        myXhr.upload.addEventListener(
-          'progress',
-          function(e)
+            $iid.text(image.iid);
+          }
+          else
           {
-            if (e.lengthComputable)
+            $iid.html('<br>');
+          }
+
+          if (image.uploaded != image.size)
+          {
+            $size.text(image.uploaded + ' of ' + image.size
+                       + ' bytes uploaded.');
+          }
+          else
+          {
+            $size.text('Upload completed (' + image.size + ' bytes).');
+          }
+        }
+      }
+
+      this.table.add($row, id, null, null, null, null, null, data);
+
+      return id;
+    },
+
+    /**
+     * Method: sort
+     *
+     * Sort the displayed uploaded files by name, then by size
+     * (see <imageCMP>)
+    \************************************************************************/
+    sort:
+    function()
+    {
+      this.table.sort(imageCMP);
+    },
+
+    /**
+     * Method: remove
+     *
+     * An alias for <CTableManager.remove>(id).
+     *
+     * Parametres:
+     *   id - to be passed to <CTableManager.remove>
+     ***************************************/
+    remove:
+    function(id)
+    {
+      this.table.remove(id);
+    },
+
+    /**
+     * Method: update
+     *
+     * Updates upload state of a file.
+     *
+     * Parameters:
+     *   id - An identifier of the file.
+     *   uploaded - An amount of processed or uploaded bytes.
+     *   crc32 - CRC32 checksum of the uploaded data.
+     *   iid - An identifier assigned to the file by server.
+     *********************************************************/
+    update:
+    function(id, uploaded, crc32, iid)
+    {
+      console.assert(id >= this.lowId, 'Obsoleted ID: ' + id);
+
+      var image = this.table.get(id);
+      image.uploaded = uploaded;
+
+      image.$progress.prop('value', uploaded);
+
+      if (crc32 == null)
+      {
+        image.$size.text('Calculating MD5 of ' + image.size + ' bytes.');
+      }
+      else
+      {
+        image.crc32 = crc32;
+        image.$crc32.text(("00000000" + (crc32 > 0 ? 
+                                         crc32 :
+                                         0x100000000 - crc32).toString(16))
+                          .substr(-8));
+
+        if (iid != null)
+        {
+          image.$iid.text(iid);
+        }
+
+        if (uploaded != image.size)
+        {
+          image.$size.text(uploaded + ' of ' + image.size
+                           + ' bytes uploaded.');
+        }
+        else
+        {
+          image.$size.text('Upload completed (' + image.size + ' bytes).');
+        }
+      }
+    },
+
+    getUploadMonitor:
+    function(id, offset, fraction, crc32, iid)
+    {
+    /**
+     * Function: getUploadMonitor
+     *
+     * Prepere a custom XHR for progress bar update. i
+     *
+     * Parameters:
+     *   id - An identifier in uploaded object.
+     *   offset - Number of bytes uploaded in previous requests.
+     *   fraction - A number of bytes to be uploaded in the request.
+     *
+     * Return:
+     *   The XHR object.
+    \*****************************************************************/
+      var uploaded = this;
+      return function()
+      {
+        var myXhr = $.ajaxSettings.xhr();
+        if (myXhr.upload) // check if upload property exists
+        {
+          myXhr.upload.addEventListener(
+            'loadstart',
+            function()
             {
-              $progress.attr(
+              uploaded.update(id, offset, crc32, iid);
+            }, false);
+          myXhr.upload.addEventListener(
+            'progress',
+            function(e)
+            {
+              if (e.lengthComputable)
               {
-                value: e.loaded * fraction / e.total + offset,
-                max: total
-              });
-            }
-          },
-          false);
-        myXhr.upload.addEventListener(
-          'load',
-          function()
-          {
-            $progress.attr(
+                uploaded.update(id, offset + Math.round(e.loaded * fraction / e.total),
+                                crc32, iid);
+              }
+            },
+            false);
+          myXhr.upload.addEventListener(
+            'load',
+            function()
             {
-              value: fraction + offset,
-              max: total
-            });
-          },
-          false);
-        myXhr.upload.addEventListener(
-          'error',
-          function()
-          {
-            alert('File Upload: Something went wrong.\nRetry');
-            console.error('File Upload: Error!');
-            throw 'File Upload: Something went wrong.\nRetry';
-          },
-          false);
-        myXhr.upload.addEventListener(
-          'abort',
-          function()
-          {
-            alert('File Upload: Aborted due to some reason.\nRetry');
-            console.error('File Upload: Aborted!');
-            throw 'File Upload: Aborted due to some reason.\nRetry';
-          },
-          false);
+              uploaded.update(id, offset + fraction, crc32, iid);
+            },
+            false);
+          myXhr.upload.addEventListener(
+            'error',
+            function()
+            {
+              alert('File Upload: Something went wrong.\nRetry');
+              console.error('File Upload: Error!');
+              throw 'File Upload: Something went wrong.\nRetry';
+            },
+            false);
+          myXhr.upload.addEventListener(
+            'abort',
+            function()
+            {
+              alert('File Upload: Aborted due to some reason.\nRetry');
+              console.error('File Upload: Aborted!');
+              throw 'File Upload: Aborted due to some reason.\nRetry';
+            },
+            false);
+        }
+        return myXhr;
       }
-      return myXhr;
     }
-  }
+  };
 
+  /**
+   * Section: Image upload functions
+   *
+   * Quick and dirty functions for image upload
+  \**************************************************************************/
 
-  /*****************************************************************************\
-   * Group: chunked files upload                                               *
-  \*****************************************************************************/
+  /**
+   * Topic: standart JSON object
+   *
+   * The response returned by the server after AJAX query is a standarised
+   * JSON object.
+   *
+   * Attributes:
+   *   status - A boolean indicating if the requested operation has succeeded.
+   *   logged - A boolean indicating if the user is logged to the repository.
+   *   message - A string containing an user-friendly message (important in
+   *             case of a failure).
+   *   data - Additional data provided by the server.
+  \**************************************************************************/
+
+  /**************************************************************************\
+   * Group: chunked files upload                                            *
+  \**************************************************************************/
 
   /************************************\
    * Constant: CHUNK_SIZE             *
@@ -312,8 +434,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
    *   $form - A jQuery object representing the file upload form/panel.        *
    *   uploaded - A <CUploadedImages> object to provide user with information  *
    *              about uploaded files.                                        *
-   *   $uploads - A jQuery object representing list (OL or UL) element for     *
-   *              listing files selected to upload.                            *
    *                                                                           *
    * Possible improvements:                                                    *
    *   - Removal of single request upload.                                     *
@@ -330,18 +450,29 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
    *   $form - A jQuery object representing the file upload form/panel.        *
    *   ajaxProvider - An object providing ajax method (possibly of class       *
    *                  <CLoginManager>).                                        *
+   *   uploaded - A <CUploadedImages> object to provide user with information  *
+   *              about uploaded files.                                        *
   \*****************************************************************************/
-  var CFileUploader = function($form, ajaxProvider)
+  var CFileUploader = function($form, ajaxProvider, uploaded)
   {
     this.$form = $form;
-    this.uploaded = new CUploadedImages($form.find('table.uploaded>tbody'));
-    this.$uploads = $form.find('.uploads');
+    this.uploaded = uploaded;
 
     var files = [];
     var keys = [];
+    var ids = {}; // files selected for upload but not uploaded yet
+    var iid2id = {};
 
     var thisInstance = this;
     var $batchSelect = $form.find('.batch select');
+
+    this.reset = function()
+    {
+      this.uploaded.reset();
+      ids = {};
+      iid2id = {};
+      updateFiles();
+    };
 
     this.listBatches = function()
     {
@@ -368,6 +499,21 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         {cache: false});
     };
 
+    this.append = function(name, size, uploaded, iid, crc32)
+    {
+      var id = this.uploaded.append({name: name,
+                                     size: size,
+                                     uploaded: uploaded,
+                                     iid: iid,
+                                     crc32: crc32});
+      if (iid)
+      {
+        console.assert(!(iid in iid2id));
+        iid2id[iid] = id;
+      }
+
+    };
+
     $form.find('.batch :button').click(function()
     {
       var comment = $form.find('.batch :text').val();
@@ -392,11 +538,24 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
     function updateFiles()
     {
-      var filtered = filterImageFiles($form.find(':file')[0].files,
-                                      $form.find('input[name="filter"]:checked').length > 0);
-      files = makeUploadList(filtered,
-                             $form.find('.uploadNew .uploads'),
-                             true);
+      var id;
+
+      files = filterImageFiles($form.find(':file')[0].files,
+                               $form.find('input[name="filter"]:checked').length > 0);
+      files.sort(imageCMP);
+      for (id in ids)
+      {
+        uploaded.remove(id);
+      }
+      ids = {};
+
+      for (var i = 0; i < files.length; i++)
+      {
+        id = uploaded.append(files[i]);
+        files[i] = {file: files[i],
+                    id: id};
+        ids[id] = true;
+      }
     }
 
     $form.find(':file').change(updateFiles);
@@ -411,7 +570,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       {
         $("#upload_status_message").hide().text("Preparing upload...").show();
         isUploadComplete = false;
-        calc_files_keys_and_trigger_upload($form.find('.uploadNew .uploads>li>progress'));
+        calc_files_keys_and_trigger_upload();
       }
       else
       {
@@ -510,7 +669,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      * Adds 'key' property to file objects
      * MD5 hash of file contents. Optimized approach, as file is loaded into memory in chunks
      */
-    function calc_files_keys_and_trigger_upload($progresses)
+    function calc_files_keys_and_trigger_upload()
     {
       var chunkSize = 1024 * 1024; // 1 MB chunks for generating MD5 hash key
       keys = [];
@@ -520,7 +679,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       var nChunks = null;
       var spark = null;
       var file = null;
-      var $progress = null;
+      var id = null;
 
       function digestNextChunk()
       {
@@ -532,11 +691,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         if (currentChunk == 0)
         {
           // file processing initization
-          file = files[currentFile];
+          file = files[currentFile].file;
+          id = files[currentFile].id;
           nChunks = Math.ceil(file.size / chunkSize);
           spark = new SparkMD5.ArrayBuffer();
-          $progress = $progresses.eq(currentFile).attr({value: 0,
-                                                        max: nChunks});
+          uploaded.update(id, 0);
         }
 
         if (currentChunk == nChunks)
@@ -545,8 +704,9 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                      file: file,
                      size: file.size,
                      name: file.name,
-                     type: file.type});
-          $progress.attr('value', nChunks);
+                     type: file.type,
+                     id: id});
+          uploaded.update(id, file.size);
           currentFile++;
           currentChunk = 0;
           return digestNextChunk();
@@ -557,7 +717,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         {
           spark.append(e.target.result);
           currentChunk++;
-          $progress.attr('value', currentChunk);
+          uploaded.update(id, currentChunk * chunkSize);
           return digestNextChunk();
         };
         fileReader.onerror = function(e)
@@ -664,10 +824,10 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
               var slot = broken[j];
               var slot_iid = slot[0];
               var slot_size = slot[1];
-              var percent_uploaded = Math.round(slot_size / files[i].size * 100);
+              var percent_uploaded = Math.round(slot_size / files[i].file.size * 100);
               $radio_buttons_div.append($("<input>").attr({type: "radio",
                                                            name: 'upload_radio_' + i,
-                                                           value: slot_iid + ',' + slot_size}));
+                                                           value: slot_iid + ',' + slot_size + ',' + slot[3]}));
               $radio_buttons_div.append($("<label />").text(slot[2] + " #" + slot_iid + " (" + percent_uploaded + "%)"));
             }
             $div.append($radio_buttons_div);
@@ -834,19 +994,29 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         if ($radio_ref)
         {
           var val = $radio_ref.find("input:checked").val();
-          if (val == 'cancel') continue;
+          if (val == 'cancel')
+          {
+            uploaded.remove(file.id);
+            delete ids[file.id];
+            continue;
+          }
           if (val != 'new')
           {
             var row = val.split(',');
             file.iid = parseInt(row[0]);
             file.uploaded = parseInt(row[1]);
+            file.crc32 = parseInt(row[2]);
+            if (file.iid in iid2id)
+            {
+              var id = iid2id[file.iid];
+              uploaded.remove(id);
+              delete ids[id];
+              iid2id[file.iid] = file.id;
+            }
           }
         }
         to_upload.push(file);
       }
-      makeUploadList(to_upload,
-                     $form.find('.uploadNew .uploads'),
-                     true);
       start_file_upload(to_upload);
     }
 
@@ -890,7 +1060,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       if (bid != 'None' || !uploadNewFiles)
       {
         uploadChunkedFiles(files,
-                           $form.find('.uploadNew .uploads>li>progress'),
                            CHUNK_SIZE,
                            do_upload_complete,
                            parseInt(bid),
@@ -911,7 +1080,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                            escapeHTML(response.data.comment) + '</option>');
             $batchSelect.val(response.data.bid);
             uploadChunkedFiles(files,
-                               $form.find('.uploadNew .uploads>li>progress'),
                                CHUNK_SIZE,
                                do_upload_complete,
                                response.data.bid,
@@ -935,8 +1103,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      *           file upload has to be resumed, also iid and already uploaded
      *           amount of data is provided).
      *
-     *   $progresses - A jQuery array of PROGRESS elements corresponding to the
-     *                 fileList items sorted by name, then by size.
      *   cSize - An integer indicating the maximal size of data chunk to be send
      *           (defaults to <CHUNK_SIZE>).
      *   finalFunction - A no argument function to be called when all filas has
@@ -949,7 +1115,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      * Possible improvements:
      *   - The way the upload of the first file starts?
      **************************************************************************/
-    function uploadChunkedFiles(files, $progresses, cSize, finalFunction, bid,
+    function uploadChunkedFiles(files, cSize, finalFunction, bid,
                                 uploadedFilesCollection)
     {
       if (cSize == null)
@@ -966,33 +1132,18 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
        *
        * An internal function of <uploadChunkedFiles>.
        *
-       * Prepare a handler for file chunk upload feedback that would upload the
-       * next chunk if necessary.
+       * Prepare a handler for file chunk upload feedback that would upload
+       * the next chunk if necessary.
        *
        * Parameters:
        *   blob - A Blob (or File) object to be uploaded.
-       *   $progress - A jQuery object representing the PROGRESS element for
-       *               upload progress visualisation.
-       *   finalFunction - A function to be called when whole data has been
-       *                   successfully uploaded. The function takes the server
-       *                   response as its argument (see <standart JSON object>
-       *                   for details).
+       *   id - An identifier of the file in uploadedFilesCollection.
        *
        * Returns:
        *   The handler (see <sendNextChunk> for details).
-      \************************************************************************/
-      function getSendNextChunkFunction(blob, $progress, data)
+      \**********************************************************************/
+      function getSendNextChunkFunction(blob, id)
       {
-        if (finalFunction == null)
-        {
-          finalFunction = function(response)
-          {
-            alert('Upload of ' + response.data.size + 'B finished\n' +
-                  'iid = ' + response.data.iid + '\n' +
-                  'crc32 = ' + response.data.crc32);
-          }
-        }
-
         /**
          * Function: sendNextChunk
          *
@@ -1035,9 +1186,15 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
             var offset = response.data.size;
             var chunk = blob.slice(offset, offset + cSize);
             var form_data = new FormData();
+            var iid = response.data.iid;
+
             form_data.append('data', chunk);
-            form_data.append('iid', response.data.iid);
+            form_data.append('iid', iid);
             form_data.append('offset', response.data.size);
+
+            
+            console.assert(!(iid in iid2id) || iid2id[iid] == id);
+            iid2id[iid] = id;
 
             ajaxProvider.ajax('continueImageUpload',
                               sendNextChunk,
@@ -1059,19 +1216,18 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                               {processData: false,
                                contentType: false,
                                cache: false,
-                               xhr: getUploadMonitor($progress, offset, Math.min(cSize, blob.size - offset), blob.size)});
+                               xhr: uploadedFilesCollection.getUploadMonitor(
+                                      id, offset,
+                                      Math.min(cSize, blob.size - offset),
+                                      response.data.crc32,
+                                      iid)});
           }
           else
           {
             // if there is no more data to sent finish the file upload
-            if (uploadedFilesCollection != null)
-            {
-              uploadedFilesCollection.append({name: data.name,
-                                              size: response.data.size,
-                                              iid: response.data.iid,
-                                              crc32: response.data.crc32});
-            }
-
+            uploadedFilesCollection.update(id, response.data.size,
+                                           response.data.crc32,
+                                           response.data.iid);
             uploaded++;
             inProgress--;
             if (fileNo < files.length)
@@ -1135,17 +1291,20 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         while (fileNo < files.length && inProgress < limit)
         {
           var file = files[fileNo];
-          var $progress = $progresses.eq(fileNo); //TODO: bugtest it
           fileNo++;
           inProgress++;
 
           // the first chunk of data will be sent
           var total = file.size;
 
+          delete ids[file.id];
+
           if (file.iid != null)
           {
-            getSendNextChunkFunction(file.file, $progress, {name: file.name})(
-            {
+            uploadedFilesCollection.update(file.id, file.uploaded,
+                                           file.crc32, file.iid);
+            getSendNextChunkFunction(file.file, file.id)
+            ({
               status: true,
               data: {size: file.uploaded,
                      iid: file.iid}
@@ -1168,10 +1327,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
               cache: false,
               contentType: false,
               processData: false,
-              xhr: getUploadMonitor($progress, 0, Math.min(cSize, total), total)};
+              xhr: uploadedFilesCollection.getUploadMonitor(file.id, 0,
+                                    Math.min(cSize, total), 0)};
             ajaxProvider.ajax(
               'uploadNewImage',
-              getSendNextChunkFunction(file.file, $progress, {name: file.name}),
+              getSendNextChunkFunction(file.file, file.id),
               form_data,
               function(data)
               {

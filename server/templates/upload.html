@@ -39,7 +39,7 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP})
                         }
   
                         layerManager.flush();
-                        fileUploader.uploaded.reset();
+                        fileUploader.reset();
                         data.data.sort(function(a, b)
                                        {
                                          if (a.filename < b.filename)
@@ -62,13 +62,15 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP})
                             // status: completed
                             layerManager.addTileLayer(id, '/images/' + id, null, image.filename, image, false);
                           }
-                          fileUploader.uploaded.append({
-                            name: image.filename + (image.status == 7 ?
-                                                     '' :
-                                                     ' (' + STATUS_MAP[image.status] + ')'),
-                            size: image.sourceFilesize,
-                            iid: id,
-                            crc32: image.sourceCRC32});
+                          fileUploader
+                            .append(image.filename
+                                    + (image.status == 7 ?
+                                       '' :
+                                       ' (' + STATUS_MAP[image.status] + ')'),
+                                    image.declaredFilesize,
+                                    image.sourceFilesize,
+                                    image.iid,
+                                    image.sourceCRC32);
                     		}
                         layerManager.updateOrder();
                       },
@@ -187,6 +189,7 @@ function resetImage(id)
 }
 
 var loginConsole = null;
+var uploadedFiles = null;
 var fileUploader = null;
 var images = null;
 var stacks = null;
@@ -214,7 +217,8 @@ $(document).ready(function()
               }
             });
 	
-  fileUploader = new CFileUploader($('#upload'), loginConsole);
+  uploadedFiles = new CUploadedImages($('#upload table.uploaded>tbody'));
+  fileUploader = new CFileUploader($('#upload'), loginConsole, uploadedFiles);
   var nx = 1;
   var ny = 1;
 

@@ -363,12 +363,40 @@
       has:
       function(id)
       {
+      /**
+       * Method: has
+       *
+       * Query if an item is already managed by the object.
+       *
+       * Parameters:
+       *   id - An id of the item.
+       ***************************/
         return id in this.id2row;
+      },
+
+      get:
+      function(id)
+      {
+      /**
+       * Method: get
+       *
+       * Returns:
+       *   Data associated with an item managed by the object.
+       *
+       * Parameters:
+       *   id - An id of the item.
+       ***************************/
+        return this.id2row[id].data;
       },
 
       flush:
       function()
       {
+      /**
+       * Method: flush
+       *
+       * Remove all managed items
+       ***************************/
         for (var i = this.length - 1; i >= 0; i--)
         {
           this.remove(this.rows[i].id, this.length == 1);
@@ -378,13 +406,32 @@
       destroy:
       function()
       {
+      /**
+       * Destructor destroy
+       *********************/
         this.flush();
-        this.onUpdate = null;
+        for (var name in this)
+        {
+          delete this[name];
+        }
       },
 
       remove:
       function(id, update)
       {
+      /**
+       * Method: remove
+       *
+       * Remove an item from the manager.
+       *
+       * Parameters:
+       *   id - An ID of the item to be removed.
+       *   update - Indicates whether to perform order update (defaults
+       *            to true).
+       *
+       * Returns:
+       *   detached jQuery object representing the item.
+       **************************************************/
         if (!id in this.id2row)
         {
           return null;
@@ -460,7 +507,7 @@
       },
 
       add:
-      function($row, id, index, onRemove, onUpdate, dragMIME, update)
+      function($row, id, index, onRemove, onUpdate, dragMIME, update, data)
       {
         if (update == null) update = true;
 
@@ -492,6 +539,11 @@
                     onUpdate: onUpdate,
                     index: index
                   };
+
+        if (data)
+        {
+          row.data = data;
+        }
 
         this.id2row[id] = row;
 
@@ -559,6 +611,17 @@
           this.update(index);
         }
         return true;
+      },
+
+      sort:
+      function(compareFunction)
+      {
+        this.rows.sort(function(a, b)
+        {
+          return compareFunction('data' in a ? a.data : a.id,
+                                 'data' in b ? b.data : b.id);
+        })
+        this.update();
       }
     }
   }
