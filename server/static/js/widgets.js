@@ -730,6 +730,15 @@ var CFilterPanel = null;
   });
 
 
+  /**
+   * Class: brainslices.propertyboxsearch
+   *
+   * jQuery UI autocomplete widget extension allowing for explicite separating
+   * '--- any field ---' jocker from common field names in combobox.
+   *
+   * (Common field names items contains not null data attribute and follow
+   * the jocker.)
+   **************************************************************************/
   $.widget('brainslices.propertyboxsearch', $.ui.autocomplete,
   {
     _renderMenu: function($ul, items)
@@ -749,6 +758,22 @@ var CFilterPanel = null;
   });
 
 
+  /**
+   * Class: brainslices.combobox
+   *
+   * jQuery UI dirty widget implementing combobox.
+   *
+   * Events:
+   *   - change - triggered when value of combobox (possibly) has changed
+   *
+   * Options:
+   *   autocomplete - name of autocomplete plugin used by the widget 
+   *                  ('autocomplete' or 'propertyboxsearch')
+   *   source - forwarded to the autocomplete plugin
+   *
+   * TODO:
+   *   - widgetize it (especially options change)
+   *************************************************************************/
   $.widget('brainslices.combobox',
   {
     options:
@@ -782,7 +807,7 @@ var CFilterPanel = null;
           source: this.options.source,
           minLength: 0
         })
-        .bind('keypress', this.enter);
+        .bind('keypress', this._enter);
 
       var handlers = {};
       handlers[this.options.autocomplete + 'select'] = function(event, ui) 
@@ -837,7 +862,7 @@ var CFilterPanel = null;
       this.element
         .detach()
         .insertBefore(this.wrapper)
-        .unbind('keypress', this.enter);
+        .unbind('keypress', this._enter);
       this.wrapper.remove();
       $.each(this.classes,
         $.proxy(function(k, v)
@@ -846,7 +871,7 @@ var CFilterPanel = null;
         }, this));
     },
 
-    enter:
+    _enter:
     function(event)
     {
       if (event.keyCode == 13)
