@@ -580,7 +580,7 @@ var CFilterPanel = null;
           }
         }
 
-        console.debug(options)
+        //console.debug(options) //XXX
 
         // type/condition validation
         var conditions = options.conditions;
@@ -1122,10 +1122,12 @@ var CFilterPanel = null;
         }
       }
 
-      this.options.submit(this.propertyName, type, this.filter.detach());
+      var filter = this.filter.detach();
+      this.options.submit(this.propertyName, type, filter);
       this.filter = //new CFilterPanel('<div>')
         //.make(type, data)
         $('<div>')
+        .propertyfilter(filter.propertyfilter('option'))
         .appendTo(this.$wrapper);
       // UPS - would be before Add button :-D
     },
