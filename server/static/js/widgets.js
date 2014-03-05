@@ -882,6 +882,27 @@ var CFilterPanel = null;
   });
 
 
+  /**
+   * Class: brainslices.newpropertyfilter
+   *
+   * Options:
+   *   typeLabels - An object mapping from one-letter type descriptors
+   *                to labels.
+   *   anyLabel - A label for a jocker for any property.
+   *   enumerated - A mapping of enumerated property name to Array of its
+   *                enumerated values.
+   *   source - An object mapping from property name to its possible types
+   *            (given as string of one-letter type descriptors excluding 't')
+   *   submit - A callback triggered when submit button is being pressed.
+   *            The callback takes the following parameters: propertyName,
+   *            propertyType (one-letter descriptor) and a detached
+   *            <brainslices.propertyfilter> widget.
+   *
+   * TODO:
+   * - Widgetize (especially support option changes and think about storing
+   *   widget state /property name, type etc./ in options).
+   * - Fix UPS issue in _onSubmit method.
+   **************************************************************************/
   $.widget('brainslices.newpropertyfilter',
   {
     options:
@@ -1134,18 +1155,6 @@ var CFilterPanel = null;
       }
 
       var type = this.$types.val();
-      var data = null;
-      if (type == 'e')
-      {
-        if (this.propertyName in this.options.enumerated)
-        {
-          data = this.options.enumerated[this.propertyName];
-        }
-        else
-        {
-          data = [];
-        }
-      }
 
       var filter = this.filter.detach();
       this.options.submit(this.propertyName, type, filter);
