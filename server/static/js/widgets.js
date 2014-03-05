@@ -1157,11 +1157,12 @@ var CFilterPanel = null;
       var type = this.$types.val();
 
       var filter = this.filter.detach();
+      var options = $.extend(true, {}, filter.propertyfilter('option'));
       this.options.submit(this.propertyName, type, filter);
       this.filter = //new CFilterPanel('<div>')
         //.make(type, data)
         $('<div>')
-        .propertyfilter(filter.propertyfilter('option'))
+        .propertyfilter(options)
         .appendTo(this.$wrapper);
       // UPS - would be before Add button :-D
     },
