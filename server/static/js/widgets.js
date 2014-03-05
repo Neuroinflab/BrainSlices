@@ -24,6 +24,17 @@
 var CFilterPanel = null;
 (function($, undefined)
 {
+  /***************************************************************************\
+   * Class: CFilterPanel                                                     *
+   *                                                                         *
+   * A class that seems not to be used any more - so documentation is being  *
+   * postponed.                                                              *
+   ***************************************************************************
+   * Constructor: CFilterPanel                                               *
+   *                                                                         *
+   * Parameters:                                                             *
+   *   row - A string representing the panel element type.                   *
+  \***************************************************************************/
   CFilterPanel = function(row, set, reset)
   {
     this.triggers(set, reset);
@@ -258,6 +269,35 @@ var CFilterPanel = null;
   }
 
 
+  /**
+   * Class: propertyfilter
+   *
+   * jQuery UI dirty widget representing some property constraint(s)
+   * (no property name given).
+   *
+   * Options:
+   *   type - one of letters: 't' for tag type property, 'f' for numeric
+   *          property, 'x' for text property, 'e' for enumerative property.
+   *   defaults - object containing default constraint(s) for different types.
+   *   conditions - current constraint(s).
+   *   change - a callback to be called on constraint(s) change with new
+   *            constraint(s) given as its parameters.
+   *
+   * Possible conditions:
+   *   - 't' - null (no constraint).
+   *   - 'x' - A string (plain text for natural language search).
+   *   - 'f' - An object containing nonempty and nonconflicting set of
+   *           constraints: 'eq', 'gt', 'gteq', 'lt', 'lteq' (constraint
+   *           operator given by attribute name, constraint value - by
+   *           attribute value.
+   *   - 'e' - An object with enumerated values given as attribute names
+   *           and their acceptance given by attribute value.
+   *     
+   * TODO:
+   *   - assert for conflict of values check for 'f' type (eg. {lt:5, gt 7})
+   *   - assert for empty set of enumerative options accepted
+   *   - type change available also through widget option method
+   *************************************************************************/
   $.widget('brainslices.propertyfilter',
   {
     options: 
@@ -277,18 +317,18 @@ var CFilterPanel = null;
     _create:
     function()
     {
+      console.debug('_create');
       this.$wrapper = $('<span>')
                         .addClass('brainslices-propertyfilter')
                         .appendTo(this.element);
-
     },
 
     _init:
     function()
     {
+      console.debug('_init');
       this.options = this._fixOptions(this.options);
 
-      console.debug('init');
       this.$wrapper.hide().empty();
       switch (this.options.type)
       {
@@ -544,6 +584,7 @@ var CFilterPanel = null;
 
         // type/condition validation
         var conditions = options.conditions;
+        var cond;
         switch (t)
         {
           case 't':
@@ -555,23 +596,30 @@ var CFilterPanel = null;
             console.assert(typeof(conditions) == 'object',
                            'Not an object given for Number type filter');
             var lt = false, gt = false, eq = false;
-            for (var cond in conditions)
+            var lteq = false, gteq = false, ltVal, gtVal;
+            for (cond in conditions)
             {
               console.assert(typeof(conditions[cond]) == 'number',
                              'Not a number given for Number type  filter');
               switch (cond)
               {
-                case 'lt':
+
                 case 'lteq':
+                  lteq = true;
+                case 'lt':
                   console.assert(!eq && !lt,
                                  'Conflicting conditions given for Number type filter');
+                  ltVal = conditions[cond];
                   lt = true;
                   break;
 
-                case 'gt':
                 case 'gteq':
+                  gteq = true;
+                case 'gt':
+
                   console.assert(!eq && !gt,
                                  'Conflicting conditions given for Number type filter');
+                  gtVal = conditions[cond]; 
                   gt = true;
                   break;
 
@@ -587,6 +635,17 @@ var CFilterPanel = null;
 
               console.assert(lt || gt || eq,
                              'No condition given for Number type filter');
+              if (lt && gt)
+              {
+                if (lteq && gteq && ltVal > gtVal ||
+                    !(lteq && gteq) && ltVal >= gtVal)
+                {
+                  console.warn('Conflicting range:' +
+                               (gteq ? '[' : '(') +
+                               gtVal + '; ' + ltVal +
+                               (lteq ? ']' : ')'));
+                }
+              }
 
             }
             break;
@@ -594,6 +653,19 @@ var CFilterPanel = null;
           case 'e':
             console.assert(typeof(conditions) == 'object',
                            'Not an object given for Enumerative type filter');
+            var any = false;
+            for (cond in conditions)
+            {
+              if (conditions[cond])
+              {
+                any = true;
+                break;
+              }
+            }
+            if (!any)
+            {
+              console.warn('No enumerated option selected');
+            }
             break;
 
           case 'x':
@@ -612,6 +684,7 @@ var CFilterPanel = null;
     _setOptions:
     function(options)
     {
+      console.debug('_setOptions');
       if (options) options = this._fixOptions(options);
       this._super(options);
     },
