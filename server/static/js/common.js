@@ -1,4 +1,4 @@
-/* File: common.js */
+/* File: common.js; TO BE DOCUMENTED */
 /*****************************************************************************\
 *                                                                             *
 *    This file is part of BrainSlices Software                                *
