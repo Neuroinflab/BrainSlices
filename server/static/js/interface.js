@@ -476,6 +476,16 @@
       update:
       function(from, to)
       {
+      /**
+       * Method: update
+       *
+       * Update order information for items in given range.
+       *
+       * Parameters:
+       *   from - The lowest index in the range (defaults to 0).
+       *   to - The lowest index ABOVE the range (defaults to the number of
+       *        items).
+       *********************************************************************/
         var rows = this.rows;
         from = from != null ? Math.max(from, 0) : 0;
         to = to != null ? Math.min(to, rows.length) : rows.length;
@@ -498,6 +508,12 @@
       getOrder:
       function()
       {
+      /**
+       * Method: getOrder
+       *
+       * Returns:
+       *   An array of identifiers (in current order).
+       ************************************************/
         var ordered = [];
         for (var i = 0; i < this.length; i++)
         {
@@ -507,6 +523,26 @@
       },
 
       add:
+      /**
+       * Method: add
+       *
+       * Appand an item to be managed.
+       *
+       * Parameters:
+       *   $row - An jQuery object representing the item in a table.
+       *   id - An unique identifier of the item for the manager.
+       *   index - An index where the item has to be inserted (defaults
+       *           to the number of items).
+       *   onRemove - A callback to be called when the item is being removed.
+       *   onUpdate - A callback to be called (with current value of index of
+       *              the item) when the index of the item changes.
+       *   dragMIME - An Array of pairs (Arrays) defining MIMEtype and its
+       *              content being used when the item is being dragged.
+       *   update - A flag indicating whether to update changed values of
+       *            indices (if true) or to postpone it for performance gain
+       *            (if false). Defaults to true.
+       *   data - Any additional data to be associated with the item.
+       **********************************************************************/
       function($row, id, index, onRemove, onUpdate, dragMIME, update, data)
       {
         if (update == null) update = true;
@@ -616,6 +652,17 @@
       sort:
       function(compareFunction)
       {
+      /**
+       * Method: sort
+       *
+       * Sort managed items according to their associated data value if given
+       * - otherwise according to their identifier.
+       *
+       * Parameters:
+       *   compareFunction - A binary function of a, b returning a negative
+       *                     value if a < b, apositive if a > b and 0
+       *                     otherwise.
+       **********************************************************************/
         this.rows.sort(function(a, b)
         {
           return compareFunction('data' in a ? a.data : a.id,
