@@ -538,6 +538,7 @@
        *              the item) when the index of the item changes.
        *   dragMIME - An Array of pairs (Arrays) defining MIMEtype and its
        *              content being used when the item is being dragged.
+       *              Further array modification affects dragging MIMEtype.
        *   update - A flag indicating whether to update changed values of
        *            indices (if true) or to postpone it for performance gain
        *            (if false). Defaults to true.

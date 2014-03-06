@@ -37,20 +37,38 @@ with ({gui: BrainSlices.gui})
    *                element containing list of layers.                       *
    *   ajaxProvider - An object providing <CAjaxProvider> interface to       *
    *                  interact with server.                                  *
+   *   tableManager - A <CTableManager> object displaying the layers to the  *
+   *                  user.                                                  *
+   *   layers - Layer id (internal) to layer data mapping.                   *
+   *   length - A number of already loaded layers.                           *
+   *                                                                         *
+   * Will-be deprecated attributes:                                          *
+   *   deleteButtons - temporaryly introduced array of id 2 jQuery checkbox  *
+   *                   mapping (delete checkbox).                            *
+   *   adjustmentEnabled - display adjustement panel.                        *
+   *   removalEnabled - display remove button.                               *
+   *   downloadEnabled - display download link.                              *
+   *   deletionEnabled - display deletion checkbox.                          *
    *                                                                         *
    * TODO:                                                                   *
-   *   - reduce godlike method addTileLayer with autoAdd approach            *
+   *   - reduce godlike method _addTileLayer with autoAdd approach           *
    ***************************************************************************
    * Constructor: CLayerManager                                              *
    *                                                                         *
    * Parameters:                                                             *
    *   $layerList - A value of $layerList attribute.                         *
    *   stacks - A value of stacks attribute.                                 *
-   *   ajaxProvider,
-   *   doNotRemove,
-   *   doNotAdjust,
-   *   doNotDownload,
-   *   doNotDelete
+   *   ajaxProvider - A value of ajaxProvider attribute.                     *
+   *                                                                         *
+   * Will-be deprecated parameters:                                          *
+   *   doNotRemove - A flag indicated that there should be no remove button  *
+   *                 in the image row. Defaults to false.                    *
+   *   doNotAdjust - A flag indicated that there should be no adjust panel   *
+   *                 in the image row. Defaults to false.                    *
+   *   doNotDownload - A flag indicated that there should be no download     *
+   *                   link in the image row. Defaults to false.             *
+   *   doNotDelete - A flag indicated that there should be no delete         *
+   *                 checkbox in the image row. Defaults to false.           *
   \***************************************************************************/
   var CLayerManager = function($layerList, stacks, ajaxProvider, doNotRemove,
                                doNotAdjust, doNotDownload, doNotDelete)
@@ -66,6 +84,7 @@ with ({gui: BrainSlices.gui})
     this.deletionEnabled = doNotDelete != true;
 
     this.layers = {};
+    this.deleteButtons = {};
     this.length = 0;
 
     var thisInstance = this;
@@ -101,22 +120,117 @@ with ({gui: BrainSlices.gui})
       return this.images.adjust != null && id in this.images.adjust;
     },
 
-    addTileLayer:
-    function(imageId, path, zIndex, label, info, update, onsuccess, onfailure,
-             isvalid)
+    add:
+    function(id, $row, $visibility, zIndex, dragMIME)
     {
-      if (update == null) update = true;
-
-      var id = 'i' + imageId;
-
-      if (id in this.layers)
-      {
-        return;
-      }
+      console.assert(!this.has(id));
+      var thisInstance = this;
 
       if (zIndex == null || zIndex < 0 || zIndex > this.length)
       {
         zIndex = this.length;
+      }
+
+      this.layers[id] = {loadButtons: [],
+                         $visibility: $visibility};;
+      this.length++;
+
+      this.tableManager.add($row, id, this.tableManager.length - zIndex,
+                            function()
+                            {
+                              var toDismiss = thisInstance.layers[id].loadButtons;
+                              //XXX: redundant with arrangeInterface();
+                              for (var i = 0; i < toDismiss.lenght; i++)
+                              {
+                                var item = toDismiss[i];
+                                item.$cb.unbind('change', item.changeHandler);
+                              }
+                              delete thisInstance.layers[id];
+                              delete thisInstance.deleteButtons[id];
+                              thisInstance.length--;
+
+                              thisInstance.stacks.removeLayer(id);
+                            },
+                            function(index)
+                            {
+                              var z = thisInstance.tableManager.length - 1 - index;
+                              if (thisInstance.images.has(id))
+                              {
+                                // check necessary in case of update before
+                                // the image info is cached
+                                thisInstance.images.setZ(id, z);
+                              }
+                            },
+                            dragMIME, false);
+    },
+
+    addTileLayer:
+    function(id, $row, $visibility, zIndex, dragMIME, path, info, update,
+             onsuccess, onfailure, isvalid, onUpdate)
+    {
+      var thisInstance = this;
+
+      function finishCaching(image)
+      {
+        if (image.onUpdate) image.onUpdate();
+        if (update)
+        {
+          thisInstance.updateOrder();
+        }
+        if (onsuccess) onsuccess(image);
+      }
+
+      this.add(id, $row, $visibility, zIndex, dragMIME);
+
+      if (info == null)
+      {
+        this.images.cacheTiledImage(id, path, finishCaching, onUpdate, $row,
+                                    null,
+                                    onfailure,
+                                    isvalid == null ?
+                                    null :
+                                    function(info)
+                                    {
+                                      if (!isvalid(info))
+                                      {
+                                        thisInstance.removeLayer(id);
+                                        return false;
+                                      }
+                                      return true;
+                                    });
+      }
+      else
+      {
+        if (isvalid && !isvalid(info))
+        {
+          thisInstance.removeLayer(id);
+        }
+        else
+        {
+          this.images.cacheTiledImageOffline(id, path, info, finishCaching,
+                                             onUpdate, $row);
+        }
+      }
+    },
+
+    has:
+    function(id)
+    {
+      return id in this.layers;
+    },
+
+    _addTileLayer:
+    function(imageId, path, zIndex, label, info, update, onsuccess, onfailure,
+             isvalid)
+    {
+      var image = null;
+      if (update == null) update = true;
+
+      var id = 'i' + imageId;
+
+      if (this.has(id))
+      {
+        return;
       }
 
       if (label == null)
@@ -126,21 +240,11 @@ with ({gui: BrainSlices.gui})
 
       var thisInstance = this;
 
-      var layer = {};
-      layer.id = id;
-      layer.label = label;
-      layer.path = path;
-      layer.loadButtons = [];
-      layer.z = null; //to be for sure updated
 
       // making the layer-related row
       var $row =  $('<tr></tr>');
       var $drag = $('<td draggable="true">' + label + '</td>');//XXX .append(label) ?
-      //XXX: might be quite useful combined with single image view
-      var url = document.createElement('a');
-      url.href = path;
-      url = url.href;
-      var dragMIME = [['text/plain', url], ['text/uri-list', url]];
+      var dragMIME = [];
 
       $row.append($drag);
 
@@ -159,7 +263,6 @@ with ({gui: BrainSlices.gui})
 
       // visibility interface
       var $visibility = $('<td></td>');
-      layer.$visibility = $visibility;
       $row.append($visibility);
 
       //adjustment
@@ -193,26 +296,29 @@ with ({gui: BrainSlices.gui})
 
         $iface.find('input').bind('change', function()
         {
-          if (layer.image != null)
+          if (image)
           {
             var imageLeft = parseFloat($iface.find('input.imageLeft').val());
             var imageTop = parseFloat($iface.find('input.imageTop').val());
             var pixelSize = parseFloat($iface.find('input.pixelSize').val());
-            layer.image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
+            image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
           }
         });
 
         $iface.find('select[name="status"]').bind('change', function()
         {
-          var status = parseInt($iface.find('select[name="status"]').val());
-          layer.image.updateInfo(null, null, null, status, false);
+          if (image)
+          {
+            var status = parseInt($iface.find('select[name="status"]').val());
+            image.updateInfo(null, null, null, status, false);
+          }
         });
 
         onUpdate = function()
         {
-          if (layer.image != null)
+          if (image)
           {
-            var info = layer.image.info;
+            var info = image.info;
             $iface.find('input.imageLeft').val(info.imageLeft);
             //$iface.find('span.imageLeft').html(info.imageLeft);
             $iface.find('input.imageTop').val(info.imageTop);
@@ -224,9 +330,6 @@ with ({gui: BrainSlices.gui})
           }
         }
 
-        //XXX: is that necessary?
-        layer.$iface = $iface;
-        layer.$adjust = $adjust;
         $row.append($adjust, $iface);
       }
 
@@ -234,107 +337,37 @@ with ({gui: BrainSlices.gui})
 
       if (this.removalEnabled)
       {
-        layer.$rem = $('<button>Remove</button>');
+        var $rem = $('<button>Remove</button>');
 
-        layer.$rem.bind('click', function()
+        $rem.bind('click', function()
         {
-          //var z = layer.z;
-          //var layers = thisInstance.layers;
-          var id = layer.id;
           thisInstance.tableManager.remove(id);
         });
-        //XXX: see if there is no problem with chaining method call
-        $row.append($('<td></td>').append(layer.$rem));
+        $row.append($('<td></td>').append($rem));
       }
 
       //deletion
       if (this.deletionEnabled)
       {
-        layer.$del = $('<input type="checkbox">');
-        $row.append($('<td></td>').append(layer.$del));
+        var $del = $('<input type="checkbox">');
+        this.deleteButtons[id] = $del;
+        $row.append($('<td></td>').append($del));
       }
 
-      layer.$row = $row;
+      this.addTileLayer(id, $row, $visibility, zIndex, dragMIME, path, info,
+                        update,
+                        function(img)
+                        {
+                          image = img;
 
-      this.layers[id] = layer;
-      this.length++;
+                          var url = document.createElement('a');
+                          url.href = '/?show=' + imageId + ':'
+                                     + img.info.md5;
+                          dragMIME.push(['text/plain', url]);
+                          dragMIME.push(['text/uri-list', url]);
+                        },
+                        onfailure, isvalid, onUpdate);
 
-      this.tableManager.add($row, id, this.tableManager.length - zIndex,
-                            function()
-                            {
-                              var id = layer.id;
-                              var toDismiss = thisInstance.layers[id].loadButtons;
-                              //XXX: redundant with arrangeInterface();
-                              for (var i = 0; i < toDismiss.lenght; i++)
-                              {
-                                var item = toDismiss[i];
-                                item.$cb.unbind('change', item.changeHandler);
-                              }
-                              delete thisInstance.layers[id];
-                              thisInstance.length--;
-
-                              thisInstance.stacks.removeLayer(id);
-                            },
-                            function(index)
-                            {
-                              var z = thisInstance.tableManager.length - 1 - index;
-                              layer.z = z;
-                              if (thisInstance.images.has(id))
-                              {
-                                // check necessary in case of update before
-                                // the image info is cached
-                                thisInstance.images.setZ(id, z);
-                              }
-                            },
-                            dragMIME, false);
-
-
-      var finishCaching = update ?
-                          function(image)
-                          {
-                            layer.image = image;
-                            // trigger onUpdate (unable to do while loading
-                            // since image was not assigned
-                            if (image.onUpdate) image.onUpdate();
-                            thisInstance.updateOrder();
-                            if (onsuccess) onsuccess();
-                          } :
-                          function(image)
-                          {
-                            layer.image = image;
-                            // trigger onUpdate (unable to do while loading
-                            // since image was not assigned
-                            if (image.onUpdate) image.onUpdate();
-                            if (onsuccess) onsuccess();
-                          };
-
-      if (info == null)
-      {
-        this.images.cacheTiledImage(id, path, finishCaching, onUpdate, $row, null,
-                                    onfailure, isvalid == null ? null :
-                                    function(info)
-                                    {
-                                      if (!isvalid(info))
-                                      {
-                                        thisInstance.removeLayer(id);
-                                        return false;
-                                      }
-                                      return true;
-                                    });
-      }
-      else
-      {
-        if (isvalid != null && !isvalid(info))
-        {
-          thisInstance.removeLayer(id);
-        }
-        else
-        {
-          this.images.cacheTiledImageOffline(id, path, info, finishCaching, onUpdate,
-                                             $row);
-        }
-      }
-      // onSuccess shall update interface and z-indices
       return id;
     },
 
@@ -520,6 +553,14 @@ with ({gui: BrainSlices.gui})
       return this.stacks.unloadAll(id);
     },
 
+    /**
+     * Method: deleteImages
+     *
+     * Remove images selected for removal.
+     *
+     * TODO:
+     *   Outsource with autoMake approach.
+     **************************************/
     deleteImages:
     function()
     {
@@ -527,11 +568,12 @@ with ({gui: BrainSlices.gui})
       var deleteMapping = {};
       for (var id in this.layers)
       {
-        var layer = this.layers[id];
-        if (layer.$del == null) continue;
-        if (layer.$del.filter(':checked').length == 0) continue;
-        if (layer.image == null) continue;
-        var iid = layer.image.info.iid;
+        var $del = this.deleteButtons[id];
+        if (!$del) continue;
+        if ($del.filter(':checked').length == 0) continue;
+        var image = this.images.getCachedImage(id);
+        if (image == null) continue;
+        var iid = image.info.iid;
         toDelete.push(iid);
         deleteMapping[iid] = id;
       }

@@ -120,7 +120,11 @@
     }
   };
 
-  if (api.CImageManager == null)
+  if (api.CImageManager)
+  {
+    console.warn('BrainSlices.api.CImageManager already defined');
+  }
+  else
   {
     api.CImageManager = function(ajaxProvider)
     {
@@ -483,10 +487,7 @@
       }
     }
   }
-  else
-  {
-    console.warn('BrainSlices.api.CImageManager already defined');
-  }
+
 
 
   if (api.CLayerStack == null)

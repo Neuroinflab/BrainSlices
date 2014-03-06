@@ -148,7 +148,7 @@ $(document).ready(function()
   for (var z = 0; z < imagesList.length; z++)
   {
     var id = imagesList[z];
-    layerManager.addTileLayer(id, 'images/' + id, 0, 'Slice no ' + id);
+    layerManager._addTileLayer(id, 'images/' + id, 0, 'Slice no ' + id);
   }
 
   arrangeInterface();

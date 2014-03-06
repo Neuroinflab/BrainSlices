@@ -62,7 +62,7 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP})
                           if (image.status >= 6)
                           {
                             // status: completed
-                            layerManager.addTileLayer(id, '/images/' + id, null, image.filename, image, false);
+                            layerManager._addTileLayer(id, '/images/' + id, null, image.filename, image, false);
                           }
                           fileUploader
                             .append(image.filename

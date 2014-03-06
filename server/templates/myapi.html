@@ -115,7 +115,7 @@ function addLayer()
 {
   var id = $('#id').val();
   var z = $('#z').val();
-	layerManager.addTileLayer(id, '/images/' + id, z, $('#id option:selected').html());
+	layerManager._addTileLayer(id, '/images/' + id, z, $('#id option:selected').html());
   return false;
 }
 
@@ -137,7 +137,7 @@ function addTest()
   var subset = $('#testSubset').val();
   var z = $('#z').val();
 
-  layerManager.addTileLayer(id + '___' + subset, '/testImages/' + id + '/' + subset, z, id + '___' + subset);
+  layerManager._addTileLayer(id + '___' + subset, '/testImages/' + id + '/' + subset, z, id + '___' + subset);
   return false;
 }
 
@@ -447,7 +447,7 @@ $(function()
       var id = pair[0];
       var md5 = pair[1].toLowerCase();
 
-      id = layerManager.addTileLayer(id, '/images/' + id,
+      id = layerManager._addTileLayer(id, '/images/' + id,
                                      state.iids.length - imageI - 1,
                                      '#'+id, null, null, loadNextImage,
                                      function(msg)
@@ -713,7 +713,7 @@ $(function()
           {
             //var z = $('#z').val();
             //global
-            layerManager.addTileLayer(iid, '/images/' + iid, null, '#' + iid); 
+            layerManager._addTileLayer(iid, '/images/' + iid, null, '#' + iid); 
           });
         })(iid);
         $tbody.append($tr);
