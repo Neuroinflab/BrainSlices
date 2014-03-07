@@ -99,14 +99,14 @@ div.topLayer>div.scale>span,
 div.topLayer>div.scale>div
 {
   padding: 2px 6px;
-  background: rgba(128, 128, 128, 0.5);
+  background: rgba(192, 192, 192, 0.7);
 }
 
 div.topLayer>div.scale>img
 {
   margin: 0.5ex 0;
   height: 1mm;
-  border: 1mm solid rgba(128, 128, 128, 0.5);
+  border: 1mm solid rgba(192, 192, 192, 0.7);
 }
 
 .vertical-align-top {

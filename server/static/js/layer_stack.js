@@ -50,11 +50,12 @@
                              draggable: 'false'
                            })
                            .css('width', '20mm');
-      this.$scaleUnit = $('<span></span>');
+      this.$scaleUnit = $('<span></span>')
+                           .addClass('scale_unit');
 
       var $mouseX = $('<span></span>');
       var $mouseY = $('<span></span>');
-      var $cursorLocation = $('<div></div>')
+      var $cursorLocation = $('<span></span>')
         .hide()
         .append($mouseX)
         .append('; ')
@@ -62,10 +63,9 @@
       var $scaleDiv = $('<div></div>')
                         .addClass('scale')
                         .append($cursorLocation)
+                        .append(this.$scaleUnit)
                         .append('<br>')
-                        .append(this.$scaleImage)
-                        .append('<br>')
-                        .append(this.$scaleUnit);
+                        .append(this.$scaleImage);
 
       this.topLayer = $('<div class="topLayer" style="z-index: 0;" draggable="false">' +
                         ' <img class="crosshair" src="' + this.gfx + '/crosshair.png" alt="+" style="display: none;">' +
