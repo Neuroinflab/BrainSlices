@@ -397,7 +397,7 @@ $(document).ready(function()
                                           $('#controlPanel'),
                                           '/static/gfx', images);
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
-                                   loginConsole, false, false, true, false,
+                                   loginConsole,
   {
     addTileLayer:
     function(info)
@@ -471,14 +471,11 @@ $(document).ready(function()
 
       function onUpdate()
       {
-        if (image)
-        {
-          var info = image.info;
-          $iface.find('input.imageLeft').val(info.imageLeft);
-          $iface.find('input.imageTop').val(info.imageTop);
-          $iface.find('input.pixelSize').val(info.pixelSize);
-          $iface.find('select[name="status"]').val(info.status);
-        }
+        var info = this.info;
+        $iface.find('input.imageLeft').val(info.imageLeft);
+        $iface.find('input.imageTop').val(info.imageTop);
+        $iface.find('input.pixelSize').val(info.pixelSize);
+        $iface.find('select[name="status"]').val(info.status);
       }
 
       $row.append($adjust, $iface);

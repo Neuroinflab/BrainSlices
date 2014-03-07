@@ -54,28 +54,6 @@ class OutlineServer(Server):
     return self.__getOutline(outline)
 
 
-#TODO: remove after tests
-class TestImageServer(Server):
-  def __init__(self, servicePath):
-    #self._cp_config = {}
-    self.serviceDir = servicePath
-
-  @cherrypy.tools.gzip(mime_types=['application/json'])
-  def __call__(self):
-    """
-    UNSAFE^2!!!
-    """
-    if self.serviceDir == None:
-      raise cherrypy.HTTPError("404 Not found",
-                               "No test tiles available.")
-
-    setList = os.listdir(self.serviceDir)
-    setTree = dict((s, os.listdir(os.path.join(self.serviceDir, s))) for s in setList)
-    cherrypy.response.headers['Content-Type'] = 'application/json'
-    cherrypy.response.headers['Content-Disposition'] = 'inline'
-    return json.dumps(setTree)
-
-
 class TileServer(Server):
   def __init__(self, tileBase):
     self.tileBase = tileBase
@@ -106,14 +84,3 @@ class TileServer(Server):
         return True, path, 'image_%d.png' % request.id, 'image/png'
 
     return None
-
-  #TODO: remove after tests
-  @cherrypy.expose
-  @serveContent(Request)
-  def _allImages(self, request):
-    uid = request.session.get('userID')
-    data = self.tileBase._allImages(uid)
-    return generateJson(data = data,
-                        status = data != None,
-                        message = None,
-                        logged = uid != None)

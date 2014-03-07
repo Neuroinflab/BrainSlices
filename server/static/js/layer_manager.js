@@ -42,17 +42,8 @@ with ({gui: BrainSlices.gui,
    *                  user.                                                  *
    *   layers - Layer id (internal) to layer data mapping.                   *
    *   length - A number of already loaded layers.                           *
+   *   autoAddTileLayer -                                                    *
    *                                                                         *
-   * Will-be deprecated attributes:                                          *
-   *   deleteButtons - temporaryly introduced array of id 2 jQuery checkbox  *
-   *                   mapping (delete checkbox).                            *
-   *   adjustmentEnabled - display adjustement panel.                        *
-   *   removalEnabled - display remove button.                               *
-   *   downloadEnabled - display download link.                              *
-   *   deletionEnabled - display deletion checkbox.                          *
-   *                                                                         *
-   * TODO:                                                                   *
-   *   - reduce godlike method _addTileLayer with autoAdd approach           *
    ***************************************************************************
    * Constructor: CLayerManager                                              *
    *                                                                         *
@@ -60,35 +51,18 @@ with ({gui: BrainSlices.gui,
    *   $layerList - A value of $layerList attribute.                         *
    *   stacks - A value of stacks attribute.                                 *
    *   ajaxProvider - A value of ajaxProvider attribute.                     *
-   *                                                                         *
-   * Will-be deprecated parameters:                                          *
-   *   doNotRemove - A flag indicated that there should be no remove button  *
-   *                 in the image row. Defaults to false.                    *
-   *   doNotAdjust - A flag indicated that there should be no adjust panel   *
-   *                 in the image row. Defaults to false.                    *
-   *   doNotDownload - A flag indicated that there should be no download     *
-   *                   link in the image row. Defaults to false.             *
-   *   doNotDelete - A flag indicated that there should be no delete         *
-   *                 checkbox in the image row. Defaults to false.           *
+   *   triggers -                                                            *
   \***************************************************************************/
-  var CLayerManager = function($layerList, stacks, ajaxProvider, doNotRemove,
-                               doNotAdjust, doNotDownload, doNotDelete,
-                               triggers)
+  var CLayerManager = function($layerList, stacks, ajaxProvider, triggers)
   {
     this.stacks = stacks;
     this.images = stacks.images; // just a shortcut
     this.$layerList = $layerList;
     this.ajaxProvider = ajaxProvider;
 
-    this.adjustmentEnabled = doNotAdjust != true;
-    this.removalEnabled = doNotAdjust != true;
-    this.downloadEnabled = doNotDownload != true;
-    this.deletionEnabled = doNotDelete != true;
-
     this.autoAddTileLayer = getTrigger('addTileLayer', triggers);
 
     this.layers = {};
-    this.deleteButtons = {};
     this.length = 0;
 
     var thisInstance = this;
@@ -176,12 +150,12 @@ with ({gui: BrainSlices.gui,
 
       function finishCaching(image)
       {
-        if (image.onUpdate) image.onUpdate();
         if (update)
         {
           thisInstance.updateOrder();
         }
         if (onsuccess) onsuccess(image);
+        if (image.onUpdate) image.onUpdate();
       }
 
       this.add(id, $row, $visibility, zIndex, dragMIME, onremove);
@@ -221,162 +195,6 @@ with ({gui: BrainSlices.gui,
     function(id)
     {
       return id in this.layers;
-    },
-
-    _addTileLayer:
-    function(imageId, path, zIndex, label, info, update, onsuccess, onfailure,
-             isvalid)
-    {
-      var image = null;
-      if (update == null) update = true;
-
-      var id = 'i' + imageId;
-
-      if (this.has(id))
-      {
-        return;
-      }
-
-      if (label == null)
-      {
-        label = id;
-      }
-
-      var thisInstance = this;
-
-
-      // making the layer-related row
-      var $row =  $('<tr></tr>');
-      var $drag = $('<td draggable="true">' + label + '</td>');//XXX .append(label) ?
-      var dragMIME = [];
-
-      $row.append($drag);
-
-      // download link
-      if (this.downloadEnabled)
-      {
-        if (id[0] == 'i')
-        {
-          $row.append('<td><a href="' + path + '/image.png">Download</a></td>');
-        }
-        else
-        {
-          $row.append('<td><br></td>');
-        }
-      }
-
-      // visibility interface
-      var $visibility = $('<td></td>');
-      $row.append($visibility);
-
-      //adjustment
-      var onUpdate = null;
-      if (this.adjustmentEnabled)
-      {
-        var $adjust = $('<input type="checkbox">');
-        var $iface = $('<span style="display: none;">' +
-                        '<input type="number" class="imageLeft">' +
-                        '<input type="number" class="imageTop">' +
-                        '<input type="number" class="pixelSize">' +
-                        '<select name="status">' +
-                         '<option value="6">Completed</option>' +
-                         '<option value="7">Accepted</option>' +
-                        '</select>' +
-                       '</span>');
-
-        $adjust.bind('change', function()
-        {
-          if ($adjust.filter(':checked').length  != 0)
-          {
-            $iface.show();
-            thisInstance.images.startAdjustment(id);
-          }
-          else
-          {
-            $iface.hide();
-            thisInstance.images.stopAdjustment(id);
-          }
-        });
-
-        $iface.find('input').bind('change', function()
-        {
-          if (image)
-          {
-            var imageLeft = parseFloat($iface.find('input.imageLeft').val());
-            var imageTop = parseFloat($iface.find('input.imageTop').val());
-            var pixelSize = parseFloat($iface.find('input.pixelSize').val());
-            image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
-          }
-        });
-
-        $iface.find('select[name="status"]').bind('change', function()
-        {
-          if (image)
-          {
-            var status = parseInt($iface.find('select[name="status"]').val());
-            image.updateInfo(null, null, null, status, false);
-          }
-        });
-
-        onUpdate = function()
-        {
-          if (image)
-          {
-            var info = image.info;
-            $iface.find('input.imageLeft').val(info.imageLeft);
-            //$iface.find('span.imageLeft').html(info.imageLeft);
-            $iface.find('input.imageTop').val(info.imageTop);
-            //$iface.find('span.imageTop').html(info.imageTop);
-            $iface.find('input.pixelSize').val(info.pixelSize);
-            //$iface.find('span.pixelSize').html(info.pixelSize);
-            $iface.find('select[name="status"]').val(info.status);
-            //$iface.find('span.status').html(STATUS_MAP[info.status]);
-          }
-        }
-
-        $row.append($adjust, $iface);
-      }
-
-      //removal
-
-      if (this.removalEnabled)
-      {
-        var $rem = $('<button>Remove</button>');
-
-        $rem.bind('click', function()
-        {
-          thisInstance.tableManager.remove(id);
-        });
-        $row.append($('<td></td>').append($rem));
-      }
-
-      //deletion
-      if (this.deletionEnabled)
-      {
-        var $del = $('<input type="checkbox">');
-        this.deleteButtons[id] = $del;
-        $row.append($('<td></td>').append($del));
-      }
-
-      this.addTileLayer(id, $row, $visibility, zIndex, dragMIME,
-                        function()
-                        {
-                          delete thisInstance.deleteButtons[id];
-                        },
-                        path, info, update,
-                        function(img)
-                        {
-                          image = img;
-
-                          var url = document.createElement('a');
-                          url.href = '/?show=' + imageId + ':'
-                                     + img.info.md5;
-                          dragMIME.push(['text/plain', url]);
-                          dragMIME.push(['text/uri-list', url]);
-                        },
-                        onfailure, isvalid, onUpdate);
-
-      return id;
     },
 
     getState:
@@ -559,76 +377,6 @@ with ({gui: BrainSlices.gui,
     function(id)
     {
       return this.stacks.unloadAll(id);
-    },
-
-    /**
-     * Method: deleteImages
-     *
-     * Remove images selected for removal.
-     *
-     * TODO:
-     *   Outsource with autoMake approach.
-     **************************************/
-    deleteImages:
-    function()
-    {
-      var toDelete = [];
-      var deleteMapping = {};
-      for (var id in this.layers)
-      {
-        var $del = this.deleteButtons[id];
-        if (!$del) continue;
-        if ($del.filter(':checked').length == 0) continue;
-        var image = this.images.getCachedImage(id);
-        if (image == null) continue;
-        var iid = image.info.iid;
-        toDelete.push(iid);
-        deleteMapping[iid] = id;
-      }
-
-      if (toDelete.length > 0 &&
-          confirm("Do you really want to delete " +
-                  (toDelete.length == 1 ?
-                   "the image" :
-                   toDelete.length + " images") + " permanently?"))
-      {
-        var thisInstance = this;
-        this.ajaxProvider.ajax('/upload/deleteImages',
-                               function(response)
-                               {
-                                 if (!response.status)
-                                 {
-                                   alert(response.message);
-                                   return;
-                                 }
-                                 var data = response.data;
-                                 if (data.length != toDelete.length)
-                                 {
-                                   alert("Some of images not found in the database.");
-                                 }
-
-                                 var preserved = false;
-                                 for (var i = 0; i < data.length; i++)
-                                 {
-                                   var item = data[i];
-                                   if (item[1])
-                                   {
-                                     thisInstance.tableManager.remove(deleteMapping[item[0]],
-                                                                 false);
-                                   }
-                                   else
-                                   {
-                                     preserved = true;
-                                   }
-                                 }
-                                 if (preserved)
-                                 {
-                                   alert("Not enough privileges to delete some of images.");
-                                 }
-                                 thisInstance.updateOrder();
-                               },
-                               {iids: toDelete.join(',')});
-      }
     },
 
     destroy:

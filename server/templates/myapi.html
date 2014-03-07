@@ -115,7 +115,7 @@ function addLayer()
 {
   var id = $('#id').val();
   var z = $('#z').val();
-	layerManager._addTileLayer(id, '/images/' + id, z, $('#id option:selected').html());
+	layerManager.autoAddTileLayer(id, z, $('#id option:selected').html());
   return false;
 }
 
@@ -128,16 +128,6 @@ function addOutlineLayer()
   stacks.stacks[0].loadOutlineLayer(id, '/outlines/wholeOutline/320.svg', z);
 
 	inspect(); 
-  return false;
-}
-
-function addTest()
-{
-  var id = $('#testSet').val();
-  var subset = $('#testSubset').val();
-  var z = $('#z').val();
-
-  layerManager._addTileLayer(id + '___' + subset, '/testImages/' + id + '/' + subset, z, id + '___' + subset);
   return false;
 }
 
@@ -433,7 +423,122 @@ $(function()
   }
 
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
-                                   loginConsole, false, false, false, true);
+                                   loginConsole,
+  {
+    addTileLayer:
+    function(id, zIndex, label, onsuccess, onfailure, isvalid)
+    {
+      var image = null;
+      var path = '/images/' + id;
+
+      if (this.has(id)) return;
+
+      var thisInstance = this;
+
+      // making the layer-related row
+      var $row =  $('<tr></tr>');
+      var $drag = $('<td draggable="true">' + label + '</td>');//XXX .append(label) ?
+      var dragMIME = [];
+
+      $row.append($drag);
+
+      // download link
+      $row.append('<td><a href="' + path + '/image.png">Download</a></td>');
+
+      // visibility interface
+      var $visibility = $('<td></td>');
+      $row.append($visibility);
+
+      //adjustment
+      var $adjust = $('<input type="checkbox">');
+      var $iface = $('<span style="display: none;">' +
+                      '<input type="number" class="imageLeft">' +
+                      '<input type="number" class="imageTop">' +
+                      '<input type="number" class="pixelSize">' +
+                      '<select name="status">' +
+                       '<option value="6">Completed</option>' +
+                       '<option value="7">Accepted</option>' +
+                      '</select>' +
+                     '</span>');
+
+      $adjust.bind('change', function()
+      {
+        if ($adjust.filter(':checked').length  != 0)
+        {
+          $iface.show();
+          thisInstance.images.startAdjustment(id);
+        }
+        else
+        {
+          $iface.hide();
+          thisInstance.images.stopAdjustment(id);
+        }
+      });
+
+      $iface.find('input').bind('change', function()
+      {
+        if (image)
+        {
+          var imageLeft = parseFloat($iface.find('input.imageLeft').val());
+          var imageTop = parseFloat($iface.find('input.imageTop').val());
+          var pixelSize = parseFloat($iface.find('input.pixelSize').val());
+          image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
+        }
+      });
+
+      $iface.find('select[name="status"]').bind('change', function()
+      {
+        if (image)
+        {
+          var status = parseInt($iface.find('select[name="status"]').val());
+          image.updateInfo(null, null, null, status, false);
+        }
+      });
+
+      function onUpdate()
+      {
+        var info = this.info;
+        $iface.find('input.imageLeft').val(info.imageLeft);
+        //$iface.find('span.imageLeft').html(info.imageLeft);
+        $iface.find('input.imageTop').val(info.imageTop);
+        //$iface.find('span.imageTop').html(info.imageTop);
+        $iface.find('input.pixelSize').val(info.pixelSize);
+        //$iface.find('span.pixelSize').html(info.pixelSize);
+        $iface.find('select[name="status"]').val(info.status);
+        //$iface.find('span.status').html(STATUS_MAP[info.status]);
+      }
+
+      $row.append($adjust, $iface);
+
+      //removal
+      var $rem = $('<button>Remove</button>');
+
+      $rem.bind('click', function()
+      {
+        thisInstance.tableManager.remove(id);
+      });
+      $row.append($('<td></td>').append($rem));
+
+      this.addTileLayer(id, $row, $visibility, zIndex, dragMIME,
+                        null,
+                        path, null, true,
+                        function(img)
+                        {
+                          image = img;
+
+                          var url = document.createElement('a');
+                          url.href = '/?show=' + img.info.iid + ':'
+                                     + img.info.md5;
+                          dragMIME.push(['text/plain', url]);
+                          dragMIME.push(['text/uri-list', url]);
+
+                          if (onsuccess) onsuccess();
+                        },
+                        onfailure, isvalid, onUpdate);
+
+      return id;
+    }
+  });
 
 
   var loadImageI = 0;
@@ -447,9 +552,8 @@ $(function()
       var id = pair[0];
       var md5 = pair[1].toLowerCase();
 
-      id = layerManager._addTileLayer(id, '/images/' + id,
-                                     state.iids.length - imageI - 1,
-                                     '#'+id, null, null, loadNextImage,
+      id = layerManager.autoAddTileLayer(id, state.iids.length - imageI - 1,
+                                         '#'+id, loadNextImage,
                                      function(msg)
                                      {
                                        alert(msg);
@@ -713,7 +817,7 @@ $(function()
           {
             //var z = $('#z').val();
             //global
-            layerManager._addTileLayer(iid, '/images/' + iid, null, '#' + iid); 
+            layerManager.autoAddTileLayer(iid, null, '#' + iid);
           });
         })(iid);
         $tbody.append($tr);

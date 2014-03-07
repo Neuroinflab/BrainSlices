@@ -34,7 +34,7 @@ from metaBase import MetaBase
 
 from server import Server, Generator, useTemplate, serveContent
 from uploadServer import UploadServer
-from tileServer import TileServer, TestImageServer, OutlineServer
+from tileServer import TileServer, OutlineServer
 from userServer import UserServer
 from metaServer import MetaServer
 
@@ -77,9 +77,6 @@ class WebService(Server):
     self.user = UserServer(servicePath, userBase)
     self.upload = UploadServer(servicePath, tileBase) #TODO: remove servicePath after tests
     self.meta = MetaServer(metaBase, tileBase, servicePath) # tileBase as privilege manager 
-
-    #TODO: remove after tests
-    self._testImages = TestImageServer(os.path.join(servicePath, 'testTiles'))
 
     Server.__init__(self)
 

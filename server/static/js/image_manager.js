@@ -298,7 +298,6 @@
           cachedImage.$row = $row;
           cachedImage.id = id;
           cachedImage.z = zIndex != null ? zIndex : 0;
-          cachedImage.onUpdate = onUpdate;
 
           this.images[id] = cachedImage;
           cachedImage.reset();
