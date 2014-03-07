@@ -64,7 +64,7 @@ class UploadServer(Generator, Server):
 
     controlPanel = self.templateEngine('draggableWindow.html')
     controlPanel['__windowId__'] = 'controlPanel'
-    controlPanel['<!--%title%-->'] = """Control panel; cursor at: <span class="mouseX"></span>, <span class="mouseY"></span>
+    controlPanel['<!--%title%-->'] = """Control panel
                                         <a href="javascript:void(0)" id="loginLink">login</a><a href="javascript:void(0)" id="logoutLink"></a>"""
 
     acceptControlPanel = self.templateEngine('acceptPanel.html')

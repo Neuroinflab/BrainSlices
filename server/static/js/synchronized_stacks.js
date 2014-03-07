@@ -46,8 +46,6 @@
       if ($controlPanel == null)
       {
         this.control = null;
-        this.$mouseXElement = null;
-        this.$mouseYElement = null;
     
         this.$zoom = null;
         this.$zoomLog = null;
@@ -61,8 +59,6 @@
       else
       {
         this.control = new gui.CDraggableDiv($controlPanel);
-        this.$mouseXElement = $controlPanel.find('.mouseX');
-        this.$mouseYElement = $controlPanel.find('.mouseY');
     
         this.$zoom = $controlPanel.find('[name="zoom"]');
         this.$zoomLog = $controlPanel.find('[name="zoomLog"]');
@@ -284,8 +280,7 @@
               this.$displayContainer.append($div);
               stack = new api.CLayerStack($div, this.zoom, this.focusPointX,
                                           this.focusPointY, this.crosshairX,
-                                          this.crosshairY, this.$mouseXElement,
-                                          this.$mouseYElement, this, false,
+                                          this.crosshairY, this, false,
                                           this.gfx);
               stack.setTransparency(this.transparency);
             }

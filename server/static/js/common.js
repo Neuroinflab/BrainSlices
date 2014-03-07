@@ -179,32 +179,32 @@ var BrainSlices = {
       switch (u)
       {
         case 3:
-          unit = ' km';
+          unit = '\u00a0km';
           break;
     
         case 2:
-          unit = ' m';
+          unit = '\u00a0m';
           break;
     
         case 1:
-          unit = ' mm';
+          unit = '\u00a0mm';
           break;
     
         case 0:
-          unit = ' &#956;m';
+          unit = '\u00a0\u03BCm';
           break;
     
         case -1:
-          unit = ' nm';
+          unit = '\u00a0nm';
           break;
     
         case -2:
-          unit = ' pm';
+          unit = '\u00a0pm';
           break;
     
         default:
           val = (distance / Math.pow(10, log10floor)).toFixed(significant);
-          unit = 'e' + (log10floor - 6) + ' m';
+          unit = 'e' + (log10floor - 6) + '\u00a0m';
       }
     
       return val + unit;

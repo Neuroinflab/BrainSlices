@@ -29,8 +29,8 @@
   if (api.CLayerStack == null)
   {
     api.CLayerStack = function(parentDiv, zoom, focusPointX, focusPointY,
-                               crosshairX, crosshairY, mouseXElement,
-                               mouseYElement, syncStacks, autoresize, gfx)
+                               crosshairX, crosshairY, syncStacks,
+                               autoresize, gfx)
     {
       this.display = parentDiv;
       this.setFocusPoint(focusPointX, focusPointY);
@@ -42,27 +42,45 @@
       this.layers = {};
       this.nlayers = 0;
       this.gfx = gfx != null ? gfx : 'static/gfx';
-      this.scaleDiv = $('<div class="scale">'+
-                        ' <span></span><br>' +
-                        ' <img src="' + this.gfx + '/scale.png" alt="scale" style="width: 20mm;" draggable="false">' +
-                        '</div>');
+      this.$scaleImage = $('<img>')
+                           .attr(
+                           {
+                             src: this.gfx + '/scale.png',
+                             alt: 'scale',
+                             draggable: 'false'
+                           })
+                           .css('width', '20mm');
+      this.$scaleUnit = $('<span></span>');
+
+      var $mouseX = $('<span></span>');
+      var $mouseY = $('<span></span>');
+      var $cursorLocation = $('<div></div>')
+        .hide()
+        .append($mouseX)
+        .append('; ')
+        .append($mouseY);
+      var $scaleDiv = $('<div></div>')
+                        .addClass('scale')
+                        .append($cursorLocation)
+                        .append('<br>')
+                        .append(this.$scaleImage)
+                        .append('<br>')
+                        .append(this.$scaleUnit);
+
       this.topLayer = $('<div class="topLayer" style="z-index: 0;" draggable="false">' +
                         ' <img class="crosshair" src="' + this.gfx + '/crosshair.png" alt="+" style="display: none;">' +
                         '</div>');
-      this.topLayer.append(this.scaleDiv);
+      this.topLayer.append($scaleDiv);
       this.maxScaleWidth = 100000.; //10 cm
       this.display.append(this.topLayer);
       this.getDisplayPixelSize();
       this.setZoom(zoom);
       this.resize(crosshairX, crosshairY);
 
-      this.mouseMove = false;
-      this.trackMouse = false;
-      this.x0 = null;
-      this.y0 = null;
-
-      this.mouseXElement = mouseXElement;
-      this.mouseYElement = mouseYElement;
+      var mouseMove = false;
+      var trackMouse = false;
+      var x0 = null;
+      var y0 = null;
 
       this.syncStacks = null;
       this.id = null;
@@ -71,23 +89,19 @@
       var thisInstance = this;
 
       // mouse move handlers
-      this.mouseOverHandler = null;
-      this.mouseOutHandler = null;
+      this.mouseOverHandler = function (event)
+                              {
+                                trackMouse = true;
+                                $cursorLocation.show();
+                              };
+      this.display.bind('mouseover', this.mouseOverHandler);
 
-      if (mouseXElement != null || mouseYElement != null)
-      {
-        this.mouseOverHandler = function (event)
-                                {
-                                  thisInstance.trackMouse = true;
-                                };
-        this.display.bind('mouseover', this.mouseOverHandler);
-
-        this.mouseOutHandler = function (event)
-                               {
-                                 thisInstance.trackMouse = false;
-                               };
-        this.display.bind('mouseout', this.mouseOutHandler);
-      }
+      this.mouseOutHandler = function (event)
+                             {
+                               $cursorLocation.hide();
+                               trackMouse = false;
+                             };
+      this.display.bind('mouseout', this.mouseOutHandler);
 
       this.mouseDownHandler = function (event)
                               {
@@ -96,9 +110,9 @@
                                   event = window.event;
                                 }
                                 var offset = thisInstance.display.offset();
-                                thisInstance.x0 = event.clientX - offset.left;
-                                thisInstance.y0 = event.clientY - offset.top;
-                                thisInstance.mouseMove = true;
+                                x0 = event.clientX - offset.left;
+                                y0 = event.clientY - offset.top;
+                                mouseMove = true;
                               };
       this.display.bind('mousedown', this.mouseDownHandler);
 
@@ -123,32 +137,24 @@
                                                                   thisInstance.id);
                               }
 
-                              if (thisInstance.trackMouse)
+                              if (trackMouse)
                               {
-                                if (thisInstance.mouseXElement != null)
-                                {
-                                  thisInstance.mouseXElement.html(gui.hDistance(thisInstance.mouseX, null, thisInstance.pixelSize));
-                                }
-
-                                if (thisInstance.mouseYElement != null)
-                                {
-                                  thisInstance.mouseYElement.html(gui.hDistance(thisInstance.mouseY, null, thisInstance.pixelSize));
-                                }
+                                $mouseX.text(gui.hDistance(thisInstance.mouseX, null, thisInstance.pixelSize));
+                                $mouseY.text(gui.hDistance(thisInstance.mouseY, null, thisInstance.pixelSize));
                               }
 
-                              if (!thisInstance.mouseMove) return;
+                              if (!mouseMove) return;
 
-                              thisInstance.move(xM - thisInstance.x0,
-                                                yM - thisInstance.y0);
-                              thisInstance.x0 = xM;
-                              thisInstance.y0 = yM;
+                              thisInstance.move(xM - x0, yM - y0);
+                              x0 = xM;
+                              y0 = yM;
                             };
 
       this.display.bind('mousemove', this.mouseMoveHandler);
 
       this.mouseUpHandler = function (event)
                             {
-                              thisInstance.mouseMove = false;
+                              mouseMove = false;
                             };
 
       $('body').bind('mouseup', this.mouseUpHandler);
@@ -288,10 +294,10 @@
         var k = log10rest < 0.30103 ? 1 : (log10rest < 0.699? 2: 5);
         var scaleSize = k * Math.pow(10, log10floor);
 
-        this.scaleDiv.children('span').html(gui.hDistance(scaleSize, 1));
-        var scaleImage = this.scaleDiv.children('img');
-        scaleImage.width(parseInt(Math.round(2 * scaleSize / this.pixelSize)) + 'px');
-        scaleImage.attr('src', this.gfx + '/scale' + k + '.png');
+        this.$scaleUnit.text(gui.hDistance(scaleSize, 1));
+        this.$scaleImage
+          .width(parseInt(Math.round(2 * scaleSize / this.pixelSize)) + 'px')
+          .attr('src', this.gfx + '/scale' + k + '.png');
       },
 
       resize:
