@@ -25,6 +25,8 @@ var CPropertiesManager = null;
 
 (function(BS, $, undefined)
 {
+  var getTrigger = BS.aux.getTrigger;
+
   function propertyCast(t, v)
   {
     switch (t)
@@ -47,12 +49,6 @@ var CPropertiesManager = null;
       case 'e':
         return v;
     }
-  }
-
-  function getTrigger(name, triggers)
-  {
-    if (triggers == null) return null;
-    return name in triggers ? triggers[name] : null;
   }
 
   function CProperty(type, value, triggers, original, edit, view)

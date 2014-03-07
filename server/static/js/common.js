@@ -85,6 +85,15 @@
 \*****************************************************************************/
 
 var BrainSlices = {
+  aux:
+  {
+    getTrigger:
+    function(name, triggers)
+    {
+      if (!triggers) return null;
+      return name in triggers ? triggers[name] : null;
+    }
+  },
   api: {},
   gui:
   {

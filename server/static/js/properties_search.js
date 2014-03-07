@@ -25,11 +25,7 @@ var CPropertiesSearch = null;
 
 (function(BS, $, undefined)
 {
-  function getTrigger(name, triggers)
-  {
-    if (triggers == null) return null;
-    return name in triggers ? triggers[name] : null;
-  }
+  var getTrigger = BS.aux.getTrigger;
 
 //  var reduceType = {e: 'e', s: 'x', x: 'x', t: 't', i: 'f', f: 'f'};
   var allowedOperators = {'t': {},
