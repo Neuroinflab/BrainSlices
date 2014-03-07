@@ -28,6 +28,11 @@
  
   if (api.CSynchronizedStacksDisplay == null)
   {
+    /******
+     * Class: CSynchronizedStacksDisplay
+     *
+     * A stub of documentation at the moment.
+     *************/
     api.CSynchronizedStacksDisplay = function($display, nx, ny, synchronize,
                                               zoom, focusPointX, focusPointY,
                                               crosshairX, crosshairY,
@@ -179,6 +184,24 @@
     
     api.CSynchronizedStacksDisplay.prototype =
     {
+      /**
+       * Method: getState
+       *
+       * Returns:
+       *   A state object representing present state of the stacks.
+       *
+       * Attributes of the state object:
+       *   shape - A pair (2-element Array) defining both x and y dimansion
+       *           of grid of layer stacks.
+       *   zoom - A current zoom.
+       *   display - A string indicating whether the grid of layer stacks is
+       *             being displayed in 'matrix' or 'serial' mode.
+       *   sync - A boolean indicating whether layer stacks are synchronized.
+       *   focus - An Array of pairs (2-element Arrays) defining focal point
+       *           of consecutive layer stacks.
+       *   loaded - An Array of Arrays of identifiers of layers loaded to
+       *            consecutive layer stacks.
+       ***********************************************************************/
       getState:
       function()
       {

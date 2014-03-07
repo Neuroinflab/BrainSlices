@@ -42,7 +42,8 @@ with ({gui: BrainSlices.gui,
    *                  user.                                                  *
    *   layers - Layer id (internal) to layer data mapping.                   *
    *   length - A number of already loaded layers.                           *
-   *   autoAddTileLayer -                                                    *
+   *   autoAddTileLayer - A function defined by user for smart addition of   *
+   *                      tile layers.                                       *
    *                                                                         *
    ***************************************************************************
    * Constructor: CLayerManager                                              *
@@ -51,7 +52,9 @@ with ({gui: BrainSlices.gui,
    *   $layerList - A value of $layerList attribute.                         *
    *   stacks - A value of stacks attribute.                                 *
    *   ajaxProvider - A value of ajaxProvider attribute.                     *
-   *   triggers -                                                            *
+   *   triggers - An object containing triggers, callbacks, custom methods   *
+   *              etc. At the moment a custom method autoAddTileLayer can be *
+   *              defined as triggers.addTileLayer.                          *
   \***************************************************************************/
   var CLayerManager = function($layerList, stacks, ajaxProvider, triggers)
   {
@@ -80,24 +83,61 @@ with ({gui: BrainSlices.gui,
 
   CLayerManager.prototype =
   {
+    /**
+     * Method: stopAdjustment
+     *
+     * An alias for <CImageManager.stopAdjustment>
+     *********************************************************/
     stopAdjustment:
     function(id)
     {
       return this.images.stopAdjustment(id);
     },
 
+    /**
+     * Method: startAdjustment
+     *
+     * An alias for <CImageManager.startAdjustment>
+     *********************************************************/
     startAdjustment:
     function(id)
     {
       return this.images.startAdjustment(id);
     },
 
+    /**
+     * Method: isAdjusted
+     *
+     * Parameters:
+     *   id - An identifier of an image in the manager.
+     *
+     * Returns:
+     *   A boolean indicating whether the image is being adjusted.
+     *************************************************************/
     isAdjusted:
     function(id)
     {
       return this.images.adjust != null && id in this.images.adjust;
     },
 
+    /**
+     * Method: add
+     *
+     * Append a new layer to the manager.
+     *
+     * Parameters:
+     *   id - An identifier to be assigned to the layer. The identifier
+     *        has to be unique within the manager.
+     *   $row - An jQuery HTML element representing the layer
+     *          (for <CTableManager> object).
+     *   $visibility - An jQuery HTML element for visibility panel.
+     *   zIndex - A position of the layer in "z-stack". An integer within
+     *            range from 0 to current number of managed stacks.
+     *   dragMIME - An Array of pairs (2-element Arrays) of MIMEtype and
+     *              its content. Forwarded to <CTableManager.add>.
+     *   onremove - A callbeck to be called when layer is being removed from
+     *              the manager.
+     ************************************************************************/
     add:
     function(id, $row, $visibility, zIndex, dragMIME, onremove)
     {
@@ -142,6 +182,43 @@ with ({gui: BrainSlices.gui,
                             dragMIME, false);
     },
 
+    /**
+     * Method: addTileLayer
+     *
+     * Append a new tile layer to the manager. Basic metadata of the tiled
+     * image are fetched from the tile stack of the image if not available.
+     *
+     * Parameters:
+     *   id - An identifier to be assigned to the layer. The identifier
+     *        has to be unique within the manager.
+     *   $row - An jQuery HTML element representing the layer
+     *          (for <CTableManager> object).
+     *   $visibility - An jQuery HTML element for visibility panel.
+     *   zIndex - A position of the layer in "z-stack". An integer within
+     *            range from 0 to current number of managed stacks.
+     *   dragMIME - An Array of pairs (2-element Arrays) of MIMEtype and
+     *              its content. Forwarded to <CTableManager.add>.
+     *   onremove - A callbeck to be called when layer is being removed from
+     *              the manager.
+     *   path - A path to the tile stack of the image.
+     *   info - Basic metadata of the image (if available).
+     *   update - A boolean flag indicating whether layer order should be
+     *            updated instantly.
+     *   onsuccess - A callback to be called with basic metadata of the image
+     *               (when available) as its parameter.
+     *   onfailure - A callback called with error message as its farameter
+     *               if fetching of the image metadata from server fails.
+     *   isvalid - A function validating basic metadata of the image
+     *             (eg. checking its MD5 checksum) passed as its parameter.
+     *             Function returns true if the metadata is valid otherwise
+     *             false. Function might cause some "side effects" (eg. to
+     *             inform the user about its outcome in a particular way).
+     *             If the function returns false, the layer is removed from
+     *             the manager.
+     *   onUpdate - A method for internal image object of <CImageManager>
+     *              to be called when some basic image metadata (imageLeft,
+     *              imageTop, pixelSize, status) has changed.
+     *************************************************************************/
     addTileLayer:
     function(id, $row, $visibility, zIndex, dragMIME, onremove,
              path, info, update, onsuccess, onfailure, isvalid, onUpdate)
@@ -191,12 +268,42 @@ with ({gui: BrainSlices.gui,
       }
     },
 
+    /**
+     * Method: has
+     *
+     * Parameters:
+     *   id - An identifier of a layer.
+     *
+     * Returns:
+     *   A boolean indicating whether the layer is already managed by the
+     *   manager.
+     *********************************************************************/
     has:
     function(id)
     {
       return id in this.layers;
     },
 
+    /**
+     * Method: getState
+     *
+     * Returns:
+     *   A state object representing present state of the layers.
+     *
+     * Attributes of the state object:
+     *   iids - An ordered Array of pairs (2-element Arrays) of database 
+     *          identifiers and MD5 checksums of images loaded to the manager.
+     *   loaded - An Array of Arrays of indices of images (in the iids Array)
+     *            loaded to consecutive layer stacks.
+     *   shape - A pair (2-element Array) defining both x and y dimansion
+     *           of grid of layer stacks.
+     *   zoom - A current zoom.
+     *   display - A string indicating whether the grid of layer stacks is
+     *             being displayed in 'matrix' or 'serial' mode.
+     *   sync - A boolean indicating whether layer stacks are synchronized.
+     *   focus - An Array of pairs (2-element Arrays) defining focal point
+     *           of consecutive layer stacks.
+     ************************************************************************/
     getState:
     function()
     {
@@ -222,6 +329,12 @@ with ({gui: BrainSlices.gui,
       return state;
     },
 
+    /**
+     * Method: updateOrder
+     *
+     * Update order of layers in user interface (and inform layers about
+     * their present index in the 'z-stack').
+     ***********************************************************************/
     updateOrder:
     function()
     {
