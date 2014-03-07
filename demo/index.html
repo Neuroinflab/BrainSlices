@@ -138,7 +138,32 @@ $(document).ready(function()
                                           $('#controlPanel'),
                                           'static/gfx', images);
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
-                                   ajaxProvider, true, true, false, true);
+                                   ajaxProvider, true, true, false, true,
+    {
+      addTileLayer:
+      function(imageId)
+      {
+        console.assert(!this.has(id));
+
+        var id = 'i' + imageId;
+        var path = 'images/' + imageId;
+
+        // making the layer-related row
+        var $row =  $('<tr></tr>');
+        var $drag = $('<td draggable="true">Slice no ' + imageId + '</td>');
+
+        $row.append($drag);
+
+        // download link
+        $row.append('<td><a href="' + path + '/image.png">Download</a></td>');
+
+        // visibility interface
+        var $visibility = $('<td></td>');
+        $row.append($visibility);
+
+        this.addTileLayer(id, $row, $visibility, 0, null, path);
+      }
+    });
 
   $('#sliceDisplay').bind('mousemove', processMove);
   $('#sliceDisplay').bind('mousedown', startMove);
@@ -147,8 +172,7 @@ $(document).ready(function()
 
   for (var z = 0; z < imagesList.length; z++)
   {
-    var id = imagesList[z];
-    layerManager._addTileLayer(id, 'images/' + id, 0, 'Slice no ' + id);
+    layerManager.autoAddTileLayer(imagesList[z]);
   }
 
   arrangeInterface();

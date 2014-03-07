@@ -590,7 +590,7 @@
         $drag.bind('dragstart', function(ev)
         {
           ev.originalEvent.dataTransfer.setData('INDEX', row.index);
-          if (dragMIME != null)
+          if (dragMIME)
           {
             for (var i = 0; i < dragMIME.length; i++)
             {

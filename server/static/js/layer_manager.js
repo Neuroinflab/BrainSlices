@@ -21,7 +21,8 @@
 *                                                                             *
 \*****************************************************************************/
 
-with ({gui: BrainSlices.gui})
+with ({gui: BrainSlices.gui,
+       getTrigger: BrainSlices.aux.getTrigger})
 {
   /***************************************************************************\
    * Class: CLayerManager                                                    *
@@ -71,7 +72,8 @@ with ({gui: BrainSlices.gui})
    *                 checkbox in the image row. Defaults to false.           *
   \***************************************************************************/
   var CLayerManager = function($layerList, stacks, ajaxProvider, doNotRemove,
-                               doNotAdjust, doNotDownload, doNotDelete)
+                               doNotAdjust, doNotDownload, doNotDelete,
+                               triggers)
   {
     this.stacks = stacks;
     this.images = stacks.images; // just a shortcut
@@ -82,6 +84,8 @@ with ({gui: BrainSlices.gui})
     this.removalEnabled = doNotAdjust != true;
     this.downloadEnabled = doNotDownload != true;
     this.deletionEnabled = doNotDelete != true;
+
+    this.autoAddTileLayer = getTrigger('addTileLayer', triggers);
 
     this.layers = {};
     this.deleteButtons = {};
