@@ -141,16 +141,14 @@ $(document).ready(function()
                                    ajaxProvider, true, true, false, true,
     {
       addTileLayer:
-      function(imageId)
+      function(id)
       {
         console.assert(!this.has(id));
-
-        var id = 'i' + imageId;
-        var path = 'images/' + imageId;
+        var path = 'images/' + id;
 
         // making the layer-related row
         var $row =  $('<tr></tr>');
-        var $drag = $('<td draggable="true">Slice no ' + imageId + '</td>');
+        var $drag = $('<td draggable="true">Slice no ' + id + '</td>');
 
         $row.append($drag);
 
@@ -161,7 +159,7 @@ $(document).ready(function()
         var $visibility = $('<td></td>');
         $row.append($visibility);
 
-        this.addTileLayer(id, $row, $visibility, 0, null, path);
+        this.addTileLayer(id, $row, $visibility, 0, null, null,  path);
       }
     });
 

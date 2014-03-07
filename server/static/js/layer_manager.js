@@ -125,7 +125,7 @@ with ({gui: BrainSlices.gui,
     },
 
     add:
-    function(id, $row, $visibility, zIndex, dragMIME)
+    function(id, $row, $visibility, zIndex, dragMIME, onremove)
     {
       console.assert(!this.has(id));
       var thisInstance = this;
@@ -150,10 +150,10 @@ with ({gui: BrainSlices.gui,
                                 item.$cb.unbind('change', item.changeHandler);
                               }
                               delete thisInstance.layers[id];
-                              delete thisInstance.deleteButtons[id];
                               thisInstance.length--;
 
                               thisInstance.stacks.removeLayer(id);
+                              if (onremove) onremove();
                             },
                             function(index)
                             {
@@ -169,8 +169,8 @@ with ({gui: BrainSlices.gui,
     },
 
     addTileLayer:
-    function(id, $row, $visibility, zIndex, dragMIME, path, info, update,
-             onsuccess, onfailure, isvalid, onUpdate)
+    function(id, $row, $visibility, zIndex, dragMIME, onremove,
+             path, info, update, onsuccess, onfailure, isvalid, onUpdate)
     {
       var thisInstance = this;
 
@@ -184,7 +184,7 @@ with ({gui: BrainSlices.gui,
         if (onsuccess) onsuccess(image);
       }
 
-      this.add(id, $row, $visibility, zIndex, dragMIME);
+      this.add(id, $row, $visibility, zIndex, dragMIME, onremove);
 
       if (info == null)
       {
@@ -358,8 +358,12 @@ with ({gui: BrainSlices.gui,
         $row.append($('<td></td>').append($del));
       }
 
-      this.addTileLayer(id, $row, $visibility, zIndex, dragMIME, path, info,
-                        update,
+      this.addTileLayer(id, $row, $visibility, zIndex, dragMIME,
+                        function()
+                        {
+                          delete thisInstance.deleteButtons[id];
+                        },
+                        path, info, update,
                         function(img)
                         {
                           image = img;
@@ -478,9 +482,9 @@ with ({gui: BrainSlices.gui,
     },
 
     removeLayer:
-    function(id)
+    function(id, update)
     {
-      this.tableManager.remove(id);
+      this.tableManager.remove(id, update);
     },
 
     flush:
