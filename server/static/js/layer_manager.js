@@ -339,9 +339,14 @@ with ({gui: BrainSlices.gui,
     function()
     {
       this.tableManager.update();
-      this.arrangeInterface();
+      this.arrangeInterface(); // XXX: is this call necessary???
     },
 
+    /**
+     * Method: arrangeInterface
+     *
+     * Update visibility panels of the managed layers.
+     **************************************************/
     arrangeInterface:
     function()
     {
@@ -384,6 +389,22 @@ with ({gui: BrainSlices.gui,
       }
     },
 
+    /**
+     * Method: layerCB
+     *
+     * Create a checkbox for the visibility panel of a layer.
+     *
+     * Parameters:
+     *   id - An identifier of the layer.
+     *   stackId - An identifier of the stack (its number);
+     *
+     * Returns:
+     *   An object of two attributes: '$cb' being the created jQuery checkbox
+     *   element and 'changeHandler' being the handler of its 'change' event.
+     *
+     * Note:
+     *   An auxilary method that might change and even disappear.
+     ************************************************************************/
     layerCB:
     function(id, stackId)
     {
@@ -394,7 +415,7 @@ with ({gui: BrainSlices.gui,
       var $cb = $('<input type="checkbox" class="recyclableElement">');
       var changeHandler = function()
       {
-        if ($cb.filter(':checked').length != 0)
+        if (this.checked)
         {
           thisInstance.loadLayerByStack(stack, id, true);
         }
@@ -406,52 +427,119 @@ with ({gui: BrainSlices.gui,
 
       $cb.bind('change', changeHandler);
 
-      var res = {};
-      res.$cb = $cb;
-      res.changeHandler = changeHandler
-      return res;
+      return {$cb: $cb,
+              changeHandler: changeHandler};
     },
 
+    /**
+     * Method: removeLayer
+     *
+     * Remove a layer from the manager.
+     *
+     * Parameters:
+     *   id - An identifier of the layer.
+     *   update - A flag indicating whether to update the interface (and
+     *            layers immediately (on true) or postpone the update (on
+     *            false). Defaults as in <CTableManager.remove>.
+     *********************************************************************/
     removeLayer:
     function(id, update)
     {
       this.tableManager.remove(id, update);
     },
 
+    /**
+     * Method: flush
+     *
+     * Remove all layers from the manager.
+     **************************************/
     flush:
     function()
     {
       this.tableManager.flush();
     },
 
-    //an alias
+    /**
+     * Method: load
+     *
+     * Load a layer into a stack.
+     *
+     * Parameters:
+     *   stackId - An identifier of the stack.
+     *   layerId - An identifier of the layer.
+     *   doNotUpdateIface - A boolean flag indicating whether omit the update
+     *                      of the visibility panel.
+     *
+     * Note:
+     *   An alias for (ugly)
+     *   > this.<loadLayerByStack>(this.stacks.stacks[stackId],
+     *   >                         layerId, doNotUpdateIface);
+     *********************************************************************/
     load:
-    function(stackId, imageId, doNotUpdateIface)
+    function(stackId, layerId, doNotUpdateIface)
     {
-      this.loadLayerByStack(this.stacks.stacks[stackId], imageId, doNotUpdateIface);
+      this.loadLayerByStack(this.stacks.stacks[stackId],
+                            layerId,
+                            doNotUpdateIface);
     },
 
+    /**
+     * Method: loadLayerByStack
+     *
+     * Load a layer into a stack.
+     *
+     * Parameters:
+     *   stack - A stack (a <CLayerStack> object).
+     *   layerId - An identifier of the layer.
+     *   doNotUpdateIface - A boolean flag indicating whether omit the update
+     *                      of the visibility panel. Defaults to false.
+     *
+     * Notes:
+     *   Shall be changed in the future, use an alias <load> instead.
+     ***********************************************************************/
     loadLayerByStack:
     function(stack, imageId, doNotUpdateIface)
     {
       this.stacks.loadLayerByStack(stack, imageId);
       if (doNotUpdateIface != true)
       {
-        //this.loadButtons[imageId][stack.syncId()].$cb.attr('checked', 'checked');
-        this.layers[imageId].loadButtons[stack.syncId()].$cb.attr('checked', 'checked');
+        this.layers[imageId].loadButtons[stack.syncId()].$cb.prop('checked',
+                                                                  true);
       }
     },
 
+    /**
+     * Method: unload
+     *
+     * Unload a layer from a stack.
+     *
+     * Parameters:
+     *   stackId - An identifier of the stack.
+     *   layerId - An identifier of the layer.
+     *   doNotUpdateIface - A boolean flag indicating whether omit the update
+     *                      of the visibility panel. Defaults to false.
+     *
+     * Note:
+     *   *POSSIBLY DEPRECATED*
+     *********************************************************************/
     unload:
     function(stackId, imageId, doNotUpdateIface)
     {
       this.stacks.unload(stackId, imageId);
       if (doNotUpdateIface != true)
       {
+        //XXX: there is no this.loadButtons attribute
         this.loadButtons[imageId][stackId].$cb.filter(':checked').removeAttr('checked');
       }
     },
 
+    /**
+     * Method: loadedImagesOrdered
+     *
+     * Returns:
+     *   An ordered (as in the 'z-stack') Array of identifiers of layers
+     *   loaded into *any* stack.
+     ********************************************************************/
     loadedImagesOrdered:
     function()
     {
@@ -469,10 +557,21 @@ with ({gui: BrainSlices.gui,
       return ordered;
     },
 
+    /**
+     * Method: removeStack
+     *
+     * Parameters:
+     *   id -
+     *   doNotDestroy -
+     *
+     * Note:
+     *   *POSSIBLY DEPRECATED*
+     ************************************/
     removeStack:
     function(id, doNotDestroy)
     {
       //remove layer load/unload buttons
+      //XXX: there is no this.loadButtons attribute
       for (var imageId in this.loadButtons)
       {
         var item = this.loadButtons[imageId].splice(id, 1);
@@ -485,6 +584,12 @@ with ({gui: BrainSlices.gui,
       return this.stacks.removeStack(id, doNotDestroy);
     },
 
+    /**
+     * Method: unloadAll
+     *
+     * Note:
+     *   *POSSIBLY DEPRECATED*
+     ************************************/
     //an alias
     unloadAll:
     function(id)
@@ -492,6 +597,11 @@ with ({gui: BrainSlices.gui,
       return this.stacks.unloadAll(id);
     },
 
+    /**
+     * Destructor: destroy
+     *
+     * Prepere the manager for disposal.
+     ************************************/
     destroy:
     function()
     {
