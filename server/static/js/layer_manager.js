@@ -366,15 +366,7 @@ with ({gui: BrainSlices.gui,
             loadButtons.push(this.layerCB(id, n));
           }
           var $cb = loadButtons[n].$cb;
-
-          if (this.stacks.has(n, id))
-          {
-            $cb.attr('checked', 'checked');
-          }
-          else
-          {
-            $cb.filter(':checked').removeAttr('checked');
-          }
+          $cb.prop('checked', this.stacks.has(n, id));
           layer.$visibility.append($cb);
         }
 
@@ -519,8 +511,6 @@ with ({gui: BrainSlices.gui,
      *   doNotUpdateIface - A boolean flag indicating whether omit the update
      *                      of the visibility panel. Defaults to false.
      *
-     * Note:
-     *   *POSSIBLY DEPRECATED*
      *********************************************************************/
     unload:
     function(stackId, imageId, doNotUpdateIface)
@@ -528,8 +518,7 @@ with ({gui: BrainSlices.gui,
       this.stacks.unload(stackId, imageId);
       if (doNotUpdateIface != true)
       {
-        //XXX: there is no this.loadButtons attribute
-        this.loadButtons[imageId][stackId].$cb.filter(':checked').removeAttr('checked');
+        this.layers[imageId].loadButtons[stackId].$cb.prop('checked', false);
       }
     },
 
@@ -558,43 +547,35 @@ with ({gui: BrainSlices.gui,
     },
 
     /**
-     * Method: removeStack
-     *
-     * Parameters:
-     *   id -
-     *   doNotDestroy -
-     *
-     * Note:
-     *   *POSSIBLY DEPRECATED*
-     ************************************/
-    removeStack:
-    function(id, doNotDestroy)
-    {
-      //remove layer load/unload buttons
-      //XXX: there is no this.loadButtons attribute
-      for (var imageId in this.loadButtons)
-      {
-        var item = this.loadButtons[imageId].splice(id, 1);
-        if (item.length == 1)
-        {
-          item[0].$cb.unbind('change', item[0].changeHandler);
-          item[0].$cb.remove(); //XXX
-        }
-      }
-      return this.stacks.removeStack(id, doNotDestroy);
-    },
-
-    /**
      * Method: unloadAll
      *
-     * Note:
-     *   *POSSIBLY DEPRECATED*
      ************************************/
     //an alias
     unloadAll:
-    function(id)
+    function(id, doNotUpdateIface)
     {
-      return this.stacks.unloadAll(id);
+      this.stacks.unloadAll(id);
+      if (doNotUpdateIface != true)
+      {
+        if (id != null)
+        {
+          for (var imageId in this.layers)
+          {
+            this.layers[imageId].loadButtons[id].$cb.prop('checked', false);
+          }
+        }
+        else
+        {
+          for (var imageId in this.layers)
+          {
+            var loadButtons = this.layers[imageId].loadButtons;
+            for (id = 0; id < loadButtons.length; id++)
+            {
+              loadButtons[id].$cb.prop('checked', false);
+            }
+          }
+        }
+      }
     },
 
     /**
