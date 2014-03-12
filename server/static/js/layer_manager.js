@@ -287,6 +287,8 @@ with ({gui: BrainSlices.gui,
     /**
      * Method: getState
      *
+     * Get the state of layers.
+     *
      * Returns:
      *   A state object representing present state of the layers.
      *
@@ -523,6 +525,8 @@ with ({gui: BrainSlices.gui,
 
     /**
      * Method: loadedImagesOrdered
+     *
+     * Get an ordered Array of identifiers of loaded layers.
      *
      * Returns:
      *   An ordered (as in the 'z-stack') Array of identifiers of layers
