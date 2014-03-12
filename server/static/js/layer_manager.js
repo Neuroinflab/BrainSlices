@@ -1,4 +1,4 @@
-/* File: layer_manager.js; TO BE DOCUMENTED */
+/* File: layer_manager.js */
 /*****************************************************************************\
 *                                                                             *
 *    This file is part of BrainSlices Software                                *
@@ -510,7 +510,6 @@ with ({gui: BrainSlices.gui,
      *   layerId - An identifier of the layer.
      *   doNotUpdateIface - A boolean flag indicating whether omit the update
      *                      of the visibility panel. Defaults to false.
-     *
      *********************************************************************/
     unload:
     function(stackId, imageId, doNotUpdateIface)
@@ -549,8 +548,14 @@ with ({gui: BrainSlices.gui,
     /**
      * Method: unloadAll
      *
-     ************************************/
-    //an alias
+     * Unload every layer in a stack(s).
+     *
+     * Parameters:
+     *   id - An identifier of the stack. If not given (or null) layers are
+     *        unloaded from every stack.
+     *   doNotUpdateIface - A boolean flag indicating whether omit the update
+     *                      of the visibility panel. Defaults to false.
+     ************************************************************************/
     unloadAll:
     function(id, doNotUpdateIface)
     {
