@@ -409,9 +409,10 @@ with ({gui: BrainSlices.gui,
       var $cb = $('<input type="checkbox" class="recyclableElement">');
       var changeHandler = function()
       {
+        //stack.syncId() can be changed
         if (this.checked)
         {
-          thisInstance.loadLayerByStack(stack, id, true);
+          thisInstance.load(stack.syncId(), id, true);
         }
         else
         {
@@ -465,16 +466,19 @@ with ({gui: BrainSlices.gui,
      *                      of the visibility panel.
      *
      * Note:
-     *   An alias for (ugly)
-     *   > this.<loadLayerByStack>(this.stacks.stacks[stackId],
-     *   >                         layerId, doNotUpdateIface);
+     *   Layer assumed to be a tile layer (by <CLayerStack.load>).
+     *
+     *   Redundant with <loadLayerByStack>.
      *********************************************************************/
     load:
     function(stackId, layerId, doNotUpdateIface)
     {
-      this.loadLayerByStack(this.stacks.stacks[stackId],
-                            layerId,
-                            doNotUpdateIface);
+      this.stacks.load(stackId, layerId);
+      if (doNotUpdateIface != true)
+      {
+        this.layers[imageId].loadButtons[stack.syncId()].$cb.prop('checked',
+                                                                  true);
+      }
     },
 
     /**
@@ -489,7 +493,8 @@ with ({gui: BrainSlices.gui,
      *                      of the visibility panel. Defaults to false.
      *
      * Notes:
-     *   Shall be changed in the future, use an alias <load> instead.
+     *   Redundant with <load> and shall be changed in the future, use <load>
+     *   instead.
      ***********************************************************************/
     loadLayerByStack:
     function(stack, imageId, doNotUpdateIface)

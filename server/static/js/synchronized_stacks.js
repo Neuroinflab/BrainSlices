@@ -25,7 +25,7 @@
 {
   var gui = BS.gui;
   var api = BS.api;
- 
+
   if (api.CSynchronizedStacksDisplay)
   {
     console.warn('BrainSlices.api.CSynchronizedStacksDisplay already defined');
@@ -51,8 +51,9 @@
      *                 simultaneously.                                      *
      *   $display - A jQuery object representing parental element for       *
      *              synchronized stacks (prefferably not a static element). *
-     *   $displayContainer - A jQuery object representing DIV element       *
-     *                       containing the grid of stack displays.         *
+     *   $displayContainer - A jQuery object representing DIV element in    *
+     *                       which the grid of stack displays is being      *
+     *                       rendered.                                      *
      *   nx - Number of columns in the grid of stack displays.              *
      *   ny - Number of rows in the grid of stack displays.                 *
      *   zoom - Current zoom value.                                         *
@@ -118,39 +119,39 @@
                                               $controlPanel, gfx, images)
     {
       var thisInstance = this;
-    
+
       this.zoomUpdateEnabled = true;
-    
+
       this.stacks = [];
-    
+
       this.images = images;
-    
+
       this.gfx = gfx != null ? gfx : '/static/gfx';
-    
+
       if ($controlPanel == null)
       {
         this.control = null;
-    
+
         this.$zoom = null;
         this.$zoomLog = null;
         this.$quality = null;
         this.$transparency = null;
-    
+
         this.$stacksSynchronization = null;
-    
+
         this.transparency = 0.;
       }
       else
       {
         this.control = new gui.CDraggableDiv($controlPanel);
-    
+
         this.$zoom = $controlPanel.find('[name="zoom"]');
         this.$zoomLog = $controlPanel.find('[name="zoomLog"]');
         this.$quality = $controlPanel.find('[name="quality"]');
         this.$transparency = $controlPanel.find('[name="transparency"]');
-    
+
         this.$stacksSynchronization = $controlPanel.find('[name="synchronization"]');
-    
+
         this.updateZoom = function()
         {
           if (thisInstance.zoomUpdateEnabled)
@@ -167,9 +168,9 @@
             thisInstance.zoomUpdateEnabled = true;
           }
         };
-    
+
         this.$zoom.bind('change', this.updateZoom);
-    
+
         this.updateZoomLog = function()
         {
           if (thisInstance.zoomUpdateEnabled)
@@ -185,27 +186,27 @@
             thisInstance.zoomUpdateEnabled = true;
           }
         }
-    
+
         this.$zoomLog.bind('change', this.updateZoomLog);
-    
+
         this.updateQuality = function()
         {
           var quality = thisInstance.$quality.val();
           thisInstance.setQuality(quality, true);
           thisInstance.update();
         }
-    
+
         this.$quality.bind('change', this.updateQuality);
-    
+
         this.updateTransparency = function()
         {
           var transparency = thisInstance.$transparency.val();
           thisInstance.setTransparency(transparency, true);
           thisInstance.update();
         }
-    
+
         this.$transparency.bind('change', this.updateTransparency);
-    
+
         this.updateSynchronization = function()
         {
           if (this.checked)
@@ -217,19 +218,19 @@
             thisInstance.syncStop();
           }
         }
-    
+
         this.$stacksSynchronization.bind('change', this.updateSynchronization);
-    
+
         this.setTransparency(this.$transparency.val(), true);
       }
-    
+
       //stacks
       this.synchronize = synchronize == null ? true : synchronize;
       if (this.$stacksSynchronization != null)
       {
         this.$stacksSynchronization.prop('checked', this.synchronize);
       }
-    
+
       this.$display = $display;
       this.$displayContainer = $('<div></div>')
         .css({
@@ -244,24 +245,24 @@
 
       this.nx = 0;
       this.ny = 0;
-    
+
       this.zoom = zoom != null ? zoom : 1.;
       this.focusPointX = focusPointX != null ? focusPointX : 0.;
       this.focusPointY = focusPointY != null ? focusPointY : 0.;
       this.crosshairX = crosshairX;
       this.crosshairY = crosshairY;
-    
+
       this.resizeHandler = function()
       {
         thisInstance.resize(crosshairX, crosshairY);
       }
-    
+
       $(window).bind('resize', this.resizeHandler);
-    
+
       // XXX: might be a part of interface
       this.rearrange(nx, ny);
     }
-    
+
     api.CSynchronizedStacksDisplay.prototype =
     {
       /**
@@ -317,7 +318,7 @@
       {
         this.synchronize = true;
       },
-      
+
       /**
        * Method: syncStop
        *
@@ -345,43 +346,53 @@
           this.stacks[i].updateTopZ(z);
         }
       },
-      
+
+      /**
+       * Method: rearrange
+       *
+       * Rearrange the grid of layer stacks. Either create or dispose stacks
+       * if necessary.
+       *
+       * Parameters:
+       *   nx - A new number of columns in the grid.
+       *   ny - A new number of rows in the grid.
+       *   width - A new width of this.$displayContainer element. Defaults
+       *           to width of this.$display element.
+       **********************************************************************/
       rearrange:
       function(nx, ny, width)
       {
-        // TODO: layer load button removal or leave it to arrangeInterface?
-        //       merge with arrangeInterface?
         var idMax = this.stacks.length; //this.nx * this.ny;
         this.nx = parseInt(nx);
         this.ny = parseInt(ny);
-     
+
         this.width = width;
         if (width == null)
         {
           this.$display.css({'overflow-x': 'hidden'});
-          this.$displayContainer.css({'position': 'absolute',
+          this.$displayContainer.css({//'position': 'absolute',
                                       'width': 'auto',
                                       'right': '0px'});
         }
         else
         {
           this.$display.css({'overflow-x': 'auto'});
-          this.$displayContainer.css({'position': 'absolute',
+          this.$displayContainer.css({//'position': 'absolute',
                                       'width': width,
                                       'right': 'auto'});
         }
-      
+
         var id = 0;
         for (var x = 0; x < nx; x++)
         {
           var l = Math.round(100. * x / nx);
           var r = 100. - Math.round(100. * (x + 1.) / nx);
-      
+
           for (var y = 0; y < ny; y++)
           {
             var t = Math.round(100. * y / ny);
             var b = 100. - Math.round(100. * (y + 1.) / ny);
-      
+
             if (id < this.stacks.length)
             {
               // stack already exist
@@ -408,7 +419,7 @@
             id++;
           }
         }
-      
+
         var toRemove = this.stacks.splice(id);
         for (var i = 0; i < toRemove.length; i++)
         {
@@ -416,10 +427,22 @@
           toRemove[i].destroy();
           display.remove();
         }
-      
+
         this.resize(this.crosshairX, this.crosshairY);
       },
-      
+
+      /**
+       * Method: removeLayer
+       *
+       * Remove layer from all synchronized stacks and remove metadata of the 
+       * corresponding image from this.images.
+       *
+       * Note:
+       *   The layer is assumed to be a tile layer.
+       *
+       * Parameters:
+       *   id - An identifier of the layer/image.
+       **********************************************************************/
       removeLayer:
       function(id)
       {
@@ -430,28 +453,68 @@
             this.unload(i, id, true);
           }
         }
-      
+
         this.images.removeCachedImage(id);
       },
-      
+
+      /**
+       * Method: load
+       *
+       * Load a layer into a stack.
+       *
+       * Parameters:
+       *   stackId - An identifier (number) of the stack.
+       *   imageId - An identifier of the layer.
+       *
+       * Note:
+       *   An (ugly) alias of
+       *   > this.loadLayerByStack(this.stacks[stackId], imageId)
+       **********************************************************************/
       load:
-      function(stackId, imageId, doNotUpdateIface)
+      function(stackId, imageId)
       {
-        this.loadLayerByStack(this.stacks[stackId], imageId, doNotUpdateIface);
+        this.loadLayerByStack(this.stacks[stackId], imageId);
       },
-      
+
+      /**
+       * Method: loadLayerByStack
+       *
+       * Load a layer into a stack.
+       *
+       * Parameters:
+       *   stack - The stack (<CLayerStack> object).
+       *   imageId - An identifier of the layer.
+       **********************************************************************/
       loadLayerByStack:
-      function(stack, imageId, doNotUpdateIface)
+      function(stack, imageId)
       {
         var quality = this.$quality.val();
         stack.loadFromCache(this.images, imageId, quality);
       },
-      
-      unload: function(stackId, imageId, doNotUpdateIface)
+
+      /**
+       * Method: unload
+       *
+       * Unload a layer from a stack.
+       *
+       * Parameters:
+       *   stackId - An identifier (number) of the stack.
+       *   imageId - An identifier of the layer.
+       ******************************************/
+      unload: function(stackId, imageId)
       {
         this.stacks[stackId].remove(imageId);
       },
-      
+
+      /**
+       * Method: unloadAll
+       *
+       * Unload all layers from a stack or from every stack.
+       *
+       * Parameters:
+       *   id - An identifier (number) of the stack. If not given or null
+       *        layers are removed from every stack in the object.
+       *******************************************************************/
       unloadAll: function(id)
       {
         if (id != null)
@@ -459,14 +522,21 @@
           this.stacks[id].removeAll();
           return;
         }
-      
+
         for (var i = 0; i < this.stacks.length; i++)
         {
-          //this.stacks[i].removeAll();
           this.unloadAll(i);
         }
       },
-      
+
+      /**
+       * Method: loadedImages
+       *
+       * Get identifiers of images (tile layers) loaded into any stack.
+       *
+       * Returns:
+       *   An object with attributes of names of image identifiers.
+       ****************************************************************/
       loadedImages:
       function()
       {
@@ -480,32 +550,44 @@
         }
         return images;
       },
-      
+
+      /**
+       * Method: has
+       *
+       * Check whether a stack contains an image (tile layer).
+       *
+       * Parameters:
+       *   stackId - An identifier (number) of the stack.
+       *   imageId - An identifier of the layer.
+       *
+       * Returns:
+       *   True if the stack contains the image, false otherwise.
+       ***********************************************************/
       has:
       function(stackId, imageId)
       {
         return imageId in this.stacks[stackId].layers;
       },
-      
+
       add:
       function(stack)
       {
         this.stacks.push(stack);
         return this.stacks.length - 1;
       },
-      
+
       removeStack:
       function(id, doNotDestroy)
       {
-        //TODO: stack display removal      
+        //TODO: stack display removal
         var res = this.stacks.splice(id, 1);
-      
+
         // propagate new id
         for (var i = id; i < this.stacks.length; i++)
         {
           this.stacks[i].syncId(i);
         }
-      
+
         if (res.length == 1)
         {
           res[0].desynchronize(true);
@@ -519,7 +601,7 @@
           }
         }
       },
-      
+
       putCursor:
       function(x, y, id)
       {
@@ -536,7 +618,7 @@
           }
         }
       },
-      
+
       moveAbsolute:
       function(dx, dy, id)
       {
@@ -555,7 +637,7 @@
             }
           }
         }
-      
+
         //if (adjust)
         //{
         //  //this.images.adjustOffset(dx, dy);
@@ -584,7 +666,7 @@
           }
         }
       },
-      
+
       setFocusPoint:
       function(x, y, id)
       {
@@ -602,7 +684,7 @@
           this.stacks[id].setFocusPoint(x, y);
         }
       },
-      
+
       setZoom:
       function(zoom)
       {
@@ -610,11 +692,11 @@
         {
           this.stacks[i].setZoom(zoom);
         }
-      
+
         this.zoom = zoom;
         this.updateZoomPanel();
       },
-      
+
       updateZoomPanel:
       function()
       {
@@ -624,7 +706,7 @@
           {
             this.$zoom.val(this.zoom);
           }
-      
+
           if (this.$zoomLog != null)
           {
             var zoomLog = Math.log(this.zoom) / Math.log(2);
@@ -632,14 +714,14 @@
           }
         }
       },
-      
+
       // stack, but iface utilizes it (updateZoomPanel)
       // -> propagation necessary
       mulZoom:
       function(factor, id, x, y)
       {
         // XXX: think about an adjustment - see moveAbsolute for details
-      
+
         if (this.synchronize || id == null)
         {
           for (var i = 0; i < this.stacks.length; i++)
@@ -648,7 +730,7 @@
             stack.setPixelSize(stack.pixelSize / factor, x, y);
             stack.update();
           }
-      
+
           this.zoom *= factor;
           this.updateZoomPanel();
         }
@@ -664,7 +746,7 @@
             this.updateZoomPanel();
           }
         }
-      
+
         if ((this.synchronize || id == null || id == 0) && x != null && y != null)
         {
           var dx = this.focusPointX - x;
@@ -673,7 +755,7 @@
           this.focusPointY = y + dy / factor;
         }
       },
-      
+
       setQuality:
       function(quality, doNotUpdate)
       {
@@ -681,29 +763,29 @@
         {
           this.stacks[i].setQuality(quality);
         }
-      
+
         if (this.$quality != null && !doNotUpdate)
         {
           this.$quality.val(quality);
         }
       },
-      
+
       setTransparency:
       function(transparency, doNotUpdate)
       {
         this.transparency = transparency;
-      
+
         for (var i = 0; i < this.stacks.length; i++)
         {
           this.stacks[i].setTransparency(transparency);
         }
-      
+
         if (this.$transparency != null && !doNotUpdate)
         {
           this.$transparency.val(transparency);
         }
       },
-      
+
       update:
       function()
       {
@@ -712,7 +794,7 @@
           this.stacks[i].update();
         }
       },
-      
+
       resize:
       function(crosshairX, crosshairY)
       {
@@ -734,14 +816,14 @@
         {
           this.stacks[i].destroy();
         }
-      
+
         // if autoresize enabled
         if (this.resizeHandler != null)
         {
           //this.layer.unbind('resize', this.resizeHandler);
           $(window).unbind('resize', this.resizeHandler);
         }
-      
+
         if (this.control != null)
         {
           this.control.destroy();
@@ -751,7 +833,7 @@
           this.$transparency.unbind('change', this.updateTransparency);
           this.$stacksSynchronization.unbind('change', this.updateSynchronization);
         }
-      
+
         this.$displayContainer.remove();
 
         for (var name in this)
