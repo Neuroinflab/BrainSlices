@@ -26,13 +26,92 @@
   var gui = BS.gui;
   var api = BS.api;
  
-  if (api.CSynchronizedStacksDisplay == null)
+  if (api.CSynchronizedStacksDisplay)
   {
-    /******
-     * Class: CSynchronizedStacksDisplay
-     *
-     * A stub of documentation at the moment.
-     *************/
+    console.warn('BrainSlices.api.CSynchronizedStacksDisplay already defined');
+  }
+  else
+  {
+    /************************************************************************\
+     * Class: CSynchronizedStacksDisplay                                    *
+     *                                                                      *
+     * A class of objects handling synchronized stacks of layers.           *
+     *                                                                      *
+     * Note:                                                                *
+     *   The class is interface-oriented; it might be wished to outsource   *
+     *   interface events handling to external code.                        *
+     *                                                                      *
+     * Attributes:                                                          *
+     *   stacks - An Array of stacks (<CLayerStack> objects).               *
+     *   images - A <CImageManager> object in which basic metadata of tile  *
+     *            layers are stored.                                        *
+     *   gfx - A path to directory containing graphics.                     *
+     *   transparency - A value of layer transparency.                      *
+     *   synchronize - A flag indicating whether stacks has to be moved     *
+     *                 simultaneously.                                      *
+     *   $display - A jQuery object representing parental element for       *
+     *              synchronized stacks (prefferably not a static element). *
+     *   $displayContainer - A jQuery object representing DIV element       *
+     *                       containing the grid of stack displays.         *
+     *   nx - Number of columns in the grid of stack displays.              *
+     *   ny - Number of rows in the grid of stack displays.                 *
+     *   zoom - Current zoom value.                                         *
+     *   focusPointX - Following the x coordinate of "common focus point"   *
+     *                 (when stacks has not been desynchronized; otherwise  *
+     *                 only f.p. of first (0-th, located at 0,0 node of the *
+     *                 grid) stack).                                        *
+     *   focusPointY - Following the y coordinate of "common focus point"   *
+     *                 (when stacks has not been desynchronized; otherwise  *
+     *                 only f.p. of first (0-th, located at 0,0 node of the *
+     *                 grid) stack).                                        *
+     *   crosshairX - The x coordinate of the crosshair location of every   *
+     *                stack.                                                *
+     *   crosshairY - The x coordinate of the crosshair location of every   *
+     *                stack.                                                *
+     *   resizeHandler - A handler of resize event of the window object.    *
+     *                                                                      *
+     * Interface-oriented attributes:                                       *
+     *   control - A <CDraggableDiv> object controlling the control panel.  *
+     *   $zoom - A jQuery object representing an input element (numeric)    *
+     *           for zoom value.                                            *
+     *   $zoomLog - A jQuery object representing an input element (numeric, *
+     *              preferably slider) for log2(zoom) value.                *
+     *   $quality - A jQuery object representing a select element for       *
+     *              quality settings.                                       *
+     *   $transparency - A jQuery object representing an input element      *
+     *                   (numeric, preferably slider) for layer             *
+     *                   transparency value.                                *
+     *   $stacksSynchronization - A jQuery object representing an input     *
+     *                            element (checkbox) for stacks             *
+     *                            synchronization switching.                *
+     *   zoomUpdateEnabled - An internal flag for zoom change handlers      *
+     *                       coordination.                                  *
+     *   updateZoom - A handler of change event of $zoom element.           *
+     *   updateZoomLog - A handler of change event of $zoomLog element.     *
+     *   updateQuality - A handler of change event of $quality element.     *
+     *   updateTransparency - A handler of change event of $transparency    *
+     *                        element.                                      *
+     *   updateSynchronization - A handler of change event of               *
+     *                           $stacksSynchronization element.            *
+     ************************************************************************
+     * Constructor: CSynchronizedStacksDisplay                              *
+     *                                                                      *
+     * Parameters:                                                          *
+     *   $display - A value of the $display attribute.                      *
+     *   nx - A value of the nx attribute.                                  *
+     *   ny - A value of the ny attribute.                                  *
+     *   synchronize - A value of the synchronize attribute. Defaults to    *
+     *                 true.                                                *
+     *   zoom - A value of the zoom attribute. Defaults to 1.               *
+     *   focusPointX - A value of the focusPointX attribute. Defaults to 0. *
+     *   focusPointY - A value of the focusPointY attribute. Defaults to 0. *
+     *   crosshairX - A value of the crosshairX attribute.                  *
+     *   crosshairY - A value of the crosshairY attribute.                  *
+     *   $controlPanel - A jQuery object representing HTML element for the  *
+     *                   control panel.                                     *
+     *   gfx - A value of the gfx attribute. Defaults to '/static/gfx'.     *
+     *   images - A value of the images attribute.                          *
+    \************************************************************************/
     api.CSynchronizedStacksDisplay = function($display, nx, ny, synchronize,
                                               zoom, focusPointX, focusPointY,
                                               crosshairX, crosshairY,
@@ -46,7 +125,7 @@
     
       this.images = images;
     
-      this.gfx = gfx != null ? gfx : 'static/gfx';
+      this.gfx = gfx != null ? gfx : '/static/gfx';
     
       if ($controlPanel == null)
       {
@@ -129,7 +208,7 @@
     
         this.updateSynchronization = function()
         {
-          if (thisInstance.$stacksSynchronization.filter(':checked').length != 0)
+          if (this.checked)
           {
             thisInstance.syncStart();
           }
@@ -148,31 +227,32 @@
       this.synchronize = synchronize == null ? true : synchronize;
       if (this.$stacksSynchronization != null)
       {
-        if (this.synchronize)
-        {
-          this.$stacksSynchronization.attr('checked', 'checked');
-        }
-        else
-        {
-          this.$stacksSynchronization.filter(':checked').removeAttr('checked');
-        }
+        this.$stacksSynchronization.prop('checked', this.synchronize);
       }
     
-      this.$displayContainer = $('<div style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; width: auto; height: auto;"></div>');
-      $display.append(this.$displayContainer);
       this.$display = $display;
+      this.$displayContainer = $('<div></div>')
+        .css({
+          position: 'absolute',
+          left: '0px',
+          top: '0px',
+          right: '0px',
+          bottom: '0px',
+          width: 'auto',
+          height: 'auto'})
+        .appendTo($display);
+
       this.nx = 0;
       this.ny = 0;
     
-      this.zoom = zoom;
-      this.focusPointX = focusPointX;
-      this.focusPointY = focusPointY;
+      this.zoom = zoom != null ? zoom : 1.;
+      this.focusPointX = focusPointX != null ? focusPointX : 0.;
+      this.focusPointY = focusPointY != null ? focusPointY : 0.;
       this.crosshairX = crosshairX;
       this.crosshairY = crosshairY;
     
       this.resizeHandler = function()
       {
-        // thisInstance, crosshairX, crosshairY are fixed now ^^;
         thisInstance.resize(crosshairX, crosshairY);
       }
     
@@ -201,7 +281,7 @@
        *           of consecutive layer stacks.
        *   loaded - An Array of Arrays of identifiers of layers loaded to
        *            consecutive layer stacks.
-       ***********************************************************************/
+       **********************************************************************/
       getState:
       function()
       {
@@ -227,18 +307,36 @@
         return state;
       },
 
+      /**
+       * Method: syncStart
+       *
+       * Start moving stacks simultaneously.
+       **************************************/
       syncStart:
       function()
       {
         this.synchronize = true;
       },
       
+      /**
+       * Method: syncStop
+       *
+       * Stop moving stacks simultaneously.
+       *************************************/
       syncStop:
       function()
       {
         this.synchronize = false;
       },
-      
+
+      /**
+       * Method: updateTopZ
+       *
+       * Call <CLayerStack.updateTopZ> (z) for every stack in this.stacks.
+       *
+       * Attributes:
+       *   z - See <CLayerStack.updateTopZ> for details.
+       ******************************************************************/
       updateTopZ:
       function(z)
       {
@@ -623,7 +721,12 @@
           this.stacks[i].resize(crosshairX, crosshairY);
         }
       },
-      
+
+      /**
+       * Destructor: destroy
+       *
+       * Prepare the object for disposal.
+       ***********************************/
       destroy:
       function()
       {
@@ -632,38 +735,32 @@
           this.stacks[i].destroy();
         }
       
-        //this.images.destroy();
-      
         // if autoresize enabled
         if (this.resizeHandler != null)
         {
           //this.layer.unbind('resize', this.resizeHandler);
           $(window).unbind('resize', this.resizeHandler);
-          this.resizeHandler = null;
         }
       
         if (this.control != null)
         {
           this.control.destroy();
           this.$zoom.unbind('change', this.updateZoom);
-          this.updateZoom = null;
           this.$zoomLog.unbind('change', this.updateZoomLog);
-          this.updateZoomLog = null;
           this.$quality.unbind('change', this.updateQuality);
-          this.updateQuality = null;
           this.$transparency.unbind('change', this.updateTransparency);
-          this.updateTransparency = null;
           this.$stacksSynchronization.unbind('change', this.updateSynchronization);
-          this.updateSynchronization = null;
         }
       
         this.$displayContainer.remove();
+
+        for (var name in this)
+        {
+          delete this[name];
+        }
       }
     }
   }
-  else
-  {
-    console.warn('BrainSlices.api.CSynchronizedStacksDisplay already defined');
-  }
+
 })(BrainSlices, jQuery);
 

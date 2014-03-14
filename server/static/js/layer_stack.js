@@ -28,6 +28,11 @@
 
   if (api.CLayerStack == null)
   {
+    /**
+     * Class: CLayerStack
+     *
+     * A stub of documentation
+     ****************************/
     api.CLayerStack = function(parentDiv, zoom, focusPointX, focusPointY,
                                crosshairX, crosshairY, syncStacks,
                                autoresize, gfx)
@@ -465,6 +470,19 @@
         }
       },
 
+      /**
+       * Method: updateTopZ
+       *
+       * Update (if necessary) z-index CSS attribute of the topmost layer (the
+       * layer for stack interface).
+       *
+       * Note:
+       *   The attribute is never decreased.
+       *
+       * Attributes:
+       *   newZ - A new value of the z-index attribute. Defaults to maximal
+       *          value of z attributes of layers loaded in the stack + 1.
+       ***********************************************************************/
       updateTopZ:
       function(newZ)
       {
