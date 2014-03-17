@@ -126,6 +126,24 @@
   }
   else
   {
+    /**
+     * Class: CImageManager
+     *
+     * A class of objects for caching basic metadata of tiled layers.
+     *
+     * Attributes:
+     *   ajaxProvider - An object providing basic AJAX interface (like
+     *                  <CCAjaxProvider> ).
+     *   images - An object mapping from identifiers (names of its attributes)
+     *            to internal basic image metadata objects (values of its
+     *            attributes).
+     *   adjust -
+     *
+     * Constructor: CImageManager
+     *
+     * Parameters:
+     *   ajaxProvider - A value of the ajaxProvider attribute.
+     *****************************************************************/
     api.CImageManager = function(ajaxProvider)
     {
       this.ajaxProvider = ajaxProvider;
@@ -135,18 +153,22 @@
 
     api.CImageManager.prototype =
     {
+      /**
+       * Destructor: destroy
+       *
+       * Prepare the object for disposal.
+       ***********************************/
       destroy:
       function()
       {
-        var images = {};
         for (var id in this.images)
         {
-          images[id] = null;
+          this.removeCachedImage(id);
         }
 
-        for (var id in images)
+        for (var name in this)
         {
-          this.removeCachedImage(id);
+          delete this[name];
         }
       },
 
@@ -370,10 +392,31 @@
         return id in this.images;
       },
 
+      isAdjusted:
+      function(id)
+      {
+        if (!this.adjust) return false;
+        return id == null || id in this.adjust;
+      },
+
+      getAdjusted:
+      function()
+      {
+        var res = [];
+        if (this.adjust)
+        {
+          for (var id in this.adjust)
+          {
+            res.push(id);
+          }
+        }
+        return res;
+      },
+
       stopAdjustment:
       function(id)
       {
-        if (this.adjust != null && id in this.adjust)
+        if (!this.adjust && id in this.adjust)
         {
           delete this.adjust[id];
         }
@@ -501,6 +544,24 @@
     }
     else
     {
+      /**
+       * Section: CLayerStack extension
+       *
+       * See documentation of <CLayerStack> for details (if available).
+       *
+       *
+       * Method: loadFromCache
+       *
+       * Load a tile layer to the stack using metadata cached by the
+       * <CImageManager> object.
+       *
+       * Parameters:
+       *   cache - The <CImageManager> object.
+       *   id - An identifier of tiled image in the <CImageManager> object.
+       *   quality - A number from -0.5 to 0.5 (or string 'low' for -0.5,
+       *             'med' for 0. or 'high' for 0.5) reflecting the desired
+       *             quality settings.
+       *********************************************************************/
       BrainSlices.api.CLayerStack.prototype.loadFromCache = function(cache, id, quality)
       {
         var loader = cache.getImageLoader(id);

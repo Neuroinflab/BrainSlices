@@ -213,6 +213,12 @@
     //      is no longer auxilary class but a master class)
     api.CLayerStack.prototype =
     {
+      has:
+      function(id)
+      {
+        return id in this.layers;
+      },
+
       syncId:
       function(id)
       {

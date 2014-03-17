@@ -621,12 +621,14 @@
       {
         // check if any of adjusted images is in the moved area
         var adjust = false;
-        if (this.images.adjust != null && id != null)
+        if (this.images.isAdjusted() && id != null)
         {
-          var layers = this.stacks[id].layers;
-          for (var imageId in this.images.adjust)
+          var stack = this.stacks[id];
+          var adjusted = this.images.getAdjusted();
+          for (var i = 0; i < adjusted.length; i++)
           {
-            if (imageId in layers)
+            var imageId = adjusted[i];
+            if (stack.has(imageId))
             {
               adjust = true;
               this.images.adjustOffset(dx, dy, imageId);
