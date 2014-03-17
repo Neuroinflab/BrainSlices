@@ -415,12 +415,8 @@ $(function()
   if (state.sync)
   {
     stacks.syncStart();
-    $('#controlPanel [name="synchronization"]').attr("checked", "checked");
   }
-  else
-  {
-    $('#controlPanel [name="synchronization"]').removeAttr("checked");
-  }
+  $('#controlPanel [name="synchronization"]').prop('checked', true);
 
   layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
                                    loginConsole,

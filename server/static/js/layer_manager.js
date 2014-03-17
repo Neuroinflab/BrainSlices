@@ -402,21 +402,17 @@ with ({gui: BrainSlices.gui,
     layerCB:
     function(id, stackId)
     {
-      //TODO: use stack instead of stackId???
-
       var thisInstance = this;
-      var stack = this.stacks.stacks[stackId];
       var $cb = $('<input type="checkbox" class="recyclableElement">');
       var changeHandler = function()
       {
-        //stack.syncId() can be changed
         if (this.checked)
         {
-          thisInstance.load(stack.syncId(), id, true);
+          thisInstance.load(stackId, id, true);
         }
         else
         {
-          thisInstance.unload(stack.syncId(), id, true);
+          thisInstance.unload(stackId, id, true);
         }
       };
 
@@ -476,8 +472,7 @@ with ({gui: BrainSlices.gui,
       this.stacks.load(stackId, layerId);
       if (doNotUpdateIface != true)
       {
-        this.layers[imageId].loadButtons[stack.syncId()].$cb.prop('checked',
-                                                                  true);
+        this.layers[imageId].loadButtons[stackId].$cb.prop('checked', true);
       }
     },
 

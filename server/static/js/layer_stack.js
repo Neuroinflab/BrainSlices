@@ -34,8 +34,7 @@
      * A stub of documentation
      ****************************/
     api.CLayerStack = function(parentDiv, zoom, focusPointX, focusPointY,
-                               crosshairX, crosshairY, syncStacks,
-                               autoresize, gfx)
+                               crosshairX, crosshairY, autoresize, gfx)
     {
       this.display = parentDiv;
       this.setFocusPoint(focusPointX, focusPointY);
@@ -89,7 +88,7 @@
 
       this.syncStacks = null;
       this.id = null;
-      this.synchronize(syncStacks);
+//      this.synchronize(syncStacks);
 
       var thisInstance = this;
 
@@ -214,17 +213,6 @@
     //      is no longer auxilary class but a master class)
     api.CLayerStack.prototype =
     {
-      desynchronize:
-      function(doNotRemove)
-      {
-        if (this.syncStacks != null && doNotRemove != true)
-        {
-          this.syncStacks.removeStack(this.id);
-        }
-        this.syncStacks = null;
-        this.id = null;
-      },
-
       syncId:
       function(id)
       {
@@ -239,12 +227,7 @@
       synchronize:
       function(syncStacks)
       {
-        this.desynchronize();
-        if (syncStacks != null)
-        {
-          this.syncStacks = syncStacks;
-          this.syncId(this.syncStacks.add(this));
-        }
+        this.syncStacks = syncStacks;
       },
 
       showCursor:
@@ -559,42 +542,37 @@
 
       destroy: function()
       {
-        this.desynchronize();
-
         if (this.mouseOverHandler != null)
         {
           this.display.unbind('mouseover', this.mouseOverHandler);
-          this.mouseOverHandler = null;
         //}
         //if (this.mouseOutHandler != null)
         //{
           this.display.unbind('mouseout', this.mouseOutHandler);
-          this.mouseOutHandler = null;
         }
 
-
         this.display.unbind('mousedown', this.mouseDownHandler);
-        this.mouseDownHandler = null;
-
         this.display.unbind('mousemove', this.mouseMoveHandler);
-        this.mouseMoveHandler = null;
 
         $('body').unbind('mouseup', this.mouseUpHandler);
-        this.mouseUpHandler = null;
 
         // if autoresize enabled
         if (this.resizeHandler != null)
         {
           $(window).unbind('resize', this.resizeHandler);
-          this.resizeHandler = null;
         }
 
         this.display.off('mousewheel DOMMouseScroll', this.mouseWheelHandler);
-        this.mouseWheelHandler = null;
 
         this.removeAll();
 
         this.topLayer.remove();
+
+        for (var name in this)
+        {
+          delete this[name];
+        }
+
         return null;
       }
     };

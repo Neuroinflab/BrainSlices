@@ -412,8 +412,12 @@
               this.$displayContainer.append($div);
               stack = new api.CLayerStack($div, this.zoom, this.focusPointX,
                                           this.focusPointY, this.crosshairX,
-                                          this.crosshairY, this, false,
-                                          this.gfx);
+                                          this.crosshairY, false, this.gfx);
+
+              stack.synchronize(this);
+              stack.syncId(this.stacks.length);
+              this.stacks.push(stack);
+
               stack.setTransparency(this.transparency);
             }
             id++;
@@ -567,39 +571,6 @@
       function(stackId, imageId)
       {
         return imageId in this.stacks[stackId].layers;
-      },
-
-      add:
-      function(stack)
-      {
-        this.stacks.push(stack);
-        return this.stacks.length - 1;
-      },
-
-      removeStack:
-      function(id, doNotDestroy)
-      {
-        //TODO: stack display removal
-        var res = this.stacks.splice(id, 1);
-
-        // propagate new id
-        for (var i = id; i < this.stacks.length; i++)
-        {
-          this.stacks[i].syncId(i);
-        }
-
-        if (res.length == 1)
-        {
-          res[0].desynchronize(true);
-          if (doNotDestroy == true)
-          {
-            return res[0];
-          }
-          else
-          {
-            res[0].destroy();
-          }
-        }
       },
 
       putCursor:
