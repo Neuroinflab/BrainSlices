@@ -1,4 +1,4 @@
-/* File: synchronized_stacks.js; TO BE DOCUMENTED*/
+/* File: synchronized_stacks.js */
 /*****************************************************************************\
 *                                                                             *
 *    This file is part of BrainSlices Software                                *
@@ -701,6 +701,9 @@
        * Method: setZoom
        *
        * Set zoom value of stacks in the object.
+       *
+       * Parameters:
+       *   zoom - A value of zoom.
        ******************************************/
       setZoom:
       function(zoom)
@@ -714,6 +717,11 @@
         this.updateZoomPanel();
       },
 
+      /**
+       * Method: updateZoomPanel
+       *
+       * Update zoom value displayed in the control panel.
+       ****************************************************/
       updateZoomPanel:
       function()
       {
@@ -732,6 +740,25 @@
         }
       },
 
+      /**
+       * Method: mulZoom
+       *
+       * Multiply zoom value of every stack (if stack movement is
+       * synchronized or no stack identifier is given; otherwise only zoom
+       * value of the given stack is affected) by a given factor.
+       *
+       * Change focus point of affected stacks to preserve location of given
+       * point (in stack coordinates) in the display.
+       *
+       * Parameters:
+       *   factor - A value of the factor by which value of zoom is being
+       *            multiplied.
+       *   id - An identifier of the stack.
+       *   x - An x coordinate of the point which display location has to be
+       *       preserved.
+       *   y - A y coordinate of the point which display location has to be
+       *       preserved.
+       **********************************************************************/
       // stack, but iface utilizes it (updateZoomPanel)
       // -> propagation necessary
       mulZoom:
@@ -773,6 +800,17 @@
         }
       },
 
+      /**
+       * Method: setQuality
+       *
+       * Change quality setting of layers.
+       *
+       * Parameters:
+       *   quality - Quality setting (a real number from -0.5 to 0.5 or a
+       *             string: 'low' for -0.5, 'med' for 0. and 'high' for 0.5).
+       *   doNotUpdate - If true omit update of the quality settings in the
+       *                 control panel. Defaults to false.
+       **********************************************************************/
       setQuality:
       function(quality, doNotUpdate)
       {
@@ -787,6 +825,16 @@
         }
       },
 
+      /**
+       * Method: setTransparency
+       *
+       * Change transparency of layers.
+       *
+       * Parameters:
+       *   transparency - A value of transparency (from 0 to 1).
+       *   doNotUpdate - If true omit update of the transparency settings in
+       *                 the control panel. Defaults to false.
+       **********************************************************************/
       setTransparency:
       function(transparency, doNotUpdate)
       {
@@ -803,6 +851,12 @@
         }
       },
 
+      /**
+       * Method: update
+       *
+       * Update display of all layers (in every stack) with their set
+       * parameters (like zoom, transparency, focus point etc.)
+       *****************************************************************/
       update:
       function()
       {
@@ -812,6 +866,19 @@
         }
       },
 
+      /**
+       * Method: resize
+       *
+       * Resize displays of every stack in the object; set their crosshairs
+       * to given location.
+       *
+       * A crosshair is a location in display where the focus point is
+       * located.
+       *
+       * Parameters:
+       *   crosshairX - The x coordinate of the crosshair. Defaults to 50%.
+       *   crosshairY - The y coordinate of the crosshair. Defaults to 50%.
+       **************************/
       resize:
       function(crosshairX, crosshairY)
       {
