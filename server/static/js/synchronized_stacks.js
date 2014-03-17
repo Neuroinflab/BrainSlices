@@ -573,6 +573,18 @@
         return imageId in this.stacks[stackId].layers;
       },
 
+      /**
+       * Method: putCursor
+       *
+       * For every stack in the object of identifier different than given
+       * put cursor in given x, y coordinates. Hide cursor for stack of
+       * given identifier.
+       *
+       * Parameters:
+       *   x - An x coordinate.
+       *   y - A y coordinate.
+       *   id - A stack identifier.
+       *******************************************************************/
       putCursor:
       function(x, y, id)
       {
@@ -590,6 +602,20 @@
         }
       },
 
+      /**
+       * Method: moveAbsolute
+       *
+       * If any of already adjusted images is loaded to a given stack, adjust
+       * all adjusted images loaded to the stack by change of coordinates.
+       * Otherwise move focus point of all stacks (if stack movement is
+       * synchronized or no stack identifier is given; otherwise move focus
+       * point of the given stack only).
+       *
+       * Parameters:
+       *   dx - A change value of the x coordinate.
+       *   dy - A change value of the y coordinate.
+       *   id - An identifier of the stack being moved.
+       **********************************************************************/
       moveAbsolute:
       function(dx, dy, id)
       {
@@ -604,7 +630,6 @@
             {
               adjust = true;
               this.images.adjustOffset(dx, dy, imageId);
-              //break;
             }
           }
         }
@@ -614,30 +639,41 @@
         //  //this.images.adjustOffset(dx, dy);
         //}
         //else
-        if (!adjust)
+        if (adjust) return;
+
+        if (this.synchronize || id == null)
         {
-          if (this.synchronize || id == null)
+          for (var i = 0; i < this.stacks.length; i++)
           {
-            for (var i = 0; i < this.stacks.length; i++)
-            {
-              this.stacks[i].moveAbsolute(dx, dy);
-            }
+            this.stacks[i].moveAbsolute(dx, dy);
+          }
+          this.focusPointX -= dx;
+          this.focusPointY -= dy;
+        }
+        else
+        {
+          this.stacks[id].moveAbsolute(dx, dy);
+          if (id == 0)
+          {
+            // follow the main stack
             this.focusPointX -= dx;
             this.focusPointY -= dy;
-          }
-          else
-          {
-            this.stacks[id].moveAbsolute(dx, dy);
-            if (id == 0)
-            {
-              // follow the main stack
-              this.focusPointX -= dx;
-              this.focusPointY -= dy;
-            }
           }
         }
       },
 
+      /**
+       * Method: setFocusPoint
+       *
+       * Set focus point of all stacks (if stack movement is synchronized or
+       * no stack identifier is given; otherwise set focus point of the given
+       * stack only).
+       *
+       * Parameters:
+       *   x - A value of the x coordinate of the focus point.
+       *   y - A value of the y coordinate of the focus point.
+       *   id - An identifier of the stack.
+       *********************************************************************/
       setFocusPoint:
       function(x, y, id)
       {
@@ -653,9 +689,19 @@
         else
         {
           this.stacks[id].setFocusPoint(x, y);
+          if (id == 0)
+          {
+            this.focusPointX = x;
+            this.focusPointY = y;
+          }
         }
       },
 
+      /**
+       * Method: setZoom
+       *
+       * Set zoom value of stacks in the object.
+       ******************************************/
       setZoom:
       function(zoom)
       {
