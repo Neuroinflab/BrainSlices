@@ -192,7 +192,7 @@
             {
               thisInstance.$zoom.val(zoom);
             }
-            alert("piesek");
+            console.log("piesek");
             thisInstance.zoomUpdateEnabled = true;
           }
         };
