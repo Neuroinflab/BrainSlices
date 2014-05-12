@@ -39,7 +39,7 @@ and open the template in the editor.
 
 .cart-unfolded
     {
-    right:20%;
+    right:40%;
     height:93%;
     width:auto;
     float:right;
@@ -56,7 +56,7 @@ and open the template in the editor.
     {
         
     height:93%;
-    width:20%;
+    width:40%;
     float:right;
     position: fixed;
     background-color: #fafafa;

@@ -897,6 +897,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     /*
      * Refresh the status of an image when clicked by making an AJAX call
      */
+    if($(".refreshStatus").length>0)
     $(".refreshStatus").live("click", function()
     {
       var iid = $(this).attr('data-iid');

@@ -44,6 +44,13 @@
         references[cacheId] = this;
       }
 
+      this.imgElements = {};
+      this.imgMinCol = 0;
+      this.imgMaxCol = 0;
+      this.imgMinRow = 0;
+      this.imgMaxRow = 0;
+      this.imgZoom = null;
+
       // DOM object - layer images display
       this.layer = $('<div class="tileLayer" style="display: none;" draggable="false"></div>');
       parentDiv.append(this.layer);
@@ -191,6 +198,8 @@
       update:
       function()
       {
+        var $img;
+        var x, y, layerImageX;
         // position of the top left display corner in tile indices coordinates
         var leftTile = this.intScaleFactor * (this.focusPointX - this.imageLeft) / (this.imagePixelSize * this.tileWidth) - this.crosshairX / this.layerTileWidth;
         var topTile = this.intScaleFactor * (this.focusPointY - this.imageTop) / (this.imagePixelSize * this.tileHeight) - this.crosshairY / this.layerTileHeight;
@@ -209,14 +218,14 @@
         var tileImageWidth = this.layerTileWidth;
         if (leftTileIndex < 0)
         {
-          var x = 0;
-          var layerImageX = 0;
+          x = 0;
+          layerImageX = 0;
           deltaX -= leftTileIndex * tileImageWidth;
         }
         else
         {
-          var x = leftTileIndex;
-          var layerImageX = x * this.tileWidth;
+          x = leftTileIndex;
+          layerImageX = x * this.tileWidth;
         }
 
         var dynamicTileLeft = Math.round(deltaX);
@@ -242,15 +251,22 @@
           dynamicTileLeft = nextTileLeft;
         }
 
-        var images = [];
+        if (this.intZoom != this.imgZoom)
+        {
+          this.layer.empty();
+          this.imgElements = {};
+          this.imgZoom = this.intZoom;
+        }
 
 
+        var images = {};
 
-        var y = topTileIndex;
+        y = topTileIndex;
         var tileImageHeight = this.layerTileHeight;
         var layerImageY = y * this.tileHeight;
         var dy = deltaY;
         var dynamicTileTop = Math.round(dy);
+
         while (dy < this.layerHeight)
         {
           if (layerImageY >= this.layerImageHeight) break;
@@ -271,13 +287,29 @@
               x = tmp[0];
               dynamicTileLeft = tmp[1];
               dynamicTileWidth = tmp[2];
-              images.push('<img alt="tile of zoom level ' + this.intZoom +
-                          ', row ' + y + ', column ' + x + '" ' +
-                          'src="' + this.zoomPath + x + '/' + y + '.jpg" ' +
-                          'style="position: absolute; width: ' + dynamicTileWidth +
-                          'px; height: ' + dynamicTileHeight + 'px; left: ' +
-                          dynamicTileLeft + 'px; top: ' + dynamicTileTop +
-                          'px;" draggable="false">');
+              var idx = x + ',' + y;
+              if (idx in this.imgElements)
+              {
+                $img = this.imgElements[idx];
+                delete this.imgElements[idx];
+                images[idx] = $img;
+                $img.css({left: dynamicTileLeft + 'px',
+                          top: dynamicTileTop + 'px',
+                          width: dynamicTileWidth + 'px',
+                          height: dynamicTileHeight + 'px'});
+              }
+              else
+              {
+                $img = $('<img alt="tile of zoom level ' + this.intZoom +
+                         ', row ' + y + ', column ' + x + '" ' +
+                         'src="' + this.zoomPath + x + '/' + y + '.jpg" ' +
+                         'style="position: absolute; width: ' + dynamicTileWidth +
+                         'px; height: ' + dynamicTileHeight + 'px; left: ' +
+                         dynamicTileLeft + 'px; top: ' + dynamicTileTop +
+                         'px;" draggable="false">');
+                images[idx] = $img;
+                $img.appendTo(this.layer);
+              }
             }
           }
           layerImageY += this.tileHeight;
@@ -285,7 +317,14 @@
           dy = nextDy;
           dynamicTileTop = nextTileTop;
         }
-        this.layer.html(images.join('\n'));
+
+        $.each(this.imgElements,
+               function(idx, $img)
+               {
+                 $img.remove();
+               });
+        this.imgElements = images;
+
       },
 
       // resize the layer

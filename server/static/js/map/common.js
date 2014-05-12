@@ -99,10 +99,22 @@ var BrainSlices = {
   {
     /**
      * Constant: STATUS_MAP
-     * Mapping of integers to description
-     * strings of statuses taken from
+     *
+     * Mapping of integers to description strings of statuses taken from
      * tileBase.py.
-    \*************************************/
+     *
+     * Mapping:
+     *   0 - UPLOADING
+     *   1 - RECEIVING
+     *   2 - RECEIVED
+     *   3 - PROCESSING
+     *   4 - IDENTIFIED
+     *   5 - TILED
+     *   6 - COMPLETED
+     *   7 - ACCEPTED
+     *   -1 - REMOVED
+     *   -2 - ERROR
+    \********************************************************************/
     STATUS_MAP: {'0': 'UPLOADING',
                  '1': 'RECEIVING',
                  '2': 'RECEIVED',
@@ -312,7 +324,5 @@ var BrainSlices = {
     {
       return login.match(/^[a-z0-9-+_.*]+$/i) != null;
     }
-  },
-  
-  scope: {}
+  }
 }

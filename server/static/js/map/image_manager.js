@@ -24,6 +24,28 @@
 (function(BS, $, undefined)
 {
   var api = BS.api;
+  /**
+   * Class: internal basic image metadata objects
+   *
+   * Attributes:
+   *   info - An object containing basic image metadata (like image offset:
+   *          attributes 'imageLeft' and 'imageTop', image pixel size:
+   *          'pixelSize', image status: 'status' etc.; it is also being
+   *          extended with '_' prefixed attributes: '_imageLeft',
+   *          '_imageTop', '_pixelSize', '_status' being copies of
+   *          server-stored metadata just in case a reset is necessary.
+   *   changed - A boolean flag indicating whether the basic metadata has
+   *             changed.
+   *   $row - A jQuery object representing HTML element representing 
+   *   onUpdate -
+   *   references -
+   *   type -
+   *   cacheId -
+   *   path -
+   *   id -
+   *   z -
+   *
+   ************************/
   var imagePrototype =
   {
   	reset: function(updateIFace)
@@ -135,8 +157,7 @@
      *   ajaxProvider - An object providing basic AJAX interface (like
      *                  <CCAjaxProvider> ).
      *   images - An object mapping from identifiers (names of its attributes)
-     *            to internal basic image metadata objects (values of its
-     *            attributes).
+     *            to <internal basic image metadata objects>.
      *   adjust -
      *
      * Constructor: CImageManager
@@ -172,6 +193,21 @@
         }
       },
 
+      /**
+       * Method: updateImage
+       *
+       * Update the basic image metadata (offset, pixel size) with given (not
+       * null nor undefined) values. 
+       *
+       * Parameters:
+       *   id - An identifier of the image. If not given (null) - metadata of
+       *        every image in the object is updated.
+       *   imageLeft - The left offset of the image (in micrometers).
+       *   imageTop - The top offset of the image (in micrometers).
+       *   pixelSize - The size of a pixel of the image (in micrometers).
+       *   updateIFace - A flag indicating whether to update the metadata
+       *                 interface (defaults to true).
+       **********************************************************************/
       updateImage:
       function(id, imageLeft, imageTop, pixelSize, updateIFace)
       {
@@ -179,6 +215,8 @@
         {
           for (id in this.images)
           {
+            // updateIFace is not forwarded here because interface should be
+            // updated when performing a global change.
             this.updateImage(id, imageLeft, imageTop, pixelSize);
           }
         }
@@ -188,6 +226,21 @@
         }
       },
 
+      /**
+       * Method: updateImageStatus
+       *
+       * Update the status of the image.
+       *
+       * See <STATUS_MAP> for available statuses. Only COMPLETED and ACCEPTED
+       * values should be used.
+       *
+       * Parameters:
+       *   id - An identifier of the image. If not given (null) - status of
+       *        every image in the object is updated.
+       *   status - A number of the new status value.
+       *   updateIFace - A flag indicating whether to update the status
+       *                 interface (defaults to true).
+       **********************************************************************/
       updateImageStatus:
       function(id, status, updateIFace)
       {
@@ -204,6 +257,16 @@
         }
       },
 
+      /**
+       * Method: apply
+       *
+       * Parametres:
+       *   id - The identifier of the image. If not given, the function would
+       *        be applied to every image in the object.
+       *   f - The function to be applied. The function takes 
+       *   updateIFace - A parameter to be forwarded as the second parameter
+       *                 of function f.
+       *****************/
       apply:
       function(id, f, updateIFace)
       {
@@ -416,7 +479,7 @@
       stopAdjustment:
       function(id)
       {
-        if (!this.adjust && id in this.adjust)
+        if (this.adjust && id in this.adjust)
         {
           delete this.adjust[id];
         }

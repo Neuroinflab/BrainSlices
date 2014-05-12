@@ -383,22 +383,22 @@ class MetaBase(dbBase):
   @provideCursor
   def searchImagesPropertiesSize(self, selectors, limit=None, cursor=None):
     _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors,
-                                   (1, ["properties AS tmp0",
-                                        "images AS img USING (iid)"], [], []))
+                                   (1, ["(properties AS tmp0 RIGHT",
+                                        "images AS img USING (iid))"], [], []))
     query = """
-            SELECT tmp0.iid, tmp0.property_name, tmp0.property_type,
+            SELECT img.iid, tmp0.property_name, tmp0.property_type,
                    tmp0.property_number, tmp0.property_string,
                    tmp0.property_visible, tmp0.property_editable,
                    img.image_width, img.image_height
             FROM %s
             WHERE %s
-            ORDER BY tmp0.iid
+            ORDER BY img.iid
             """ % (' JOIN '.join(tables), ' AND '.join(cond))
     cursor.execute(query, data)
     res = []
     if cursor.rowcount > 0:
       lastIID, name, t, n, s, v, e, lastW, lastH = cursor.fetchone()
-      last = {name: unwrapProperties(t, n, s, v, e)}
+      last = {name: unwrapProperties(t, n, s, v, e)} if name is not None else {}
       for iid, name, t, n, s, v, e, w, h in cursor:
         if iid != lastIID:
           res.append([lastIID, last, [lastW, lastH]])
@@ -410,7 +410,8 @@ class MetaBase(dbBase):
           lastW = w
           lastH = h
 
-        last[name] = unwrapProperties(t, n, s, v, e)
+        if name is not None:
+          last[name] = unwrapProperties(t, n, s, v, e)
 
       res.append([lastIID, last, [lastW, lastH]])
 

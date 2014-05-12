@@ -42,16 +42,16 @@ from metaServer import MetaServer
 class WebGenerator(Generator):
   def __init__(self, templatesPath):
     Generator.__init__(self, templatesPath)
-    controlPanel = self.templateEngine('draggableWindow.html')
-    controlPanel['__windowId__'] = 'controlPanel'
-    controlPanel['<!--%title%-->'] = """Control panel
-                                        <a href="javascript:void(0)" id="loginLink">login</a><a href="javascript:void(0)" id="logoutLink"></a>"""
+#    controlPanel = self.templateEngine('draggableWindow.html')
+#    controlPanel['__windowId__'] = 'controlPanel'
+#    controlPanel['<!--%title%-->'] = """Control panel
+#                                        <a href="javascript:void(0)" id="loginLink">login</a><a href="javascript:void(0)" id="logoutLink"></a>"""
     stackControlPanel = self.templateEngine('controlPanel.html')
     stackControlPanel['<!--%searchbox%-->'] = self.templateEngine('searchbox.html')
-    controlPanel['<!--%content%-->'] = stackControlPanel
+#    controlPanel['<!--%content%-->'] = stackControlPanel
 
     index = self.templateEngine('myapi.html')
-    index['<!--%controlPanel%-->'] = controlPanel
+    index['<!--%controlPanel%-->'] = stackControlPanel
     index['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
 
     self['index'] = index

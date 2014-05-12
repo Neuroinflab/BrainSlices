@@ -27,7 +27,7 @@ LC_CONF =
 CC_CONF = -O3
 
 # libboost-thread-dev and libboost-system-dev required
-LC_CONF_SCALE = ${LC_CONF} -lboost_thread -lboost_system
+LC_CONF_SCALE = ${LC_CONF} -lboost_thread -lboost_system -lpthread
 
 # libmagick++-dev required
 CC_CONF_TILE = ${CC_CONF} `Magick++-config --cppflags` 
@@ -51,7 +51,7 @@ cleanup:
 
 tileStreamedImage: tileStreamedImage.o ThreadSafeIO.o
 	echo $@
-	${LC} $^ ${LC_CONF_TILE} -o $@
+	${LC}  $^ -o $@ ${LC_CONF_TILE} 
 
 tileStreamedImage.o: tileStreamedImage.cpp LanczosFilter.h BoxFilter.h SumFilter.h TriangleFilter.h StreamedImagePrescaledInputWindow.h TiledImageOutputWindow.h TileCommandlineParser.h ThreadSafeIO.h
 	echo $@
@@ -70,7 +70,7 @@ StreamedImagePrescaledInputWindow.h StreamedImageInputWindow.h TiledImageOutputW
 
 scaleStreamedImage: scaleStreamedImage.o ThreadSafeIO.o
 	echo $@
-	${LC} $^ ${LC_CONF_SCALE} -o $@
+	${LC} $^ -o $@ ${LC_CONF_SCALE} 
 
 scaleStreamedImage.o: scaleStreamedImage.cpp LanczosFilter.h BoxFilter.h SumFilter.h TriangleFilter.h StreamedImagePrescaledInputWindow.h StreamedImageOutputWindow.h StreamCommandlineParser.h ThreadSafeIO.h
 	echo $@
@@ -79,7 +79,7 @@ scaleStreamedImage.o: scaleStreamedImage.cpp LanczosFilter.h BoxFilter.h SumFilt
 
 raw2png: raw2png.o
 	echo $@
-	${LC} $^ ${LC_CONF_RAW2PNG} -o $@
+	${LC} $^ ${LC_CONF_RAW2PNG}  -o $@
 
 raw2png.o: raw2png.cpp PngCommandlineParser.h
 	echo $@
@@ -97,7 +97,7 @@ raw2pngMD5.o: raw2pngMD5.cpp PngCommandlineParser.h
 
 tileStreamedImageJPG: tileStreamedImageJPG.o ThreadSafeIO.o TiledImageOutputWindowJPG.o
 	echo $@
-	${LC} $^ ${LC_CONF_SCALE} -ljpeg -o $@
+	${LC} $^ -o $@ ${LC_CONF_SCALE} -ljpeg 
 
 tileStreamedImageJPG.o: tileStreamedImageJPG.cpp LanczosFilter.h BoxFilter.h SumFilter.h TriangleFilter.h StreamedImagePrescaledInputWindow.h TiledImageOutputWindowJPG.h TileCommandlineParserJPG.h ThreadSafeIO.h
 	echo $@
