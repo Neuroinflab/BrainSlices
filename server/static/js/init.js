@@ -380,6 +380,26 @@ BrainSlices.scope.register({
 })
 
 
+BrainSlices.scope.set("grid_dims", {x:$('#nx').val(),
+                                    y:$('#ny').val()});
+BrainSlices.scope.register({
+    change:function(variable,val){
+        if( variable == "grid_dims"){
+            var nx = val.x;
+            var ny = val.y;
+            var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
+            stacks.rearrange(nx, ny, width);
+        }   
+    }
+})
+BrainSlices.scope.register({
+    change:function(variable,val){
+        if( variable == "grid_dims"){
+              $('#nx').val(val.x);
+              $('#ny').val(val.y);
+        }   
+    }
+})
 
 
   //$('#logoutLink').hide();

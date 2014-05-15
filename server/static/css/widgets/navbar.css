@@ -13,7 +13,7 @@ and open the template in the editor.
     height:50px;
     background-color:#fafafa;
     display:flex;
-
+    z-index:100;
 }
 .navbar #bar1
 {

@@ -7,7 +7,7 @@ $.widget("brainslices.navbar", {
         scope = this.options.scope;
         $(this.element).html("")
                 .append($("<div id=left>")
-                        .append("<button id=btn_siatka >Siatka </button>")
+                        .append("<div id=btn_siatka >Siatka </div>")
                         .append("<button id=btn_select >Select </button>")
                         .append("<div id=bar1> </button>")
                         .append("<button id=btn_zoom > Zoom </button>")
@@ -23,12 +23,11 @@ $.widget("brainslices.navbar", {
 
 
 
-        $("#btn_siatka").button({
-            icons: {
-                primary: "ui-icon-grip-dotted-vertical"
-            },
-            text: false
-        });
+        $("#btn_siatka").grid_select({
+            callback: function(x,y){
+		BrainSlices.scope.set("grid_dims", {x:x+1, y:y+1});
+		}
+	});
 
         $("#btn_select").button({
             icons: {

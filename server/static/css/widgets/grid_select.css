@@ -15,16 +15,21 @@
     list-style-type: none; 
     margin: 0; 
     padding: 0; 
-    width: 450px; 
 }
 
-#selectable li { 
+#selectable td { 
     margin: 3px; 
     padding: 1px; 
     float: left; 
-    width: 100px; 
-    height: 80px; 
+    width: 40px; 
+    height: 40px; 
     font-size: 4em; 
     text-align: center; 
+    background:#FECA40;
+}
+
+.grid_view_float  { 
+    position:absolute;
+    z-index:1000;
 }
 
