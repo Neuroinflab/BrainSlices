@@ -481,7 +481,9 @@
       };
 
       this.$panelShowButton = $panelShowButton;
-      this.$panelShowButton.bind('click',  this.panelShowButtonHandler);
+//      this.$panelShowButton.bind('click',  this.panelShowButtonHandler);
+      this.$panelShowButton.click(this.panelShowButtonHandler);
+
 
       /**
        * Function: logoutButtonHandler

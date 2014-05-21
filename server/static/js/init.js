@@ -415,8 +415,8 @@ BrainSlices.scope.register({
 
 
   loginConsole = new BrainSlices.ajax.CUserPanel($('#userPanel'),
-                                                 $('#loginLink'),
-                                                 $('#logoutLink'));
+                                                 $('#btn_login'),
+                                                 $('#btn_logout'));
 
 
 /**********************************************/

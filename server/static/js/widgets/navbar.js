@@ -18,6 +18,7 @@ $.widget("brainslices.navbar", {
                 .append($("<div id=right>")
                         .append("<button id=btn_help>  Help </button>")
                         .append("<button id=btn_login>  Login </button>")
+                        .append("<button id=btn_logout>  Logout </button>")
                         )
                 .append($("<span id=zoom />"));
 
@@ -75,6 +76,13 @@ $.widget("brainslices.navbar", {
         });
 
         $("#btn_login").button({
+            icons: {
+                primary: "ui-icon-power"
+            },
+            text: false
+        });
+
+        $("#btn_logout").button({
             icons: {
                 primary: "ui-icon-power"
             },
