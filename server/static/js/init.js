@@ -389,6 +389,7 @@ BrainSlices.scope.register({
             var ny = val.y;
             var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
             stacks.rearrange(nx, ny, width);
+	    rearrangeInterface();
         }   
     }
 })
