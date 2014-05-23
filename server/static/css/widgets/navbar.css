@@ -14,6 +14,7 @@ and open the template in the editor.
     background-color:#fafafa;
     display:flex;
     z-index:100;
+    position: relative;
 }
 .navbar #bar1
 {
