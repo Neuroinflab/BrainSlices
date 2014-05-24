@@ -1,0 +1,17 @@
+#upload ul.uploads
+{
+  max-height: 10ex;
+  overflow-y: auto;
+}
+
+#uploadDiv
+{
+  max-height: 10ex;
+  overflow-y: auto;
+/*  display: inline-block;*/
+}
+
+#upload table.uploaded
+{
+/*  table-layout: fixed;*/
+}
