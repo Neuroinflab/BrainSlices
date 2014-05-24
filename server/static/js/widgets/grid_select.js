@@ -7,51 +7,50 @@ $.widget("brainslices.grid_select", {
             console.log("no callback specified for grid_select "+x+ ", "+y)
         },
     },
+
     restart: function(x, y) {
         this.options.numRows = x;
         this.options.numCols = y;
         rows = new Array;
         grid_view_this = this;
         $(this.element).html("");
-        float = $("<div class='grid_view_float'></div>")
-        table = $("<table id='selectable' class='grid_view_table'>");
-        float.append(table);
+        floatView = $('<div class="grid_view_float"></div>')
+        table = $('<table id="selectable" class="grid_view_table">');
+        floatView.append(table);
 
         for (i = 0; i < this.options.numRows; i++) {
-            tr = $('<tr></tr>');
+            tr = $("<tr></tr>");
+
             for (j = 0; j < this.options.numCols; j++) {
                 tr.append('<td  class="grid_row_' + i + ' grid_col_' + j + '"></td>');
             }
+
             tr["grid_view_id"] = i;
             this.options.rows.push(tr);
             table.append(tr);
         }
 
-        table.selectable(
-                {
+        table.selectable({
                     filter: "td",
                     selecting: function(evt) {
                         console.log(evt);
                     }
                 });
 
-        button = $("<button id='btn_siatka'>Grid</button>");
+        button = $('<button id="btn_grid" class="icon"><div class="grid">&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<div></button>');
+
         leave = function(evt) {
             grid_view_this.restart(2, 2);
-            float.hide();
+            floatView.hide();
         };
-        button.button({
-            icons: {
-                primary: "ui-icon-grip-dotted-vertical"
-            },
-            text: false
-        })
+
+        button.button()
                 .mousedown(function(evt) {
-                    float.offset({top: evt.clientY-10, left: evt.clientX-10});
-                    float.show();
+                    floatView.offset({top: evt.clientY-10, left: evt.clientX-10});
+                    floatView.show();
                 })
                 .mouseup(leave);
-        float.mouseleave(leave)
+        floatView.mouseleave(leave)
                 .mouseup(function(evt) {
                     //very hacky hack, TODO FIXME YOLO
                     var x;
@@ -70,19 +69,20 @@ $.widget("brainslices.grid_select", {
                         grid_view_this.addRow();
                     if ($(evt.target).hasClass("grid_col_" + (grid_view_this.getNumCols() - 1)))
                         grid_view_this.addCol();
-
                 })
 
-        $(this.element).append(button).append(float);
-        float.hide();
+        $(this.element).append(button);
+        $(this.element).append(floatView);
 
+        floatView.hide();
     },
+
     _create: function() {
         this.restart(this.options.numRows, this.options.numCols);
     },
-    addRow: function() {
 
-        tr = $('<tr></tr>');
+    addRow: function() {
+        tr = $("<tr></tr>");
         tr["grid_view_id"] = this.options.numRows;
         for (j = 0; j < this.options.numCols; j++) {
             tr.append('<td class="grid_row_' + this.options.numRows + ' grid_col_' + j + '"></td>');
@@ -91,6 +91,7 @@ $.widget("brainslices.grid_select", {
         $(".grid_view_table").append(tr);
         this.options.numRows++;
     },
+
     addCol: function() {
         cols = this.options.numCols;
         this.options.rows.map(function(tr) {
@@ -99,13 +100,13 @@ $.widget("brainslices.grid_select", {
         this.options.numCols++;
 
     },
+
     getNumCols: function() {
         return this.options.numCols;
     },
+
     getNumRows: function() {
         return this.options.numRows;
     }
-
-
 });
 

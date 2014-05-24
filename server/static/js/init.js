@@ -385,19 +385,13 @@ BrainSlices.scope.set("grid_dims", {x:$('#nx').val(),
 BrainSlices.scope.register({
     change:function(variable,val){
         if( variable == "grid_dims"){
+            $('#nx').val(val.x);
+            $('#ny').val(val.y);
             var nx = val.x;
             var ny = val.y;
             var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
             stacks.rearrange(nx, ny, width);
 	    rearrangeInterface();
-        }   
-    }
-})
-BrainSlices.scope.register({
-    change:function(variable,val){
-        if( variable == "grid_dims"){
-              $('#nx').val(val.x);
-              $('#ny').val(val.y);
         }   
     }
 })
@@ -435,7 +429,7 @@ BrainSlices.scope.register({
                                           state.focus[0][0],
                                           state.focus[0][1],
                                           null, null,
-                                          $('#controlPanel'),
+                                          $('#control_panel'),
                                           '/static/gfx', images);
   stacks.updateZoomPanel();
   if (state.display == 'serial') // != 'matrix'
@@ -452,7 +446,7 @@ BrainSlices.scope.register({
   {
     stacks.syncStart();
   }
-  $('#controlPanel [name="synchronization"]').prop('checked', true);
+  $('#control_panel [name="synchronization"]').prop('checked', true);
 
   layerManager = new CLayerManager($('.layerList'), stacks,
                                    loginConsole,

@@ -3,91 +3,52 @@ $.widget("brainslices.navbar", {
     options: {
         scope:null
     },
+
     _create: function() {
         scope = this.options.scope;
+
         $(this.element).html("")
-                .append($("<div id=left>")
-                        .append("<div id=btn_siatka >Siatka </div>")
-                        .append("<button id=btn_select >Select </button>")
-                        .append("<div id=bar1> </button>")
-                        .append("<button id=btn_zoom > Zoom </button>")
-                        .append("<button id=btn_target > Target </button>")
-                        .append("<button id=btn_quality > Quality </button>")
+                .append($('<div id=left>')
+                            .append('<div id="grid_select"></div>')
+                            .append('<button id="btn_select" class="icon"><span class="fa fa-unlock"></span></button>')
+                            .append('<button id="btn_zoom" class="icon"><span class="fa fa-search"></span></button>')
+                            .append('<button id="btn_target" class="icon"><span class="fa fa-crosshairs"></span></button>')
+                            .append('<button id="btn_quality" class="icon">Q</button>')
                         )
-                .append($("<div id=mid>"))
-                .append($("<div id=right>")
-                        .append("<button id=btn_help>  Help </button>")
-                        .append("<button id=btn_login>  Login </button>")
-                        .append("<button id=btn_logout>  Logout </button>")
+                .append($('<div id="right">')
+                            .append('<button id="btn_help" class="icon"><span class="fa fa-question"></span></button>')
+                            .append('<button id="btn_login" class="icon"><span class="fa fa-power-off"></span></button>')
+                            .append('<button id="btn_logout" class="icon"><span class="fa fa-power-off"></span></button>')
                         )
-                .append($("<span id=zoom />"));
+                .append($('<span id="zoom" />'));
 
-
-
-        $("#btn_siatka").grid_select({
-            callback: function(x,y){
-		BrainSlices.scope.set("grid_dims", {x:x+1, y:y+1});
-		}
-	});
-
-        $("#btn_select").button({
-            icons: {
-                primary: "ui-icon-check"
-            },
-            text: false
+        $("#grid_select").grid_select({
+            callback: function(x,y) {
+                BrainSlices.scope.set("grid_dims", {x:x+1, y:y+1});
+    		}
         });
 
-        $("#btn_zoom").button({
-            icons: {
-                primary: "ui-icon-zoomin"
-            },
-            text: false
-        }).click(function() {
-            $("#zoom")
-                    .css("left", 21 + $("#btn_zoom").offset().left + "px")
-                    .css("top", 46 + $("#btn_zoom").offset().top + "px");
+        $("#btn_select").button();
+
+        $("#btn_zoom").button().click(function() {
+            $("#zoom").css("left", 21 + $("#btn_zoom").offset().left + "px");
+            $("#zoom").css("top", 46 + $("#btn_zoom").offset().top + "px");
             $("#zoom").show();
-           // $("#zoom").onmouseout(function() {
-                window.setTimeout(function() {
-                    $("#zoom").hide();
-                }, 2000);
-           // });
+            
+            window.setTimeout(function() {
+                $("#zoom").hide();
+            }, 2000);
         });
 
-        $("#btn_target").button({
-            icons: {
-                primary: "ui-icon-arrow-4-diag"
-            },
-            text: false
-        });
+        $("#btn_target").button();
 
-        $("#btn_quality").button({
-            icons: {
-                primary: "ui-icon-star"
-            },
-            text: false
-        });
+        $("#btn_quality").button();
 
-        $("#btn_help").button({
-            icons: {
-                primary: "ui-icon-help"
-            },
-            text: false
-        });
+        $("#btn_help").button();
 
-        $("#btn_login").button({
-            icons: {
-                primary: "ui-icon-power"
-            },
-            text: false
-        });
+        $("#btn_login").button();
 
-        $("#btn_logout").button({
-            icons: {
-                primary: "ui-icon-power"
-            },
-            text: false
-        });
+        $("#btn_logout").button();
 
         $("#zoom").slider({
             min:0,
@@ -100,17 +61,17 @@ $.widget("brainslices.navbar", {
         });
         
         $("#zoom").hide();
-                $("#zoom").on('slidechange', $.proxy(function()
-        {
-             scope.set( "zoom", Math.pow(2,$("#zoom").slider("value")));
 
+        $("#zoom").on('slidechange', $.proxy(function() {
+             scope.set( "zoom", Math.pow(2,$("#zoom").slider("value")));
         }));
+
         scope.register({
             change:function(variable, val){
-                if(variable == "zoom")
+                if(variable == "zoom") {
                     $("#zoom").slider("value", Math.log(val) / Math.log(2));
+                }
             }
-        })
+        });
     }
-
 });

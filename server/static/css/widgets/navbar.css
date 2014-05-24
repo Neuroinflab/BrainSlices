@@ -1,44 +1,49 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : 2014-04-09, 01:21:12
-    Author     : Nic-W7
-*/
-
-.navbar
-{
+.navbar {
     height:50px;
     background-color:#fafafa;
-    display:flex;
-    z-index:100;
-    position: relative;
-}
-.navbar #bar1
-{
-    width:0px;
- 
-}
-.navbar #left
-{
-    width:80%;
-    display:flex;
-}
-.navbar #mid
-{
-    
+
+    display: flex;
+    z-index: 100;
+
+    top: 0;
+    left: 0;
+    width: auto;
+    border: 0px;
+
+    margin: 0;
+    padding: 10px;
 }
 
-.navbar #right
-{
+.navbar #left {
+    width: 80%;
+    display: flex;
+
+    margin: 0;
+    padding: 0;
+}
+
+.navbar #right {
     text-align: right;
-    width:20%;
+    width: 20%;
+
+    margin: 0;
+    padding: 0;
 }
 
-.navbar #zoom
-{
+.navbar #zoom {
     position: absolute;
-    
+}
+
+.navbar button.icon {
+    margin-left: 5px;
+}
+
+.navbar #btn_quality {
+    font-weight: bold;
+}
+
+.navbar .grid {
+    font-size: 7pt;
+    letter-spacing: 1px;
+    line-height: 70%;
 }
