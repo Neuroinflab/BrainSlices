@@ -9,7 +9,7 @@ $.widget( "brainslices.cart", {
     },
     
     _unfold:function(){
-        display.display("unfold");
+    //    display.display("unfold");
         $("#control_panel").show();
        $(this.element).addClass("cart-unfolded"); 
        $(this.element).removeClass("cart-folded"); 
@@ -17,7 +17,7 @@ $.widget( "brainslices.cart", {
     },
     
     _fold:function(){
-        display.display("fold");
+     //   display.display("fold");
         $("#control_panel").hide();
        $(this.element).removeClass("cart-unfolded"); 
        $(this.element).addClass("cart-folded"); 

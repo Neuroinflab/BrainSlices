@@ -47,12 +47,13 @@ class WebGenerator(Generator):
 #    controlPanel['<!--%title%-->'] = """Control panel
 #                                        <a href="javascript:void(0)" id="loginLink">login</a><a href="javascript:void(0)" id="logoutLink"></a>"""
     stackControlPanel = self.templateEngine('controlPanel.html')
-    stackControlPanel['<!--%searchbox%-->'] = self.templateEngine('searchbox.html')
+#    stackControlPanel['<!--%searchbox%-->'] = self.templateEngine('searchbox.html')
 #    controlPanel['<!--%content%-->'] = stackControlPanel
 
     index = self.templateEngine('myapi.html')
     index['<!--%controlPanel%-->'] = stackControlPanel
     index['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
+    index['<!--%searchbox%-->'] = self.templateEngine('searchbox.html')
 
     self['index'] = index
 

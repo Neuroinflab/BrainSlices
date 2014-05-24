@@ -344,11 +344,10 @@ function parseState(search)
 $(function()
 {
     $("#navbar1").navbar({scope:BrainSlices.scope});
-    display = $("#display1").display();
     $("#cart1").cart({
         display:$("#display1"),
     });
-
+    $("#search1").search();
 
 //updaty zoomuu
 $('[name="zoomLog"]').bind('change', function()
@@ -385,6 +384,7 @@ BrainSlices.scope.set("grid_dims", {x:$('#nx').val(),
 BrainSlices.scope.register({
     change:function(variable,val){
         if( variable == "grid_dims"){
+    	    display = $("#display1").display();
             $('#nx').val(val.x);
             $('#ny').val(val.y);
             var nx = val.x;

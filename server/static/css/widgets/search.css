@@ -8,7 +8,7 @@ and open the template in the editor.
     Author     : Nic-W7
 */
 
-.cart-folded
+.search-folded
     {
 
     height:93%;
@@ -24,23 +24,23 @@ and open the template in the editor.
     vertical-align: middle;
 }
 
-.cart #midbutton
+.search #midbutton
 {
     right:40%;
-    top:50%;
+    top:20%;
 }
-.cart_controls
+.search_controls
 {
-    right:0%;
+    right:30%;
     height:93%;
     width:50px;
     position:absolute;
     float:left;
 }
 
-.cart-unfolded
+.search-unfolded
     {
-    right:0;
+    right:40%;
     height:93%;
     width:auto;
     float:right;
@@ -53,7 +53,7 @@ and open the template in the editor.
     text-align: center;
     vertical-align: middle;
 }
-.cart-items
+.search-items
     {
         
     height:93%;
