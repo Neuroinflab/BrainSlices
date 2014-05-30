@@ -1,0 +1,5 @@
+.quality_panel
+{
+    position: absolute;
+    z-index: 1000;    
+}

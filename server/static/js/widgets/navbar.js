@@ -13,7 +13,7 @@ $.widget("brainslices.navbar", {
                             .append('<button id="btn_select" class="icon"><span class="fa fa-unlock"></span></button>')
                             .append('<button id="btn_zoom" class="icon"><span class="fa fa-search"></span></button>')
                             .append('<button id="btn_target" class="icon"><span class="fa fa-crosshairs"></span></button>')
-                            .append('<button id="btn_quality" class="icon">Q</button>')
+                            .append('<div id="quality_button"> </div>')
                         )
                 .append($('<div id="right">')
                             .append('<button id="btn_help" class="icon"><span class="fa fa-question"></span></button>')
@@ -42,7 +42,11 @@ $.widget("brainslices.navbar", {
 
         $("#btn_target").button();
 
-        $("#btn_quality").button();
+        $("#quality_button").quality_button({
+	callback:function(q){
+		scope.set("quality", q);
+	}
+	});
 
         $("#btn_help").button();
 

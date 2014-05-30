@@ -167,14 +167,21 @@
                 this.$stacksSynchronization = $controlPanel.find('[name="synchronization"]');
 
 
-                this.updateQuality = function()
+                updateQuality = function(quality)
                 {
-                    var quality = thisInstance.$quality.val();
                     thisInstance.setQuality(quality, true);
                     thisInstance.update();
                 }
+		BS.scope.register({
+		change:function(what, val){
+		if( what == "quality"){
+			thisInstance.$quality.val(val);
+			updateQuality(val);
+		}}})
 
-                this.$quality.bind('change', this.updateQuality);
+                this.$quality.bind('change', function(){
+			BS.scope.set("quality", thisInstance.$quality.val());
+		});
 
                 this.updateTransparency = function()
                 {
