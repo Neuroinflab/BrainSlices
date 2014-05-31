@@ -3,14 +3,6 @@
     font-size: 1.4em; 
 }
 
-#selectable .ui-selecting { 
-    background: #FECA40; 
-}
-
-#selectable .ui-selected { 
-    background: #F39814; color: white; 
-}
-
 #selectable { 
     list-style-type: none; 
     margin: 0; 
@@ -24,9 +16,20 @@
     width: 40px; 
     height: 40px; 
     font-size: 4em; 
-    text-align: center; 
-    background:#FECA40;
+    text-align: center;
+
+    border: solid 1px #aaaaaa;
+    background: #ffffff;
 }
+
+#selectable .current-table {
+    background: #dddddd;
+}
+
+#selectable .selected {
+    background: #69c6fd;
+}
+
 
 .grid_view_float  { 
     position:absolute;

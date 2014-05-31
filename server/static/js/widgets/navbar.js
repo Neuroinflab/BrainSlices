@@ -24,7 +24,7 @@ $.widget("brainslices.navbar", {
 
         $("#grid_select").grid_select({
             callback: function(x,y) {
-                BrainSlices.scope.set("grid_dims", {x:x+1, y:y+1});
+                BrainSlices.scope.set("grid_dims", {x: x + 1, y: y + 1});
     		}
         });
 
