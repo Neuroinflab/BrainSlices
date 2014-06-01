@@ -1103,7 +1103,7 @@
                                         onlogin.slice(0) : [onlogin]);
       onlogin.push(function()
       {
-        $logoutButton.html('Logout [' + thisInstance.isLoggedAs() + ']');
+       // $logoutButton.html('Logout [' + thisInstance.isLoggedAs() + ']');
       });
 
       this.loginManager = new ajax.CLoginConsole(

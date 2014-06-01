@@ -15,11 +15,15 @@ $.widget("brainslices.navbar", {
                             .append('<button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>')
                             .append('<div id="target_select"> </div>')
                             .append('<div id="quality_button"> </div>')
+                            .append('<button id="btn_compress" class="icon">'+
+					'<span class="fa fa-compress"></span></button>')
+                            .append('<button id="btn_expand" class="icon">'+
+					'<span class="fa fa-expand"></span></button>')
                         )
                 .append($('<div id="right">')
                             .append('<button id="btn_help" class="icon"><span class="fa fa-question"></span></button>')
-                            .append('<button id="btn_login" class="icon"><span class="fa fa-power-off"></span></button>')
-                            .append('<button id="btn_logout" class="icon"><span class="fa fa-power-off"></span></button>')
+                            .append('<button id="btn_login" class="icon"><span class="fa fa-sign-in"></span></button>')
+                            .append('<button id="btn_logout" class="icon"><span class="fa fa-sign-out"></span></button>')
                         )
                 .append($('<span id="zoom" />'))
                 .append($('<span id="trans" />'));
@@ -51,7 +55,7 @@ $.widget("brainslices.navbar", {
 
             var hideHandler = function(event) {
                 var isZoomButton = $(event.target).attr('id') === "btn_zoom";
-                var hasZoomButtonAsParent = (1 === $(event.target).parents().filter(function(parent) {
+                var hasZoomButtonAsParent = (1 === $(event.target).parents().filter(function(parent){
                                                 return $(this).attr('id') === 'btn_zoom';
                                             }).length);
                 if (isZoomButton || hasZoomButtonAsParent) {
@@ -107,6 +111,8 @@ $.widget("brainslices.navbar", {
 	}});
 
 
+        $("#btn_compress").button().click(compressStacks);
+        $("#btn_expand").button().click(decompressStacks);
         $("#btn_help").button();
 
         $("#btn_login").button();
