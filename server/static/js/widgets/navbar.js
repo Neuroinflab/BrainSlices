@@ -10,7 +10,7 @@ $.widget("brainslices.navbar", {
         $(this.element).html("")
                 .append($('<div id=left>')
                             .append('<div id="grid_select"></div>')
-                            .append('<button id="btn_select" class="icon"><span class="fa fa-unlock"></span></button>')
+                            .append('<button id="btn_synch" class="icon"><span id="btn_synch_icon" class="fa fa-lock"></span></button>')
                             .append('<button id="btn_zoom" class="icon"><span class="fa fa-search"></span></button>')
                             .append('<button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>')
                             .append('<div id="target_select"> </div>')
@@ -30,7 +30,19 @@ $.widget("brainslices.navbar", {
     		}
         });
 
-        $("#btn_select").button();
+        $("#btn_synch").button().click(function(){
+		val = BrainSlices.scope.get("synch");
+		if(val){
+		$("#btn_synch_icon").removeClass("fa-lock");
+		$("#btn_synch_icon").addClass("fa-unlock");
+		BrainSlices.scope.set("synch", false);
+		}else{
+		$("#btn_synch_icon").addClass("fa-lock");
+		$("#btn_synch_icon").removeClass("fa-unlock");
+		BrainSlices.scope.set("synch", true);
+		}
+	});
+	
 
         $("#btn_zoom").button().click(function() {
             $("#zoom").css("left", 21 + $("#btn_zoom").offset().left + "px");

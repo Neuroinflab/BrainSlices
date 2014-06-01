@@ -90,13 +90,6 @@
          *                            synchronization switching.                *
          *   zoomUpdateEnabled - An internal flag for zoom change handlers      *
          *                       coordination.                                  *
-         *   updateZoom - A handler of change event of $zoom element.           *
-         *   updateZoomLog - A handler of change event of $zoomLog element.     *
-         *   updateQuality - A handler of change event of $quality element.     *
-         *   updateTransparency - A handler of change event of $transparency    *
-         *                        element.                                      *
-         *   updateSynchronization - A handler of change event of               *
-         *                           $stacksSynchronization element.            *
          ************************************************************************
          * Constructor: CSynchronizedStacksDisplay                              *
          *                                                                      *
@@ -189,18 +182,18 @@
                     thisInstance.update();
                 }
 		BS.scope.register({
-		change:function(what,val){
-		if( what == "trans"){
-			updateTransparency(val);
+			change:function(what,val){
+				if( what == "trans"){
+					updateTransparency(val);
 		}}})
                 this.$transparency.bind('change', function(){
                     var transparency = thisInstance.$transparency.val();
 		    BS.scope.set("trans", transparency);
 		});
 
-                this.updateSynchronization = function()
+                updateSynchronization = function(val)
                 {
-                    if (this.checked)
+                    if (val)
                     {
                         thisInstance.syncStart();
                     }
@@ -209,9 +202,13 @@
                         thisInstance.syncStop();
                     }
                 }
-
-                this.$stacksSynchronization.bind('change', this.updateSynchronization);
-
+		BS.scope.register({
+			change:function(what,val){
+			if( what == "synch"){
+				updateSynchronization(val);
+		}}})
+		BS.scope.set("synch",true);
+			
                 this.setTransparency(this.$transparency.val(), true);
             }
 
