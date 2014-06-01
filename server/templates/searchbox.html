@@ -1,55 +1,27 @@
-      <div id="searchResults" style="max-height: 20ex; overflow-y: auto;">
-       <table>
-        <thead>
-         <tr>
-          <th>
-           IID
-          </th>
-          <th>
-           Thumbnail
-          </th>
-          <th style="min-width: 20em;">
-           Properties
-          </th>
-          <th>
-           Load
-          </th>
-         </tr>
-        </thead>
-        <tfoot>
-        </tfoot>
-        <tbody>
-        </tbody>
-       </table>
-      </div>
+<table id="searchPanel">
+    <thead>
+        <tr><th>Property</th><th>Condition</th></tr>
+    </thead>
+    <tbody>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2">Create a new filter for<span id="searchProperty"></span></td>
+        </tr>
+        <tr>
+            <td colspan="2"><button id="searchPropertySearch">Search</button></td>
+        </tr>
+    </tfoot>
+</table>
 
-      <table id="searchPanel">
-       <thead>
-        <tr>
-         <th>
-          Property
-         </th>
-         <th>
-          Condition 
-         </th>
-        </tr>
-       </thead>
-       <tfoot>
-        <tr>
-         <td colspan="2">
-          Create a new filter for
-          <span id="searchProperty"></span>
-         </td>
-        </tr>
-        <tr>
-         <td colspan="2">
-          <button id="searchPropertySearch">Search</button>
-         </td>
-        </tr>
-       </tfoot>
-       <tbody>
-       </tbody>
-      </table>
-      <!--
-      <button onclick="addOutlineLayer()"> AddOutline 320 </button>
-      -->
+<div id="searchResults" style="max-height: 20ex; overflow-y: auto;">
+    <table>
+    <thead>
+        <tr><th>IID</th><th>Thumbnail</th><th>Properties</th><th>Load</th></tr>
+    </thead>
+    <tbody>
+    </tbody>
+    <tfoot>
+    </tfoot>
+    </table>
+</div>
