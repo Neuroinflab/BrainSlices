@@ -175,7 +175,7 @@
                 this.$quality.bind('change', function(){
 			BS.scope.set("quality", thisInstance.$quality.val());
 		});
-
+		BS.scope.set("quality", "med");
                 updateTransparency = function(transparency)
                 {
                     thisInstance.setTransparency(transparency, true);

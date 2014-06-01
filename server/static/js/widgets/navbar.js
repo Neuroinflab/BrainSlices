@@ -90,8 +90,16 @@ $.widget("brainslices.navbar", {
 
         $("#quality_button").quality_button({
 		callback:function(q){
+			console.log("quality set to " + q);
 			scope.set("quality", q);
 	}});
+	scope.register({
+            change:function(variable, val){
+                if(variable == "quality") {
+			$("#quality_button").quality_button("highlight", val);
+                }
+            }
+        });
 	$("#target_select").target_select({
 		callback:function(x,y){
 			stacks.setFocusPoint(x,y);

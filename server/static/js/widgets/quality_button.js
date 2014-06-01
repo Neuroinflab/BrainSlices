@@ -3,23 +3,25 @@
 				console.log("callback function not specified, got " + q);
 				}},
 		_create: function () {
-			callback = this.options.callback;
-			button_h = $("<button> High </button>") 
-			button_h.button({text:"high"})
-			button_m = $("<button> Medium </button>") 
-			button_m.button({text:"medium"})
-			button_l = $("<button> Low </button>")
-			button_l.button({text:"low"})
+			thisInstance = this;
+			callbackor = this.options.callback;
+			this.button_h = $("<button> High </button>") 
+			this.button_m = $("<button> Medium </button>") 
+			this.button_l = $("<button> Low </button>")
 
 			view = $("<div id='panel' class='quality_panel'> </div>")
-				.append(button_h)
-				.append(button_m)
-				.append(button_l)
+				.append(this.button_h)
+				.append("<br>")
+				.append(this.button_m)
+				.append("<br>")
+				.append(this.button_l)
 			view.hide()
 			
-			button_show = $('<button id="btn_quality" class="icon">Q</button>');
-
- 			button_show.click(function(){
+			this.button_show = $('<button id="btn_quality" class="icon">Q</button>');
+			button_show = this.button_show;
+			
+			$(this.element).html(this.button_show).append(view)
+ 			this.button_show.click(function(){
 				view.show();
 				view.css("left", 21+ button_show.offset().left + "px");
 				view.css("top", 46+ button_show.offset().top + "px");
@@ -27,9 +29,22 @@
 				view.hide();
 				}, 2000);
 			})
-			button_h.click( $.proxy( function() { callback("high")} ));
-			button_m.click( $.proxy(function() { callback("mid")} ));
-			button_l.click( $.proxy(function() { callback("low")} ));
-			$(this.element).html(button_show).append(view)
+			this.button_h.click(  function() {
+				 thisInstance.options.callback("high")} );
+			this.button_m.click( (function() {
+				 thisInstance.options.callback("med")} ));
+			this.button_l.click( (function() { 
+				 thisInstance.options.callback("low")} ));
+		},
+		highlight: function(val){
+			this.button_h.removeClass("selected");	
+			this.button_m.removeClass("selected");	
+			this.button_l.removeClass("selected");
+			if( val == "high"){
+				this.button_h.addClass("selected");
+			} else if ( val == "med" ){
+				this.button_m.addClass("selected");
+			} else if ( val == "low" )	
+				this.button_l.addClass("selected");
 		}
 	});
