@@ -183,14 +183,20 @@
 			BS.scope.set("quality", thisInstance.$quality.val());
 		});
 
-                this.updateTransparency = function()
+                updateTransparency = function(transparency)
                 {
-                    var transparency = thisInstance.$transparency.val();
                     thisInstance.setTransparency(transparency, true);
                     thisInstance.update();
                 }
-
-                this.$transparency.bind('change', this.updateTransparency);
+		BS.scope.register({
+		change:function(what,val){
+		if( what == "trans"){
+			updateTransparency(val);
+		}}})
+                this.$transparency.bind('change', function(){
+                    var transparency = thisInstance.$transparency.val();
+		    BS.scope.set("trans", transparency);
+		});
 
                 this.updateSynchronization = function()
                 {

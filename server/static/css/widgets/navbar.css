@@ -33,6 +33,10 @@
 .navbar #zoom {
     position: absolute;
 }
+.navbar #trans {
+    position: absolute;
+}
+
 
 .navbar button.icon {
     margin-left: 5px;

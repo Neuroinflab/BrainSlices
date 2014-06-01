@@ -12,6 +12,7 @@ $.widget("brainslices.navbar", {
                             .append('<div id="grid_select"></div>')
                             .append('<button id="btn_select" class="icon"><span class="fa fa-unlock"></span></button>')
                             .append('<button id="btn_zoom" class="icon"><span class="fa fa-search"></span></button>')
+                            .append('<button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>')
                             .append('<div id="target_select"> </div>')
                             .append('<div id="quality_button"> </div>')
                         )
@@ -20,7 +21,8 @@ $.widget("brainslices.navbar", {
                             .append('<button id="btn_login" class="icon"><span class="fa fa-power-off"></span></button>')
                             .append('<button id="btn_logout" class="icon"><span class="fa fa-power-off"></span></button>')
                         )
-                .append($('<span id="zoom" />'));
+                .append($('<span id="zoom" />'))
+                .append($('<span id="trans" />'));
 
         $("#grid_select").grid_select({
             callback: function(x,y) {
@@ -52,6 +54,27 @@ $.widget("brainslices.navbar", {
             $(document).click(hideHandler);
         });
 
+        $("#btn_trans").button().click(function() {
+            $("#trans").css("left", 21 + $("#btn_trans").offset().left + "px");
+            $("#trans").css("top", 46 + $("#btn_trans").offset().top + "px");
+            $("#trans").show();
+
+            var hideHandler = function(event) {
+                var isZoomButton = $(event.target).attr('id') === "btn_trans";
+                var hasZoomButtonAsParent = (1 === $(event.target).parents().filter(function(parent) {
+                                                return $(this).attr('id') === 'btn_trans';
+                                            }).length);
+                if (isZoomButton || hasZoomButtonAsParent) {
+                    return;
+                }
+
+                $("#trans").hide();
+
+                $(document).unbind("click", hideHandler);
+            };
+
+            $(document).click(hideHandler);
+        });
 
         $("#quality_button").quality_button({
 		callback:function(q){
@@ -87,13 +110,38 @@ $.widget("brainslices.navbar", {
         $("#zoom").css("z-index", "9999");
         
         $("#zoom").hide();
-
-        // $("#zoom").on('slidechange', 
-
         scope.register({
             change:function(variable, val){
                 if(variable == "zoom") {
                     $("#zoom").slider("value", Math.log(val) / Math.log(2));
+                }
+            }
+        });
+
+        $("#trans").slider({
+            min:0,
+            max:1,
+            value: 0.5,
+            step: 0.1,
+            orientation: "vertical",
+            range: "min",
+            animate: true,
+            slide: $.proxy(function() {
+                scope.set( "trans", $("#trans").slider("value"));
+            })
+        });
+
+        $("#trans").css("height", "100px");
+        $("#trans").css("z-index", "9999");
+        
+        $("#trans").hide();
+
+
+
+        scope.register({
+            change:function(variable, val){
+                if(variable == "trans") {
+                    $("#trans").slider("value", val);
                 }
             }
         });
