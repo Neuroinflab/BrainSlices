@@ -71,3 +71,57 @@ input:hover, textarea:hover, input:focus, textarea:focus {
     border-color: #C9C9C9;
     -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
 }
+
+.ui-slider {
+    background: #dddddd;
+    border: 1px solid #aaaaaa;
+    border-radius: 4px;
+
+    width: 10px;
+
+    position: relative;
+    text-align: left;
+
+    display: block;
+}
+
+.ui-slider-range {
+    background: #69c6fd;
+    border: 0;
+    border-radius: 4px;
+
+    width: 10px;
+
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    display: block;
+}
+
+.ui-slider-handle {
+    border: 1px solid #888888;
+    border-radius: 7px;
+    /*background: #388AD4;*/
+    background: #eeeeee;
+
+    width: 14px;
+    height: 14px;
+    left: -3px;
+    margin-left: 0;
+    margin-bottom: -7px;
+
+    position: absolute;
+
+    display: block;
+}
+
+.ui-slider-handle:focus {
+    border: 1px solid #388AD4;
+    background: #f0f0f0;
+
+    outline: none;
+    -moz-box-shadow:    0px 0px 2px 0px #388AD4;
+    -webkit-box-shadow: 0px 0px 2px 0px #388AD4;
+    box-shadow:         0px 0px 2px 0px #388AD4;
+}

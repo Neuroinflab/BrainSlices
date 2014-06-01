@@ -34,19 +34,31 @@ $.widget("brainslices.navbar", {
             $("#zoom").css("left", 21 + $("#btn_zoom").offset().left + "px");
             $("#zoom").css("top", 46 + $("#btn_zoom").offset().top + "px");
             $("#zoom").show();
-            
-            window.setTimeout(function() {
+
+            var hideHandler = function(event) {
+                var isZoomButton = $(event.target).attr('id') === "btn_zoom";
+                var hasZoomButtonAsParent = (1 === $(event.target).parents().filter(function(parent) {
+                                                return $(this).attr('id') === 'btn_zoom';
+                                            }).length);
+                if (isZoomButton || hasZoomButtonAsParent) {
+                    return;
+                }
+
                 $("#zoom").hide();
-            }, 2000);
+
+                $(document).unbind("click", hideHandler);
+            };
+
+            $(document).click(hideHandler);
         });
 
         $("#btn_target").button();
 
         $("#quality_button").quality_button({
-	callback:function(q){
-		scope.set("quality", q);
-	}
-	});
+        	callback:function(q){
+        		scope.set("quality", q);
+        	}
+    	});
 
         $("#btn_help").button();
 
@@ -61,14 +73,18 @@ $.widget("brainslices.navbar", {
             step: 0.125,
             orientation: "vertical",
             range: "min",
-            animate: true
+            animate: true,
+            slide: $.proxy(function() {
+                scope.set( "zoom", Math.pow(2,$("#zoom").slider("value")));
+            })
         });
+
+        $("#zoom").css("height", "100px");
+        $("#zoom").css("z-index", "9999");
         
         $("#zoom").hide();
 
-        $("#zoom").on('slidechange', $.proxy(function() {
-             scope.set( "zoom", Math.pow(2,$("#zoom").slider("value")));
-        }));
+        // $("#zoom").on('slidechange', 
 
         scope.register({
             change:function(variable, val){
