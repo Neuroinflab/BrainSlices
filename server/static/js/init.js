@@ -343,58 +343,59 @@ function parseState(search)
 
 $(function()
 {
-    $("#navbar1").navbar({scope:BrainSlices.scope});
-    $("#cart1").cart({
+    $("#navbar").navbar({
+      scope: BrainSlices.scope
+    });
+
+    $("#cart").cart({
         display:$("#display1"),
     });
-    $("#search1").search();
 
-//updaty zoomuu
-$('[name="zoomLog"]').bind('change', function()
-        {
-            BrainSlices.scope.set("zoom",Math.pow(2, $('[name="zoomLog"]').val()))
+  //updaty zoomuu
+  $('[name="zoomLog"]').bind('change', function()
+          {
+              BrainSlices.scope.set("zoom",Math.pow(2, $('[name="zoomLog"]').val()))
+          }
+  );
 
-        }
-);
-
-BrainSlices.scope.register({
-    change:function(variable, val){
-        if(variable == "zoom" && $('[name="zoomLog"]').val() != val )
-           $('[name="zoomLog"]').val(  Math.log(val) / Math.log(2));
-    }
-})
+  BrainSlices.scope.register({
+      change:function(variable, val){
+          if(variable == "zoom" && $('[name="zoomLog"]').val() != val )
+             $('[name="zoomLog"]').val(  Math.log(val) / Math.log(2));
+      }
+  })
 
 
-$('[name="zoom"]').bind('change', function()
-        {
-            BrainSlices.scope.set("zoom",$('[name="zoom"]').val())
+  $('[name="zoom"]').bind('change', function()
+          {
+              BrainSlices.scope.set("zoom",$('[name="zoom"]').val())
 
-        });
-        
-BrainSlices.scope.register({
-    change:function(variable, val){
-        if(variable == "zoom")
-           $('[name="zoom"]').val( val);
-    }
-})
+          });
+          
+  BrainSlices.scope.register({
+      change:function(variable, val){
+          if(variable == "zoom")
+             $('[name="zoom"]').val( val);
+      }
+  })
 
 
-BrainSlices.scope.set("grid_dims", {x:$('#nx').val(),
-                                    y:$('#ny').val()});
-BrainSlices.scope.register({
-    change:function(variable,val){
-        if( variable == "grid_dims"){
-    	    display = $("#display1").display();
-            $('#nx').val(val.x);
-            $('#ny').val(val.y);
-            var nx = val.x;
-            var ny = val.y;
-            var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
-            stacks.rearrange(nx, ny, width);
-	    rearrangeInterface();
-        }   
-    }
-})
+  BrainSlices.scope.set("grid_dims", {x:$('#nx').val(),
+                                      y:$('#ny').val()});
+  BrainSlices.scope.register({
+      change:function(variable,val){
+          if( variable == "grid_dims"){
+      	    display = $("#display1").display();
+              $('#nx').val(val.x);
+              $('#ny').val(val.y);
+              var nx = val.x;
+              var ny = val.y;
+              var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
+              stacks.rearrange(nx, ny, width);
+  	    rearrangeInterface();
+          }   
+      }
+  })
 
 
   //$('#logoutLink').hide();

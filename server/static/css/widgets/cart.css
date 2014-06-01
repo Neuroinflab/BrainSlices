@@ -1,70 +1,37 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : 2014-04-09, 01:21:12
-    Author     : Nic-W7
-*/
-
-.cart-folded
-    {
-
-    height:93%;
-    width:auto;
-    float:right;
-    position: absolute;
-    background-color: #fafafa;
-    border: solid thin #FF9900;
-    right:0;
-
-     display:inline-block;
-    text-align: center;
-    vertical-align: middle;
-}
-
-.cart #midbutton
-{
-    right:40%;
-    top:50%;
-}
-.cart_controls
-{
-    right:0%;
-    height:93%;
-    width:50px;
-    position:absolute;
-    float:left;
-}
-
-.cart-unfolded
-    {
-    right:0;
-    height:93%;
-    width:auto;
-    float:right;
+.cart {
+    right: 0;
+    height: 93%;
+    /*width: auto;*/
+    float: right;
     position: absolute;
     background-color: #fafafa;
     border: solid thin #FF9900;
     
-
-     display:inline-block;
+    display: inline-block;
     text-align: center;
     vertical-align: middle;
 }
-.cart-items
-    {
-        
-    height:93%;
-    width:40%;
-    float:right;
-    position: fixed;
-    background-color: #fafafa;
-    border: solid thin #FF9900;
+
+.cart .fold-button-icon {
+    font-weight: bold;
+}
+
+.cart-controls {
+ 
+}
+
+.cart-items {
+
+}
+
+.search_controls
+{
     
-
-     display:inline-block;
-    text-align: center;
-    vertical-align: middle;
 }
+
+.search-unfolded {
+}
+
+.search-items {
+}
+

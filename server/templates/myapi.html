@@ -44,9 +44,6 @@ and open the template in the editor.
         <script src="static/js/widgets/cart.js"></script>
         <link rel="stylesheet" type="text/css" href="static/css/widgets/cart.css" />
 
-        <script src="static/js/widgets/search.js"></script>
-        <link rel="stylesheet" type="text/css" href="static/css/widgets/search.css" />
-
         <script src="static/js/widgets/grid_select.js"></script>
         <link rel="stylesheet" type="text/css" href="static/css/widgets/grid_select.css" />
 
@@ -59,23 +56,28 @@ and open the template in the editor.
     </head>
     <body>
 	   <!--%userPanel%--> 
-        <div class="navbar" id="navbar1"> </div>
-        <div class="main" id="main1">
-            <div class="display" id="sliceDisplay"></div>
+        <div id="navbar" class="navbar"> </div>
+        <div id="main" class="main">
+            <div id="sliceDisplay" class="display"></div>
             
-            
-            <div class="cart" id="cart1"> 
-                <div id="cart_controls" class="cart_controls"> </div>
-                <div id="control_panel" class="cart_items" >
-                <!--%controlPanel%-->
-    	    	<div class="search" id="search1">
-                	<div id="search_controls" class="search_controls"> </div>
-			<div id="search_panel" class="search_panel" >
-			 <!--%searchbox%-->
-			</div>
-            	</div>
-
-            	</div>
+            <div id="cart" class="cart"> 
+                <table>
+                    <tr>
+                        <td id="cart-controls" class="cart-controls">
+                            <button id="search-panel-fold-button" class="fold-button"><span id="search-panel-fold-button-icon" class="fold-button-icon fa fa-angle-left"></span></button>
+                            </br>
+                            <button id="control-panel-fold-button" class="fold-button"><span id="control-panel-fold-button-icon" class="fold-button-icon fa fa-angle-left"></span></button>
+                            </br>
+                            <button id="fold-all-button" class="fold-button"><span id="fold-all-button-icon" class="fold-button-icon fa fa-angle-double-left"></span></button>
+                        </td>
+                        <td id="search-panel" class="search-panel">
+                            <!--%searchbox%-->
+                        </td>
+                        <td id="control-panel" class="cart-items" >
+                            <!--%controlPanel%-->
+                    	</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </body>
