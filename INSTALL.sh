@@ -302,7 +302,7 @@ echo "memory: $BS_TILER_MEMORY" >> "$BS_CONFIG"
 
 
 cd auxilaryScripts/imageProcessing
-$make all
+make all
 cd ../..
 
 UserID=
