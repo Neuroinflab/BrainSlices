@@ -1,4 +1,3 @@
-
 $.widget("brainslices.cart", {
     options: {
         image:null,
@@ -9,60 +8,32 @@ $.widget("brainslices.cart", {
         $("#search-panel-fold-button").button();
         $("#fold-all-button").button();
 
+        this._hideButtons();
         this._setButtonsForFoldState("FULLY_FOLDED");
 
-        $("#control-panel", this.element).hide();
-        $("#search-panel", this.element).hide();
+        // $("#control-panel", this.element).hide();
+        // $("#search-panel", this.element).hide();
     },
 
     _unfoldAll: function() {
-        var element = this.element;
-
-        $("#control-panel", element).show('slide', { direction: "right" }, 650,
-            function() {
-                $("#search-panel", element).show('slide', { direction: "right" }, 650);
-            });
-
-        this._setButtonsForFoldState("FULLY_UNFOLDED");
+        this._unfoldPanel("control-panel", $.proxy(function() {
+            this._unfoldPanel("search-panel", $.proxy(function() {
+                this._setButtonsForFoldState("FULLY_UNFOLDED");
+            }, this));
+        }, this));
     },
 
     _foldAll: function() {
-        var element = this.element;
-
-        $("#search-panel", element).hide('slide', { direction: "right" }, 650,
-            function() {
-                $("#control-panel", element).hide('slide', { direction: "right" }, 650);
-            });
-
-        this._setButtonsForFoldState("FULLY_FOLDED");
-    },
-    
-    _unfoldControlPanel:function() {
-        $("#control-panel", this.element).show('slide', { direction: "right" }, 650);
-
-        this._setButtonsForFoldState("PARTIALLY_UNFOLDED");
-    },
-    
-    _foldControlPanel:function(){
-        $("#control-panel", this.element).hide('slide', { direction: "right" }, 650);
-
-        this._setButtonsForFoldState("FULLY_FOLDED");
-    },
-
-    _unfoldSearchPanel: function() {
-        $("#search-panel", this.element).show('slide', { direction: "right" }, 650);
-
-
-        this._setButtonsForFoldState("FULLY_UNFOLDED");
-    },
-    
-    _foldSearchPanel: function(){
-        $("#search-panel", this.element).hide('slide', { direction: "right" }, 650);
-
-        this._setButtonsForFoldState("PARTIALLY_UNFOLDED");
+        this._foldPanel("search-panel", $.proxy(function() {
+            this._foldPanel("control-panel", $.proxy(function() {
+                this._setButtonsForFoldState("FULLY_FOLDED");
+            }, this));
+        }, this));
     },
 
     _setButtonsForFoldState: function(state) {
+        var self = this;
+
         if (state === "FULLY_UNFOLDED") {
             $("#search-panel-fold-button-icon")
                 .removeClass("fa-angle-left")
@@ -73,14 +44,17 @@ $.widget("brainslices.cart", {
                 .addClass("fa-angle-double-right");
 
             $('#search-panel-fold-button')
-                .unbind('click', $.proxy(this._unfoldSearchPanel, this))
-                .click($.proxy(this._foldSearchPanel, this));
+                .unbind('click')
+                .click($.proxy(function() {
+                    self._foldPanel("search-panel", $.proxy(function() {
+                        self._setButtonsForFoldState("PARTIALLY_UNFOLDED");
+                    }, self));
+                }));
 
             $('#fold-all-button')
-                .unbind('click', $.proxy(this._unfoldAll, this))
-                .click($.proxy(this._foldAll, this));
+                .unbind('click')
+                .click($.proxy(self._foldAll, self));
 
-            $("#control-panel-fold-button").hide();
             $("#search-panel-fold-button").show();
             $("#fold-all-button").show();
         }
@@ -94,16 +68,23 @@ $.widget("brainslices.cart", {
                 .addClass("fa-angle-left");
 
             $('#control-panel-fold-button')
-                .unbind('click', $.proxy(this._unfoldControlPanel, this))
-                .click($.proxy(this._foldControlPanel, this));
+                .unbind('click')
+                .click($.proxy(function() {
+                    self._foldPanel("control-panel", $.proxy(function() {
+                        self._setButtonsForFoldState("FULLY_FOLDED");
+                    }, self));
+                }));
 
             $('#search-panel-fold-button')
-                .unbind('click', $.proxy(this._foldSearchPanel, this))
-                .click($.proxy(this._unfoldSearchPanel, this));
+                .unbind('click')
+                .click($.proxy(function() {
+                    self._unfoldPanel("search-panel", $.proxy(function() {
+                        self._setButtonsForFoldState("FULLY_UNFOLDED");
+                    }, self));
+                }));
 
             $("#control-panel-fold-button").show();
             $("#search-panel-fold-button").show();
-            $("#fold-all-button").hide();
         }
         else if (state === "FULLY_FOLDED") {
             $("#control-panel-fold-button-icon")
@@ -115,16 +96,37 @@ $.widget("brainslices.cart", {
                 .addClass("fa-angle-double-left");
 
             $('#control-panel-fold-button')
-                .unbind('click', $.proxy(this._foldControlPanel, this))
-                .click($.proxy(this._unfoldControlPanel, this));
+                .unbind('click')
+                .click($.proxy(function() {
+                    self._unfoldPanel("control-panel", $.proxy(function() {
+                        self._setButtonsForFoldState("PARTIALLY_UNFOLDED");
+                    }, self));
+                }));
 
             $('#fold-all-button')
-                .unbind('click', $.proxy(this._foldAll, this))
-                .click($.proxy(this._unfoldAll, this));
+                .unbind('click')
+                .click($.proxy(self._unfoldAll, self));
 
             $("#control-panel-fold-button").show();
-            $("#search-panel-fold-button").hide();
             $("#fold-all-button").show();
         }
+    },
+
+    _foldPanel: function(panelId, callback) {
+        this._hideButtons();
+
+        $("#" + panelId, this.element).hide('slide', { direction: "right" }, 650, callback);
+    },
+
+    _unfoldPanel: function(panelId, callback) {
+        this._hideButtons();
+
+        $("#" + panelId, this.element).show('slide', { direction: "right" }, 650, callback);
+    },
+    
+    _hideButtons: function() {
+        $("#control-panel-fold-button").hide();
+        $("#search-panel-fold-button").hide();
+        $("#fold-all-button").hide();
     }
 });
