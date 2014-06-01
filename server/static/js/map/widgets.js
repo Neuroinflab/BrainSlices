@@ -298,56 +298,44 @@ var CFilterPanel = null;
      *     - assert for empty set of enumerative options accepted
      *     - type change available also through widget option method
      *************************************************************************/
-    $.widget('brainslices.propertyfilter',
-    {
-        options: 
-        {
+    $.widget('brainslices.propertyfilter', {
+        options: {
             type: 't',
             defaults: {}
         },
 
-        defaults:
-        {
+        defaults: {
             t: null,
             f: {gteq: 0},
             x: '',
             e: {}
         },
 
-        _create:
-        function()
-        {
-            console.debug('_create');
-            this.$wrapper = $('<span>')
-                                                .addClass('brainslices-propertyfilter')
-                                                .appendTo(this.element);
+        _create: function() {
+            this.$wrapper = $('.brainslices-propertyfilter');
         },
 
-        _init:
-        function()
-        {
-            console.debug('_init');
+        _init: function() {
             this.options = this._fixOptions(this.options);
 
             this.$wrapper.hide().empty();
-            switch (this.options.type)
-            {
+            switch (this.options.type) {
                 case 't':
                     break;
 
                 case 'f':
                     this._createFloat();
-                    this.$wrapper.show();
+
                     break;
 
                 case 'x':
                     this._createText();
-                    this.$wrapper.show();
+
                     break;
 
                 case 'e':
                     this._createEnumerative();
-                    this.$wrapper.show();
+
                     break;
 
                 default:
@@ -355,19 +343,17 @@ var CFilterPanel = null;
             }
         },
 
-        _createEnumerative:
-        function()
-        {
+        _createEnumerative: function() {
             var options = this.options;
             var conditions = options.conditions;
             var $wrapper = this.$wrapper;
 
-            function change()
-            {
+            function change() {
                 $input.each(function(i, element)
                 {
                     conditions[element.value] = element.checked;
                 });
+
                 if (options.change)
                 {
                     options.change(conditions);
@@ -375,143 +361,145 @@ var CFilterPanel = null;
             }
 
             var $cb = $('<input>')
-                                    .attr('type', 'checkbox')
-                                    .change(function()
-                                    {
-                                        $input.prop('checked', this.checked);
-                                        change();
-                                    });
+                .attr('type', 'checkbox')
+                .change(function() {
+                    $input.prop('checked', this.checked);
+
+                    change();
+                });
 
             $wrapper
-                .append($('<label>')
-                                    .text('check all')
-                                    .prepend($cb))
+                .append(
+                    $('<label>')
+                        .text('check all')
+                        .prepend($cb)
+                )
                 .append('<br>');
 
             var $input = $([]);
             var order = [];
-            for (var key in conditions)
-            {
+            for (var key in conditions) {
                 order.push(key);
             }
             order.sort();
-            $.each(order, function(i, key)
-            {
+
+            $.each(order, function(i, key) {
                 var $cb = $('<input>')
-                                        .attr(
-                                        {
-                                            type: 'checkbox',
-                                            value: key,
-                                            checked: conditions[key]
-                                        })
-                                        .change(change);
+                    .attr({
+                        type: 'checkbox',
+                        value: key,
+                        checked: conditions[key]
+                    })
+                    .change(change);
+
                 $.merge($input, $cb);
+
                 $wrapper
                     .append($('<label>')
-                                    .text(key)
-                                    .prepend($cb))
+                        .text(key)
+                        .prepend($cb))
                     .append(' ');
             });
         },
 
-        _createText:
-        function()
-        {
+        _createText: function() {
             var options = this.options;
-            function change()
-            {
+
+            function change() {
                 options.conditions = $input.val();
-                if (options.change)
-                {
+
+                if (options.change) {
                     options.change(options.conditions);
                 }
             }
+
             var $input = $('<input>')
-                                            .attr({type: 'text',
-                                                         value: this.options.conditions})
-                                            .appendTo(this.$wrapper)
-                                            .change(change);
+                    .attr({
+                        type: 'text',
+                        value: this.options.conditions
+                    })
+                    .appendTo(this.$wrapper)
+                    .change(change);
+
+            $input.addClass('text-property-input');
 
         },
 
-        _makeFloatSelect:
-        function(conditions, options)
-        {
+        _makeFloatSelect: function(conditions, options) {
             var $select = $('<select>');
             var val = null;
 
-            $.each(options, function(i, v)
-            {
+            $.each(options, function(i, v) {
                 var $option = $('<option>')
-                                                .text(v)
-                                                .appendTo($select);
-                if (v in conditions)
-                {
+                    .text(v)
+                    .appendTo($select);
+
+                if (v in conditions) {
                     $option.prop('selected', true);
+
                     val = conditions[v];
                 }
             });
 
             var $option = $('<option>')
-                                            .text('---')
-                                            .appendTo($select);
+                .text('---')
+                .appendTo($select);
+
             var $input = $('<input>')
-                                         .attr({type: 'number',
-                                                        value: val != null ? val : 0});
-            if (val == null)
-            {
+                .attr({
+                    type: 'number',
+                    value: val != null ? val : 0
+                });
+
+            if (val === null) {
                 $option.prop('selected', true);
                 $input.prop('disabled', true);
             }
-            return {$select: $select, $input: $input};
+
+            return {
+                $select: $select,
+                $input: $input
+             };
         },
 
-        _createFloat:
-        function()
-        {
+        _createFloat: function() {
             var options = this.options;
             var conditions = options.conditions;
 
             var op1 = this._makeFloatSelect(conditions, ['eq', 'gt', 'gteq']);
             var op2 = this._makeFloatSelect(conditions, ['lt', 'lteq']);
 
-            function change()
-            {
+            function change() {
                 var conditions = {};
                 var op1 = $select1.val();
 
-                if (op1 != 'eq')
-                {
+                if (op1 != 'eq') {
                     $select2.prop('disabled', false);
+
                     var op2 = $select2.val();
-                    if (op2 != '---')
-                    {
+
+                    if (op2 != '---') {
                         $input2.prop('disabled', false);
                         conditions[op2] = parseFloat($input2.val());
                     }
-                    else
-                    {
+                    else {
                         $input2.prop('disabled', true);
                     }
                 }
-                else
-                {
+                else {
                     $select2.prop('disabled', true);
                 }
 
-                if (op1 != '---')
-                {
+                if (op1 != '---') {
                     $input1.prop('disabled', false);
                     conditions[op1] = parseFloat($input1.val());
                 }
-                else
-                {
+                else {
                     $input1.prop('disabled', true);
                 }
 
                 options.conditions = conditions;
-                if (options.change)
-                {
+                if (options.change) {
                     options.change(conditions);
                 }
             }
@@ -521,6 +509,9 @@ var CFilterPanel = null;
             var $select2 = op2.$select.change(change);
             var $input2 = op2.$input.change(change);
 
+            $input1.addClass('numeric-property-input');
+            $input2.addClass('numeric-property-input');
+
             this.$wrapper
                 .append($select1)
                 .append($input1)
@@ -528,53 +519,40 @@ var CFilterPanel = null;
                 .append($input2);
         },
 
-        _fixOptions:
-        function(options)
-        {
+        _fixOptions: function(options) {
             // working with a deep copy
             options = $.extend(true, {}, options);
 
             var defaults;
-            if ('defaults' in options)
-            {
+            if ('defaults' in options) {
                 defaults = options.defaults;
-                for (var k in this.defaults)
-                {
-                    if (!(k in defaults))
-                    {
-                        if (k == 'e' || k == 'f')
-                        {
+                for (var k in this.defaults) {
+                    if (!(k in defaults)) {
+                        if (k == 'e' || k == 'f') {
                             defaults[k] = $.extend({}, this.defaults[k]);
                         }
-                        else
-                        {
+                        else {
                             defaults[k] = this.defaults[k];
                         }
                     }
                 }
             }
-            else if ('defaults' in this.options)
-            {
+            else if ('defaults' in this.options) {
                 options.defaults = defaults = this.options.defaults;
             }
-            else
-            { 
+            else { 
                 options.defaults = defaults = $.extend(true, {}, this.defaults);
             }
 
-            if ('type' in options)
-            {
+            if ('type' in options) {
                 var t = options.type;
 
-                if (!('conditions' in options))
-                {
-                    if (t == 'f' || t == 'e')
-                    {
+                if (!('conditions' in options)) {
+                    if (t == 'f' || t == 'e') {
                         //object
                         options.conditions = $.extend({}, defaults[t]);
                     }
-                    else
-                    {
+                    else {
                         // a kind of a primitive
                         options.conditions = defaults[t];
                     }
@@ -585,30 +563,23 @@ var CFilterPanel = null;
                 // type/condition validation
                 var conditions = options.conditions;
                 var cond;
-                switch (t)
-                {
+                switch (t) {
                     case 't':
-                        console.assert(conditions == null,
-                                                     'Bad conditions given for Tag type filter');
+                        console.assert(conditions == null, 'Bad conditions given for Tag type filter');
                         break;
 
                     case 'f':
-                        console.assert(typeof(conditions) == 'object',
-                                                     'Not an object given for Number type filter');
+                        console.assert(typeof(conditions) == 'object', 'Not an object given for Number type filter');
                         var lt = false, gt = false, eq = false;
                         var lteq = false, gteq = false, ltVal, gtVal;
-                        for (cond in conditions)
-                        {
-                            console.assert(typeof(conditions[cond]) == 'number',
-                                                         'Not a number given for Number type    filter');
-                            switch (cond)
-                            {
+                        for (cond in conditions) {
+                            console.assert(typeof(conditions[cond]) == 'number', 'Not a number given for Number type    filter');
+                            switch (cond) {
 
                                 case 'lteq':
                                     lteq = true;
                                 case 'lt':
-                                    console.assert(!eq && !lt,
-                                                                 'Conflicting conditions given for Number type filter');
+                                    console.assert(!eq && !lt, 'Conflicting conditions given for Number type filter');
                                     ltVal = conditions[cond];
                                     lt = true;
                                     break;
@@ -617,15 +588,13 @@ var CFilterPanel = null;
                                     gteq = true;
                                 case 'gt':
 
-                                    console.assert(!eq && !gt,
-                                                                 'Conflicting conditions given for Number type filter');
+                                    console.assert(!eq && !gt, 'Conflicting conditions given for Number type filter');
                                     gtVal = conditions[cond]; 
                                     gt = true;
                                     break;
 
                                 case 'eq':
-                                    console.assert(!lt && !gt,
-                                                                 'Conflicting conditions given for Number type filter');
+                                    console.assert(!lt && !gt, 'Conflicting conditions given for Number type filter');
                                     eq = true;
                                     break;
 
@@ -633,44 +602,40 @@ var CFilterPanel = null;
                                     console.assert(false, 'Unknown condition (' + cond + ') given for Number type filter');
                             }
 
-                            console.assert(lt || gt || eq,
-                                                         'No condition given for Number type filter');
-                            if (lt && gt)
-                            {
-                                if (lteq && gteq && ltVal > gtVal ||
-                                        !(lteq && gteq) && ltVal >= gtVal)
-                                {
-                                    console.warn('Conflicting range:' +
-                                                             (gteq ? '[' : '(') +
-                                                             gtVal + '; ' + ltVal +
-                                                             (lteq ? ']' : ')'));
+                            console.assert(lt || gt || eq, 'No condition given for Number type filter');
+                            if (lt && gt) {
+                                if (lteq 
+                                    && gteq 
+                                    && ltVal > gtVal 
+                                    || !(lteq && gteq)
+                                    && ltVal >= gtVal) {
+                                    console.warn('Conflicting range:'
+                                        + (gteq ? '[' : '(')
+                                        + gtVal + '; ' + ltVal
+                                        + (lteq ? ']' : ')'));
                                 }
                             }
-
                         }
+
                         break;
 
                     case 'e':
-                        console.assert(typeof(conditions) == 'object',
-                                                     'Not an object given for Enumerative type filter');
+                        console.assert(typeof(conditions) == 'object', 'Not an object given for Enumerative type filter');
                         var any = false;
-                        for (cond in conditions)
-                        {
-                            if (conditions[cond])
-                            {
+                        for (cond in conditions) {
+                            if (conditions[cond]) {
                                 any = true;
                                 break;
                             }
                         }
-                        if (!any)
-                        {
+                        if (!any) {
                             console.warn('No enumerated option selected');
                         }
+
                         break;
 
                     case 'x':
-                        console.assert(typeof(conditions) == 'string',
-                                                     'Not a string given for Text type filter');
+                        console.assert(typeof(conditions) == 'string', 'Not a string given for Text type filter');
                         break;
 
                     default:
@@ -681,38 +646,37 @@ var CFilterPanel = null;
             return options;
         },
 
-        _setOptions:
-        function(options)
+        _setOptions: function(options)
         {
             console.debug('_setOptions');
             if (options) options = this._fixOptions(options);
             this._super(options);
         },
 
-        _setOption:
-        function(key, value)
+        _setOption: function(key, value)
         {
             console.debug(key, value);
-            switch (key)
-            {
+            switch (key) {
                 case 'type':
                 case 'conditions':
                 case 'defaults':
                     this.options[key] = value;
+
                     break;
 
                 case 'conditions':
                 case 'type':
                     this.options[key] = value;
                     // some update?
+
                     break;
 
                 case 'change':
                     this.options[key] = value;
-                    if (value)
-                    {
+                    if (value) {
                         value(this.options.conditions);
                     }
+
                     break;
 
                 default:
@@ -722,10 +686,8 @@ var CFilterPanel = null;
             this._super(key, value);
         },
 
-        _destroy:
-        function()
-        {
-            this.$wrapper.remove();
+        _destroy: function() {
+            this.$wrapper.html('');
         }
     });
 
@@ -918,18 +880,14 @@ var CFilterPanel = null;
         inSelect: false,
 
         _create: function() {
-            this.$wrapper = $('<span>')
-                .addClass('brainslices-newpropertyfilter')
-                .appendTo(this.element);
             this._createPropertybox();
             this._createTypeSelect('tfx');
             this._createSubmitButton();
         },
 
         _createPropertybox: function() {
-            var $span = $('<span>')
-                .addClass("select-property ui-widget")
-                .appendTo(this.$wrapper);
+            var $span = $('.brainslices-newpropertyfilter');
+            $span.addClass("select-property ui-widget");
 
             this.propertyName = '';
 
@@ -939,11 +897,11 @@ var CFilterPanel = null;
                     value: '' //this.options.anyLabel
                 })
                 .tooltip()
-                .addClass('ui-widget-content ui-state-default ui-corner-left')
                 .propertyboxsearch({
                     source: $.proxy(this, '_source'),
                     minLength: 0
                 })
+                .addClass('new-property-name-input')
                 .keypress($.proxy(function(e) {
                     if (e.keyCode == 13) {
                         this.$input.blur();
@@ -960,7 +918,7 @@ var CFilterPanel = null;
 
             var wasOpen = false;
 
-            var $a = $('<a>')
+            $('<a>')
                 .appendTo($span)
                 .button()
                 .removeClass('ui-corner-all')
@@ -973,17 +931,23 @@ var CFilterPanel = null;
                 })
                 .click(function() {
                     $input.focus();
-                    if (wasOpen) return;
+                    if (wasOpen) {
+                        return;
+                    }
 
                     $input.propertyboxsearch('search', '');
                 });
         },
 
         _createTypeSelect: function() {
-            this.$types = $('<select>').appendTo(this.$wrapper);
+            var $span = $('.brainslices-newpropertyfilter');
+
+            this.$types = $('<select>')
+                .addClass('property-type-select')
+                .appendTo($span);
 
             var thisInstance = this;
-            this.filter = $('<div>').appendTo(this.$wrapper);
+            this.filter = $('<div>').appendTo($span);
 
             this._updateTypeSelect('fxt');
         },
@@ -1004,9 +968,9 @@ var CFilterPanel = null;
             for (var i = 0; i < types.length; i++) {
                 var t = types[i];
                 var label = t in typeLabels ? typeLabels[t] : t;
-                this.$types.append('<option value="' + t +
-                                                     (selected == t ? '" selected="selected">' : '">')
-                                                     + label + '</option>');
+                this.$types.append('<option value="' + t
+                                    + (selected == t ? '" selected="selected">' : '">')
+                                    + label + '</option>');
             }
 
             this.$types.change($.proxy(this, '_changeTypeSelect'));
@@ -1034,10 +998,7 @@ var CFilterPanel = null;
         },
 
         _createSubmitButton: function() {
-            var $a = $('<a>')
-                .button({label: 'Add'})
-                .click($.proxy(this, '_onSubmit'))
-                .appendTo(this.$wrapper);
+            $('#addFilterButton').click($.proxy(this, '_onSubmit'));
         },
 
         _propertySelect: function(event, ui) {
@@ -1091,11 +1052,12 @@ var CFilterPanel = null;
             }, 2500);
         },
 
-        _source: function(request, response)
-        {
-            var properties = [{value: this.options.anyLabel,
-                                                 label: this.options.anyLabel,
-                                                 data: null}];
+        _source: function(request, response) {
+            var properties = [{
+                value: this.options.anyLabel,
+                label: this.options.anyLabel,
+                data: null
+            }];
             var filter = new RegExp($.ui.autocomplete.escapeRegex(request.term), 'i');
 
             var source = this.options.source;
@@ -1113,8 +1075,7 @@ var CFilterPanel = null;
             response(properties);
         },
 
-        _onSubmit: function()
-        {
+        _onSubmit: function() {
             if (this.propertyName == '')
             {
                 this.$input
@@ -1137,13 +1098,10 @@ var CFilterPanel = null;
             this.options.submit(this.propertyName, type, filter);
             this.filter = $('<div>')
                             .propertyfilter(options)
-                            .appendTo(this.$wrapper);
-            // UPS - would be before Add button :-D
+                            .appendTo($('.brainslices-propertyfilter'));
         },
 
         _destroy: function() {
-            this.$wrapper.remove();
-            
             if (this.filter) {
                 this.filter.destroy();
                 delete this.filter;

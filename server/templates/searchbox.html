@@ -1,12 +1,15 @@
+
+<div class="search-header-label">Filters</div>
 <table id="searchPanel">
     <thead>
-        <tr><th>Property</th><th>Condition</th></tr>
+        <tr><th class="property-column">Property</th><th class="condition-column">Condition</th></tr>
     </thead>
     <tbody>
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="2"><span id="searchProperty"></span></td>
+            <td><span id="searchProperty"><span class="brainslices-newpropertyfilter"></span></span></td>
+            <td><span class="brainslices-propertyfilter"></span><span id="addFilterButton" class="fa fa-plus"></span></td>
         </tr>
         <tr>
             <td colspan="2"><button id="searchPropertySearch">Search</button></td>
@@ -14,6 +17,7 @@
     </tfoot>
 </table>
 
+<div class="search-header-label">Results</div>
 <div id="searchResults">
     <table>
     <thead>
