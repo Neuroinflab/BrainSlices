@@ -80,8 +80,6 @@
          *           for zoom value.                                            *
          *   $zoomLog - A jQuery object representing an input element (numeric, *
          *              preferably slider) for log2(zoom) value.                *
-         *   $quality - A jQuery object representing a select element for       *
-         *              quality settings.                                       *
          *   $transparency - A jQuery object representing an input element      *
          *                   (numeric, preferably slider) for layer             *
          *                   transparency value.                                *
@@ -144,7 +142,6 @@
 
                 this.$zoom = null;
                 this.$zoomLog = null;
-                this.$quality = null;
                 this.$transparency = null;
 
                 this.$stacksSynchronization = null;
@@ -154,27 +151,18 @@
             else
             {
                 this.control = new gui.CDraggableDiv($controlPanel);
-                this.$quality = $controlPanel.find('[name="quality"]');
                 this.$transparency = $controlPanel.find('[name="transparency"]');
 
                 this.$stacksSynchronization = $controlPanel.find('[name="synchronization"]');
 
 
-                updateQuality = function(quality)
-                {
-                    thisInstance.setQuality(quality, true);
-                    thisInstance.update();
-                }
 		BS.scope.register({
 		change:function(what, val){
 		if( what == "quality"){
-			thisInstance.$quality.val(val);
-			updateQuality(val);
+      thisInstance.setQuality(val, true);
+      thisInstance.update();
 		}}})
 
-                this.$quality.bind('change', function(){
-			BS.scope.set("quality", thisInstance.$quality.val());
-		});
 		BS.scope.set("quality", "med");
                 updateTransparency = function(transparency)
                 {
@@ -477,7 +465,7 @@
                     loadLayerByStack:
                             function(stack, imageId)
                             {
-                                var quality = this.$quality.val();
+                                var quality = BS.scope.get('quality');//this.$quality.val();
                                 stack.loadFromCache(this.images, imageId, quality);
                             },
                     /**
@@ -785,9 +773,9 @@
                                     this.stacks[i].setQuality(quality);
                                 }
 
-                                if (this.$quality != null && !doNotUpdate)
+                                if (!doNotUpdate)
                                 {
-                                    this.$quality.val(quality);
+                                    BS.scope.set('quality', quality);
                                 }
                             },
                     /**
@@ -875,7 +863,6 @@
                                     this.control.destroy();
                                     this.$zoom.unbind('change', this.updateZoom);
                                     this.$zoomLog.unbind('change', this.updateZoomLog);
-                                    this.$quality.unbind('change', this.updateQuality);
                                     this.$transparency.unbind('change', this.updateTransparency);
                                     this.$stacksSynchronization.unbind('change', this.updateSynchronization);
                                 }
