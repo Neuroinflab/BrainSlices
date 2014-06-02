@@ -46,6 +46,10 @@
     font-weight: bold;
 }
 
+.navbar #spacer {
+    width:3%;
+}
+
 .navbar .grid {
     font-size: 7pt;
     letter-spacing: 1px;

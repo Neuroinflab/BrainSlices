@@ -11,16 +11,17 @@ $.widget("brainslices.navbar", {
                 .append($('<div id=left>')
                             .append('<div id="grid_select"></div>')
                             .append('<button id="btn_synch" class="icon selected"><span id="btn_synch_icon" class="fa fa-lock"></span></button>')
-                            .append('<button id="btn_zoom" class="icon"><span class="fa fa-search"></span></button>')
-                            .append('<button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>')
-                            .append('<div id="target_select"> </div>')
-                            .append('<div id="quality_button"> </div>')
                             .append('<button id="btn_display" class="icon">'+
-					'<span id="btn_display_icon" class="fa fa-th-large"></span></button>')
+					'<span id="btn_display_icon" class="fa fa-film"></span></button>')
                             .append('<button id="btn_compress" class="icon">'+
 					'<span class="fa fa-compress"></span></button>')
                             .append('<button id="btn_expand" class="icon">'+
 					'<span class="fa fa-expand"></span></button>')
+			    .append('<div id=spacer/>')
+                            .append('<button id="btn_zoom" class="icon"><span class="fa fa-search"></span></button>')
+                            .append('<button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>')
+                            .append('<div id="target_select"> </div>')
+                            .append('<div id="quality_button"> </div>')
                         )
                 .append($('<div id="right">')
                             .append('<button id="btn_help" class="icon"><span class="fa fa-question"></span></button>')
@@ -116,12 +117,12 @@ $.widget("brainslices.navbar", {
         $("#btn_display").button().click(function(){
 		val = BrainSlices.scope.get("display");
 		if(val==="matrix"){
-		$("#btn_display_icon").addClass("fa-film");
-		$("#btn_display_icon").removeClass("fa-th-large");
-		BrainSlices.scope.set("display", "grid");
-		}else if(val==="grid"){
 		$("#btn_display_icon").removeClass("fa-film");
 		$("#btn_display_icon").addClass("fa-th-large");
+		BrainSlices.scope.set("display", "grid");
+		}else if(val==="grid"){
+		$("#btn_display_icon").addClass("fa-film");
+		$("#btn_display_icon").removeClass("fa-th-large");
 		BrainSlices.scope.set("display", "matrix");
 		}
 	});
