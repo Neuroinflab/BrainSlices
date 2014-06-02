@@ -29,7 +29,7 @@
 					}
 				
 				},
-				dialogClass:"modalwin"
+				dialogClass:"modalwin no-close"
 			})
 			form.addClass("modalwin");
 			form.dialog("close");
