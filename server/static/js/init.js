@@ -38,9 +38,10 @@ function test()
 
 function rearrangeInterface()
 {
-    var nx = $('#nx').val();
-    var ny = $('#ny').val();
-    var display = $('#display').val();
+    dims = BrainSlices.scope.get("grid_dims");
+    var nx = dims.x;
+    var ny = dims.y;
+    var display = BrainSlices.scope.get("display");
     var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
 
     stacks.rearrange(nx, ny, width);
@@ -364,7 +365,14 @@ $(function()
                          $('[name="zoomLog"]').val(    Math.log(val) / Math.log(2));
             }
     })
-
+    BrainSlices.scope.set("display", "matrix");
+    
+    BrainSlices.scope.register({
+            change:function(variable, val){
+                    if(variable == "display" )
+				rearrangeInterface();
+            }
+    })
 
     $('[name="zoom"]').bind('change', function()
                     {

@@ -30,10 +30,13 @@
 				}, 2000);
 			})
 			this.button_h.click(  function() {
+				view.hide();
 				 thisInstance.options.callback("high")} );
 			this.button_m.click( (function() {
+				view.hide();
 				 thisInstance.options.callback("med")} ));
 			this.button_l.click( (function() { 
+				view.hide();
 				 thisInstance.options.callback("low")} ));
 		},
 		highlight: function(val){
