@@ -75,17 +75,6 @@
          *   resizeHandler - A handler of resize event of the window object.    *
          *                                                                      *
          * Interface-oriented attributes:                                       *
-         *   control - A <CDraggableDiv> object controlling the control panel.  *
-         *   $zoom - A jQuery object representing an input element (numeric)    *
-         *           for zoom value.                                            *
-         *   $zoomLog - A jQuery object representing an input element (numeric, *
-         *              preferably slider) for log2(zoom) value.                *
-         *   $transparency - A jQuery object representing an input element      *
-         *                   (numeric, preferably slider) for layer             *
-         *                   transparency value.                                *
-         *   $stacksSynchronization - A jQuery object representing an input     *
-         *                            element (checkbox) for stacks             *
-         *                            synchronization switching.                *
          *   zoomUpdateEnabled - An internal flag for zoom change handlers      *
          *                       coordination.                                  *
          ************************************************************************
@@ -102,8 +91,7 @@
          *   focusPointY - A value of the focusPointY attribute. Defaults to 0. *
          *   crosshairX - A value of the crosshairX attribute.                  *
          *   crosshairY - A value of the crosshairY attribute.                  *
-         *   $controlPanel - A jQuery object representing HTML element for the  *
-         *                   control panel.                                     *
+         *   $controlPanel - A dummy parameter.                                 *
          *   gfx - A value of the gfx attribute. Defaults to '/static/gfx'.     *
          *   images - A value of the images attribute.                          *
          \************************************************************************/
@@ -121,9 +109,13 @@
             this.images = images;
 
             this.gfx = gfx != null ? gfx : '/static/gfx';
-            BS.scope.register({
-                change: function(variable, val) {
-                    switch (variable) {
+            BS.scope.register(
+            {
+                change:
+                function(variable, val)
+                {
+                    switch (variable)
+                    {
                         case "zoom":
                             if (thisInstance.zoomUpdateEnabled)
                             {
@@ -135,77 +127,58 @@
                     }
 
                 }
-            })
-            if ($controlPanel == null)
+            });
+
+		BS.scope.register(
+    {
+		    change:
+        function(what, val)
+        {
+        		if (what == "quality")
             {
-                this.control = null;
-
-                this.$zoom = null;
-                this.$zoomLog = null;
-                this.$transparency = null;
-
-                this.$stacksSynchronization = null;
-
-                this.transparency = 0.;
-            }
-            else
-            {
-                this.control = new gui.CDraggableDiv($controlPanel);
-                this.$transparency = $controlPanel.find('[name="transparency"]');
-
-                this.$stacksSynchronization = $controlPanel.find('[name="synchronization"]');
-
-
-		BS.scope.register({
-		change:function(what, val){
-		if( what == "quality"){
-      thisInstance.setQuality(val, true);
-      thisInstance.update();
-		}}})
+                thisInstance.setQuality(val, true);
+                thisInstance.update();
+        		}
+        }
+    });
 
 		BS.scope.set("quality", "med");
-                updateTransparency = function(transparency)
-                {
-                    thisInstance.setTransparency(transparency, true);
-                    thisInstance.update();
-                }
-		BS.scope.register({
-			change:function(what,val){
-				if( what == "trans"){
-					updateTransparency(val);
-		}}})
-                this.$transparency.bind('change', function(){
-                    var transparency = thisInstance.$transparency.val();
-		    BS.scope.set("trans", transparency);
-		});
+		BS.scope.register(
+    {
+  			change:
+        function(what, val)
+        {
+	    			if( what == "trans")
+            {
+                thisInstance.setTransparency(val, true);
+                thisInstance.update();
+		        }
+        }
+    });
 
-                updateSynchronization = function(val)
+    BS.scope.set("trans", 0.5);
+
+		BS.scope.register(
+    {
+		    change:
+        function(what, val)
+        {
+			      if (what == "synch")
+            {
+                if (val)
                 {
-                    if (val)
-                    {
-                        thisInstance.syncStart();
-                    }
-                    else
-                    {
-                        thisInstance.syncStop();
-                    }
+                    thisInstance.syncStart();
                 }
-		BS.scope.register({
-			change:function(what,val){
-			if( what == "synch"){
-				updateSynchronization(val);
-		}}})
+                else
+                {
+                    thisInstance.syncStop();
+                }
+		        }
+        }
+    });
 		BS.scope.set("synch",true);
-			
-                this.setTransparency(this.$transparency.val(), true);
-            }
 
             //stacks
-            this.synchronize = synchronize == null ? true : synchronize;
-            if (this.$stacksSynchronization != null)
-            {
-                this.$stacksSynchronization.prop('checked', this.synchronize);
-            }
 
             this.$display = $display;
             this.$displayContainer = $('<div></div>')
@@ -222,11 +195,7 @@
             this.nx = 0;
             this.ny = 0;
 
-            if (zoom == null)
-                BS.scope.set("zoom", 1.);
-            else
-                BS.scope.set("zoom", zoom);
-            // this.zoom = zoom != null ? zoom : 1.;
+            BS.scope.set("zoom", zoom != null ? zoom : 1.);
             this.focusPointX = focusPointX != null ? focusPointX : 0.;
             this.focusPointY = focusPointY != null ? focusPointY : 0.;
             this.crosshairX = crosshairX;
@@ -291,6 +260,8 @@
                      * Method: syncStart
                      *
                      * Start moving stacks simultaneously.
+                     *
+                     * TODO: scope update
                      **************************************/
                     syncStart:
                             function()
@@ -301,6 +272,8 @@
                      * Method: syncStop
                      *
                      * Stop moving stacks simultaneously.
+                     *
+                     * TODO: scope update
                      *************************************/
                     syncStop:
                             function()
@@ -798,9 +771,9 @@
                                     this.stacks[i].setTransparency(transparency);
                                 }
 
-                                if (this.$transparency != null && !doNotUpdate)
+                                if (!doNotUpdate)
                                 {
-                                    this.$transparency.val(transparency);
+                                    BS.scope.set('transparency', transparency);
                                 }
                             },
                     /**
@@ -856,15 +829,6 @@
                                 {
                                     //this.layer.unbind('resize', this.resizeHandler);
                                     $(window).unbind('resize', this.resizeHandler);
-                                }
-
-                                if (this.control != null)
-                                {
-                                    this.control.destroy();
-                                    this.$zoom.unbind('change', this.updateZoom);
-                                    this.$zoomLog.unbind('change', this.updateZoomLog);
-                                    this.$transparency.unbind('change', this.updateTransparency);
-                                    this.$stacksSynchronization.unbind('change', this.updateSynchronization);
                                 }
 
                                 this.$displayContainer.remove();

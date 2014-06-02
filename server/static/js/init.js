@@ -123,7 +123,7 @@ var state = {iids: [],
                          focus: [[0., 0.]],
                          display: 'matrix',
                          sync: true,
-                         zoom: 10.};
+                         zoom: 1.};
 
 function parseState(search)
 {
@@ -437,8 +437,7 @@ $(function()
                                                                                     false, state.zoom,
                                                                                     state.focus[0][0],
                                                                                     state.focus[0][1],
-                                                                                    null, null,
-                                                                                    $('#control_panel'),
+                                                                                    null, null, null,
                                                                                     '/static/gfx', images);
     stacks.updateZoomPanel();
     if (state.display == 'serial') // != 'matrix'
