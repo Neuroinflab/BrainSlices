@@ -812,7 +812,7 @@ $(function()
                 }
                 $td = $('<td></td>');
                 $tr.append($td);
-                var $button = $('<button>Add</button>');
+                var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
                 $td.append($button);
                 (function(iid)
                 {
