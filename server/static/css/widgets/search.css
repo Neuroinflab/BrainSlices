@@ -1,0 +1,151 @@
+.search-header-label {
+	width: 100%;
+
+	background: #efefef;
+	color: #69c6fd;
+
+	font-weight: bold;
+	font-size: 14pt;
+
+	padding: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: 0;
+	margin-right: 0;
+
+	text-align: center;
+}
+
+#searchPanel {
+	width: 100%;
+
+	margin-left: 5px;
+
+	border-spacing: 0;
+    border-collapse: collapse;
+}
+
+#searchPanel tfoot {
+	border-top: 1px solid #aaaaaa;
+}
+
+#searchPanel tfoot td {
+	padding-top: 5px;
+}
+
+#searchPanel td {
+	vertical-align: middle;
+
+	padding: 0;
+	margin: 0;
+}
+
+.property-column {
+	width: 220px;
+}
+
+.condition-column {
+	width: 280px;
+}
+
+.filter-property-name {
+	font-style: italic;
+
+	width: 170px;
+}
+
+.filter-property-info {
+	width: 200px;
+}
+
+.new-property-name-input {
+	width: 120px;
+}
+
+.property-type-select {
+	width: 80px;
+}
+
+.brainslices-propertyfilter {
+	display: inline !important;
+}
+
+.numeric-property-input {
+	width: 40px;
+}
+
+.text-property-input {
+	width: 220px;
+}
+
+#addFilterButton,
+.filter-delete-button {
+	color: #aaaaaa;
+
+	float: right;
+
+	display: inline-block;
+}
+
+#addFilterButton {
+	font-size: 25px;
+
+	padding: 5px;
+	padding-right: 20px;
+}
+
+#addFilterButton:hover {
+	color: #6ee000;
+}
+
+.filter-delete-button {
+	font-size: 25px;
+
+	padding: 5px;
+	padding-right: 20px;
+}
+
+.filter-delete-button:hover {
+	color: #ff0000;
+}
+
+#searchPropertySearch {
+	width: 100%;
+
+	font-weight: bold;
+	font-size: 12px;
+}
+
+#searchResults table {
+	width: 100%;
+
+	margin-left: 5px;
+
+	border-spacing: 0;
+    border-collapse: collapse;
+}
+
+#searchResults table td {
+	vertical-align: middle;
+	text-align: center;
+
+	padding: 0;
+	margin: 0;
+}
+
+.polaroid-image {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.add-image-to-cart-button {
+	color: #aaaaaa;
+
+	font-size: 30px;
+
+	padding: 5px;
+}
+
+.add-image-to-cart-button:hover {
+	color: #6ee000;
+}
