@@ -24,8 +24,8 @@ $.widget("brainslices.navbar", {
                         )
                 .append($('<div id="right">')
                             .append('<button id="btn_help" class="icon"><span class="fa fa-question"></span></button>')
-                            .append('<button id="btn_login" class="icon"><span class="fa fa-sign-in"></span></button>')
-                            .append('<button id="btn_logout" class="icon"><span class="fa fa-sign-out"></span></button>')
+                            .append('<button id="btn_login" class="icon"><span class="fa fa-power-off"></span></button>')
+                            .append('<button id="btn_logout" class="icon"><span style="color:#ff0000" class="fa fa-power-off"></span></button>')
                         )
                 .append($('<span id="zoom" />'))
                 .append($('<span id="trans" />'));
