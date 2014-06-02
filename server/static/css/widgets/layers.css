@@ -1,0 +1,87 @@
+#layersConsole {
+	height: 100%;
+	width: 100%;
+
+	border: 1px solid #aaaaaa;
+
+	padding: 0;
+	margin: 0;
+}
+
+#layersConsoleTable {
+	width: 100%;
+
+	border-spacing: 0;
+    border-collapse: collapse;
+}
+
+#layersConsoleTable tr {
+	border-bottom: 1px solid #aaaaaa;
+}
+
+#layersConsoleTable td {
+	text-align: center;
+	vertical-align: middle;
+
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 0px;
+	padding-right: 0px;
+	margin: 0;
+}
+
+.label-column{
+	width: 55px;
+}
+
+.download-column{
+	width: 85px;
+}
+
+.adjust-column{
+	width: 60px;
+}
+
+.delete-column{
+	width: 60px;
+}
+
+.layer-cb-table {
+	border-spacing: 0;
+    border-collapse: collapse;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.layer-cb-table tr {
+	border-bottom: none !important;
+}
+
+.layer-cb-table td {
+	text-align: center;
+	vertical-align: middle;
+
+	height: 20px;
+	width: 20px;
+
+	padding: 0 !important;
+	margin: 0;
+}
+
+.layer-delete-button,
+.layer-download-button {
+	color: #aaaaaa;
+
+	font-size: 20px;
+
+	padding: 5px;
+}
+
+.layer-delete-button:hover {
+	color: #ff0000;
+}
+
+.layer-download-button:hover {
+	color: #2d7dc5;
+}

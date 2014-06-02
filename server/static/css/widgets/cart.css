@@ -1,6 +1,6 @@
 .cart {
     right: 0;
-    height: 93%;
+    height: 92%;
     float: right;
     position: absolute;
 }
@@ -34,9 +34,9 @@
 .cart .cart-items {
     height: 100%;
 
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.935);
 
-    padding: 10px;
+    padding: 0;
     margin: 0;
 
     vertical-align: top;
@@ -47,5 +47,5 @@
 }
 
 .cart .cart-items {
-    width: 300px;
+    width: 400px;
 }

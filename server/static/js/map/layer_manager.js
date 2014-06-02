@@ -150,7 +150,7 @@ with ({gui: BrainSlices.gui,
       }
 
       this.layers[id] = {loadButtons: [],
-                         $visibility: $visibility};;
+                         $visibility: $visibility};
       this.length++;
 
       this.tableManager.add($row, id, this.tableManager.length - zIndex,
@@ -361,15 +361,27 @@ with ({gui: BrainSlices.gui,
         var loadButtons = layer.loadButtons;
 
         layer.$visibility.empty();
-        for (var n = 0; n < nmax; n++)
-        {
-          if (n == loadButtons.length)
-          {
-            loadButtons.push(this.layerCB(id, n));
+
+        var cbTable = $('<table class="layer-cb-table"></table>');
+        layer.$visibility.append(cbTable);
+        
+        for (y = 0; y < this.stacks.ny; y++) {
+          var actTr = $('<tr></tr>');
+          cbTable.append(actTr);
+
+          for (x = 0; x < this.stacks.nx; x++) {
+            var actNo = x * this.stacks.ny + y;
+
+            loadButtons[actNo] = (this.layerCB(id, actNo));
+            
+            var actTd = $('<td></td>');
+            actTr.append(actTd);
+
+            var $cb = loadButtons[actNo].$cb;
+            $cb.prop('checked', this.stacks.has(actNo, id));
+            
+            actTd.append($cb);
           }
-          var $cb = loadButtons[n].$cb;
-          $cb.prop('checked', this.stacks.has(n, id));
-          layer.$visibility.append($cb);
         }
 
         var toDismiss = loadButtons.splice(nmax);

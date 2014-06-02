@@ -478,7 +478,7 @@ $(function()
             $row.append($drag);
 
             // download link
-            $row.append('<td><a href="' + path + '/image.png">Download</a></td>');
+            $row.append('<td><a href="' + path + '/image.png"><span class="layer-download-button fa fa-arrow-circle-o-down"</span></a></td>');
 
             // visibility interface
             var $visibility = $('<td></td>');
@@ -543,10 +543,10 @@ $(function()
                 //$iface.find('span.status').html(STATUS_MAP[info.status]);
             }
 
-            $row.append($adjust, $iface);
+            $row.append($('<td></td>').append($adjust).append($iface));
 
             //removal
-            var $rem = $('<button>Remove</button>');
+            var $rem = $('<span class="layer-delete-button fa fa-times"></span>');
 
             $rem.bind('click', function()
             {

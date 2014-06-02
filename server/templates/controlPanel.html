@@ -1,7 +1,13 @@
 <div id="layersConsole">
-    <table>
+    <table id="layersConsoleTable">
         <thead>
-            <tr><th>Label</th><th>Download</th><th>Visible</th><th>Adjust</th><th>Delete</th></tr>
+            <tr>
+                <th class="label-column">Label</th>
+                <th class="download-column">Download</th>
+                <th class="visible-column">Visible</th>
+                <th class="adjust-column">Adjust</th>
+                <th class="delete-column">Delete</th>
+            </tr>
         </thead>
         <tbody class="layerList">
         </tbody>
@@ -12,7 +18,7 @@
 
 
 
-<div >
+<div style="visibility: hidden;">
     <hr>
 
     <form onsubmit="return test();">

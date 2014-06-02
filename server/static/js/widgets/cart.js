@@ -11,8 +11,8 @@ $.widget("brainslices.cart", {
         this._hideButtons();
         this._setButtonsForFoldState("FULLY_FOLDED");
 
-        // $("#control-panel", this.element).hide();
-        // $("#search-panel", this.element).hide();
+        $("#control-panel", this.element).hide();
+        $("#search-panel", this.element).hide();
     },
 
     _unfoldAll: function() {
