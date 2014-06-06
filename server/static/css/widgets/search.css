@@ -92,7 +92,7 @@
 	width: 210px;
 }
 
-#addFilterButton,
+.addFilterButton,
 .filter-delete-button {
 	color: #aaaaaa;
 
@@ -101,14 +101,14 @@
 	display: inline-block;
 }
 
-#addFilterButton {
+.addFilterButton {
 	font-size: 25px;
 
 	padding: 5px;
 	padding-right: 20px;
 }
 
-#addFilterButton:hover {
+.addFilterButton:hover {
 	color: #6ee000;
 }
 
