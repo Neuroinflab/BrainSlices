@@ -169,6 +169,12 @@
 	font-size: 12px;
 }
 
+#searchResults {
+	height: 480px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
 #searchResults table {
 	width: 100%;
 

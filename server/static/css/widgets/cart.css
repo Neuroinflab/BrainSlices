@@ -1,8 +1,11 @@
 .cart {
     right: 0;
-    height: 92%;
+    height: 100%;
     float: right;
-    position: absolute;
+
+    margin-bottom: 10px;
+
+    position: fixed;
 }
 
 .cart #cart-table {
@@ -12,8 +15,19 @@
     border-collapse: collapse;
 }
 
+.cart-controls-wrapper {
+    height: 100%;
+
+    padding: 0px;
+}
+
 .cart-controls {
-    vertical-align: middle;
+    position: relative;
+
+    top: 50%;
+    margin-top: -200px;;
+
+    display: block;
 }
 
 .cart .fold-button {
