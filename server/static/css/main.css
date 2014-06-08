@@ -141,3 +141,34 @@ input:hover, textarea:hover, input:focus, textarea:focus {
     -webkit-box-shadow: 0px 0px 2px 0px #388AD4;
     box-shadow:         0px 0px 2px 0px #388AD4;
 }
+
+.ui-autocomplete {
+    border: solid 1px #dddddd;
+    background: #ffffff;
+
+    max-width: 150px;
+    list-style-type: none;
+
+    padding: 0;
+    margin: 0;
+
+    box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+    -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+    -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+}
+
+.ui-autocomplete li {
+    width: 100%;
+
+    text-align: center;
+
+    display: block;
+}
+
+.ui-autocomplete li:hover {
+    font-size: bold;
+
+    color: white;
+    
+    background: #2d7dc5;
+}
