@@ -971,15 +971,9 @@ var CFilterPanel = null;
       });
 
       var wasOpen = false;
-      var $a = $('<a>')
+      var $a = $('<div>')
         .appendTo($span)
-        .button(
-        {
-          icons: {primary: "ui-icon-triangle-1-s"},
-          text: false
-        })
-        .removeClass('ui-corner-all')
-        .addClass('propertyboxsearch-toggle ui-corner-right')
+        .addClass('propertyboxsearch-toggle')
         .attr('title', 'Show all possible fields')
         .tooltip()
         .mousedown(function()
@@ -989,11 +983,17 @@ var CFilterPanel = null;
         .click(function()
         {
           $input.focus();
-          if (wasOpen) return;
+
+          if (wasOpen) {
+            return;
+          }
 
           $input.propertyboxsearch('search', '');
         });
 
+        $('<span>')
+        .appendTo($a)
+        .addClass('fa fa-caret-down');
     },
 
     _createTypeSelect: function()

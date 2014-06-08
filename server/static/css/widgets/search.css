@@ -76,6 +76,45 @@
 	width: 120px;
 }
 
+.select-property {
+	height: 28px;
+	width: 120px;
+}
+
+.select-property input {
+	width: 80px;
+
+	border-right: none;
+}
+
+.select-property .propertyboxsearch-toggle {
+	width: 17px;
+	height: 25px;
+
+	margin-top: -1px;
+	margin-left: 0px;
+
+	border: solid 1px #e5e5e5;
+	border-left: none;
+	font: normal 13px/100% Verdana, Tahoma, sans-serif;
+    background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+    background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+    box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+    -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+    -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+
+	text-align: center;
+	vertical-align: middle;
+
+	/*display: table-cell;*/
+	display: inline-block;
+}
+
+.select-property .propertyboxsearch-toggle span {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
 .property-type-select {
 	width: 80px;
 }
