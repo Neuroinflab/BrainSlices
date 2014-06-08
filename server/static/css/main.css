@@ -72,6 +72,22 @@ input:hover, textarea:hover, input:focus, textarea:focus {
     -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
 }
 
+.ui-tooltip {
+    position: absolute;
+
+    border: solid 1px #dddddd;
+    background: #ffffff;
+
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+    -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+    -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+}
+
 .ui-slider {
     background: #dddddd;
     border: 1px solid #aaaaaa;
