@@ -848,7 +848,7 @@ $(function()
                                             {
                                                 var enumerated = data.data[1];
 
-                                                $('#searchProperty').newpropertyfilter(
+                                                $('table#searchPanel>tfoot').newpropertyfilter(
                                                 {
                                                     source: data.data[0],
                                                     enumerated: enumerated,

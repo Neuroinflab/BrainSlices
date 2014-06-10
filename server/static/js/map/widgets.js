@@ -921,23 +921,39 @@ var CFilterPanel = null;
     _create:
     function()
     {
-      this.$wrapper = $('<span>')
-        .addClass('brainslices-newpropertyfilter')
-        .appendTo(this.element);
+      this.$wrapper = $('<tr>').appendTo(this.element);
+      var $td = $('<td>')
+        .appendTo(this.$wrapper);
+
+      var $what = $('<span>')
+        .addClass('brainslices-new-property-filter')
+        .appendTo($td);
+
+      $td = $('<td>')
+        .appendTo(this.$wrapper);
+
       this.$filter = $('<span>')
-                      .appendTo(this.$wrapper);
-      this._createPropertybox();
-      this._createTypeSelect('tfx');
-      this._createSubmitButton();
+        .addClass('brainslices-property-filter')
+        .appendTo($td);
+
+      var $add = $('<span>')
+        .addClass('add-filter-button fa fa-plus')
+        .appendTo($td);
+
+      this._createNewPropertyFilter($what);
+      this._createSubmitButton($add);
+    },
+
+    _createNewPropertyFilter:
+    function($span)
+    {
+      this._createPropertybox($span);
+      this._createTypeSelect($span);
     },
 
     _createPropertybox:
-    function()
+    function($span)
     {
-      var $span = $('<span>')
-        .addClass("select-property ui-widget")
-        .appendTo(this.$filter);
-
       this.propertyName = ''; //null
       var $input = $('<input>')
         .attr(
@@ -996,15 +1012,14 @@ var CFilterPanel = null;
         .addClass('fa fa-caret-down');
     },
 
-    _createTypeSelect: function()
+    _createTypeSelect: function($span)
     {
       this.$types = $('<select>')
-        .appendTo(this.$wrapper);
+        .appendTo($span);
 
-      var thisInstance = this;
       this.filter = //new CFilterPanel('<div>')
         $('<div>')
-        .appendTo(this.$wrapper);
+        .appendTo(this.$filter);
 
       this._updateTypeSelect('fxt');
     },
@@ -1056,13 +1071,10 @@ var CFilterPanel = null;
       }
     },
 
-    _createSubmitButton: function()
+    _createSubmitButton: function($span)
     {
-      $('<span>')
-//        .button({label: 'Add'})
-        .addClass('addFilterButton fa fa-plus')
+      $span
         .click($.proxy(this, '_onSubmit'))
-        .appendTo(this.$wrapper);
     },
 
     inSelect: false,

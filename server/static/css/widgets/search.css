@@ -162,6 +162,31 @@
 	color: #ff0000;
 }
 
+.brainslices-new-property-filter
+{
+  white-space: nowrap;
+  position: relative;
+}
+
+.brainslices-new-property-filter>input
+{
+  width: 10em;
+  margin-right: 2em;
+}
+
+.brainslices-new-property-filter>div
+{
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 10em;
+  width: 2em;
+  height: auto;
+  right: auto;
+  text-align: center;
+}
+
+
 #searchPropertySearch {
 	width: 490px;
 
