@@ -1,11 +1,18 @@
 .cart {
-    right: 0;
-    height: 100%;
+    right: 0px;
+    bottom: 0px;
+    top: 70px;
+    /*height: 100%;
     float: right;
 
-    margin-bottom: 10px;
+    margin-bottom: 10px;*/
 
     position: fixed;
+}
+
+.cart>div
+{
+  float: left;
 }
 
 .cart #cart-table {
@@ -16,17 +23,21 @@
 }
 
 .cart-controls-wrapper {
-    height: 100%;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: 0px;
+    left: 0px;
 
     padding: 0px;
+    z-index: 0;
 }
 
 .cart-controls {
-    position: relative;
-
+    position: absolute;
     top: 50%;
-    margin-top: -200px;;
-
+    left: -2em;
+    width: 2em;
     display: block;
 }
 
@@ -47,6 +58,7 @@
 .cart .search-panel,
 .cart .cart-items {
     height: 100%;
+    position: relative;
 
     background: rgba(255, 255, 255, 0.935);
 
@@ -58,8 +70,11 @@
 
 .cart .search-panel {
     width: 500px;
+    z-index: 1;
+
 }
 
 .cart .cart-items {
     width: 400px;
+    z-index: 1;
 }

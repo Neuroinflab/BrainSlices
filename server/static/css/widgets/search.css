@@ -1,6 +1,11 @@
 .searchPanelDiv {
-	width: 500px;
-	height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+	/*width: 478px;*/ /*shall sum to 500px*/
+	/*height: 100%;*/
 
 	padding: 10px;
 
@@ -9,8 +14,26 @@
 	margin: 0;
 }
 
-.search-header-label {
-	width: 100%;
+.search-content-wrapper
+{
+  position: absolute;
+  top: 2.5em;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  margin-top: 10px;
+
+  overflow-y: auto;
+  /*overflow-y: scroll;*/
+}
+
+.search-header-label
+{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 2.5ex;
 
 	background: #efefef;
 	color: #69c6fd;
@@ -30,13 +53,32 @@
 	text-align: center;
 }
 
-#searchPanel {
+#filtersWrapper
+{
+  position: absolute;
+  top: 0px;
+  bottom: 50%;
+  left: 0px;
+  right: 0px;
+}
+
+#resultsWrapper
+{
+  position: absolute;
+  top: 50%;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+
+#searchPanel
+{
 	width: 490px;
 
 	margin-left: 5px;
 
 	border-spacing: 0;
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
 #searchPanel tfoot {
@@ -188,16 +230,16 @@
 
 
 #searchPropertySearch {
-	width: 490px;
+	width: 478px;
 
 	font-weight: bold;
 	font-size: 12px;
 }
 
 #searchResults {
-	height: 480px;
+	/*height: 480px;*/
 	overflow-x: hidden;
-	overflow-y: auto;
+	/*overflow-y: auto;*/
 }
 
 #searchResults table {
