@@ -69,12 +69,12 @@
 }
 
 .cart .search-panel {
-    width: 500px;
+    width: 43em;
     z-index: 1;
 
 }
 
 .cart .cart-items {
-    width: 400px;
+    width: 37em;
     z-index: 1;
 }

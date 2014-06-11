@@ -726,7 +726,7 @@ $(function()
             var $row = $('<tr><td class="filter-property-name">' + (name != null ? (name + ' (' + type + ')') : ('(any field of type ' + type + ')')) + '</td></tr>');
             var $td = $('<td></td>');
             $row.append($td);
-            var $filterPropertyInfo = $('<span class="filter-property-info"><span>');
+            var $filterPropertyInfo = $('<span class="filter-property-info brainslices-property-filter"><span>');
             $td.append($filterPropertyInfo);
             filter.appendTo($filterPropertyInfo);
 

@@ -21,7 +21,10 @@
   left: 0px;
   right: 0px;
   bottom: 0px;
-  margin-top: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  box-sizing: border-box;
 
   overflow-y: auto;
   /*overflow-y: scroll;*/
@@ -45,12 +48,14 @@
 	padding-bottom: 5px;
 	padding-left: 0;
 	padding-right: 0;
-	margin-top: 5px;
+/*	margin-top: 5px;
 	margin-bottom: 5px;
 	margin-left: 0;
-	margin-right: 0;
+	margin-right: 0;*/
+  margin: 0px;
 
 	text-align: center;
+  box-sizing: border-box;
 }
 
 #filtersWrapper
@@ -73,9 +78,10 @@
 
 #searchPanel
 {
-	width: 490px;
+	width: 98%;
 
-	margin-left: 5px;
+	margin-left: 1%;
+  margin-right:1%;
 
 	border-spacing: 0;
   border-collapse: collapse;
@@ -174,6 +180,7 @@
 }
 
 .addFilterButton,
+.add-filter-button,
 .filter-delete-button {
 	color: #aaaaaa;
 
@@ -182,11 +189,12 @@
 	display: inline-block;
 }
 
+.add-filter-button,
 .addFilterButton {
 	font-size: 25px;
 
 	padding: 5px;
-	padding-right: 20px;
+/*	padding-right: 20px;*/
 }
 
 .addFilterButton:hover {
@@ -197,7 +205,7 @@
 	font-size: 25px;
 
 	padding: 5px;
-	padding-right: 20px;
+	/*padding-right: 20px;*/
 }
 
 .filter-delete-button:hover {
@@ -228,12 +236,29 @@
   text-align: center;
 }
 
+.brainslices-property-filter>div
+{
+  display: inline-block;
+  margin-right: 1em;
+}
+
+/*numeric filter*/
+.brainslices-property-filter input[type="number"]
+{
+  width: 4em;
+}
+
+.brainslices-property-filter select
+{
+  width: 5em;
+}
 
 #searchPropertySearch {
-	width: 478px;
+	width: 100%;
 
 	font-weight: bold;
 	font-size: 12px;
+  box-sizing: border-box;
 }
 
 #searchResults {
@@ -257,6 +282,12 @@
 
 	padding: 0;
 	margin: 0;
+}
+
+#searchResults>table>tbody>tr>td>ul>li
+{
+  list-style-type: none;
+  text-align: left;
 }
 
 .polaroid-image {
