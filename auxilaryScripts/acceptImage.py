@@ -29,7 +29,7 @@ from optparse import OptionParser
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),
                                              '../server')))
 
-from database import db
+from database import db, dbPool
 from tileBase import TileBase
 
 #TODO change when moved to server directory
@@ -37,7 +37,7 @@ directoryName = os.path.abspath(os.path.dirname(__file__))
 serverDirectory = os.path.abspath(os.path.join(directoryName, '../server'))
 sourceDirectory = os.path.join(serverDirectory, 'sourceImages')
 tileDirectory = os.path.join(serverDirectory, 'tiles')
-tb = TileBase(db, tileDirectory, sourceDirectory)
+tb = TileBase(db, dbPool, tileDirectory, sourceDirectory)
 
 def acceptImage(uid, iid, imageRes, imageLeft = 0., imageTop = 0.):
   tb.acceptImage(uid, iid, imageRes, imageLeft, imageTop)

@@ -32,7 +32,7 @@ from optparse import OptionParser
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),
                                              '../server')))
 
-from database import db
+from database import db, dbPool
 from tileBase import TileBase
 
 #redundant with tileImageDB.py
@@ -52,7 +52,7 @@ sourceDirectory = os.path.abspath(os.path.join(os.path.dirname(__file__),
 tileDirectory = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                   '../server/tiles'))
 
-tb = TileBase(db, tileDirectory, sourceDirectory)
+tb = TileBase(db, dbPool, tileDirectory, sourceDirectory)
 
 def uploadImage(uid, srcFilename, bid = None):
   ifh = open(srcFilename, "rb")
