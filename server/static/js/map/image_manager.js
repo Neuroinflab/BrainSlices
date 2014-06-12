@@ -293,9 +293,9 @@
         var changedMapping = {};
         for (var id in this.images)
         {
-          if (id[0] == 'i')
+          var image = this.images[id];
+          if (image.type == 'tiledImage')
           {
-            var image = this.images[id];
             if (image.changed)
             {
               var info = image.info;
