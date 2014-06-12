@@ -51,7 +51,8 @@ function rearrangeInterface()
 function compressStacks()
 {
     var images = layerManager.loadedImagesOrdered();
-    stacks.rearrange(1, 1);
+    BrainSlices.scope.set('grid_dims', {x: 1, y: 1});
+    //stacks.rearrange(1, 1);
     for (var i = 0; i < images.length; i++)
     {
         if (!stacks.has(0, images[i]))
@@ -77,6 +78,7 @@ function decompressStacks()
                             null :
                             parseInt(Math.max(100, 66 * nxCor / ny)) + '%';
     layerManager.unloadAll();
+    BrainSlices.scope.set('grid_dims', {x: nxCor, y: ny});
     stacks.rearrange(nxCor, ny, width);
     for (var i = 0; i < images.length; i++)
     {
