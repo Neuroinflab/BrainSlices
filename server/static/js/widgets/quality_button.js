@@ -25,9 +25,9 @@
 				view.show();
 				view.css("left", 21+ button_show.offset().left + "px");
 				view.css("top", 46+ button_show.offset().top + "px");
-				window.setTimeout(function(){
-				view.hide();
-				}, 5000);
+				//window.setTimeout(function(){
+				//view.hide();
+				//}, 5000);
 			})
 			this.button_h.click(  function() {
 				view.hide();
