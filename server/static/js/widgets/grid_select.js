@@ -23,10 +23,14 @@ $.widget("brainslices.grid_select",
   restart:
   function(x, y)
   {
+    var selectedX = x - 2; // numeration starts from 0 and size shall be one bigger than grid size
+    var selectedY = y - 2;
     if (BrainSlices.scope.get("grid_dims") !== undefined)
     {
       x = BrainSlices.scope.get("grid_dims").x + 1;
       y = BrainSlices.scope.get("grid_dims").y + 1;
+      selectedX = x - 2;
+      selectedY = y - 2;
     }
 
     this.options.numRows = y;
@@ -36,12 +40,12 @@ $.widget("brainslices.grid_select",
     
     this.currentPos =
     {
-      x: x,
-      y: y
+      x: selectedX,
+      y: selectedY
     };
 
     var rows = new Array();
-    var grid_view_this = this;
+    var thisInstance = this;
 
     $(this.element).html("");
     var floatView = $('<div class="grid_view_float"></div>')
@@ -77,11 +81,11 @@ $.widget("brainslices.grid_select",
         }
       });
 
-    button = $('<button id="btn_grid" class="icon"><div class="grid">&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<div></button>');
+    var button = $('<button id="btn_grid" class="icon"><div class="grid">&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<div></button>');
 
-    leave = function(evt)
+    var leave = function(evt)
     {
-      grid_view_this.restart(2, 2);
+      thisInstance.restart(2, 2);
       floatView.hide();
     };
 
@@ -92,15 +96,15 @@ $.widget("brainslices.grid_select",
                             left: evt.clientX - 10});
           floatView.show();
         })
-        .mouseup(function(evt){console.debug('button.mouseleave'); leave(evt);}); //XXX
+        .mouseup(leave);
 
     floatView
-      .mouseleave(function(evt){console.debug('floatView.mouseleave'); leave(evt);}) //XXX
+      .mouseleave(leave)
       .mouseup(function(evt)
       {
-        console.debug('floatView.mouseup', grid_view_this.currentPos.x, grid_view_this.currentPos.y); //XXX
-        grid_view_this.options.callback(grid_view_this.currentPos.x,
-                                        grid_view_this.currentPos.y);
+        // on mouse up it is assumed some selection has occured -> if not, you might be in a trouble
+        thisInstance.options.callback(thisInstance.currentPos.x,
+                                        thisInstance.currentPos.y);
 
         leave(evt);
       })
@@ -111,37 +115,37 @@ $.widget("brainslices.grid_select",
           return;
         }
 
-        if ($(evt.target).data("y") === (grid_view_this.getNumRows() - 1))
+        if ($(evt.target).data("y") === (thisInstance.getNumRows() - 1))
         {
-          grid_view_this.addRow();
+          thisInstance.addRow();
         }
 
-        if (($(evt.target).data("y") >= (grid_view_this.getInitialRows() - 2))
-          && ($(evt.target).data("y") < (grid_view_this.getNumRows() - 2)))
+        if (($(evt.target).data("y") >= (thisInstance.getInitialRows() - 2))
+          && ($(evt.target).data("y") < (thisInstance.getNumRows() - 2)))
         {
-          grid_view_this.deleteRowsFrom($(evt.target).data("y") + 2);
+          thisInstance.deleteRowsFrom($(evt.target).data("y") + 2);
         }
 
-        if ($(evt.target).data("x") === (grid_view_this.getNumCols() - 1))
+        if ($(evt.target).data("x") === (thisInstance.getNumCols() - 1))
         {
-          grid_view_this.addCol();
+          thisInstance.addCol();
         }
 
-        if (($(evt.target).data("x") >= (grid_view_this.getInitialCols() - 2))
-          && ($(evt.target).data("x") < (grid_view_this.getNumCols() - 2)))
+        if (($(evt.target).data("x") >= (thisInstance.getInitialCols() - 2))
+          && ($(evt.target).data("x") < (thisInstance.getNumCols() - 2)))
         {
-          grid_view_this.deleteColsFrom($(evt.target).data("x") + 2);
+          thisInstance.deleteColsFrom($(evt.target).data("x") + 2);
         }
 
-        grid_view_this.currentPos.x = $(evt.target).data("x");
-        grid_view_this.currentPos.y = $(evt.target).data("y");
+        thisInstance.currentPos.x = $(evt.target).data("x");
+        thisInstance.currentPos.y = $(evt.target).data("y");
 
-        for (var x = 0; x < grid_view_this.getNumCols(); x++)
+        for (var x = 0; x < thisInstance.getNumCols(); x++)
         {
-          for (var y = 0; y < grid_view_this.getNumRows(); y++)
+          for (var y = 0; y < thisInstance.getNumRows(); y++)
           {
-            if ((x <= grid_view_this.currentPos.x)
-              && (y <= grid_view_this.currentPos.y))
+            if ((x <= thisInstance.currentPos.x)
+              && (y <= thisInstance.currentPos.y))
             {
               $('td[data-x="' + x + '"][data-y="' + y + '"]').addClass("selected");
             }
