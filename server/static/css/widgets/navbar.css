@@ -1,4 +1,11 @@
-.navbar {
+#btn_grid,
+#target_select,
+#quality_button
+{
+  float: left;
+}
+
+#navbar {
     height:50px;
     background-color:#fafafa;
 
@@ -14,26 +21,29 @@
     padding: 10px;
 }
 
-.navbar #left {
+#left {
     width: 80%;
     display: flex;
+    float: left;
 
     margin: 0;
     padding: 0;
 }
 
-.navbar #right {
+#right {
     text-align: right;
     width: 20%;
+    float: right;
 
     margin: 0;
     padding: 0;
 }
 
-.navbar #zoom {
+#zoom {
     position: absolute;
 }
-.navbar #trans {
+
+#trans {
     position: absolute;
 }
 
@@ -42,12 +52,13 @@
     margin-left: 5px;
 }
 
-.navbar #btn_quality {
+#btn_quality {
     font-weight: bold;
 }
 
-.navbar #spacer {
+#spacer {
     width: 10px;
+    float: left;
 }
 
 .navbar .grid {
