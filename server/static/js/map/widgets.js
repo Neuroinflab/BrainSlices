@@ -1008,8 +1008,8 @@ var CFilterPanel = null;
         });
 
         $('<span>')
-        .appendTo($a)
-        .addClass('fa fa-caret-down');
+        .appendTo($a);
+        //.addClass('fa fa-caret-down');
     },
 
     _createTypeSelect: function($span)
