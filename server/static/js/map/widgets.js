@@ -412,6 +412,9 @@ var CFilterPanel = null;
                   .prepend($cb))
           .append(' ');
       });
+      $wrapper
+          .removeClass('brainslices-text-property-filter brainslices-number-property-filter')
+          .addClass('brainslices-enum-property-filter');
     },
 
     _createText:
@@ -431,6 +434,9 @@ var CFilterPanel = null;
                              value: this.options.conditions})
                       .appendTo(this.$wrapper)
                       .change(change);
+      this.$wrapper
+        .removeClass('brainslices-number-property-filter brainslices-enum-property-filter')
+        .addClass('brainslices-text-property-filter');
 
     },
 
@@ -525,7 +531,9 @@ var CFilterPanel = null;
         .append($select1)
         .append($input1)
         .append($select2)
-        .append($input2);
+        .append($input2)
+        .removeClass('brainslices-text-property-filter brainslices-enum-property-filter')
+        .addClass('brainslices-number-property-filter');
     },
 
     _fixOptions:
@@ -921,24 +929,19 @@ var CFilterPanel = null;
     _create:
     function()
     {
-      this.$wrapper = $('<tr>').appendTo(this.element);
-      var $td = $('<td>')
-        .appendTo(this.$wrapper);
+      this.$wrapper = $('<span>').appendTo(this.element);
 
       var $what = $('<span>')
         .addClass('brainslices-new-property-filter')
-        .appendTo($td);
-
-      $td = $('<td>')
         .appendTo(this.$wrapper);
 
       this.$filter = $('<span>')
         .addClass('brainslices-property-filter')
-        .appendTo($td);
+        .appendTo(this.$wrapper);
 
       var $add = $('<span>')
         .addClass('add-filter-button fa fa-plus')
-        .appendTo($td);
+        .appendTo(this.$wrapper);
 
       this._createNewPropertyFilter($what);
       this._createSubmitButton($add);

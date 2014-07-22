@@ -657,11 +657,28 @@ $(function()
   loadNextImage();
 
 
+  function resizeSearchPanel()
+  {
+    // XXX panel height hack ;-)
+    var topHeight = $('#search-panel .searchPanelDiv').innerHeight();
+
+    var spHeight = Math.min($('#filtersWrapper .search-header-label').outerHeight() +
+                            $('#loadedFiltersHeader').outerHeight() +
+                            $('#loadedFilters').outerHeight() +
+                            $('#newFilter').outerHeight() +
+                            $('#searchPropertySearch').outerHeight(),
+                            parseInt(topHeight / 2));
+
+    $('#filtersWrapper').height(spHeight);
+    $('#resultsWrapper').height(topHeight - spHeight);
+  }
+
+
   // try to use tableManager? sort method would be necessary ;-)
   searchEngine = new CPropertiesSearch(loginConsole,
   {
     data:
-    $('table#searchPanel tbody'),
+    $('#loadedFilters'),
 
     add:
     function(name, type, filter)
@@ -674,6 +691,7 @@ $(function()
         {
           // global
           searchEngine.removeAny(n);
+          resizeSearchPanel();
         }
 
         // a lot of unnecessary conversions
@@ -728,6 +746,7 @@ $(function()
         {
           // global
           searchEngine.remove(name);
+          resizeSearchPanel();
         }
 
         switch (type)
@@ -776,8 +795,8 @@ $(function()
         }
       }
 
-      var $row = $('<tr><td class="filter-property-name">' + (name != null ? (name + ' (' + type + ')') : ('(any field of type ' + type + ')')) + '</td></tr>');
-      var $td = $('<td></td>');
+      var $row = $('<div><div class="filter-property-name property-column">' + (name != null ? (name + ' (' + type + ')') : ('(any field of type ' + type + ')')) + '</div></div>');
+      var $td = $('<div class="condition-column"></div>');
       $row.append($td);
       var $filterPropertyInfo = $('<span class="filter-property-info brainslices-property-filter"><span>');
       $td.append($filterPropertyInfo);
@@ -836,6 +855,9 @@ $(function()
 
       filter.propertyfilter('option', 'change', change);
       //filter.change();
+     
+      resizeSearchPanel();
+
     }
   });
 
@@ -913,7 +935,7 @@ $(function()
                       {
                         var enumerated = data.data[1];
 
-                        $('table#searchPanel>tfoot').newpropertyfilter(
+                        $('#newFilter').newpropertyfilter(
                         {
                           source: data.data[0],
                           enumerated: enumerated,
