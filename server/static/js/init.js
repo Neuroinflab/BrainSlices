@@ -875,13 +875,16 @@ $(function()
         var size = row[2];
         var $tr = $('<tr><td>#' + iid + '</td></tr>');
         var $td = $('<td></td>');
+        var $div = $('<div></div>')
+                     .addClass('folded')
+                     .appendTo($td);
         $tr.append($td);
         // XXX: a hack :-/
-        $td.append(BrainSlices.gui.getThumbnail(iid, size[0], size[1], 60, 60));
-        $td = $('<td></td>');
-        $tr.append($td);
+        $div.append(BrainSlices.gui.getThumbnail(iid, size[0], size[1], 60, 60));
+        //$td = $('<td></td>');
+        //$tr.append($td);
         var $ul = $('<ul></ul>');
-        $td.append($ul);
+        $div.append($ul);
         for (var name in properties)
         {
           var $li = $('<li>' + name + '</li>');
