@@ -866,18 +866,14 @@ $(function()
   {
     var search = searchEngine.search(function(result)
     {
-      var $tbody = $('#searchResults table tbody').empty();
+      var $parent = $('#searchResults').empty();
       for (var i = 0; i < result.length; i++)
       {
         var row = result[i];
         var iid = row[0];
         var properties = row[1];
         var size = row[2];
-        var $tr = $('<tr></tr>');
-        var $td = $('<td></td>');
-        var $div = $('<section></section>')
-                     .appendTo($td);
-        $tr.append($td);
+        var $div = $('<div></div>');
 
         // XXX: a hack :-/
         $div.append(BrainSlices.gui.getThumbnail(iid, size[0], size[1], 64, 64));
@@ -943,7 +939,7 @@ $(function()
             }
           }
         }
-        $tbody.append($tr);
+        $parent.append($div);
 
         (function($div)
         {

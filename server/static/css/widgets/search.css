@@ -402,25 +402,7 @@ div.condition-column
 	overflow-y: scroll;
 }
 
-#searchResults table
-{
-	width: 100%;
-
-	border-spacing: 0;
-  border-collapse: collapse;
-}
-
-#searchResults table td
-{
-	vertical-align: middle;
-	text-align: center;
-
-	padding: 5px;
-	margin: 0;
-  position: relative;
-}
-
-#searchResults table td section
+#searchResults>div
 {
   border: solid 1px #e5e5e5;
   padding: 0; /*50px 0 0;*/
@@ -428,19 +410,19 @@ div.condition-column
   overflow: hidden;
 }
 
-#searchResults table td section.folded
+#searchResults>div.folded
 {
   height: 83px;
 /*  padding-bottom: 0px;*/
 }
 
-#searchResults table td section.unfolded
+#searchResults>div.unfolded
 {
   padding-bottom: 20px;
 }
 
-#searchResults table td section div.folding-button,
-#searchResults table td section div.unfolding-button
+#searchResults>div>div.folding-button,
+#searchResults>div>div.unfolding-button
 {
   position: absolute;
   right: 0px;
@@ -458,17 +440,17 @@ div.condition-column
   background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
 }
 
-#searchResults table td section div.folding-button:before
+#searchResults>div>div.folding-button:before
 {
   content: "fold";
 }
 
-#searchResults table td section div.unfolding-button:before
+#searchResults>div>div.unfolding-button:before
 {
   content: "unfold";
 }
 
-#searchResults table td section h1
+#searchResults>div>h1
 {
   text-align: left;
   font-size: 14px;
@@ -476,34 +458,26 @@ div.condition-column
   margin: 0;
 }
 
-#searchResults table td section p.image-description
+#searchResults>div>p.image-description
 {
   text-align: left;
   margin: 0 0 5px 0;
 }
 
-#searchResults table td section span.add-image-to-cart-button
+#searchResults>div>span.add-image-to-cart-button
 {
-/*  position: absolute;
-  top: 25px;
-  right: 5px;*/
   float: right;
   padding: 11px 5px;
   display: block;
 }
 
-/*#searchResults table td section.folded span.add-image-to-cart-button
-{
-  padding-top: 11px;
-}*/
-
-#searchResults table section ul
+#searchResults>div>ul
 {
   margin: 0px;
   padding: 0px;
 }
 
-#searchResults table section ul li
+#searchResults>div>ul>li
 {
   list-style-type: none;
   text-align: left;
