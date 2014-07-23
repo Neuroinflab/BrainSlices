@@ -300,7 +300,7 @@
         //bug tracker
         if (crosshairX != null || crosshairY != null)
         {
-          alert('resize: ' + crosshairX + '+' + crosshairY);
+          console.log('resize: ' + crosshairX + '+' + crosshairY);
         }
         this.getDisplayPixelSize();
 
@@ -314,7 +314,7 @@
         if (this.crosshairX == 0 && crosshairX == null ||
             this.crosshairY == 0 && crosshairY == null)
         {
-          alert('resize0: ' + width + '+' + height);
+          console.log('resize0: ' + width + '+' + height);
         }
         else
         {
@@ -502,7 +502,7 @@
       {
         if (id in this.layers)
         {
-          //alert(id + ' in this.layers'); //XXX
+          //console.log(id + ' in this.layers'); //XXX
           this.remove(id);
         }
 
