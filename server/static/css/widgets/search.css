@@ -16,7 +16,7 @@
 .search-content-wrapper
 {
   position: absolute;
-  top: 3.5ex;
+  top: 30px;
   left: 0px;
   right: 0px;
   bottom: 0px;
@@ -35,13 +35,13 @@
   top: 0px;
   left: 0px;
   right: 0px;
-  height: 3.5ex;
+  height: 30px;
 
 	background: #efefef;
 	color: #69c6fd;
 
 	font-weight: bold;
-/*	font-size: 14pt;*/
+  font-size: 16px;
 
 	padding-top: 5px;
 	padding-bottom: 5px;
@@ -73,18 +73,18 @@
 #loadedFiltersHeader
 {
   position: absolute;
-  top: 3.5ex;
+  top: 35px;
   left: 0px;
   right: 0px;
   bottom: auto;
-  height: 3.5ex;
+  height: 25px;
 }
 
 #loadedFiltersWrapper
 {
   position: absolute;
-  top: 7ex;
-  bottom: 7ex;
+  top: 60px;
+  bottom: 75px;
   height: auto;
   width: 100%;
 }
@@ -105,16 +105,16 @@
 {
   position: absolute;
   top: auto;
-  bottom: 3.5ex;
-  height: 3.5ex;
+  bottom: 35px;
+  height: 40px;
 }
 
 #searchPropertySearch
 {
   position: absolute;
   top: auto;
-  bottom: 0;
-  height: 3.5ex;
+  bottom: 5px;
+  height: 25px;
 }
 
 
@@ -220,32 +220,30 @@ div.condition-column
 	width: 210px;
 }
 
-.addFilterButton,
 .add-filter-button,
 .filter-delete-button {
 	color: #aaaaaa;
-
 	float: right;
-
 	display: inline-block;
 }
 
 
-.add-filter-button,
-.addFilterButton {
+.add-filter-button
+{
 	font-size: 25px;
 
 	padding: 5px;
 /*	padding-right: 20px;*/
 }
 
-.addFilterButton:hover {
+.add-filter-button:hover
+{
 	color: #6ee000;
 }
 
-.filter-delete-button {
+.filter-delete-button
+{
 	font-size: 25px;
-
 	padding: 5px;
 	/*padding-right: 20px;*/
 }
@@ -401,7 +399,7 @@ div.condition-column
 #searchResults {
 	/*height: 480px;*/
 	overflow-x: hidden;
-	/*overflow-y: auto;*/
+	overflow-y: scroll;
 }
 
 #searchResults table
@@ -422,32 +420,90 @@ div.condition-column
   position: relative;
 }
 
-#searchResults table td .folded
+#searchResults table td section
 {
+  border: solid 1px #e5e5e5;
+  padding: 0; /*50px 0 0;*/
+  position: relative;
   overflow: hidden;
-  height: 80px;
 }
 
-#searchResults table td .folded:after
+#searchResults table td section.folded
 {
-  content: "more";
+  height: 83px;
+/*  padding-bottom: 0px;*/
+}
+
+#searchResults table td section.unfolded
+{
+  padding-bottom: 20px;
+}
+
+#searchResults table td section div.folding-button,
+#searchResults table td section div.unfolding-button
+{
   position: absolute;
   right: 0px;
   bottom: 0px;
+  height: 20px;
+  width: 70px;
+
+  border-top: solid 1px #e5e5e5;
+  border-left: solid 1px #e5e5e5;
+  border-top-left-radius: 4px;
+  text-align: center;
+  padding: 2px;
+
+  background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+  background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
 }
 
-#searchResults table td .unfolded:after
+#searchResults table td section div.folding-button:before
 {
-  content: "hide";
+  content: "fold";
 }
 
-#searchResults table td ul
+#searchResults table td section div.unfolding-button:before
+{
+  content: "unfold";
+}
+
+#searchResults table td section h1
+{
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+#searchResults table td section p.image-description
+{
+  text-align: left;
+  margin: 0 0 5px 0;
+}
+
+#searchResults table td section span.add-image-to-cart-button
+{
+/*  position: absolute;
+  top: 25px;
+  right: 5px;*/
+  float: right;
+  padding: 11px 5px;
+  display: block;
+}
+
+/*#searchResults table td section.folded span.add-image-to-cart-button
+{
+  padding-top: 11px;
+}*/
+
+#searchResults table section ul
 {
   margin: 0px;
   padding: 0px;
 }
 
-#searchResults table td ul li
+#searchResults table section ul li
 {
   list-style-type: none;
   text-align: left;
@@ -458,17 +514,17 @@ div.condition-column
 /*	margin-left: auto;
 	margin-right: auto;*/
   float: left;
-  margin: 0 5px 5px 0;
+  margin: 3px 10px 5px 3px;
 }
 
-.add-image-to-cart-button {
+.add-image-to-cart-button
+{
 	color: #aaaaaa;
-
-	font-size: 30px;
-
+	font-size: 25px;
 	padding: 5px;
 }
 
-.add-image-to-cart-button:hover {
+.add-image-to-cart-button:hover
+{
 	color: #6ee000;
 }

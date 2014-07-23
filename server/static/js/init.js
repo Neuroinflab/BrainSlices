@@ -873,55 +873,105 @@ $(function()
         var iid = row[0];
         var properties = row[1];
         var size = row[2];
-        var $tr = $('<tr><td>#' + iid + '</td></tr>');
+        var $tr = $('<tr></tr>');
         var $td = $('<td></td>');
-        var $div = $('<div></div>')
-                     .addClass('folded')
+        var $div = $('<section></section>')
                      .appendTo($td);
         $tr.append($td);
-        // XXX: a hack :-/
-        $div.append(BrainSlices.gui.getThumbnail(iid, size[0], size[1], 60, 60));
-        //$td = $('<td></td>');
-        //$tr.append($td);
-        var $ul = $('<ul></ul>');
-        $div.append($ul);
-        for (var name in properties)
-        {
-          var $li = $('<li>' + name + '</li>');
-          $ul.append($li);
-          //$ul.append('<dt>' + name + '</dt>');
-          var property = properties[name];
-          switch (property.type)
-          {
-            case 's':
-            case 'x':
-            case 'e':
-            case 'f':
-            case 'i':
-              //$ul.append('<dd>' + property.value + '</dd>');
-              $li.append(': ' + property.value);
-              break;
 
-            case 't':
-              //$ul.append('<dd>Tag</dd>');
-              break;
-          }
-        }
-        $td = $('<td></td>');
-        $tr.append($td);
+        // XXX: a hack :-/
+        $div.append(BrainSlices.gui.getThumbnail(iid, size[0], size[1], 64, 64));
+
         var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
-        $td.append($button);
+        $div.append($button);
         (function(iid)
         {
           $button.click(function()
           {
             //var z = $('#z').val();
             //global
-      console.log("add clicked");
             layerManager.autoAddTileLayer(iid, null, '#' + iid);
           });
         })(iid);
+
+        if ('name' in properties && properties.name.type != 't')
+        {
+          $div.append($('<h1></h1>').text(properties.name.value));
+          delete properties.name;
+        }
+
+        if ('description' in properties && properties.description.type != 't')
+        {
+          $div.append($('<p class="image-description"></p>').text(properties.description.value));
+          delete properties.description;
+        }
+
+        var names = [];
+        for (var name in properties)
+        {
+          names.push(name);
+        }
+
+        if (names.length > 0)
+        {
+          names.sort();
+
+          var $ul = $('<ul></ul>');
+          $div.append($ul);
+
+          for (var j = 0; j < names.length; j++)
+          {
+            var name = names[j];
+            var $li = $('<li>' + name + '</li>');
+            $ul.append($li);
+            //$ul.append('<dt>' + name + '</dt>');
+            var property = properties[name];
+            switch (property.type)
+            {
+              case 's':
+              case 'x':
+              case 'e':
+              case 'f':
+              case 'i':
+                //$ul.append('<dd>' + property.value + '</dd>');
+                $li.append(': ' + property.value);
+                break;
+
+              case 't':
+                //$ul.append('<dd>Tag</dd>');
+                break;
+            }
+          }
+        }
         $tbody.append($tr);
+
+        (function($div)
+        {
+          if ($div.outerHeight() <= 85) // static height assumed
+          {
+            return;
+          }
+
+          $div.addClass('folded');
+          var $fold = $('<div class="folding-button" style="display: none;"></div>')
+            .appendTo($div)
+            .click(function()
+              {
+                $fold.hide();
+                $unfold.show();
+                $div.removeClass('unfolded')
+                    .addClass('folded');
+              });
+          var $unfold = $('<div class="unfolding-button"></div>')
+            .appendTo($div)
+            .click(function()
+              {
+                $unfold.hide();
+                $fold.show();
+                $div.removeClass('folded')
+                    .addClass('unfolded');
+              });
+        })($div);
       }
     });
 

@@ -194,3 +194,25 @@ input:hover, textarea:hover, input:focus, textarea:focus {
     
     background: #2d7dc5;
 }
+
+/*
+::-webkit-scrollbar
+{
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-button
+{
+  background: #ccc
+}
+
+::-webkit-scrollbar-track-piece
+{
+  background: #888
+}
+
+::-webkit-scrollbar-thumb
+{
+  background: #eee
+}*/
