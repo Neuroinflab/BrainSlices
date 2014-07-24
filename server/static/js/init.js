@@ -61,24 +61,21 @@ function compressStacks()
     }
   }
   layerManager.arrangeInterface();
-  $('#nx').val(stacks.nx);
-  $('#ny').val(stacks.ny);
 }
 
 function decompressStacks()
 {
   var images = layerManager.loadedImagesOrdered();
-  var nx = $('#nx').val();
-  var ny = $('#ny').val();
-  var nxCor = nx * ny < images.length ?
-              parseInt(Math.ceil(images.length / ny)) :
-              nx;
+  var grid_dims = BrainSlices.scope.get('grid_dims');
+  var nxCor = grid_dims.x * grid_dims.y < images.length ?
+              parseInt(Math.ceil(images.length / grid_dims.y)) :
+              grid_dims.x;
   var display = $('#display').val();
   var width = display == 'matrix' ?
               null :
-              parseInt(Math.max(100, 66 * nxCor / ny)) + '%';
+              parseInt(Math.max(100, 66 * nxCor / grid_dims.y)) + '%';
   layerManager.unloadAll();
-  BrainSlices.scope.set('grid_dims', {x: nxCor, y: ny});
+  BrainSlices.scope.set('grid_dims', {x: nxCor, y: grid_dims.y});
   stacks.rearrange(nxCor, ny, width);
   for (var i = 0; i < images.length; i++)
   {
@@ -86,8 +83,6 @@ function decompressStacks()
   }
 
   layerManager.arrangeInterface();
-  $('#nx').val(stacks.nx);
-  $('#ny').val(stacks.ny);
 }
 
 function addLayer()
@@ -399,8 +394,8 @@ $(function()
     })
 
 
-  BrainSlices.scope.set("grid_dims", {x:$('#nx').val(),
-                                      y:$('#ny').val()});
+  BrainSlices.scope.set("grid_dims", {x: state.shape[0],
+                                      y: state.shape[1]});
   BrainSlices.scope
     .register(
     {
@@ -410,10 +405,9 @@ $(function()
         if (variable == "grid_dims")
         {
           //display = $("#display1").display();
-          $('#nx').val(val.x);
-          $('#ny').val(val.y);
           var nx = val.x;
           var ny = val.y;
+          state.shape = [nx, ny]; // XXX obsoleted
           var width = display == 'matrix' ?
                       null :
                       parseInt(Math.max(100, 66 * nx / ny)) + '%';
@@ -437,8 +431,6 @@ $(function()
 
   var nx = state.shape[0];
   var ny = state.shape[1];
-  $('#nx').val(nx);
-  $('#ny').val(ny);
   $('#x').val(state.focus[0][0]);
   $('#y').val(state.focus[0][1]);
 
