@@ -42,7 +42,9 @@ function rearrangeInterface()
   var nx = dims.x;
   var ny = dims.y;
   var display = BrainSlices.scope.get("display");
-  var width = display == 'matrix' ? null : parseInt(Math.max(100, 66 * nx / ny)) + '%';
+  var width = display == 'matrix' ?
+                         null :
+                         parseInt(Math.max(100, 66 * nx / ny)) + '%';
 
   stacks.rearrange(nx, ny, width);
   layerManager.arrangeInterface();
@@ -399,14 +401,7 @@ $(function()
       {
         if (variable == "grid_dims")
         {
-          //display = $("#display1").display();
-          var nx = val.x;
-          var ny = val.y;
-          state.shape = [nx, ny]; // XXX obsoleted
-          var width = display == 'matrix' ?
-                      null :
-                      parseInt(Math.max(100, 66 * nx / ny)) + '%';
-          stacks.rearrange(nx, ny, width);
+          state.shape = [val.x, val.y]; // XXX obsoleted
           rearrangeInterface();
         }
       }
