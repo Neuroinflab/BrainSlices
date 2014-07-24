@@ -9,10 +9,10 @@ $.widget("brainslices.navbar",
   _create:
   function()
   {
-    scope = this.options.scope;
+    var scope = this.options.scope;
 
     $(this.element)
-      .emplty()
+      .empty()
       .append(
         $('<div id=left>')
           .append('<div id="grid_select"></div>')
@@ -46,7 +46,7 @@ $.widget("brainslices.navbar",
 
     $("#btn_synch").button().click(function()
     {
-		  val = BrainSlices.scope.get("synch");
+		  var val = BrainSlices.scope.get("synch");
 		  if (val)
       {
   		  $("#btn_synch").removeClass("selected");
@@ -73,10 +73,7 @@ $.widget("brainslices.navbar",
       var hideHandler = function(event)
       {
         var isZoomButton = $(event.target).attr('id') === "btn_zoom";
-        var hasZoomButtonAsParent = (1 === $(event.target).parents().filter(function(parent) //filter('#btn_zoom')
-        {
-          return $(this).attr('id') === 'btn_zoom';
-        }).length);
+        var hasZoomButtonAsParent = (1 === $(event.target).parents().filter('#btn_zoom').length);
         if (isZoomButton || hasZoomButtonAsParent)
         {
           return;
@@ -99,9 +96,7 @@ $.widget("brainslices.navbar",
       var hideHandler = function(event)
       {
         var isZoomButton = $(event.target).attr('id') === "btn_trans";
-        var hasZoomButtonAsParent = (1 === $(event.target).parents().filter(function(parent) { //filter('#btn_trans')
-                        return $(this).attr('id') === 'btn_trans';
-                      }).length);
+        var hasZoomButtonAsParent = (1 === $(event.target).parents().filter('#btn_trans').length);
         if (isZoomButton || hasZoomButtonAsParent)
         {
           return;
@@ -147,7 +142,7 @@ $.widget("brainslices.navbar",
     });
     $("#btn_display").button().click(function()
     {
-		  val = BrainSlices.scope.get("display");
+		  var val = BrainSlices.scope.get("display");
   		if (val==="matrix")
       {
     		$("#btn_display_icon").removeClass("fa-film");
