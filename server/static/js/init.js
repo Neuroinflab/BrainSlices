@@ -359,8 +359,8 @@ $(function()
   $("#cart").cart();
 
 
-  BrainSlices.scope.set("display", "matrix");
-  
+  BrainSlices.scope.set("display", state.display);
+
   BrainSlices.scope
     .register(
     {
@@ -369,26 +369,21 @@ $(function()
       {
         if (variable == "display")
         {
+          state.display = val; // XXX obsoleted
           rearrangeInterface();
         }
       }
     })
 
-  $('[name="zoom"]')
-    .bind('change', function()
-    {
-      BrainSlices.scope.set("zoom",$('[name="zoom"]').val())
-    });
-          
   BrainSlices.scope
     .register(
     {
       change:
       function(variable, val)
       {
-        if (variable == "zoom")
+        if (variable == 'zoom')
         {
-          $('[name="zoom"]').val( val);
+          state.zoom = val; // XXX obsoleted
         }
       }
     })
@@ -431,7 +426,7 @@ $(function()
 
   var nx = state.shape[0];
   var ny = state.shape[1];
-  $('#x').val(state.focus[0][0]);
+  $('#ux').val(state.focus[0][0]);
   $('#y').val(state.focus[0][1]);
 
   images = new BrainSlices.api.CImageManager(loginConsole);
