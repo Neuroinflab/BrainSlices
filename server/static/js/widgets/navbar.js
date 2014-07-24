@@ -18,7 +18,7 @@ $.widget("brainslices.navbar", {
                             .append('<button id="btn_expand" class="icon">'+
 					'<span class="fa fa-expand"></span></button>')
 			    .append('<div id=spacer/>')
-                            .append('<button id="btn_zoom" class="icon"><span class="fa fa-search"></span></button>')
+                            .append('<button id="btn_zoom" class="icon"><span class="fa fa-search-plus"></span></button>')
                             .append('<button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>')
                             .append('<div id="target_select"> </div>')
                             .append('<div id="quality_button"> </div>')

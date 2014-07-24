@@ -5,10 +5,10 @@
 
 .searchPanelDiv {
   position: absolute;
-  top: 1em;
-  left: 1em;
-  bottom: 1em;
-  right: 1em;
+  top: 5px;
+  left: 5px;
+  bottom: 5px;
+  right: 5px;
 
 	margin: 0;
 }
@@ -84,7 +84,7 @@
 {
   position: absolute;
   top: 60px;
-  bottom: 75px;
+  bottom: 110px;
   height: auto;
   width: 100%;
 }
@@ -106,7 +106,7 @@
   position: absolute;
   top: auto;
   bottom: 35px;
-  height: 40px;
+  height: 75px;
 }
 
 #searchPropertySearch
@@ -138,12 +138,12 @@ div.condition-column
 
 div.property-column
 {
-	width: 13em;
+	width: 210px;
 }
 
 div.condition-column
 {
-	width: 26em;
+	width: 270px;
 }
 
 .filter-property-name
@@ -176,7 +176,8 @@ div.condition-column
 	border-right: none;
 }
 
-.select-property .propertyboxsearch-toggle {
+.select-property .propertyboxsearch-toggle
+{
 	width: 17px;
 	height: 25px;
 
@@ -259,9 +260,8 @@ div.condition-column
   display: block;
   float: left;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 3px;
-  /*
-  display: inline-block;
-  padding-right: 2.2em; */
+  height: 60px;
+  width: 200px;
 
   background: -webkit-gradient(linear, left top, left 25, from(white), color-stop(4%, #EEE), to(white));
   background: -moz-linear-gradient(top, white, #EEE 1px, white 25px);
@@ -271,15 +271,12 @@ div.condition-column
 .brainslices-new-property-filter>input,
 .brainslices-new-property-filter>div
 {
-  /*
-  line-height: 16pt;
-  font-height: 14pt;
-  height: 16pt;*/
+  position: absolute;
   box-sizing: border-box;
   box-shadow: none;
   font-size: 13px;
   line-height: 16px;
-  height: 5ex;
+  height: 30px;
 
   border: 1px solid #E5E5E5;
 }
@@ -292,36 +289,41 @@ div.condition-column
 
 .brainslices-new-property-filter>input
 {
-  width: 10em;
-  margin: 0 2em 0 0;
-  padding 2px 2px;
-  border-bottom-left-radius: 4px;
+  width: 180px;
+  top: 0px;
+  left: 0px;
+  margin: 0;
+  padding 2px;
+  /*border-bottom-left-radius: 4px;*/
+  border-bottom: none;
   border-top-left-radius: 4px;
 }
 
 .brainslices-new-property-filter>div
 {
-  position: absolute;
   top: 0px;
-  bottom: 0px;
-  left: 10em;
-  width: 2em;
-  height: auto;
-  right: auto;
+  right: 0px;
+  left: 180px;
+  border-top-right-radius: 4px;
   text-align: center;
 
   background: transparent url("/static/gfx/unfold.png") no-repeat center center;
   border-left: none;
-  border-right: none;
+  /*border-right: none;*/
+  border-bottom: none;
 }
 
 .brainslices-new-property-filter>select
 {
   padding: 2px 20px 2px 2px;
-  border-top-right-radius: 4px;
+  /*border-top-right-radius: 4px;*/
   border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
   margin: 0;
-  width: 9em;
+  width: 200px;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 
@@ -340,28 +342,53 @@ div.condition-column
 .brainslices-property-filter .brainslices-text-property-filter,
 .brainslices-property-filter .brainslices-enum-property-filter
 {
-  white-space: nowrap;
+/*  white-space: nowrap;*/
   position: relative;
   display: block;
   float: left;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 3px;
-  /*
-  display: inline-block;
-  padding-right: 2.2em; */
 
   background: -webkit-gradient(linear, left top, left 25, from(white), color-stop(4%, #EEE), to(white));
   background: -moz-linear-gradient(top, white, #EEE 1px, white 25px);
 }
 
+.brainslices-property-filter .brainslices-number-property-filter>input,
+.brainslices-property-filter .brainslices-number-property-filter>select,
+.brainslices-property-filter .brainslices-text-property-filter>input
+{
+  box-sizing: border-box;
+  box-shadow: none;
+  font-size: 13px;
+  line-height: 16px;
+  height: 30px;
+
+  border: 1px solid #E5E5E5;
+}
+
 .brainslices-property-filter .brainslices-enum-property-filter
 {
   border-radius: 4px;
+  max-width: 235px;
+  max-height: 60px;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.brainslices-property-filter .brainslices-enum-property-filter label
+{
+  white-space: nowrap;
 }
 
 /*numeric filter*/
 .brainslices-property-filter .brainslices-number-property-filter>input
 {
-  width: 4em;
+  width: 52px;
+  border-left: none;
+}
+
+.brainslices-property-filter .brainslices-number-property-filter>input:first-of-type
+{
+  border-right: none;
 }
 
 .brainslices-property-filter .brainslices-number-property-filter>input:last-of-type
@@ -372,7 +399,7 @@ div.condition-column
 
 .brainslices-property-filter .brainslices-number-property-filter>select
 {
-  width: 5em;
+  width: 65px;
 }
 
 .brainslices-property-filter .brainslices-number-property-filter>select:first-of-type
@@ -382,8 +409,10 @@ div.condition-column
 }
 
 /*text filter*/
-.brainslices-property-filter input[type="text"]
+.brainslices-property-filter .brainslices-text-property-filter>input
 {
+  margin: 0;
+  width: 234px;
   border-radius: 4px;
 }
 
@@ -469,6 +498,13 @@ div.condition-column
   float: right;
   padding: 11px 5px;
   display: block;
+	color: #aaaaaa;
+	font-size: 25px;
+}
+
+#searchResults>div>span.add-image-to-cart-button:hover
+{
+	color: #6ee000;
 }
 
 #searchResults>div>ul
@@ -491,14 +527,3 @@ div.condition-column
   margin: 3px 10px 5px 3px;
 }
 
-.add-image-to-cart-button
-{
-	color: #aaaaaa;
-	font-size: 25px;
-	padding: 5px;
-}
-
-.add-image-to-cart-button:hover
-{
-	color: #6ee000;
-}

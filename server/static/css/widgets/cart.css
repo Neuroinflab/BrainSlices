@@ -1,4 +1,5 @@
-.cart {
+.cart
+{
     right: 0px;
     bottom: 0px;
     top: 70px;
@@ -15,14 +16,16 @@
   float: left;
 }
 
-.cart #cart-table {
+#cart-table
+{
     height: 100%;
 
     border-spacing: 0;
     border-collapse: collapse;
 }
 
-.cart-controls-wrapper {
+.cart-controls-wrapper
+{
     position: absolute;
     top: 0px;
     bottom: 0px;
@@ -69,7 +72,7 @@
 }
 
 .cart .search-panel {
-    width: 43em;
+    width: 500px;
     z-index: 1;
 
 }

@@ -662,12 +662,9 @@ $(function()
     // XXX panel height hack ;-)
     var topHeight = $('#search-panel .searchPanelDiv').innerHeight();
 
-    var spHeight = Math.min($('#filtersWrapper .search-header-label').outerHeight() +
-                            $('#loadedFiltersHeader').outerHeight() +
-                            $('#loadedFilters').outerHeight() +
-                            $('#newFilter').outerHeight() +
-                            $('#searchPropertySearch').outerHeight(),
-                            parseInt(topHeight / 2));
+    var spHeight = Math.min(170 +
+                            $('#loadedFilters').outerHeight(),
+                            Math.max(170, parseInt(topHeight / 2)));
 
     $('#filtersWrapper').height(spHeight);
     $('#resultsWrapper').height(topHeight - spHeight);
@@ -1000,6 +997,8 @@ $(function()
                             }
                           }
                         });
+
+                        resizeSearchPanel();
                       }
                       else
                       {

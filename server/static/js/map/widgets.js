@@ -930,18 +930,26 @@ var CFilterPanel = null;
     function()
     {
       this.$wrapper = $('<span>').appendTo(this.element);
+      var $div = $('<div>')
+        .addClass('property-column')
+        .appendTo(this.$wrapper);
+
 
       var $what = $('<span>')
         .addClass('brainslices-new-property-filter')
+        .appendTo($div);
+
+      $div = $('<div>')
+        .addClass('condition-column')
         .appendTo(this.$wrapper);
 
       this.$filter = $('<span>')
         .addClass('brainslices-property-filter')
-        .appendTo(this.$wrapper);
+        .appendTo($div);
 
       var $add = $('<span>')
         .addClass('add-filter-button fa fa-plus')
-        .appendTo(this.$wrapper);
+        .appendTo($div);
 
       this._createNewPropertyFilter($what);
       this._createSubmitButton($add);
