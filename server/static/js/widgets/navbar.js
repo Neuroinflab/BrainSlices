@@ -70,7 +70,7 @@ $.widget("brainslices.navbar",
       $("#zoom").css("top", 46 + $("#btn_zoom").offset().top + "px");
       $("#zoom").show();
 
-      var hideHandler = function(event)
+      function hideHandler(event)
       {
         var isZoomButton = $(event.target).attr('id') === "btn_zoom";
         var hasZoomButtonAsParent = (1 === $(event.target).parents().filter('#btn_zoom').length);
@@ -93,7 +93,7 @@ $.widget("brainslices.navbar",
       $("#trans").css("top", 46 + $("#btn_trans").offset().top + "px");
       $("#trans").show();
 
-      var hideHandler = function(event)
+      function hideHandler(event)
       {
         var isZoomButton = $(event.target).attr('id') === "btn_trans";
         var hasZoomButtonAsParent = (1 === $(event.target).parents().filter('#btn_trans').length);
