@@ -346,35 +346,23 @@ function parseState(search)
 
 $(function()
 {
+  if (window.location.search != '')
+  {
+    var tmp = parseState(window.location.search.substring(1));
+    for (var name in tmp)
+    {
+      state[name] = tmp[name];
+    }
+  }
+
+
   $("#navbar").navbar(
   {
     scope: BrainSlices.scope
   });
 
-  $("#cart").cart(
-  {
-    display: $("#display1"),
-  });
+  $("#cart").cart();
 
-  //updaty zoomuu
-  $('[name="zoomLog"]')
-    .bind('change', function()
-      {
-        BrainSlices.scope.set("zoom",Math.pow(2, $('[name="zoomLog"]').val()))
-      });
-
-  BrainSlices.scope
-    .register(
-    {
-      change:
-      function(variable, val)
-      {
-        if (variable == "zoom" && $('[name="zoomLog"]').val() != val)
-        {
-          $('[name="zoomLog"]').val(  Math.log(val) / Math.log(2));
-        }
-      }
-    });
 
   BrainSlices.scope.set("display", "matrix");
   
@@ -419,9 +407,9 @@ $(function()
       change:
       function(variable,val)
       {
-        if( variable == "grid_dims")
+        if (variable == "grid_dims")
         {
-          display = $("#display1").display();
+          //display = $("#display1").display();
           $('#nx').val(val.x);
           $('#ny').val(val.y);
           var nx = val.x;
@@ -437,14 +425,6 @@ $(function()
 
 
   //$('#logoutLink').hide();
-  if (window.location.search != '')
-  {
-    var tmp = parseState(window.location.search.substring(1));
-    for (var name in tmp)
-    {
-      state[name] = tmp[name];
-    }
-  }
 
 
 
