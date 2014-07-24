@@ -24,23 +24,3 @@ html
   display: block;
 }
 
-.display-folded
-{  
-  float:left;
-  margin-right : 95%; 
-  width: 30%;    
-}
-
-.display-unfolded
-{  
-  float:left;
-
-  margin-right : 75%; 
-  width:auto;
-}
-
-.img-fill
-{
-  height: 100%;
-  display: block;
-}
