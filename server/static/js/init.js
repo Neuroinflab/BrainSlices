@@ -756,31 +756,59 @@ $(function()
         }
       }
 
-      var $header = $('<summary class="filter-property-name">' + (name != null ? (name + ' (' + type + ')') : ('(any field of type ' + type + ')')) + '</summary>');
-      var $row = $('<details></details>')
-        .addClass('filter-property-info')
-        .append($header);
-      filter.appendTo($row);
-
-//      switch (type)
-//      {
-//        case 's':
-//          $op = $('<select>'
-//                  +'<option>is</option>'
-//                  +'<option>like</option>'
-//                  +'<option>similar</option>'
-//                  +'<option>posix</option>'
-//                  +'</select>');
-//          $td.append($op);
-//          $input = $('<input type="text">');
-//          $td.append($input);
-//          $op.change(change);
-//          $input.change(change);
-//          break;
-
       var $remButton = $('<a href="javascript:void(0)" class="filter-delete-button fa fa-times"></a>')
-        .appendTo($header);
-      $remButton.click(remove);
+        .click(remove);
+
+      var label = name;
+      if (label == null)
+      {
+        switch (type)
+        {
+          case 't':
+            label = '--- any property set ---';
+            break;
+
+          case 'x':
+            label = '--- any text property ---';
+            break;
+
+          case 'f':
+            label = '--- any numeric property ---';
+            break;
+
+          default:
+            label = '--- any field of type ' + type + ' ---';
+        }
+      }
+
+      var $row;
+      if (type == 't')
+      {
+        $row = $('<div></div>')
+          .text(label)
+          .prepend($('<span></span>')
+                       .addClass('fa fa-tag'))
+          .addClass("filter-property-name")
+          .append($remButton);
+      }
+      else
+      {
+        $row = $('<details></details>');
+
+        var $header = $('<summary></summary>')
+          .text(label)
+          .prepend($('<span></span>')
+                       .addClass('fa fa-angle-double-down'))
+          .prepend($('<span></span>')
+                       .addClass('fa fa-angle-double-up'))
+          .addClass("filter-property-name")
+          .append($remButton)
+          .appendTo($row);
+        filter.appendTo($row);
+      }
+
+      $row
+        .addClass('filter-property-info')
 
       this.data.append($row);
       var triggers = {

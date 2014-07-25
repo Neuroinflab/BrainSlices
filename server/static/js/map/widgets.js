@@ -448,6 +448,7 @@ var CFilterPanel = null;
                       .appendTo(this.$wrapper)
                       .change(change);
       this.$wrapper
+        .append('<span class="fa fa-search" style="position: absolute; top: 0; left: 0; bottom: 0;"></span>')
         .removeClass('brainslices-number-property-filter brainslices-enum-property-filter')
         .addClass('brainslices-text-property-filter');
 
@@ -758,7 +759,7 @@ var CFilterPanel = null;
    * Class: brainslices.propertyboxsearch
    *
    * jQuery UI autocomplete widget extension allowing for explicite separating
-   * '--- any field ---' jocker from common field names in combobox.
+   * '--- any property ---' jocker from common field names in combobox.
    *
    * (Common field names items contains not null data attribute and follow
    * the jocker.)
@@ -939,7 +940,7 @@ var CFilterPanel = null;
         e: 'Enumerative'
       },
 
-      anyLabel: '--- any field ---'
+      anyLabel: '--- any property ---'
     },
 
     _create:

@@ -152,11 +152,12 @@ input:hover, textarea:hover, input:focus, textarea:focus {
     box-shadow:         0px 0px 2px 0px #388AD4;
 }
 
-.ui-autocomplete {
+.ui-autocomplete
+{
     border: solid 1px #dddddd;
     background: #ffffff;
 
-    max-width: 150px;
+    max-width: 210px;
     list-style-type: none;
 
     padding: 0;
