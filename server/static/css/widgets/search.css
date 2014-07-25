@@ -162,7 +162,7 @@ summary.filter-property-name::-webkit-details-marker
 summary.filter-property-name .fa-angle-double-up,
 summary.filter-property-name .fa-angle-double-down
 {
-  color: #808080;
+  color: #7F7F7F;
   margin-right: 5px;
 }
 
@@ -174,6 +174,16 @@ summary.filter-property-name .fa-angle-double-up
 summary.filter-property-name .fa-angle-double-down
 {
   display: inline-block;
+}
+
+details summary.filter-property-name
+{
+  color: #5080FF;
+}
+
+details[open] summary.filter-property-name
+{
+  color: #7F7F7F;
 }
 
 details[open] summary.filter-property-name .fa-angle-double-up
@@ -457,7 +467,7 @@ summary.filter-property-name
   width: 30px;
   padding: 8px 5px;
   font-size: 14px;
-  color: #808080;
+  /*color: #7F7F7F;*/
   box-sizing: content-box;
 }
 
