@@ -38,7 +38,7 @@
   height: 30px;
 
 	background: #efefef;
-	color: #69c6fd;
+	/*color: #69c6fd;*/
 
 	font-weight: bold;
   font-size: 16px;
@@ -593,3 +593,12 @@ details.filter-property-info .brainslices-property-filter
   margin: 3px 10px 5px 3px;
 }
 
+
+#searchImageBasketList
+{
+  position: absolute;
+  top: 35px;
+  bottom: 0px;
+  height: auto;
+  width: 100%;
+}

@@ -107,6 +107,96 @@ function addOutlineLayer()
   return false;
 }
 
+function detailsGenerator(iid, width, height, $parent, properties)
+{
+  var $div = $('<div></div>');
+
+  // XXX: a hack :-/ //i have absolutly no idea why considered a hack?
+  $div.append(BrainSlices.gui.getThumbnail(iid, width, height, 64, 64));
+  if (properties)
+  {
+    properties = $.extend({}, properties);
+
+    if ('name' in properties && properties.name.type != 't')
+    {
+      $div.append($('<h1></h1>').text(properties.name.value));
+      delete properties.name;
+    }
+
+    if ('description' in properties && properties.description.type != 't')
+    {
+      $div.append($('<p class="image-description"></p>').text(properties.description.value));
+      delete properties.description;
+    }
+
+    var names = [];
+    for (var name in properties)
+    {
+      names.push(name);
+    }
+
+    if (names.length > 0)
+    {
+      names.sort();
+
+      var $ul = $('<ul></ul>');
+      $div.append($ul);
+
+      for (var j = 0; j < names.length; j++)
+      {
+        var name = names[j];
+        var $li = $('<li>' + name + '</li>');
+        $ul.append($li);
+        //$ul.append('<dt>' + name + '</dt>');
+        var property = properties[name];
+        switch (property.type)
+        {
+          case 's':
+          case 'x':
+          case 'e':
+          case 'f':
+          case 'i':
+            //$ul.append('<dd>' + property.value + '</dd>');
+            $li.append(': ' + property.value);
+            break;
+
+          case 't':
+            //$ul.append('<dd>Tag</dd>');
+            break;
+        }
+      }
+    }
+  }
+
+  $div.appendTo($parent);
+  if ($div.outerHeight() <= 85) // static height assumed
+  {
+    return $div;
+  }
+
+  $div.addClass('folded');
+  var $fold = $('<div class="folding-button" style="display: none;"></div>')
+    .appendTo($div)
+    .click(function()
+      {
+        $fold.hide();
+        $unfold.show();
+        $div.removeClass('unfolded')
+            .addClass('folded');
+      });
+  var $unfold = $('<div class="unfolding-button"></div>')
+    .appendTo($div)
+    .click(function()
+      {
+        $unfold.hide();
+        $fold.show();
+        $div.removeClass('folded')
+            .addClass('unfolded');
+      });
+
+  return $div;
+}
+
 var testSubsets = null;
 var id2name = {};
 
@@ -448,12 +538,32 @@ $(function()
   }
   $('#control_panel [name="synchronization"]').prop('checked', true);
 
+  searchImageBasket = new BrainSlices.gui.CTableManager($('#searchImageBasketList'));
   layerManager = new CLayerManager($('.layerList'), stacks,
                                    loginConsole,
   {
     addTileLayer:
-    function(id, zIndex, label, onsuccess, onfailure, isvalid)
+    function(id, zIndex, label, onsuccess, onfailure, isvalid, details)
     {
+      var onremove = function()
+      {
+        thisInstance.tableManager.remove(id);
+        searchImageBasket.remove(id);
+      }
+      var $rem = $('<span class="layer-delete-button fa fa-times"></span>');
+      $rem.bind('click', onremove);
+      var $drag = $('<div draggable="true"></div>')
+        .text(label)
+        .append($rem);
+        
+      var $searchRow = $('<div draggable="true"></div>')
+        .append($drag);
+      if (details)
+      {
+        //TODO
+      }
+
+
       var image = null;
       var path = '/images/' + id;
 
@@ -463,7 +573,7 @@ $(function()
 
       // making the layer-related row
       var $row =  $('<tr></tr>');
-      var $drag = $('<td draggable="true">' + label + '</td>');//XXX .append(label) ?
+      $drag = $('<td draggable="true">' + label + '</td>');//XXX .append(label) ?
       var dragMIME = [];
 
       $row.append($drag);
@@ -537,12 +647,8 @@ $(function()
       $row.append($('<td></td>').append($adjust).append($iface));
 
       //removal
-      var $rem = $('<span class="layer-delete-button fa fa-times"></span>');
-
-      $rem.bind('click', function()
-      {
-        thisInstance.tableManager.remove(id);
-      });
+      $rem = $('<span class="layer-delete-button fa fa-times"></span>');
+      $rem.bind('click', onremove);
       $row.append($('<td></td>').append($rem));
 
       this.addTileLayer(id, $row, $visibility, zIndex, dragMIME,
@@ -550,6 +656,9 @@ $(function()
                         path, null, true,
                         function(img)
                         {
+                          console.log('on success handler');
+                          console.debug(img);
+
                           image = img;
 
                           var url = document.createElement('a');
@@ -559,8 +668,11 @@ $(function()
                           dragMIME.push(['text/uri-list', url]);
 
                           if (onsuccess) onsuccess();
+                          
+                          searchImageBasket.add($searchRow, id); // XXX not ordered etc.
                         },
                         onfailure, isvalid, onUpdate);
+      
 
       return id;
     }
@@ -861,101 +973,18 @@ $(function()
         var iid = row[0];
         var properties = row[1];
         var size = row[2];
-        var $div = $('<div></div>');
-
-        // XXX: a hack :-/
-        $div.append(BrainSlices.gui.getThumbnail(iid, size[0], size[1], 64, 64));
+        var $div = detailsGenerator(iid, size[0], size[1], $parent, properties);
 
         var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
-        $div.append($button);
+        $div.prepend($button);
         (function(iid)
         {
           $button.click(function()
           {
-            //var z = $('#z').val();
             //global
             layerManager.autoAddTileLayer(iid, null, '#' + iid);
           });
         })(iid);
-
-        if ('name' in properties && properties.name.type != 't')
-        {
-          $div.append($('<h1></h1>').text(properties.name.value));
-          delete properties.name;
-        }
-
-        if ('description' in properties && properties.description.type != 't')
-        {
-          $div.append($('<p class="image-description"></p>').text(properties.description.value));
-          delete properties.description;
-        }
-
-        var names = [];
-        for (var name in properties)
-        {
-          names.push(name);
-        }
-
-        if (names.length > 0)
-        {
-          names.sort();
-
-          var $ul = $('<ul></ul>');
-          $div.append($ul);
-
-          for (var j = 0; j < names.length; j++)
-          {
-            var name = names[j];
-            var $li = $('<li>' + name + '</li>');
-            $ul.append($li);
-            //$ul.append('<dt>' + name + '</dt>');
-            var property = properties[name];
-            switch (property.type)
-            {
-              case 's':
-              case 'x':
-              case 'e':
-              case 'f':
-              case 'i':
-                //$ul.append('<dd>' + property.value + '</dd>');
-                $li.append(': ' + property.value);
-                break;
-
-              case 't':
-                //$ul.append('<dd>Tag</dd>');
-                break;
-            }
-          }
-        }
-        $parent.append($div);
-
-        (function($div)
-        {
-          if ($div.outerHeight() <= 85) // static height assumed
-          {
-            return;
-          }
-
-          $div.addClass('folded');
-          var $fold = $('<div class="folding-button" style="display: none;"></div>')
-            .appendTo($div)
-            .click(function()
-              {
-                $fold.hide();
-                $unfold.show();
-                $div.removeClass('unfolded')
-                    .addClass('folded');
-              });
-          var $unfold = $('<div class="unfolding-button"></div>')
-            .appendTo($div)
-            .click(function()
-              {
-                $unfold.hide();
-                $fold.show();
-                $div.removeClass('folded')
-                    .addClass('unfolded');
-              });
-        })($div);
       }
     });
 
