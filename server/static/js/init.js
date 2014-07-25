@@ -621,6 +621,7 @@ $(function()
 
   function resizeSearchPanel()
   {
+    /*
     // XXX panel height hack ;-)
     var topHeight = $('#search-panel .searchPanelDiv').innerHeight();
 
@@ -630,6 +631,7 @@ $(function()
 
     $('#filtersWrapper').height(spHeight);
     $('#resultsWrapper').height(topHeight - spHeight);
+    */
   }
 
 
@@ -754,12 +756,11 @@ $(function()
         }
       }
 
-      var $row = $('<div><div class="filter-property-name property-column">' + (name != null ? (name + ' (' + type + ')') : ('(any field of type ' + type + ')')) + '</div></div>');
-      var $td = $('<div class="condition-column"></div>');
-      $row.append($td);
-      var $filterPropertyInfo = $('<span class="filter-property-info brainslices-property-filter"><span>');
-      $td.append($filterPropertyInfo);
-      filter.appendTo($filterPropertyInfo);
+      var $header = $('<summary class="filter-property-name">' + (name != null ? (name + ' (' + type + ')') : ('(any field of type ' + type + ')')) + '</summary>');
+      var $row = $('<details></details>')
+        .addClass('filter-property-info')
+        .append($header);
+      filter.appendTo($row);
 
 //      switch (type)
 //      {
@@ -777,8 +778,8 @@ $(function()
 //          $input.change(change);
 //          break;
 
-      var $remButton = $('<span class="filter-delete-button fa fa-times"></span>');
-      $td.append($remButton);
+      var $remButton = $('<a href="javascript:void(0)" class="filter-delete-button fa fa-times"></a>')
+        .appendTo($header);
       $remButton.click(remove);
 
       this.data.append($row);

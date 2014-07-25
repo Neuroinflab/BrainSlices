@@ -57,10 +57,24 @@
   box-sizing: border-box;
 }
 
+#filtersWrapper,
+#resultsWrapper,
+#searchImageBasket
+{
+  border: 1px solid red;
+}
+
 #filtersWrapper
 {
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: auto;
+  width: 250px;
+  /*
   height: 50%;
+  */
   /*
   position: absolute;
   top: 0px;
@@ -70,21 +84,37 @@
   */
 }
 
-#loadedFiltersHeader
+#resultsWrapper
 {
   position: absolute;
-  top: 35px;
+  left: 250px;
+  top: 0;
+  bottom: 0;
+  right: 33%;
+  /*top: 50%;*/
+  /*
+  height: 50%;
+  top: auto;
+  bottom: 0px;
   left: 0px;
   right: 0px;
-  bottom: auto;
-  height: 25px;
+  */
+}
+
+#searchImageBasket
+{
+  position: absolute;
+  left: 67%;
+  right: 0;
+  top: 0;
+  bottom: 0;
 }
 
 #loadedFiltersWrapper
 {
   position: absolute;
-  top: 60px;
-  bottom: 110px;
+  top: 35px;
+  bottom: 160px;
   height: auto;
   width: 100%;
 }
@@ -106,7 +136,9 @@
   position: absolute;
   top: auto;
   bottom: 35px;
-  height: 75px;
+  height: 120px;
+  left: 0;
+  right: 0;
 }
 
 #searchPropertySearch
@@ -118,44 +150,17 @@
 }
 
 
-#resultsWrapper
-{
-  position: absolute;
-  /*top: 50%;*/
-  height: 50%;
-  top: auto;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-}
-
-div.property-column,
-div.condition-column
-{
-  float: left;
-  /*display: inline-block;*/
-}
-
-div.property-column
-{
-	width: 210px;
-}
-
-div.condition-column
-{
-	width: 270px;
-}
 
 .filter-property-name
 {
 	font-style: italic;
-
-	/*width: 170px;*/
+  overflow: hidden;
 }
 
 .filter-property-info
 {
-	width: 200px;
+  border: 1px solid #e5e5e5;
+  margin: 2px;
 }
 
 .new-property-name-input
@@ -226,6 +231,7 @@ div.condition-column
 	color: #aaaaaa;
 	float: right;
 	display: inline-block;
+  text-decoration: none;
 }
 
 
@@ -255,13 +261,11 @@ div.condition-column
 
 .brainslices-new-property-filter
 {
-  white-space: nowrap;
   position: relative;
   display: block;
-  float: left;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 3px;
   height: 60px;
-  width: 200px;
+  width: 210px;
 
   background: -webkit-gradient(linear, left top, left 25, from(white), color-stop(4%, #EEE), to(white));
   background: -moz-linear-gradient(top, white, #EEE 1px, white 25px);
@@ -289,7 +293,7 @@ div.condition-column
 
 .brainslices-new-property-filter>input
 {
-  width: 180px;
+  width: 190px;
   top: 0px;
   left: 0px;
   margin: 0;
@@ -303,7 +307,7 @@ div.condition-column
 {
   top: 0px;
   right: 0px;
-  left: 180px;
+  left: 190px;
   border-top-right-radius: 4px;
   text-align: center;
 
@@ -320,7 +324,7 @@ div.condition-column
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
   margin: 0;
-  width: 200px;
+  width: 210px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -332,15 +336,14 @@ div.condition-column
   vertical-align: middle;
 }
 
-.brainslices-property-filter>div
+.brainslices-property-filter
 {
-  display: inline-block;
-/*  margin-right: 1em;*/
+  overflow: hidden;
 }
 
-.brainslices-property-filter .brainslices-number-property-filter,
-.brainslices-property-filter .brainslices-text-property-filter,
-.brainslices-property-filter .brainslices-enum-property-filter
+.brainslices-number-property-filter,
+.brainslices-text-property-filter,
+.brainslices-enum-property-filter
 {
 /*  white-space: nowrap;*/
   position: relative;
@@ -352,9 +355,9 @@ div.condition-column
   background: -moz-linear-gradient(top, white, #EEE 1px, white 25px);
 }
 
-.brainslices-property-filter .brainslices-number-property-filter>input,
-.brainslices-property-filter .brainslices-number-property-filter>select,
-.brainslices-property-filter .brainslices-text-property-filter>input
+.brainslices-number-property-filter>input,
+.brainslices-number-property-filter>select,
+.brainslices-text-property-filter>input
 {
   box-sizing: border-box;
   box-shadow: none;
@@ -365,54 +368,79 @@ div.condition-column
   border: 1px solid #E5E5E5;
 }
 
-.brainslices-property-filter .brainslices-enum-property-filter
+.brainslices-number-property-filter>input,
+.brainslices-text-property-filter>input
+{
+  background: transparent;
+}
+
+.brainslices-enum-property-filter
 {
   border-radius: 4px;
-  max-width: 235px;
+  max-width: 210px;
   max-height: 60px;
   overflow-x: auto;
   overflow-y: auto;
 }
 
-.brainslices-property-filter .brainslices-enum-property-filter label
+.brainslices-enum-property-filter label
 {
   white-space: nowrap;
 }
 
+
 /*numeric filter*/
-.brainslices-property-filter .brainslices-number-property-filter>input
+.brainslices-number-property-filter
+{
+  height: 60px;
+  width: 210px;
+}
+
+.brainslices-number-property-filter>input
 {
   width: 52px;
+  right: 0;
   border-left: none;
 }
 
-.brainslices-property-filter .brainslices-number-property-filter>input:first-of-type
+.brainslices-number-property-filter>input:first-of-type
 {
-  border-right: none;
+  top: 0;
+  border-bottom: none;
+  border-top-right-radius: 4px;
 }
 
-.brainslices-property-filter .brainslices-number-property-filter>input:last-of-type
+.brainslices-number-property-filter>input:last-of-type
 {
-  border-top-right-radius: 4px;
+  bottom: 0;
   border-bottom-right-radius: 4px;
 }
 
-.brainslices-property-filter .brainslices-number-property-filter>select
+.brainslices-number-property-filter>select
 {
-  width: 65px;
+  width: 158px;
+  left: 0;
 }
 
-.brainslices-property-filter .brainslices-number-property-filter>select:first-of-type
+.brainslices-number-property-filter>select:first-of-type
 {
+  top: 0;
+  border-bottom: none;
   border-top-left-radius: 4px;
+}
+
+.brainslices-number-property-filter>select:last-of-type
+{
+  bottom: 0;
   border-bottom-left-radius: 4px;
 }
 
+
 /*text filter*/
-.brainslices-property-filter .brainslices-text-property-filter>input
+.brainslices-text-property-filter>input
 {
   margin: 0;
-  width: 234px;
+  width: 210px;
   border-radius: 4px;
 }
 

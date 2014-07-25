@@ -72,7 +72,7 @@ var CFilterPanel = null;
       return this;
     },
 
-    make:
+    make: //XXX method might be obsolete
     function(t, data)
     {
       this.$row.hide().empty();
@@ -82,9 +82,9 @@ var CFilterPanel = null;
       {
         case 'f':
           var $op = $('<select>'
-                      +'<option selected="selected">eq</option>'
-                      +'<option>gt</option>'
-                      +'<option>gteq</option>'
+                      +'<option selected="selected" value="eq">equal</option>'
+                      +'<option value="gt">greater than</option>'
+                      +'<option value="gteq">not less than</option>'
                       +'<option>---</option>'
                       +'</select>')
             .appendTo(this.$row);
@@ -92,8 +92,8 @@ var CFilterPanel = null;
             .appendTo(this.$row);
 
           var $op2 = $('<select disabled="disabled">'
-                       +'<option>lt</option>'
-                       +'<option>lteq</option>'
+                       +'<option value="lt">less than</option>'
+                       +'<option value="lteq">no greater than</option>'
                        +'<option selected="selected">---</option>'
                        +'</select>')
             .appendTo(this.$row);
@@ -314,6 +314,15 @@ var CFilterPanel = null;
       e: {}
     },
 
+    floatLabels:
+    {
+      gt: 'greater than',
+      lt: 'less than',
+      gteq: 'not less than',
+      lteq: 'not greater than',
+      eq: 'equal'
+    },
+
     _create:
     function()
     {
@@ -333,6 +342,10 @@ var CFilterPanel = null;
       switch (this.options.type)
       {
         case 't':
+          this.$wrapper
+            .removeClass('brainslices-text-property-filter brainslices-number-property-filter brainslices-enum-property-filter')
+            .text('Matches all images with the property set.')
+            .show();
           break;
 
         case 'f':
@@ -445,11 +458,14 @@ var CFilterPanel = null;
     {
       var $select = $('<select>');
       var val = null;
+      var labels = this.floatLabels;
 
       $.each(options, function(i, v)
       {
         var $option = $('<option>')
-                        .text(v)
+                        .prop('value', v)
+                        .text(v in labels ?
+                              labels[v] : v)
                         .appendTo($select);
         if (v in conditions)
         {
@@ -943,12 +959,11 @@ var CFilterPanel = null;
         .addClass('condition-column')
         .appendTo(this.$wrapper);
 
-      this.$filter = $('<span>')
-        .addClass('brainslices-property-filter')
-        .appendTo($div);
-
       var $add = $('<span>')
         .addClass('add-filter-button fa fa-plus')
+        .appendTo($div);
+
+      this.$filter = $('<div>')
         .appendTo($div);
 
       this._createNewPropertyFilter($what);
@@ -1030,6 +1045,7 @@ var CFilterPanel = null;
 
       this.filter = //new CFilterPanel('<div>')
         $('<div>')
+        .addClass('brainslices-property-filter')
         .appendTo(this.$filter);
 
       this._updateTypeSelect('fxt');
@@ -1188,9 +1204,9 @@ var CFilterPanel = null;
       this.filter = //new CFilterPanel('<div>')
         //.make(type, data)
         $('<div>')
+        .addClass('brainslices-property-filter')
         .propertyfilter(options)
         .appendTo(this.$filter);
-      // UPS - would be before Add button :-D
     },
 
     _destroy:
