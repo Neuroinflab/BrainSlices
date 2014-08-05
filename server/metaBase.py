@@ -54,6 +54,44 @@ class MetaBase(dbBase):
       raise NotImplemented('Abstract class method called.')
 
 
+  class SelectVisibleSingular(SelectBase):
+    def __init__(self, uid=None):
+      if uid == None:
+        self.cond = """
+                    (img.status > %d AND (img.public_image_view OR
+                                          img.public_image_annotate OR
+                                          img.public_image_outline)
+                     OR img.status >= %d AND img.public_image_edit)
+                    """ % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_COMPLETED)
+        self.query = '(images AS img LEFT JOIN properties AS prop USING (iid))'
+
+      else:
+        self.cond = """
+                    (img.status > %d AND (img.public_image_view OR
+                                      img.public_image_annotate OR
+                                      img.public_image_outline OR
+                                      img.uid = %d)
+                     OR img.status >= %d AND (img.public_image_edit OR
+                                          img.owner = %d OR
+                                          img.uid = %d AND img.image_edit))
+                    """ % (IMAGE_STATUS_COMPLETED, uid,
+                           IMAGE_STATUS_COMPLETED, uid, uid)
+        self.query = """
+                     ((images LEFT JOIN image_privileges_cache USING (iid)) AS img
+                     LEFT JOIN properties AS prop USING (iid))
+                     """
+
+    def getQuery(self, tail=None):
+      if tail == None:
+        return (1, [self.query], [self.cond], [])
+
+      n, query, cond, data = tail
+
+      query.append(self.query + ' USING ( iid ) ')
+      cond.append(self.cond)
+
+      return (n, query, cond, data)
+
   class SelectVisible(SelectBase):
     def __init__(self, uid=None):
       if uid == None:
@@ -151,7 +189,7 @@ class MetaBase(dbBase):
 
     def getQuery(self, tail = None):
       if tail == None:
-        return (1, ["properties AS tmp0"], [x % tmp0 for x in self.cond], list(self.data))
+        return (1, ["properties AS tmp0"], [x % 'tmp0' for x in self.cond], list(self.data))
 
       n, query, cond, data = tail
 
@@ -179,7 +217,7 @@ class MetaBase(dbBase):
 
     def getQuery(self, tail = None):
       if tail == None:
-        return (1, ["properties AS tmp0"], [x % tmp0 for x in self.cond], list(self.data))
+        return (1, ["properties AS tmp0"], [x % 'tmp0' for x in self.cond], list(self.data))
 
       n, query, cond, data = tail
 
@@ -394,6 +432,42 @@ class MetaBase(dbBase):
             WHERE %s
             ORDER BY img.iid
             """ % (' JOIN '.join(tables), ' AND '.join(cond))
+    cursor.execute(query, data)
+    res = []
+    if cursor.rowcount > 0:
+      lastIID, name, t, n, s, v, e, lastW, lastH = cursor.fetchone()
+      last = {name: unwrapProperties(t, n, s, v, e)} if name is not None else {}
+      for iid, name, t, n, s, v, e, w, h in cursor:
+        if iid != lastIID:
+          res.append([lastIID, last, [lastW, lastH]])
+          if limit != None and len(res) >= limit:
+            return res
+
+          last = {}
+          lastIID = iid
+          lastW = w
+          lastH = h
+
+        if name is not None:
+          last[name] = unwrapProperties(t, n, s, v, e)
+
+      res.append([lastIID, last, [lastW, lastH]])
+
+    return res
+
+  @provideCursor
+  def searchImagesPropertiesSingular(self, selectors, limit=None, cursor=None):
+    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors, None)
+    query = """
+            SELECT img.iid, prop.property_name, prop.property_type,
+                   prop.property_number, prop.property_string,
+                   prop.property_visible, prop.property_editable,
+                   img.image_width, img.image_height
+            FROM %s
+            WHERE %s
+            ORDER BY img.iid
+            """ % (' JOIN '.join(tables), ' AND '.join(cond))
+    print query
     cursor.execute(query, data)
     res = []
     if cursor.rowcount > 0:

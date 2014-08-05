@@ -132,8 +132,10 @@ class MetaServer(Generator, Server):
                  if prop[0] in 'tx' else\
                  self.selectorClass[prop[0]](None, **prop[1])\
                  for prop in nonames]
-    selectors.append(MetaBase.SelectVisible(uid))
-    result = self.metaBase.searchImagesPropertiesSize(selectors)
+    #selectors.append(MetaBase.SelectVisible(uid))
+    #result = self.metaBase.searchImagesPropertiesSize(selectors)
+    selectors.append(MetaBase.SelectVisibleSingular(uid))
+    result = self.metaBase.searchImagesPropertiesSingular(selectors)
     return generateJson(data = result,
                         status = True,
                         message = None,
