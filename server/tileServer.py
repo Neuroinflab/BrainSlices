@@ -55,15 +55,21 @@ class OutlineServer(Server):
 
 
 class TileServer(Server):
-  def __init__(self, tileBase):
+  def __init__(self, tileBase, metaBase=None):
     self.tileBase = tileBase
+    self.metaBase = metaBase
 
   @serveContent(ImageRequest)
   def __call__(self, request):
     if request.method == 'info.json':
       data = self.tileBase.info(request)
       if data:
-        return generateJson(data = unwrapRow(data),
+        data = unwrapRow(data)
+        if self.metaBase:
+          properties = self.metaBase.getProperties(request.id)
+          data['properties'] = properties
+
+        return generateJson(data,
                             status = data != None,
                             message = None,
                             logged = request.session.get('userID') != None)

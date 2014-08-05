@@ -73,7 +73,7 @@ class WebService(Server):
     userBase = UserBase(db, dbPool)
     metaBase = MetaBase(db, dbPool)
 
-    self.images = TileServer(tileBase)
+    self.images = TileServer(tileBase, metaBase)
     self.outlines = OutlineServer(os.path.join(servicePath, 'outlines'))
     self.user = UserServer(servicePath, userBase)
     self.upload = UploadServer(servicePath, tileBase) #TODO: remove servicePath after tests

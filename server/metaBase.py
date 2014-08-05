@@ -201,7 +201,7 @@ class MetaBase(dbBase):
                    WHERE iid = %s AND property_visible <= %s;
                    """, (iid, privileges))
     res = dict((row[0], unwrapProperties(*row[1:]))\
-               for row in cursor)
+               for row in cursor) # XXX Good design :-D
 
     return res
 
