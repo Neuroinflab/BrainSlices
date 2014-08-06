@@ -134,8 +134,8 @@ class MetaServer(Generator, Server):
                  for prop in nonames]
     #selectors.append(MetaBase.SelectVisible(uid))
     #result = self.metaBase.searchImagesPropertiesSize(selectors)
-    selectors.append(MetaBase.SelectVisibleSingular(uid))
-    result = self.metaBase.searchImagesPropertiesSingular(selectors)
+    result = self.metaBase.searchImagesPropertiesInfo(selectors,
+                                                      uid = uid)
     return generateJson(data = result,
                         status = True,
                         message = None,

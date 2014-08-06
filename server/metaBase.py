@@ -456,8 +456,34 @@ class MetaBase(dbBase):
     return res
 
   @provideCursor
-  def searchImagesPropertiesSingular(self, selectors, limit=None, cursor=None):
-    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors, None)
+  def searchImagesPropertiesInfo(self, selectors, uid=None, limit=None, cursor=None):
+    if uid is None:
+      cond = """
+             (img.status > %d AND (img.public_image_view OR
+                                   img.public_image_annotate OR
+                                   img.public_image_outline)
+              OR img.status >= %d AND img.public_image_edit)
+             """ % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_COMPLETED)
+      tables = '(images AS img LEFT JOIN properties AS prop USING (iid))'
+      
+    else:
+      cond = """
+             (img.status > %d AND (img.public_image_view OR
+                               img.public_image_annotate OR
+                               img.public_image_outline OR
+                               img.uid = %d)
+              OR img.status >= %d AND (img.public_image_edit OR
+                                   img.owner = %d OR
+                                   img.uid = %d AND img.image_edit))
+             """ % (IMAGE_STATUS_COMPLETED, uid,
+                    IMAGE_STATUS_COMPLETED, uid, uid)
+      tables = """
+               ((images LEFT JOIN image_privileges_cache USING (iid)) AS img
+               LEFT JOIN properties AS prop USING (iid))
+               """
+
+    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors,
+                                   (0, [tables], [cond], []))
     query = """
             SELECT img.iid, prop.property_name, prop.property_type,
                    prop.property_number, prop.property_string,
