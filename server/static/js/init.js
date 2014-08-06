@@ -107,12 +107,13 @@ function addOutlineLayer()
   return false;
 }
 
-function detailsGenerator(iid, width, height, $parent, properties)
+function detailsGenerator(info, $parent)
 {
+  var properties = info.properties;
   var $div = $('<div></div>');
 
   // XXX: a hack :-/ //i have absolutly no idea why considered a hack?
-  $div.append(BrainSlices.gui.getThumbnail(iid, width, height, 64, 64));
+  $div.append(BrainSlices.gui.getThumbnail(info.iid, info.imageWidth, info.imageHeight, 64, 64));
   if (properties)
   {
     properties = $.extend({}, properties);
@@ -969,11 +970,8 @@ $(function()
       var $parent = $('#searchResults').empty();
       for (var i = 0; i < result.length; i++)
       {
-        var row = result[i];
-        var iid = row[0];
-        var properties = row[1];
-        var size = row[2];
-        var $div = detailsGenerator(iid, size[0], size[1], $parent, properties);
+        var info = result[i];
+        var $div = detailsGenerator(info, $parent);
 
         var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
         $div.prepend($button);
@@ -984,7 +982,7 @@ $(function()
             //global
             layerManager.autoAddTileLayer(iid, null, '#' + iid);
           });
-        })(iid);
+        })(info.iid);
       }
     });
 

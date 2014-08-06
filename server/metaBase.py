@@ -29,7 +29,8 @@ from database import provideCursor, provideConnection, manageConnection,\
                      dbBase, TransactionRollbackError, FOREIGN_KEY_VIOLATION,\
                      UNIQUE_VIOLATION
 
-from tileBase import IMAGE_STATUS_COMPLETED
+from tileBase import IMAGE_STATUS_COMPLETED, NO_PRIVILEGE, PUBLIC_PRIVILEGE, \
+                     GROUP_PRIVILEGE, OWNER_PRIVILEGE
 
 def unwrapProperties(type_, number, string, visible, editable):
   prop = {'type': type_,
@@ -52,80 +53,6 @@ class MetaBase(dbBase):
 
     def getQuery(self):
       raise NotImplemented('Abstract class method called.')
-
-
-  class SelectVisibleSingular(SelectBase):
-    def __init__(self, uid=None):
-      if uid == None:
-        self.cond = """
-                    (img.status > %d AND (img.public_image_view OR
-                                          img.public_image_annotate OR
-                                          img.public_image_outline)
-                     OR img.status >= %d AND img.public_image_edit)
-                    """ % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_COMPLETED)
-        self.query = '(images AS img LEFT JOIN properties AS prop USING (iid))'
-
-      else:
-        self.cond = """
-                    (img.status > %d AND (img.public_image_view OR
-                                      img.public_image_annotate OR
-                                      img.public_image_outline OR
-                                      img.uid = %d)
-                     OR img.status >= %d AND (img.public_image_edit OR
-                                          img.owner = %d OR
-                                          img.uid = %d AND img.image_edit))
-                    """ % (IMAGE_STATUS_COMPLETED, uid,
-                           IMAGE_STATUS_COMPLETED, uid, uid)
-        self.query = """
-                     ((images LEFT JOIN image_privileges_cache USING (iid)) AS img
-                     LEFT JOIN properties AS prop USING (iid))
-                     """
-
-    def getQuery(self, tail=None):
-      if tail == None:
-        return (1, [self.query], [self.cond], [])
-
-      n, query, cond, data = tail
-
-      query.append(self.query + ' USING ( iid ) ')
-      cond.append(self.cond)
-
-      return (n, query, cond, data)
-
-  class SelectVisible(SelectBase):
-    def __init__(self, uid=None):
-      if uid == None:
-        self.cond = """
-                    (tmp%%(n)d.status > %d AND (tmp%%(n)s.public_image_view OR
-                                          tmp%%(n)d.public_image_annotate OR
-                                          tmp%%(n)d.public_image_outline)
-                     OR tmp%%(n)d.status >= %d AND tmp%%(n)s.public_image_edit)
-                    """ % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_COMPLETED)
-        self.query = 'images AS tmp%d'
-
-      else:
-        self.cond = """
-                    (tmp%%(n)d.status > %d AND (tmp%%(n)s.public_image_view OR
-                                      tmp%%(n)d.public_image_annotate OR
-                                      tmp%%(n)d.public_image_outline OR
-                                      tmp%%(n)d.uid = %d)
-                     OR tmp%%(n)d.status >= %d AND (tmp%%(n)s.public_image_edit OR
-                                          tmp%%(n)d.owner = %d OR
-                                          tmp%%(n)d.uid = %d AND tmp%%(n)s.image_edit))
-                    """ % (IMAGE_STATUS_COMPLETED, uid,
-                           IMAGE_STATUS_COMPLETED, uid, uid)
-        self.query = '(images LEFT JOIN image_privileges_cache USING (iid)) AS tmp%d'
-
-    def getQuery(self, tail=None):
-      if tail == None:
-        return (1, [self.query % 0], [self.cond % {'n': 0}], [])
-
-      n, query, cond, data = tail
-
-      query.append(self.query % n + ' USING (iid)')
-      cond.append(self.cond % {'n': n})
-
-      return (n + 1, query, cond, data)
 
 
   class SelectTag(SelectBase):
@@ -387,75 +314,6 @@ class MetaBase(dbBase):
     return cursor.fetchall()
 
   @provideCursor
-  def searchImagesProperties(self, selectors, limit=None, cursor=None):
-    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors,
-                                   (1, ["properties AS tmp0"], [], []))
-    query = """
-            SELECT tmp0.iid, tmp0.property_name, tmp0.property_type,
-                   tmp0.property_number, tmp0.property_string,
-                   tmp0.property_visible, tmp0.property_editable
-            FROM %s
-            WHERE %s
-            ORDER BY tmp0.iid
-            """ % (' JOIN '.join(tables), ' AND '.join(cond))
-    cursor.execute(query, data)
-    res = []
-    if cursor.rowcount > 0:
-      lastIID, name, t, n, s, v, e = cursor.fetchone()
-      last = {name: unwrapProperties(t, n, s, v, e)}
-      for iid, name, t, n, s, v, e in cursor:
-        if iid != lastIID:
-          res.append([lastIID, last])
-          if limit != None and len(res) >= limit:
-            return res
-
-          last = {}
-          lastIID = iid
-
-        last[name] = unwrapProperties(t, n, s, v, e)
-
-      res.append([lastIID, last])
-
-    return res
-
-  @provideCursor
-  def searchImagesPropertiesSize(self, selectors, limit=None, cursor=None):
-    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors,
-                                   (1, ["(properties AS tmp0 RIGHT",
-                                        "images AS img USING (iid))"], [], []))
-    query = """
-            SELECT img.iid, tmp0.property_name, tmp0.property_type,
-                   tmp0.property_number, tmp0.property_string,
-                   tmp0.property_visible, tmp0.property_editable,
-                   img.image_width, img.image_height
-            FROM %s
-            WHERE %s
-            ORDER BY img.iid
-            """ % (' JOIN '.join(tables), ' AND '.join(cond))
-    cursor.execute(query, data)
-    res = []
-    if cursor.rowcount > 0:
-      lastIID, name, t, n, s, v, e, lastW, lastH = cursor.fetchone()
-      last = {name: unwrapProperties(t, n, s, v, e)} if name is not None else {}
-      for iid, name, t, n, s, v, e, w, h in cursor:
-        if iid != lastIID:
-          res.append([lastIID, last, [lastW, lastH]])
-          if limit != None and len(res) >= limit:
-            return res
-
-          last = {}
-          lastIID = iid
-          lastW = w
-          lastH = h
-
-        if name is not None:
-          last[name] = unwrapProperties(t, n, s, v, e)
-
-      res.append([lastIID, last, [lastW, lastH]])
-
-    return res
-
-  @provideCursor
   def searchImagesPropertiesInfo(self, selectors, uid=None, limit=None, cursor=None):
     if uid is None:
       cond = """
@@ -465,7 +323,36 @@ class MetaBase(dbBase):
               OR img.status >= %d AND img.public_image_edit)
              """ % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_COMPLETED)
       tables = '(images AS img LEFT JOIN properties AS prop USING (iid))'
-      
+      query = """
+              SELECT prop.property_name, prop.property_type,
+                     prop.property_number, prop.property_string,
+                     prop.property_visible, prop.property_editable,
+
+                     img.iid,
+                     CASE WHEN img.public_image_view THEN %d
+                          ELSE %d END,
+                     CASE WHEN img.public_image_annotate THEN %d
+                          ELSE %d END,
+                     CASE WHEN img.public_image_edit THEN %d
+                          ELSE %d END,
+                     CASE WHEN img.public_image_outline THEN %d
+                          ELSE %d END,
+
+                     img.image_top, img.image_left,
+                     img.image_width, img.image_height,
+                     img.tile_width, img.tile_height,
+                     img.pixel_size, img.image_crc32, img.image_md5,
+
+                     img.status
+
+              FROM %%s
+              WHERE %%s
+              ORDER BY img.iid;
+              """ % (PUBLIC_PRIVILEGE, NO_PRIVILEGE,
+                     PUBLIC_PRIVILEGE, NO_PRIVILEGE,
+                     PUBLIC_PRIVILEGE, NO_PRIVILEGE,
+                     PUBLIC_PRIVILEGE, NO_PRIVILEGE)
+
     else:
       cond = """
              (img.status > %d AND (img.public_image_view OR
@@ -481,39 +368,102 @@ class MetaBase(dbBase):
                ((images LEFT JOIN image_privileges_cache USING (iid)) AS img
                LEFT JOIN properties AS prop USING (iid))
                """
+      query = """
+              SELECT prop.property_name, prop.property_type,
+                     prop.property_number, prop.property_string,
+                     prop.property_visible, prop.property_editable,
+
+                     img.iid,
+                     CASE WHEN img.owner = %d THEN %d
+                          WHEN COUNT(img.gid) > 0 THEN %d
+                          WHEN img.public_image_view THEN %d
+                          ELSE %d END,
+                     CASE WHEN img.owner = %d THEN %d
+                          WHEN COALESCE(BOOL_OR(img.image_annotate), FALSE) THEN %d
+                          WHEN img.public_image_annotate THEN %d
+                          ELSE %d END,
+                     CASE WHEN img.owner = %d THEN %d
+                          WHEN COALESCE(BOOL_OR(img.image_edit), FALSE) THEN %d
+                          WHEN img.public_image_edit THEN %d
+                          ELSE %d END,
+                     CASE WHEN img.owner = %d THEN %d
+                          WHEN COALESCE(BOOL_OR(img.image_outline), FALSE) THEN %d
+                          WHEN img.public_image_outline THEN %d
+                          ELSE %d END,
+
+                     img.image_top, img.image_left,
+                     img.image_width, img.image_height,
+                     img.tile_width, img.tile_height,
+                     img.pixel_size, img.image_crc32, img.image_md5,
+                     img.status
+
+              FROM %%s
+              WHERE %%s
+              GROUP BY prop.property_name, prop.property_type,
+                       prop.property_number, prop.property_string,
+                       prop.property_visible, prop.property_editable,
+
+                       img.iid,
+                       img.image_width, img.image_height,
+
+                       img.image_top, img.image_left,
+                       img.tile_width, img.tile_height,
+                       img.pixel_size, img.image_crc32, img.image_md5,
+                       img.status
+
+              ORDER BY img.iid;
+              """ % (uid, OWNER_PRIVILEGE, GROUP_PRIVILEGE, PUBLIC_PRIVILEGE, NO_PRIVILEGE,
+                     uid, OWNER_PRIVILEGE, GROUP_PRIVILEGE, PUBLIC_PRIVILEGE, NO_PRIVILEGE,
+                     uid, OWNER_PRIVILEGE, GROUP_PRIVILEGE, PUBLIC_PRIVILEGE, NO_PRIVILEGE,
+                     uid, OWNER_PRIVILEGE, GROUP_PRIVILEGE, PUBLIC_PRIVILEGE, NO_PRIVILEGE)
 
     _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors,
                                    (0, [tables], [cond], []))
-    query = """
-            SELECT img.iid, prop.property_name, prop.property_type,
-                   prop.property_number, prop.property_string,
-                   prop.property_visible, prop.property_editable,
-                   img.image_width, img.image_height
-            FROM %s
-            WHERE %s
-            ORDER BY img.iid
-            """ % (' JOIN '.join(tables), ' AND '.join(cond))
+
+
+    query = query % (' JOIN '.join(tables), ' AND '.join(cond))
+
     print query
     cursor.execute(query, data)
     res = []
     if cursor.rowcount > 0:
-      lastIID, name, t, n, s, v, e, lastW, lastH = cursor.fetchone()
+      row = cursor.fetchone()
+      name, t, n, s, v, e, lastIID = row[:7]
       last = {name: unwrapProperties(t, n, s, v, e)} if name is not None else {}
-      for iid, name, t, n, s, v, e, w, h in cursor:
+      info = (lastIID, last,
+              max(row[7:11]), row[9], max(row[8:10]), max(row[9:11]))
+      info = dict(zip(['iid', 'properties',
+                       'viewPrivilege', 'editPrivilege',
+                       'annotatePrivilege', 'outlinePrivilege',
+                       'imageTop', 'imageLeft', 'imageWidth',
+                       'imageHeight', 'tileWidth', 'tileHeight',
+                       'pixelSize', 'crc32', 'md5', 'status'],
+                      info + row[11:]))
+      for row in cursor:
+        name, t, n, s, v, e, iid = row[:7] #, w, h = row[:9]
+
         if iid != lastIID:
-          res.append([lastIID, last, [lastW, lastH]])
+          res.append(info)
           if limit != None and len(res) >= limit:
             return res
 
           last = {}
           lastIID = iid
-          lastW = w
-          lastH = h
+          info = (iid, last,
+                  max(row[7:11]), row[9], max(row[8:10]), max(row[9:11]))
+          info = dict(zip(['iid', 'properties',
+                           'viewPrivilege', 'editPrivilege',
+                           'annotatePrivilege', 'outlinePrivilege',
+                           'imageTop', 'imageLeft', 'imageWidth',
+                           'imageHeight', 'tileWidth', 'tileHeight',
+                           'pixelSize', 'crc32', 'md5', 'status'],
+                          info + row[11:]))
+
 
         if name is not None:
           last[name] = unwrapProperties(t, n, s, v, e)
 
-      res.append([lastIID, last, [lastW, lastH]])
+      res.append(info)
 
     return res
 
