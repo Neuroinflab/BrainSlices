@@ -484,7 +484,7 @@ with ({gui: BrainSlices.gui,
       this.stacks.load(stackId, layerId);
       if (doNotUpdateIface != true)
       {
-        this.layers[imageId].loadButtons[stackId].$cb.prop('checked', true);
+        this.layers[layerId].loadButtons[stackId].$cb.prop('checked', true);
       }
     },
 
