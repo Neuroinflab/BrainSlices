@@ -153,7 +153,13 @@ $.widget("brainslices.cart",
   {
     this._hideButtons();
 
-    $("#" + panelId, this.element).show('slide', { direction: "right" }, 650, callback);
+    $("#" + panelId, this.element).show('slide', { direction: "right" }, 650,
+                                         function()
+                                         {
+                                           // XXX a hook
+                                           $("#" + panelId + ' ' + '.search-content-wrapper>div').folder('refresh');
+                                           callback();
+                                         });
   },
   
   _hideButtons: function()
