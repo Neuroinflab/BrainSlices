@@ -544,7 +544,7 @@ $(function()
                                    loginConsole,
   {
     addTileLayer:
-    function(id, zIndex, label, onsuccess, onfailure, isvalid, details)
+    function(id, info, zIndex, label, onsuccess, onfailure, isvalid, details)
     {
       var onremove = function()
       {
@@ -654,7 +654,7 @@ $(function()
 
       this.addTileLayer(id, $row, $visibility, zIndex, dragMIME,
                         null,
-                        path, null, true,
+                        path, info, true,
                         function(img)
                         {
                           console.log('on success handler');
@@ -691,7 +691,7 @@ $(function()
       var id = pair[0];
       var md5 = pair[1].toLowerCase();
 
-      id = layerManager.autoAddTileLayer(id, state.iids.length - imageI - 1,
+      id = layerManager.autoAddTileLayer(id, null, state.iids.length - imageI - 1,
                                          '#'+id, loadNextImage,
                                      function(msg)
                                      {
@@ -975,14 +975,14 @@ $(function()
 
         var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
         $div.prepend($button);
-        (function(iid)
+        (function(info)
         {
           $button.click(function()
           {
             //global
-            layerManager.autoAddTileLayer(iid, null, '#' + iid);
+            layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
           });
-        })(info.iid);
+        })(info);
       }
     });
 
