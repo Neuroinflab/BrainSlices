@@ -545,7 +545,6 @@ $(function()
   }
   $('#control_panel [name="synchronization"]').prop('checked', true);
 
-  //searchImageBasket = new BrainSlices.gui.CTableManager($('#searchImageBasketList'));
   layerManager = new CLayerManager($.merge($('#layersConsoleTable tbody'),
                                            $('#searchImageBasketList')),
                                    stacks,
@@ -554,34 +553,23 @@ $(function()
     addTileLayer:
     function(id, info, zIndex, label, onsuccess, onfailure, isvalid)
     {
+      var thisInstance = this;
+
       var onremove = function()
       {
         thisInstance.tableManager.remove(id);
-        //searchImageBasket.remove(id);
       }
-      var $rem = $('<span class="layer-delete-button fa fa-times"></span>');
-      $rem.bind('click', onremove);
-      //var $drag = $('<div draggable="true"></div>')
-      //  .text(label)
-      //  .append($rem);
+      var $rem = $('<span class="layer-delete-button fa fa-times"></span>')
+        .bind('click', onremove);
         
       var $searchRow = $('<div draggable="true"></div>')
         .append($rem);
-      //  .append($drag);
-      //if (info)
-      //{
-      //  detailsGenerator(info, $searchRow)
-      //    .attr('draggable', 'true');
-      //  //TODO
-      //}
-
 
       var image = null;
       var path = '/images/' + id;
 
       if (this.has(id)) return;
 
-      var thisInstance = this;
 
       // making the layer-related row
       var $row =  $('<tr></tr>');
@@ -647,13 +635,9 @@ $(function()
       {
         var info = this.info;
         $iface.find('input.imageLeft').val(info.imageLeft);
-        //$iface.find('span.imageLeft').html(info.imageLeft);
         $iface.find('input.imageTop').val(info.imageTop);
-        //$iface.find('span.imageTop').html(info.imageTop);
         $iface.find('input.pixelSize').val(info.pixelSize);
-        //$iface.find('span.pixelSize').html(info.pixelSize);
         $iface.find('select[name="status"]').val(info.status);
-        //$iface.find('span.status').html(STATUS_MAP[info.status]);
       }
 
       $row.append($('<td></td>').append($adjust).append($iface));
@@ -682,7 +666,6 @@ $(function()
 
                           if (onsuccess) onsuccess();
                           
-                          //searchImageBasket.add($searchRow, id); // XXX not ordered etc.
                           detailsGenerator(img.info, $searchRow);
                         },
                         onfailure, isvalid, onUpdate);
