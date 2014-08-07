@@ -1223,4 +1223,83 @@ var CFilterPanel = null;
   });
 
 
+  /**
+   * Class: brainslices.folder
+   *
+   * A widget for folding/unfolding DIVs.
+   *
+   * Options:
+   *   treshold - a minimum element height when folding occurs.
+   **************************************************************************/
+  $.widget('brainslices.folder',
+  {
+    options:
+    {
+      treshold: 85
+    },
+
+    _fold:
+    function()
+    {
+      this.element.removeClass('unfolded')
+                  .addClass('folded');
+    },
+
+    _unfold:
+    function()
+    {
+      this.element.removeClass('folded')
+                  .addClass('unfolded');
+    },
+
+    _create:
+    function()
+    {
+      this.$fold = $('<div class="folding-button"></div>')
+        .appendTo(this.element);
+
+      this._on(this.$fold, {click: '_fold'});
+
+      this.$unfold = $('<div class="unfolding-button"></div>')
+        .appendTo(this.element);
+
+      this._on(this.$unfold, {click: '_unfold'});
+
+      this._on($(window), {resize: 'refresh'});
+
+      this.refresh();
+    },
+
+    refresh:
+    function()
+    {
+      var wasUnfolded = this.element.hasClass('unfolded');
+      this.element.removeClass('folded unfolded');
+      if (this.element.outerHeight() > this.options.treshold)
+      {
+        if (wasUnfolded)
+        {
+          this._unfold();
+        }
+        this._fold();
+      }
+    },
+
+    _setOptions:
+    function()
+    {
+      this._superApply( arguments );
+      this.refresh();
+    },
+
+    _destroy:
+    function()
+    {
+      this.$fold.remove();
+      this.$unfold.remove();
+      this.element.removeClass('folded unfolded');
+    }
+  });
+
+
 })(jQuery);

@@ -107,10 +107,13 @@ function addOutlineLayer()
   return false;
 }
 
-function detailsGenerator(info, $parent)
+function detailsGenerator(info, $div)
 {
   var properties = info.properties;
-  var $div = $('<div></div>');
+  if (!$div)
+  {
+    $div = $('<div></div>');
+  }
 
   // XXX: a hack :-/ //i have absolutly no idea why considered a hack?
   $div.append(BrainSlices.gui.getThumbnail(info.iid, info.imageWidth, info.imageHeight, 64, 64));
@@ -169,31 +172,34 @@ function detailsGenerator(info, $parent)
     }
   }
 
-  $div.appendTo($parent);
-  if ($div.outerHeight() <= 85) // static height assumed
-  {
-    return $div;
-  }
+  $div.folder();
+  $div.children('img')
+    .attr('draggable', 'true'); 
+  ////$div.appendTo($parent);
+  //if ($div.outerHeight() <= 85) // static height assumed
+  //{
+  //  return $div;
+  //}
 
-  $div.addClass('folded');
-  var $fold = $('<div class="folding-button" style="display: none;"></div>')
-    .appendTo($div)
-    .click(function()
-      {
-        $fold.hide();
-        $unfold.show();
-        $div.removeClass('unfolded')
-            .addClass('folded');
-      });
-  var $unfold = $('<div class="unfolding-button"></div>')
-    .appendTo($div)
-    .click(function()
-      {
-        $unfold.hide();
-        $fold.show();
-        $div.removeClass('folded')
-            .addClass('unfolded');
-      });
+  //$div.addClass('folded');
+  //var $fold = $('<div class="folding-button" style="display: none;"></div>')
+  //  .appendTo($div)
+  //  .click(function()
+  //    {
+  //      $fold.hide();
+  //      $unfold.show();
+  //      $div.removeClass('unfolded')
+  //          .addClass('folded');
+  //    });
+  //var $unfold = $('<div class="unfolding-button"></div>')
+  //  .appendTo($div)
+  //  .click(function()
+  //    {
+  //      $unfold.hide();
+  //      $fold.show();
+  //      $div.removeClass('folded')
+  //          .addClass('unfolded');
+  //    });
 
   return $div;
 }
@@ -539,30 +545,35 @@ $(function()
   }
   $('#control_panel [name="synchronization"]').prop('checked', true);
 
-  searchImageBasket = new BrainSlices.gui.CTableManager($('#searchImageBasketList'));
-  layerManager = new CLayerManager($('.layerList'), stacks,
+  //searchImageBasket = new BrainSlices.gui.CTableManager($('#searchImageBasketList'));
+  layerManager = new CLayerManager($.merge($('#layersConsoleTable tbody'),
+                                           $('#searchImageBasketList')),
+                                   stacks,
                                    loginConsole,
   {
     addTileLayer:
-    function(id, info, zIndex, label, onsuccess, onfailure, isvalid, details)
+    function(id, info, zIndex, label, onsuccess, onfailure, isvalid)
     {
       var onremove = function()
       {
         thisInstance.tableManager.remove(id);
-        searchImageBasket.remove(id);
+        //searchImageBasket.remove(id);
       }
       var $rem = $('<span class="layer-delete-button fa fa-times"></span>');
       $rem.bind('click', onremove);
-      var $drag = $('<div draggable="true"></div>')
-        .text(label)
-        .append($rem);
+      //var $drag = $('<div draggable="true"></div>')
+      //  .text(label)
+      //  .append($rem);
         
       var $searchRow = $('<div draggable="true"></div>')
-        .append($drag);
-      if (details)
-      {
-        //TODO
-      }
+        .append($rem);
+      //  .append($drag);
+      //if (info)
+      //{
+      //  detailsGenerator(info, $searchRow)
+      //    .attr('draggable', 'true');
+      //  //TODO
+      //}
 
 
       var image = null;
@@ -652,7 +663,8 @@ $(function()
       $rem.bind('click', onremove);
       $row.append($('<td></td>').append($rem));
 
-      this.addTileLayer(id, $row, $visibility, zIndex, dragMIME,
+      this.addTileLayer(id, $.merge($row, $searchRow),
+                        $visibility, zIndex, dragMIME,
                         null,
                         path, info, true,
                         function(img)
@@ -670,7 +682,8 @@ $(function()
 
                           if (onsuccess) onsuccess();
                           
-                          searchImageBasket.add($searchRow, id); // XXX not ordered etc.
+                          //searchImageBasket.add($searchRow, id); // XXX not ordered etc.
+                          detailsGenerator(img.info, $searchRow);
                         },
                         onfailure, isvalid, onUpdate);
       
@@ -971,7 +984,9 @@ $(function()
       for (var i = 0; i < result.length; i++)
       {
         var info = result[i];
-        var $div = detailsGenerator(info, $parent);
+        var $div = $('<div></div>')
+          .appendTo($parent);
+        detailsGenerator(info, $div);
 
         var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
         $div.prepend($button);

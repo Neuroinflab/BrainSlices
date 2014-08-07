@@ -340,21 +340,25 @@
      *   rows - An Array containing objects representanting the items.
      *   length - Number of items in the sequence.
      *   id2row - A mapping of item ifentifier to the object representanting the
-     *   item.
+     *            item.
      ***************************************************************************
      * Constructor: CTableManager
      *
      * Parameters:
      *   $table - A jQuery object representing the HTML-based sequence.
      *   onUpdate - A trigger to be executed when the content order has changed.
+     *   onMove - A trigger to be executed when item is moved; takes source and
+     *            destination indices as parameters.
+     *   id - An identifier of the array.
     \***************************************************************************/
-    BS.gui.CTableManager = function($table, onUpdate)
+    BS.gui.CTableManager = function($table, onUpdate, onMove, id)
     {
       this.rows = [];
       this.length = 0;
       this.id2row = {};
       this.$table = $table;
       this.onUpdate = onUpdate;
+      this.id = id ? id : 'default';
       $table.empty();
     }
 
@@ -505,6 +509,43 @@
         }
       },
 
+      move:
+      function(srcIndex, dstIndex)
+      {
+      /**
+       * Method: move
+       *
+       * Move an element to a new position.
+       *
+       * Parameters:
+       *   srcIndex - index of element to be moved.
+       *   dstIndex - destination index of the moved element.
+       *******************************************************/
+        if (srcIndex == dstIndex) return;
+
+        var $row = this.rows[dstIndex].$row;
+        var src = this.rows.splice(srcIndex, 1)[0];
+        this.rows.splice(dstIndex, 0, src);
+        src.$row.detach();
+        var $el, $src;
+        for (var i = 0; i < $row.length; i++)
+        {
+          $el = $row.eq(i);
+          $src = src.$row.eq(i);
+          if (srcIndex < dstIndex)
+          {
+            $el.after($src);
+          }
+          else
+          {
+            $el.before($src);
+          }
+        }
+
+        this.update(Math.min(srcIndex, dstIndex),
+                    Math.max(srcIndex, dstIndex) + 1);
+      },
+
       getOrder:
       function()
       {
@@ -546,6 +587,12 @@
        **********************************************************************/
       function($row, id, index, onRemove, onUpdate, dragMIME, update, data)
       {
+        if ($row.length != this.$table.length)
+        {
+          console.error('JQuery array length mismatch!');
+          return
+        }
+
         if (update == null) update = true;
 
         if (id in this.id2row)
@@ -584,12 +631,40 @@
 
         this.id2row[id] = row;
 
-        var $drag = $row.find('[draggable="true"]');
+        this.rows.splice(index, 0, row);
+
+        var $drag = $();
+        var $el, $table;
+        for (var i = 0; i < $row.length; i++)
+        {
+          $el = $row.eq(i);
+          $table = this.$table.eq(i);
+
+          if (this.length == index)
+          {
+            $table.append($el);
+          }
+          else if (index == 0)
+          {
+            $table.prepend($el);
+          }
+          else
+          {
+            $table.children().eq(index).before($el);
+          }
+
+          $.merge($drag, $el.attr('draggable') == 'true' ?
+                         $el :
+                         $el.find('[draggable="true"]'));
+        }
+
+
         var thisInstance = this;
 
         $drag.bind('dragstart', function(ev)
         {
           ev.originalEvent.dataTransfer.setData('INDEX', row.index);
+          ev.originalEvent.dataTransfer.setData('ARRAY', thisInstance.id);
           if (dragMIME)
           {
             for (var i = 0; i < dragMIME.length; i++)
@@ -609,38 +684,28 @@
         {
           ev.originalEvent.preventDefault();
           var srcIndex = ev.originalEvent.dataTransfer.getData("INDEX");
+          var id = ev.originalEvent.dataTransfer.getData("ARRAY");
           var index = row.index;
-          if (srcIndex == index) return;
 
-          var src = thisInstance.rows.splice(srcIndex, 1)[0];
-          thisInstance.rows.splice(index, 0, src);
-          src.$row.detach();
-          if (srcIndex < index)
-          {
-            row.$row.after(src.$row);
-          }
-          else
-          {
-            row.$row.before(src.$row);
-          }
+          if (id != thisInstance.id || srcIndex == undefined) return;
 
-          thisInstance.update(Math.min(srcIndex, index),
-                              Math.max(srcIndex, index) + 1);
+          thisInstance.move(srcIndex, index);
+
+          //var src = thisInstance.rows.splice(srcIndex, 1)[0];
+          //thisInstance.rows.splice(index, 0, src);
+          //src.$row.detach();
+          //if (srcIndex < index)
+          //{
+          //  row.$row.after(src.$row);
+          //}
+          //else
+          //{
+          //  row.$row.before(src.$row);
+          //}
+
+          //thisInstance.update(Math.min(srcIndex, index),
+          //                    Math.max(srcIndex, index) + 1);
         });
-
-        this.rows.splice(index, 0, row);
-        if (this.length == index)
-        {
-          this.$table.append($row);
-        }
-        else if (index == 0)
-        {
-          this.$table.prepend($row);
-        }
-        else
-        {
-          this.$table.children().eq(index).before($row);
-        }
 
         this.length++;
         if (update)
@@ -664,6 +729,7 @@
        *                     value if a < b, apositive if a > b and 0
        *                     otherwise.
        **********************************************************************/
+        console.error('update rows order not implemented yet!!!'); // TODO
         this.rows.sort(function(a, b)
         {
           return compareFunction('data' in a ? a.data : a.id,

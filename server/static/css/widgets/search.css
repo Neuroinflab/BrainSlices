@@ -491,13 +491,13 @@ details.filter-property-info .brainslices-property-filter
   box-sizing: border-box;
 }
 
-#searchResults {
+.search-content-wrapper {
 	/*height: 480px;*/
 	overflow-x: hidden;
 	overflow-y: scroll;
 }
 
-#searchResults>div
+.search-content-wrapper>div
 {
   border: solid 1px #e5e5e5;
   padding: 0; /*50px 0 0;*/
@@ -505,19 +505,19 @@ details.filter-property-info .brainslices-property-filter
   overflow: hidden;
 }
 
-#searchResults>div.folded
+.search-content-wrapper>div.folded
 {
   height: 83px;
 /*  padding-bottom: 0px;*/
 }
 
-#searchResults>div.unfolded
+.search-content-wrapper>div.unfolded
 {
   padding-bottom: 20px;
 }
 
-#searchResults>div>div.folding-button,
-#searchResults>div>div.unfolding-button
+.search-content-wrapper>div>div.folding-button,
+.search-content-wrapper>div>div.unfolding-button
 {
   position: absolute;
   right: 0px;
@@ -535,17 +535,29 @@ details.filter-property-info .brainslices-property-filter
   background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
 }
 
-#searchResults>div>div.folding-button:before
+.search-content-wrapper>div>div.folding-button:before
 {
   content: "fold";
 }
 
-#searchResults>div>div.unfolding-button:before
+.search-content-wrapper>div>div.unfolding-button:before
 {
   content: "unfold";
 }
 
-#searchResults>div>h1
+div.folding-button,
+div.unfolding-button
+{
+  display: none;
+}
+
+.unfolded>div.folding-button,
+.folded>div.unfolding-button
+{
+  display: block;
+}
+
+.search-content-wrapper>div>h1
 {
   text-align: left;
   font-size: 14px;
@@ -553,7 +565,7 @@ details.filter-property-info .brainslices-property-filter
   margin: 0;
 }
 
-#searchResults>div>p.image-description
+.search-content-wrapper>div>p.image-description
 {
   text-align: left;
   margin: 0 0 5px 0;
@@ -573,22 +585,27 @@ details.filter-property-info .brainslices-property-filter
 	color: #6ee000;
 }
 
-#searchResults>div>ul
+#searchImageBasketList>div>span.layer-delete-button
+{
+  float: right;
+  padding: 11px 5px;
+  display: block;
+}
+
+.search-content-wrapper>div>ul
 {
   margin: 0px;
   padding: 0px;
 }
 
-#searchResults>div>ul>li
+.search-content-wrapper>div>ul>li
 {
   list-style-type: none;
   text-align: left;
 }
 
-#searchResults .polaroid-image
+.search-content-wrapper .polaroid-image
 {
-/*	margin-left: auto;
-	margin-right: auto;*/
   float: left;
   margin: 3px 10px 5px 3px;
 }
