@@ -187,15 +187,6 @@ var state = {iids: [],
 
 $(function()
 {
-  if (window.location.search != '')
-  {
-    var tmp = parseState(window.location.search.substring(1));
-    for (var name in tmp)
-    {
-      state[name] = tmp[name];
-    }
-  }
-
   var scope = BrainSlices.scope;
   scope.registerChange(function(variable, value)
   {
@@ -480,56 +471,24 @@ $(function()
   $("#cart").cart();
 
 
-  BrainSlices.scope.set("display", state.display);
 
-  BrainSlices.scope
-    .register(
+  scope
+    .registerChange(function(val)
     {
-      change:
-      function(variable, val)
-      {
-        if (variable == "display")
-        {
-          state.display = val; // XXX obsoleted
-          rearrangeInterface();
-        }
-      }
-    })
-
-  BrainSlices.scope
-    .register(
+      state.display = val; // XXX obsoleted
+      rearrangeInterface();
+    }, 'display')
+    .registerChange(function(val)
     {
-      change:
-      function(variable, val)
-      {
-        if (variable == 'zoom')
-        {
-          state.zoom = val; // XXX obsoleted
-        }
-      }
-    })
-
-
-  BrainSlices.scope.set("grid_dims", {x: state.shape[0],
-                                      y: state.shape[1]});
-  BrainSlices.scope
-    .register(
+      state.zoom = val; // XXX obsoleted
+    }, 'zoom')
+    .registerChange(function(val)
     {
-      change:
-      function(variable,val)
-      {
-        if (variable == "grid_dims")
-        {
-          state.shape = [val.x, val.y]; // XXX obsoleted
-          rearrangeInterface();
-        }
-      }
-    })
+      state.shape = [val.x, val.y]; // XXX obsoleted
+      rearrangeInterface();
+    }, 'grid_dims');
 
-
-  //$('#logoutLink').hide();
-
-
+  scope.set('interfaceMode', 'home');
 
   loginConsole = new BrainSlices.ajax.CUserPanel($('#loginWindow'),
                                                  $('#btn_login'),
@@ -549,40 +508,386 @@ $(function()
                                                    {
                                                      scope.set('interfaceMode', 'home');
                                                    }
-                                                 });
+                                                 },
+                                                 function()
+  {
+    /* login state is known here :-D  */
+    /**********************************************/
+
+    if (window.location.search != '')
+    {
+      var tmp = parseState(window.location.search.substring(1));
+      for (var name in tmp)
+      {
+        state[name] = tmp[name];
+      }
+    }
 
 
-/**********************************************/
 
-  var nx = state.shape[0];
-  var ny = state.shape[1];
-  $('#ux').val(state.focus[0][0]);
-  $('#y').val(state.focus[0][1]);
+    BrainSlices.scope.set("grid_dims", {x: state.shape[0],
+                                        y: state.shape[1]});
+
+    BrainSlices.scope.set("display", state.display);
+
+    stacks.setFocusPoint(state.focus[0][0], state.focus[0][1]);
+    var nx = state.shape[0];
+    var ny = state.shape[1];
+    $('#x').val(state.focus[0][0]);
+    $('#y').val(state.focus[0][1]);
+
+    stacks.updateZoomPanel();
+    if (state.display == 'serial') // != 'matrix'
+    {
+      stacks.rearrange(nx, ny, parseInt(Math.max(100, 66 * nx / ny)) + '%');
+    }
+
+    for (var i = 0; i < state.focus.length; i++)
+    {
+      stacks.setFocusPoint(state.focus[i][0], state.focus[i][1], i);
+    }
+
+    if (state.sync)
+    {
+      stacks.syncStart();
+    }
+
+    var loadImageI = 0;
+    var loadedImages = [];
+    function loadNextImage()
+    {
+      if (loadImageI < state.iids.length)
+      {
+        var imageI = loadImageI++;
+        var pair = state.iids[imageI];
+        var id = pair[0];
+        var md5 = pair[1].toLowerCase();
+
+        id = layerManager.autoAddTileLayer(id, null, state.iids.length - imageI - 1,
+                                           '#'+id, loadNextImage,
+                                       function(msg)
+                                       {
+                                         alert(msg);
+                                         loadedImages[imageI] = null;
+                                         loadNextImage();
+                                       },
+                                       function(info)
+                                       {
+                                         if (info.md5.toLowerCase() != md5)
+                                         {
+                                           alert('Image of iid ' + info.iid + ' has been changed.')
+                                           loadedImages[imageI] = null;
+                                           loadNextImage();
+                                           return false;
+                                         }
+                                         return true;
+                                       });
+        loadedImages.push(id);
+      }
+      else
+      {
+        for (var i = 0; i < state.loaded.length; i++)
+        {
+          var loaded = state.loaded[i];
+          for (var j = 0; j < loaded.length; j++)
+          {
+            var id = loadedImages[loaded[j]];
+            if (id != null)
+            {
+              layerManager.load(i, id);
+            }
+          }
+        }
+      }
+    }
+
+    loadNextImage();
+
+
+
+    // try to use tableManager? sort method would be necessary ;-)
+    searchEngine = new CPropertiesSearch(loginConsole,
+    {
+      data:
+      $('#loadedFilters'),
+
+      add:
+      function(name, type, filter)
+      {
+        var change, remove, n;
+        // list of variables for my convenience
+        if (name === null)
+        {
+          remove = function()
+          {
+            // global
+            searchEngine.removeAny(n);
+          }
+
+          // a lot of unnecessary conversions
+          switch (type)
+          {
+            case 't':
+              change = null;
+
+              break;
+
+            case 'f':
+              change = function(conditions)
+              {
+                searchEngine.resetAny(n);
+                for (var op in conditions)
+                {
+                  var value = conditions[op];
+                  searchEngine.setAny(n, op, value);
+                }
+              };
+
+              break;
+
+            case 'x':
+              change = function(conditions)
+              {
+                searchEngine.setAny(n, 'plain', conditions);
+              };
+
+              break;
+
+            case 'e':
+              change = function(conditions)
+              {
+                var tmp = [];
+
+                for (var val in conditions)
+                {
+                  if (conditions[val])
+                  {
+                    tmp.push(val);
+                  }
+                }
+
+                searchEngine.setAny(n, 'is', tmp);
+              }
+          }
+        }
+        else
+        {
+          remove = function()
+          {
+            // global
+            searchEngine.remove(name);
+          }
+
+          switch (type)
+          {
+            case 't':
+              change = null;
+              break;
+
+            case 'f':
+              change = function(conditions)
+              {
+                searchEngine.reset(name);
+
+                for (var op in conditions)
+                {
+                  var value = conditions[op];
+                  searchEngine.set(name, op, value);
+                }
+              };
+
+              break;
+
+            case 'x':
+              change = function(conditions)
+              {
+                searchEngine.set(name, 'plain', conditions);
+              };
+
+              break;
+
+            case 'e':
+              change = function(conditions)
+              {
+                var tmp = [];
+
+                for (var val in conditions)
+                {
+                  if (conditions[val])
+                  {
+                    tmp.push(val);
+                  }
+                }
+
+                searchEngine.set(name, 'is', tmp);
+              }
+          }
+        }
+
+        var $remButton = $('<a href="javascript:void(0)" class="filter-delete-button fa fa-times"></a>')
+          .click(remove);
+
+        var label = name;
+        if (label == null)
+        {
+          switch (type)
+          {
+            case 't':
+              label = '--- any property set ---';
+              break;
+
+            case 'x':
+              label = '--- any text property ---';
+              break;
+
+            case 'f':
+              label = '--- any numeric property ---';
+              break;
+
+            default:
+              label = '--- any field of type ' + type + ' ---';
+          }
+        }
+
+        var $row;
+        if (type == 't')
+        {
+          $row = $('<div></div>')
+            .text(label)
+            .prepend($('<span></span>')
+                         .addClass('fa fa-tag'))
+            .addClass("filter-property-name")
+            .append($remButton);
+        }
+        else
+        {
+          $row = $('<details></details>');
+
+          var $header = $('<summary></summary>')
+            .text(label)
+            .prepend($('<span></span>')
+                         .addClass('fa fa-angle-double-down'))
+            .prepend($('<span></span>')
+                         .addClass('fa fa-angle-double-up'))
+            .addClass("filter-property-name")
+            .append($remButton)
+            .appendTo($row);
+          filter.appendTo($row);
+        }
+
+        $row
+          .addClass('filter-property-info')
+
+        this.data.append($row);
+        var triggers = {
+          data:
+          {$row: $row},
+          destroy:
+          function()
+          {
+            this.data.$row.remove();
+          },
+          valid:
+          function(valid)
+          {
+            if (valid)
+            {
+              this.data.$row.removeClass('filter-invalid');
+            }
+            else
+            {
+              this.data.$row.addClass('filter-invalid');
+            }
+          }};
+
+        if (name != null)
+        {
+          this.add(name, type, triggers);
+        }
+        else
+        {
+          n = this.addAny(type, triggers);
+        }
+
+        filter.propertyfilter('option', 'change', change);
+        //filter.change();
+       
+
+      }
+    });
+
+
+    $('#searchPropertySearch').click(function()
+    {
+      var search = searchEngine.search(function(result)
+      {
+        var $parent = $('#searchResults').empty();
+        for (var i = 0; i < result.length; i++)
+        {
+          var info = result[i];
+          var $div = $('<div></div>')
+            .appendTo($parent);
+          detailsGenerator(info, $div);
+
+          var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
+          $div.prepend($button);
+          (function(info)
+          {
+            $button.click(function()
+            {
+              //global
+              layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
+            });
+          })(info);
+        }
+      });
+
+      if (!search)
+      {
+        alert('Chosen filters can not match any images.');
+      }
+    });
+
+    loginConsole.ajax('/meta/getPropertyList',
+                      function(data)
+                      {
+                        if (data.status)
+                        {
+                          var enumerated = data.data[1];
+
+                          $('#newFilter').newpropertyfilter(
+                          {
+                            source: data.data[0],
+                            enumerated: enumerated,
+                            submit: function(name, type, filter)
+                            {
+                              if (name != null && searchEngine.has(name))
+                              {
+                                alert('Property ' + name + ' already selected.');
+                              }
+                              else
+                              {
+                                searchEngine.autoAdd(name, type, filter);
+                              }
+                            }
+                          });
+
+                        }
+                        else
+                        {
+                          alert(data.message);
+                        }
+                      });
+
+
+    scope.set('interfaceMode', state.interface);
+  });
+
 
   images = new BrainSlices.api.CImageManager(loginConsole);
-  stacks = new BrainSlices.api.CSynchronizedStacksDisplay($('#sliceDisplay'), nx, ny,
-                                          false, state.zoom,
-                                          state.focus[0][0],
-                                          state.focus[0][1],
-                                          null, null, null,
+  stacks = new BrainSlices.api.CSynchronizedStacksDisplay($('#sliceDisplay'), 1, 1,
+                                          null, null, null, null, null, null, null,
                                           '/static/gfx', images);
-  stacks.updateZoomPanel();
-  if (state.display == 'serial') // != 'matrix'
-  {
-    stacks.rearrange(nx, ny, parseInt(Math.max(100, 66 * nx / ny)) + '%');
-  }
-
-  for (var i = 0; i < state.focus.length; i++)
-  {
-    stacks.setFocusPoint(state.focus[i][0], state.focus[i][1], i);
-  }
-
-  if (state.sync)
-  {
-    stacks.syncStart();
-  }
-  $('#control_panel [name="synchronization"]').prop('checked', true);
-
   layerManager = new CLayerManager($.merge($('#layersConsoleTable tbody'),
                                            $('#searchImageBasketList')),
                                    stacks,
@@ -712,356 +1017,6 @@ $(function()
       return id;
     }
   });
-
-
-  var loadImageI = 0;
-  var loadedImages = [];
-  function loadNextImage()
-  {
-    if (loadImageI < state.iids.length)
-    {
-      var imageI = loadImageI++;
-      var pair = state.iids[imageI];
-      var id = pair[0];
-      var md5 = pair[1].toLowerCase();
-
-      id = layerManager.autoAddTileLayer(id, null, state.iids.length - imageI - 1,
-                                         '#'+id, loadNextImage,
-                                     function(msg)
-                                     {
-                                       alert(msg);
-                                       loadedImages[imageI] = null;
-                                       loadNextImage();
-                                     },
-                                     function(info)
-                                     {
-                                       if (info.md5.toLowerCase() != md5)
-                                       {
-                                         alert('Image of iid ' + info.iid + ' has been changed.')
-                                         loadedImages[imageI] = null;
-                                         loadNextImage();
-                                         return false;
-                                       }
-                                       return true;
-                                     });
-      loadedImages.push(id);
-    }
-    else
-    {
-      for (var i = 0; i < state.loaded.length; i++)
-      {
-        var loaded = state.loaded[i];
-        for (var j = 0; j < loaded.length; j++)
-        {
-          var id = loadedImages[loaded[j]];
-          if (id != null)
-          {
-            layerManager.load(i, id);
-          }
-        }
-      }
-    }
-  }
-
-  loadNextImage();
-
-
-  function resizeSearchPanel()
-  {
-    /*
-    // XXX panel height hack ;-)
-    var topHeight = $('#search-panel .searchPanelDiv').innerHeight();
-
-    var spHeight = Math.min(170 +
-                            $('#loadedFilters').outerHeight(),
-                            Math.max(170, parseInt(topHeight / 2)));
-
-    $('#filtersWrapper').height(spHeight);
-    $('#resultsWrapper').height(topHeight - spHeight);
-    */
-  }
-
-
-  // try to use tableManager? sort method would be necessary ;-)
-  searchEngine = new CPropertiesSearch(loginConsole,
-  {
-    data:
-    $('#loadedFilters'),
-
-    add:
-    function(name, type, filter)
-    {
-      var change, remove, n;
-      // list of variables for my convenience
-      if (name === null)
-      {
-        remove = function()
-        {
-          // global
-          searchEngine.removeAny(n);
-          resizeSearchPanel();
-        }
-
-        // a lot of unnecessary conversions
-        switch (type)
-        {
-          case 't':
-            change = null;
-
-            break;
-
-          case 'f':
-            change = function(conditions)
-            {
-              searchEngine.resetAny(n);
-              for (var op in conditions)
-              {
-                var value = conditions[op];
-                searchEngine.setAny(n, op, value);
-              }
-            };
-
-            break;
-
-          case 'x':
-            change = function(conditions)
-            {
-              searchEngine.setAny(n, 'plain', conditions);
-            };
-
-            break;
-
-          case 'e':
-            change = function(conditions)
-            {
-              var tmp = [];
-
-              for (var val in conditions)
-              {
-                if (conditions[val])
-                {
-                  tmp.push(val);
-                }
-              }
-
-              searchEngine.setAny(n, 'is', tmp);
-            }
-        }
-      }
-      else
-      {
-        remove = function()
-        {
-          // global
-          searchEngine.remove(name);
-          resizeSearchPanel();
-        }
-
-        switch (type)
-        {
-          case 't':
-            change = null;
-            break;
-
-          case 'f':
-            change = function(conditions)
-            {
-              searchEngine.reset(name);
-
-              for (var op in conditions)
-              {
-                var value = conditions[op];
-                searchEngine.set(name, op, value);
-              }
-            };
-
-            break;
-
-          case 'x':
-            change = function(conditions)
-            {
-              searchEngine.set(name, 'plain', conditions);
-            };
-
-            break;
-
-          case 'e':
-            change = function(conditions)
-            {
-              var tmp = [];
-
-              for (var val in conditions)
-              {
-                if (conditions[val])
-                {
-                  tmp.push(val);
-                }
-              }
-
-              searchEngine.set(name, 'is', tmp);
-            }
-        }
-      }
-
-      var $remButton = $('<a href="javascript:void(0)" class="filter-delete-button fa fa-times"></a>')
-        .click(remove);
-
-      var label = name;
-      if (label == null)
-      {
-        switch (type)
-        {
-          case 't':
-            label = '--- any property set ---';
-            break;
-
-          case 'x':
-            label = '--- any text property ---';
-            break;
-
-          case 'f':
-            label = '--- any numeric property ---';
-            break;
-
-          default:
-            label = '--- any field of type ' + type + ' ---';
-        }
-      }
-
-      var $row;
-      if (type == 't')
-      {
-        $row = $('<div></div>')
-          .text(label)
-          .prepend($('<span></span>')
-                       .addClass('fa fa-tag'))
-          .addClass("filter-property-name")
-          .append($remButton);
-      }
-      else
-      {
-        $row = $('<details></details>');
-
-        var $header = $('<summary></summary>')
-          .text(label)
-          .prepend($('<span></span>')
-                       .addClass('fa fa-angle-double-down'))
-          .prepend($('<span></span>')
-                       .addClass('fa fa-angle-double-up'))
-          .addClass("filter-property-name")
-          .append($remButton)
-          .appendTo($row);
-        filter.appendTo($row);
-      }
-
-      $row
-        .addClass('filter-property-info')
-
-      this.data.append($row);
-      var triggers = {
-        data:
-        {$row: $row},
-        destroy:
-        function()
-        {
-          this.data.$row.remove();
-        },
-        valid:
-        function(valid)
-        {
-          if (valid)
-          {
-            this.data.$row.removeClass('filter-invalid');
-          }
-          else
-          {
-            this.data.$row.addClass('filter-invalid');
-          }
-        }};
-
-      if (name != null)
-      {
-        this.add(name, type, triggers);
-      }
-      else
-      {
-        n = this.addAny(type, triggers);
-      }
-
-      filter.propertyfilter('option', 'change', change);
-      //filter.change();
-     
-      resizeSearchPanel();
-
-    }
-  });
-
-
-  $('#searchPropertySearch').click(function()
-  {
-    var search = searchEngine.search(function(result)
-    {
-      var $parent = $('#searchResults').empty();
-      for (var i = 0; i < result.length; i++)
-      {
-        var info = result[i];
-        var $div = $('<div></div>')
-          .appendTo($parent);
-        detailsGenerator(info, $div);
-
-        var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
-        $div.prepend($button);
-        (function(info)
-        {
-          $button.click(function()
-          {
-            //global
-            layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
-          });
-        })(info);
-      }
-    });
-
-    if (!search)
-    {
-      alert('Chosen filters can not match any images.');
-    }
-  });
-
-  loginConsole.ajax('/meta/getPropertyList',
-                    function(data)
-                    {
-                      if (data.status)
-                      {
-                        var enumerated = data.data[1];
-
-                        $('#newFilter').newpropertyfilter(
-                        {
-                          source: data.data[0],
-                          enumerated: enumerated,
-                          submit: function(name, type, filter)
-                          {
-                            if (name != null && searchEngine.has(name))
-                            {
-                              alert('Property ' + name + ' already selected.');
-                            }
-                            else
-                            {
-                              searchEngine.autoAdd(name, type, filter);
-                            }
-                          }
-                        });
-
-                        resizeSearchPanel();
-                      }
-                      else
-                      {
-                        alert(data.message);
-                      }
-                    });
-
-
-  scope.set('interfaceMode', state.interface);
 });
 
 

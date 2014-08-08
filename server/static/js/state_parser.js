@@ -27,7 +27,11 @@ function parseState(search)
         {
           case 'upload':
           case 'user':
-            console.warn('Requires user to be logged in.'); //XXX
+            if (!loginConsole.isLogged())
+            {
+              alert('Selected interface panel (' + argVal + ') requires user to be logged.');
+              continue;
+            }
 
           case 'home':
           case 'browse':
