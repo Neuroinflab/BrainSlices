@@ -22,6 +22,24 @@ function parseState(search)
 
     switch (argName)
     {
+      case 'interface':
+        switch (argVal)
+        {
+          case 'upload':
+          case 'user':
+            console.warn('Requires user to be logged in.'); //XXX
+
+          case 'home':
+          case 'browse':
+          case 'visualise':
+            state.interface = argVal;
+            break;
+
+          default:
+            console.warn('Invalid interface');
+        }
+        break;
+
       case 'display':
         if (argVal != 'matrix' && argVal != 'serial')
         {
@@ -149,6 +167,7 @@ function parseState(search)
         state.iids = [[iid, pair[1]]];
         state.loaded = [[0]];
         state.shape = [1, 1];
+        state.interface = 'visualise';
         break;
 
       case 'sync':

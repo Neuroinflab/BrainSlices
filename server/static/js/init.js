@@ -182,7 +182,8 @@ var state = {iids: [],
              focus: [[0., 0.]],
              display: 'matrix',
              sync: true,
-             zoom: 1.};
+             zoom: 1.,
+             'interface': 'home'};
 
 $(function()
 {
@@ -232,6 +233,7 @@ $(function()
           console.error('Unknown interface mode: ' + value);
           return;
       }
+      state.interface = value; // XXX: obsoleted
 
       $('#' + value + 'PanelButton').addClass('selected');
     }
@@ -535,12 +537,15 @@ $(function()
                                                  function(login)
                                                  {
                                                    $('#userPanelButton').show();
+                                                   $('#uploadPanelButton').show();
                                                    $('.userLogin').text(loginConsole.isLoggedAs());
                                                  },
                                                  function()
                                                  {
                                                    $('#userPanelButton').hide();
-                                                   if (scope.get('interfaceMode') == 'user')
+                                                   $('#uploadPanelButton').hide();
+                                                   if (scope.get('interfaceMode') in {upload: null,
+                                                                                      user: null})
                                                    {
                                                      scope.set('interfaceMode', 'home');
                                                    }
@@ -1056,7 +1061,7 @@ $(function()
                     });
 
 
-  scope.set('interfaceMode', 'home'); //XXX
+  scope.set('interfaceMode', state.interface);
 });
 
 
