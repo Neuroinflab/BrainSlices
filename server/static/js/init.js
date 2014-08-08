@@ -412,8 +412,54 @@ $(function()
     }
   }
 
-
   var scope = BrainSlices.scope;
+  scope.registerChange(function(variable, value)
+  {
+    if (variable == 'interfaceMode')
+    {
+      $('#main>div').hide();
+      $('#navberMiddle>div').hide();
+      $('#navbar .panelButton').removeClass('selected');
+      switch (value)
+      {
+        case 'home':
+          $('#homePanel').show();
+          break;
+
+        case 'browse':
+          $('#browsePanel').show();
+          $('#browsePanel .search-content-wrapper>div').folder('refresh');
+          break;
+
+        case 'visualise':
+          $('#visualisePanel').show();
+          $('#navbarVisualise').show();
+          stacks.resize();
+          break;
+
+        case 'upload':
+          $('#uploadPanel').show();
+          break;
+
+        case 'user':
+          $('#userPanel').show();
+          break;
+
+        default:
+          console.error('Unknown interface mode: ' + value);
+          return;
+      }
+
+      $('#' + value + 'PanelButton').addClass('selected');
+    }
+  });
+
+
+  $('#homePanelButton').click(scope.getCallback('interfaceMode', 'home'));
+  $('#browsePanelButton').click(scope.getCallback('interfaceMode', 'browse'));
+  $('#visualisePanelButton').click(scope.getCallback('interfaceMode', 'visualise'));
+  $('#uploadPanelButton').click(scope.getCallback('interfaceMode', 'upload'));
+  $('#userPanelButton').click(scope.getCallback('interfaceMode', 'user'));
 
   $("#grid_select").grid_select(
   {
@@ -700,9 +746,22 @@ $(function()
 
 
 
-  loginConsole = new BrainSlices.ajax.CUserPanel($('#userPanel'),
+  loginConsole = new BrainSlices.ajax.CUserPanel($('#loginWindow'),
                                                  $('#btn_login'),
-                                                 $('#btn_logout'));
+                                                 $('#btn_logout'),
+                                                 function(login)
+                                                 {
+                                                   $('#userPanelButton').show();
+                                                   $('.userLogin').text(loginConsole.isLoggedAs());
+                                                 },
+                                                 function()
+                                                 {
+                                                   $('#userPanelButton').hide();
+                                                   if (scope.get('interfaceMode') == 'user')
+                                                   {
+                                                     scope.set('interfaceMode', 'home');
+                                                   }
+                                                 });
 
 
 /**********************************************/
@@ -1214,6 +1273,7 @@ $(function()
                     });
 
 
+  scope.set('interfaceMode', 'home'); //XXX
 });
 
 

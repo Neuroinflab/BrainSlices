@@ -52,8 +52,11 @@ class WebGenerator(Generator):
 
     index = self.templateEngine('myapi.html')
     index['<!--%controlPanel%-->'] = stackControlPanel
-    index['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
-    index['<!--%searchbox%-->'] = self.templateEngine('searchbox.html')
+    index['<!--%loginWindow%-->'] = self.templateEngine('loginWindow.html')
+    index['<!--%homePanel%-->'] = self.templateEngine('homePanel.html')
+    index['<!--%browsePanel%-->'] = self.templateEngine('browsePanel.html')
+    index['<!--%uploadPanel%-->'] = self.templateEngine('todo.html')
+    index['<!--%userPanel%-->'] = self.templateEngine('todo.html')
 
     self['index'] = index
 

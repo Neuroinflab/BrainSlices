@@ -52,56 +52,84 @@
   <script src="static/js/init.js"></script>
  </head>
  <body>
-  <!--%userPanel%--> 
+  <!--%loginWindow%--> 
   <div id="navbar" class="navbar">
    <div id="navbarLeft">
+    <button id="homePanelButton" class="texticon panelButton">Home</button>
+    <button id="browsePanelButton" class="texticon panelButton">Browse</button>
+    <button id="visualisePanelButton" class="texticon panelButton">Visualise</button>
+    <button id="uploadPanelButton" class="texticon panelButton">Upload</button>
    </div>
 
-   <div id="navbarVisualize">
-    <div id="grid_select"></div>
-    <button id="btn_synch" class="icon selected"><span id="btn_synch_icon" class="fa fa-lock"></span></button>
-    <button id="btn_display" class="icon"><span id="btn_display_icon" class="fa fa-film"></span></button>
-    <button id="btn_compress" class="icon"><span class="fa fa-compress"></span></button>
-    <button id="btn_expand" class="icon"><span class="fa fa-expand"></span></button>
-    <div class="spacer"></div>
-    <button id="btn_zoom" class="icon"><span class="fa fa-search-plus"></span></button>
-    <button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>
-    <div id="target_select"></div>
-    <div id="quality_button"></div>
-    <span id="zoom"></span>
-    <span id="trans"></span>
+   <div id="navbarMiddle">
+    <div id="navbarVisualise">
+     <div id="grid_select"></div>
+     <button id="btn_synch" class="icon selected"><span id="btn_synch_icon" class="fa fa-lock"></span></button>
+     <button id="btn_display" class="icon"><span id="btn_display_icon" class="fa fa-film"></span></button>
+     <button id="btn_compress" class="icon"><span class="fa fa-compress"></span></button>
+     <button id="btn_expand" class="icon"><span class="fa fa-expand"></span></button>
+     <div class="spacer"></div>
+     <button id="btn_zoom" class="icon"><span class="fa fa-search-plus"></span></button>
+     <button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>
+     <div id="target_select"></div>
+     <div id="quality_button"></div>
+     <span id="zoom"></span>
+     <span id="trans"></span>
 
 
+    </div>
    </div>
 
    <div id="navbarRight">
     <button id="btn_help" class="icon"><span class="fa fa-question"></span></button>
-    <button id="btn_login" class="icon"><span class="fa fa-power-off"></span></button>
-    <button id="btn_logout" class="icon"><span style="color:#ff0000" class="fa fa-power-off"></span></button>
+    <button id="btn_login" class="texticon icon"><span class="fa fa-power-off"> Login</span></button>
+    <button id="userPanelButton" class="texticon panelButton">Account [<span class="userLogin"></span>]</button>
+    <button id="btn_logout" class="texticon icon"><span style="color:#ff0000" class="fa fa-power-off">Logout</span></button>
    </div>
   </div>
 
   <div id="main" class="main">
-   <div id="sliceDisplay" class="display">
+
+   <div id="homePanel">
+    <!--%homePanel%-->
    </div>
-    
-   <div id="cart" class="cart"> 
-    <div class="cart-controls-wrapper">
-     <div class="cart-controls">
-      <button id="search-panel-fold-button" class="fold-button"><span id="search-panel-fold-button-icon" class="fold-button-icon fa fa-angle-left"></span></button>
-      <button id="control-panel-fold-button" class="fold-button"><span id="control-panel-fold-button-icon" class="fold-button-icon fa fa-angle-left"></span></button>
-      <button id="fold-all-button" class="fold-button"><span id="fold-all-button-icon" class="fold-button-icon fa fa-angle-double-left"></span></button>
+
+   <div id="browsePanel">
+    <!--%browsePanel%-->
+   </div>
+
+   <div id="visualisePanel">
+    <div id="sliceDisplay" class="display">
+    </div>
+   
+
+    <div id="cart" class="cart"> 
+     <div class="cart-controls-wrapper">
+      <div class="cart-controls">
+       <button id="search-panel-fold-button" class="fold-button"><span id="search-panel-fold-button-icon" class="fold-button-icon fa fa-angle-left"></span></button>
+       <button id="control-panel-fold-button" class="fold-button"><span id="control-panel-fold-button-icon" class="fold-button-icon fa fa-angle-left"></span></button>
+       <button id="fold-all-button" class="fold-button"><span id="fold-all-button-icon" class="fold-button-icon fa fa-angle-double-left"></span></button>
+      </div>
+     </div>
+
+     <div id="search-panel" class="search-panel">
+      Search panel was here
+     </div>
+
+     <div id="control-panel" class="cart-items" >
+      <!--%controlPanel%-->
      </div>
     </div>
-
-    <div id="search-panel" class="search-panel">
-     <!--%searchbox%-->
-    </div>
-
-    <div id="control-panel" class="cart-items" >
-     <!--%controlPanel%-->
-    </div>
    </div>
+
+   <div id="uploadPanel">
+    <!--%uploadPanel%-->
+   </div>
+
+   <div id="userPanel">
+    <!--%uploadPanel%-->
+   </div>
+
   </div>
  </body>
 </html>

@@ -16,7 +16,8 @@
 
 #navbarLeft,
 #navbarRight,
-#navbarVisualize
+#navbarMiddle,
+#navbarVisualise
 {
   margin: 0;
   padding: 0;
@@ -36,7 +37,7 @@
   float: right;
 }
 
-#navbarVisualize
+#navbarMiddle
 {
   width: 50%;
   display: flex;
@@ -84,11 +85,34 @@
 }
 
 
+#navbar button.icon,
+#navbar button.texticon
+{
+  height: 35px;
+  margin-left: 5px;
+}
+
 #navbar button.icon
 {
   width: 35px;
-  height: 35px;
-  margin-left: 5px;
+}
+
+#navbar button.texticon
+{
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#navbar button.texticon.icon
+{
+  padding-left: 0;
+  width: auto;
+}
+
+#navbar button.texticon.icon .fa:before
+{
+  width: 35px;
+  display: inline-block;
 }
 
 #btn_quality {

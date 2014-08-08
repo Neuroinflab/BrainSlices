@@ -52,6 +52,16 @@
       return variables[variable];
     },
 
+    getCallback:
+    function(variable, value)
+    {
+      var thisInstance = this;
+      return function()
+      {
+        thisInstance.set(variable, value);
+      }
+    },
+
     /**
      * Function: _getPrivate
      *
