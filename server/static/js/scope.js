@@ -14,7 +14,7 @@
                         });
                       }
                     }}];
-  var variables = new Array();
+  var variables = {};
   var locks = new Array();
   var newListeners = {};
   var unregistrable = {};
