@@ -10,31 +10,6 @@ $.widget("brainslices.navbar",
   function()
   {
     var scope = this.options.scope;
-
-    $(this.element)
-      .empty()
-      .append(
-        $('<div id=left>')
-          .append('<div id="grid_select"></div>')
-          .append('<button id="btn_synch" class="icon selected"><span id="btn_synch_icon" class="fa fa-lock"></span></button>')
-          .append('<button id="btn_display" class="icon"><span id="btn_display_icon" class="fa fa-film"></span></button>')
-          .append('<button id="btn_compress" class="icon"><span class="fa fa-compress"></span></button>')
-          .append('<button id="btn_expand" class="icon"><span class="fa fa-expand"></span></button>')
-  	  		.append('<div id=spacer/>')
-          .append('<button id="btn_zoom" class="icon"><span class="fa fa-search-plus"></span></button>')
-          .append('<button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>')
-          .append('<div id="target_select"> </div>')
-          .append('<div id="quality_button"> </div>')
-        )
-      .append(
-        $('<div id="right">')
-          .append('<button id="btn_help" class="icon"><span class="fa fa-question"></span></button>')
-          .append('<button id="btn_login" class="icon"><span class="fa fa-power-off"></span></button>')
-          .append('<button id="btn_logout" class="icon"><span style="color:#ff0000" class="fa fa-power-off"></span></button>')
-        )
-      .append($('<span id="zoom" />'))
-      .append($('<span id="trans" />'));
-
     $("#grid_select").grid_select(
     {
       callback:

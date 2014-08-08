@@ -204,6 +204,35 @@ input:hover, textarea:hover, input:focus, textarea:focus {
   color: #000000;
 }
 
+#navbar
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  width: auto;
+  height: 45px;
+  padding: 5px;
+  box-model: padding-box;
+  z-index: 100;
+  margin: 0;
+}
+
+#main
+{
+  position: fixed;
+  top: 45px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+
+  padding: 0;
+  margin: 0;
+}
+
 /*
 ::-webkit-scrollbar
 {

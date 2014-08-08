@@ -1,68 +1,108 @@
+#navbar {
+  height:35px;
+  background-color:#fafafa;
+
+  display: flex;
+  z-index: 100;
+
+  top: 0;
+  left: 0;
+  width: auto;
+  border: 0px;
+
+  margin: 0;
+  padding: 5px;
+}
+
+#navbarLeft,
+#navbarRight,
+#navbarVisualize
+{
+  margin: 0;
+  padding: 0;
+}
+
+#navbarLeft
+{
+  width: 30%;
+  display: flex;
+  float: left;
+}
+
+#navbarRight
+{
+  text-align: right;
+  width: 20%;
+  float: right;
+}
+
+#navbarVisualize
+{
+  width: 50%;
+  display: flex;
+  float: left;
+}
+
+/*#left {
+  width: 80%;
+  display: flex;
+  float: left;
+
+  margin: 0;
+  padding: 0;
+}
+
+#right {
+  text-align: right;
+  width: 20%;
+  float: right;
+
+  margin: 0;
+  padding: 0;
+}*/
+
 #btn_grid,
+#btn_synch,
+#btn_display,
+#btn_compress,
+#btn_expand,
+#navbar .spacer,
+#btn_zoom,
+#btn_trans,
 #target_select,
 #quality_button
 {
   float: left;
 }
 
-#navbar {
-    height:50px;
-    background-color:#fafafa;
-
-    display: flex;
-    z-index: 100;
-
-    top: 0;
-    left: 0;
-    width: auto;
-    border: 0px;
-
-    margin: 0;
-    padding: 10px;
-}
-
-#left {
-    width: 80%;
-    display: flex;
-    float: left;
-
-    margin: 0;
-    padding: 0;
-}
-
-#right {
-    text-align: right;
-    width: 20%;
-    float: right;
-
-    margin: 0;
-    padding: 0;
-}
-
 #zoom {
-    position: absolute;
+  position: absolute;
 }
 
 #trans {
-    position: absolute;
+  position: absolute;
 }
 
 
-.navbar button.icon {
-    margin-left: 5px;
+#navbar button.icon
+{
+  width: 35px;
+  height: 35px;
+  margin-left: 5px;
 }
 
 #btn_quality {
-    font-weight: bold;
+  font-weight: bold;
 }
 
-#spacer {
-    width: 10px;
-    float: left;
+#navbar .spacer
+{
+  width: 10px;
+  height: 35px; 
 }
 
 .navbar .grid {
-    font-size: 7pt;
-    letter-spacing: 1px;
-    line-height: 70%;
+  font-size: 7pt;
+  letter-spacing: 1px;
+  line-height: 70%;
 }

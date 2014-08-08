@@ -78,7 +78,7 @@ function decompressStacks()
               parseInt(Math.max(100, 66 * nxCor / grid_dims.y)) + '%';
   layerManager.unloadAll();
   BrainSlices.scope.set('grid_dims', {x: nxCor, y: grid_dims.y});
-  stacks.rearrange(nxCor, ny, width);
+  stacks.rearrange(nxCor, grid_dims.y, width);
   for (var i = 0; i < images.length; i++)
   {
     layerManager.load(i, images[images.length - 1 - i], true);

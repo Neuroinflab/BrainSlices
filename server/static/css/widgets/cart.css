@@ -1,17 +1,18 @@
-.cart
+#cart
 {
-  right: 0px;
-  bottom: 0px;
-  top: 70px;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  height: auto;
   /*height: 100%;
   float: right;
 
   margin-bottom: 10px;*/
 
-  position: fixed;
+  position: absolute;
 }
 
-.cart>div
+#cart>div
 {
  float: left;
 }
@@ -44,7 +45,7 @@
   display: block;
 }
 
-.cart .fold-button {
+#cart .fold-button {
   height: 2em;
   width: 2em;
 
@@ -54,12 +55,12 @@
   display: block;
 }
 
-.cart .fold-button-icon {
+#cart .fold-button-icon {
   font-weight: bold;
 }
 
-.cart .search-panel,
-.cart .cart-items {
+#cart .search-panel,
+#cart .cart-items {
   height: 100%;
   position: relative;
 
@@ -71,13 +72,13 @@
   vertical-align: top;
 }
 
-.cart .search-panel
+#cart .search-panel
 {
   width: 1060px;
   z-index: 1;
 }
 
-.cart .cart-items
+#cart .cart-items
 {
   width: 500px;
   z-index: 1;

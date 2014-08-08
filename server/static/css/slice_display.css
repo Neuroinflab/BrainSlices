@@ -1,15 +1,16 @@
 div#sliceDisplay
 {
   position: absolute;
-  top: 70px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   overflow: hidden;
   z-index: 0;
 }
 
-div.draggableDiv /*div#controlPanel*/
+/*
+div.draggableDiv
 {
   position: absolute;
   right: 10%;
@@ -42,6 +43,7 @@ div.draggableDiv div.dragBar div
   color: navy;
   padding-right: 1em;
 }
+*/
 
 div.topLayer, div.tileLayer, div.outlineLayer
 {
