@@ -193,7 +193,7 @@ $(function()
     if (variable == 'interfaceMode')
     {
       $('#main>div').hide();
-      $('#navberMiddle>div').hide();
+      $('#navbarMiddle>div').hide();
       $('#navbar .panelButton').removeClass('selected');
       switch (value)
       {
