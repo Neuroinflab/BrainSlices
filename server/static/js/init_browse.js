@@ -100,34 +100,67 @@ function initBrowse()
 {
   var scope = BrainSlices.scope;
 
+  function filtersUnfold()
+  {
+    $('#searchPanelDiv').addClass('filters-visible');
+    $('#btn_filters').addClass('selected');
+    $('#searchResults>div').folder('refresh');
+    $('.basket-visible #searchImageBasketList>div').folder('refresh');
+  }
+
+  function filtersFold()
+  {
+    $('#searchPanelDiv').removeClass('filters-visible');
+    $('#btn_filters').removeClass('selected');
+    $('#searchResults>div').folder('refresh');
+    $('.basket-visible #searchImageBasketList>div').folder('refresh');
+  }
+
   $('#btn_filters').click(function()
   {
     if ($(this).hasClass('selected'))
     {
-      $('#searchPanelDiv').removeClass('filters-visible');
-      $(this).removeClass('selected');
+      filtersFold();
     }
     else
     {
-      $('#searchPanelDiv').addClass('filters-visible');
-      $(this).addClass('selected');
+      filtersUnfold();
     }
   });
+
+  $('#searchFiltersFold').click(filtersFold);
+  $('#searchFiltersUnfold').click(filtersUnfold);
+
+  function basketUnfold()
+  {
+    $('#searchPanelDiv').addClass('basket-visible');
+    $('#btn_basket_search').addClass('selected');
+    $('#searchImageBasketList>div').folder('refresh');
+    $('#searchResults>div').folder('refresh');
+    $('#searchImageBasketList>div').folder('refresh');
+  }
+
+  function basketFold()
+  {
+    $('#searchPanelDiv').removeClass('basket-visible');
+    $('#btn_basket_search').removeClass('selected');
+    $('#searchResults>div').folder('refresh');
+  }
 
   $('#btn_basket_search').click(function()
   {
     if ($(this).hasClass('selected'))
     {
-      $('#searchPanelDiv').removeClass('basket-visible');
-      $(this).removeClass('selected');
+      basketFold();
     }
     else
     {
-      $('#searchPanelDiv').addClass('basket-visible');
-      $('#searchImageBasketList>div').folder('refresh');
-      $(this).addClass('selected');
+      basketUnfold();
     }
   });
+
+  $('#searchBasketFold').click(basketFold);
+  $('#searchBasketUnfold').click(basketUnfold);
 }
 
 var searchEngine = null;

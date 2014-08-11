@@ -15,61 +15,16 @@
 }
 
 
-
-
-.search-content-wrapper
-{
-  position: absolute;
-  top: 30px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-
-  box-sizing: border-box;
-
-  overflow-y: auto;
-  /*overflow-y: scroll;*/
-}
-
-.search-header-label
-{
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  height: 30px;
-
-	background: #efefef;
-	/*color: #69c6fd;*/
-
-	font-weight: bold;
-  font-size: 16px;
-
-	padding-top: 5px;
-	padding-bottom: 5px;
-	padding-left: 0;
-	padding-right: 0;
-/*	margin-top: 5px;
-	margin-bottom: 5px;
-	margin-left: 0;
-	margin-right: 0;*/
-  margin: 0px;
-
-	text-align: center;
-  box-sizing: border-box;
-}
-
 #filtersWrapper,
 #resultsWrapper,
 #searchImageBasket
 {
   box-sizing: border-box;
+  /*
   padding: 5px;
-
-  border: 1px solid red;
+  border: 1px solid red;*/
 }
+
 
 #filtersWrapper
 {
@@ -88,10 +43,59 @@
   display: block;
 }
 
+
+#searchFiltersFold,
+#searchFiltersUnfold,
+#searchBasketFold,
+#searchBasketUnfold
+{
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  width: 20px;
+  height: auto;
+}
+
+#searchFiltersFold
+{
+  display: none;
+}
+
+#searchFiltersUnfold
+{
+  display: block;
+  left: 0;
+}
+
+#searchFiltersFold .fa-angle-double-left,
+#searchFiltersUnfold .fa-angle-double-right,
+#searchBasketUnfold .fa-angle-double-left,
+#searchBasketFold .fa-angle-double-right
+{
+  position: absolute;
+  top: 45%;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.filters-visible #searchFiltersFold
+{
+  left: 250px;
+  display: block;
+}
+
+.filters-visible #searchFiltersUnfold
+{
+  display: none;
+}
+
+
 #resultsDiv
 {
   position: absolute;
-  left: 0;
+  left: 20px;
   top: 0;
   bottom: 0;
   right: 0;
@@ -99,8 +103,9 @@
 
 .filters-visible #resultsDiv
 {
-  left: 250px;
+  left: 270px;
 }
+
 
 #resultsWrapper
 {
@@ -108,13 +113,14 @@
   left: 0;
   top: 0;
   bottom: 0;
-  right: 0;
+  right: 20px;
 }
 
 .basket-visible #resultsWrapper
 {
   right: 50%;
 }
+
 
 #searchImageBasket
 {
@@ -124,12 +130,41 @@
   right: 0;
   top: 0;
   bottom: 0;
+  z-index: 0;
 }
 
 .basket-visible #searchImageBasket
 {
   display: block;
+  padding-left: 25px;
 }
+
+
+#searchBasketFold
+{
+  display: none;
+}
+
+
+#searchBasketUnfold
+{
+  display: block;
+  right: 0;
+}
+
+.basket-visible #searchBasketFold
+{
+  display: block;
+  left: 50%;
+  z-index: 1;
+}
+
+.basket-visible #searchBasketUnfold
+{
+  display: none;
+}
+
+
 
 #loadedFiltersWrapper
 {
@@ -506,9 +541,46 @@ details.filter-property-info .brainslices-property-filter
   box-sizing: content-box;
 }
 
+.search-header-label
+{
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  height: 30px;
 
-.search-content-wrapper {
-	/*height: 480px;*/
+	background: #efefef;
+	/*color: #69c6fd;*/
+
+	font-weight: bold;
+  font-size: 16px;
+
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 0;
+	padding-right: 0;
+/*	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: 0;
+	margin-right: 0;*/
+  margin: 0px;
+
+	text-align: center;
+  box-sizing: border-box;
+}
+
+.search-content-wrapper 
+{
+  position: absolute;
+  top: 40px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  padding-top: 0;
+  padding-bottom: 0;
+
+  box-sizing: border-box;
+
 	overflow-x: hidden;
 	overflow-y: scroll;
 }
@@ -627,11 +699,18 @@ div.unfolding-button
 }
 
 
+#searchImageBasket .search-header-label
+{
+  left: 25px;
+}
+
 #searchImageBasketList
 {
   position: absolute;
-  top: 35px;
-  bottom: 0px;
+  top: 40px;
+  bottom: 5px;
   height: auto;
-  width: 100%;
+  left: 25px;
+  right: 5px;
+  width: auto;
 }
