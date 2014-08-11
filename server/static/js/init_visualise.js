@@ -1,5 +1,19 @@
 function initVisualise()
 {
+  function rearrangeInterface()
+  {
+    dims = scope.get("grid_dims");
+    var nx = dims.x;
+    var ny = dims.y;
+    var display = scope.get("display");
+    var width = display == 'matrix' ?
+                           null :
+                           parseInt(Math.max(100, 66 * nx / ny)) + '%';
+  
+    stacks.rearrange(nx, ny, width);
+    layerManager.arrangeInterface();
+  }
+
   var scope = BrainSlices.scope;
 
   $("#grid_select").grid_select(
@@ -208,6 +222,7 @@ function initVisualise()
     .registerChange(function(val)
     {
       $("#zoom").slider("value", Math.log(val) / Math.log(2));
+      state.zoom = val; // XXX obsoleted
     }, 'zoom')
     .registerChange(function(val)
     {
@@ -218,10 +233,6 @@ function initVisualise()
       state.display = val; // XXX obsoleted
       rearrangeInterface();
     }, 'display')
-    .registerChange(function(val)
-    {
-      state.zoom = val; // XXX obsoleted
-    }, 'zoom')
     .registerChange(function(val)
     {
       state.shape = [val.x, val.y]; // XXX obsoleted
