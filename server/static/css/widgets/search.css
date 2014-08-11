@@ -3,15 +3,19 @@
   border: 1px solid #aaaaaa;
 }
 
-.searchPanelDiv {
+#searchPanelDiv
+{
   position: absolute;
-  top: 5px;
-  left: 5px;
-  bottom: 5px;
-  right: 5px;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
 
 	margin: 0;
 }
+
+
+
 
 .search-content-wrapper
 {
@@ -61,6 +65,9 @@
 #resultsWrapper,
 #searchImageBasket
 {
+  box-sizing: border-box;
+  padding: 5px;
+
   border: 1px solid red;
 }
 
@@ -72,42 +79,56 @@
   bottom: 0;
   right: auto;
   width: 250px;
-  /*
-  height: 50%;
-  */
-  /*
+
+  display: none;
+}
+
+.filters-visible #filtersWrapper
+{
+  display: block;
+}
+
+#resultsDiv
+{
   position: absolute;
-  top: 0px;
-  bottom: 50%;
-  left: 0px;
-  right: 0px;
-  */
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.filters-visible #resultsDiv
+{
+  left: 250px;
 }
 
 #resultsWrapper
 {
   position: absolute;
-  left: 250px;
+  left: 0;
   top: 0;
   bottom: 0;
-  right: 33%;
-  /*top: 50%;*/
-  /*
-  height: 50%;
-  top: auto;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  */
+  right: 0;
+}
+
+.basket-visible #resultsWrapper
+{
+  right: 50%;
 }
 
 #searchImageBasket
 {
+  display: none;
   position: absolute;
-  left: 67%;
+  left: 50%;
   right: 0;
   top: 0;
   bottom: 0;
+}
+
+.basket-visible #searchImageBasket
+{
+  display: block;
 }
 
 #loadedFiltersWrapper
@@ -147,7 +168,10 @@
   position: absolute;
   top: auto;
   bottom: 5px;
+  left: 5px;
+  right: 5px;
   height: 25px;
+  box-sizing: border-box;
 }
 
 summary.filter-property-name
@@ -482,14 +506,6 @@ details.filter-property-info .brainslices-property-filter
   box-sizing: content-box;
 }
 
-
-#searchPropertySearch {
-	width: 100%;
-
-/*	font-weight: bold;
-	font-size: 12px;*/
-  box-sizing: border-box;
-}
 
 .search-content-wrapper {
 	/*height: 480px;*/

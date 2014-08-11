@@ -25,42 +25,21 @@
 
 #navbarLeft
 {
-  width: 30%;
-  display: flex;
   float: left;
 }
 
 #navbarRight
 {
   text-align: right;
-  width: 20%;
   float: right;
 }
 
 #navbarMiddle
 {
-  width: 50%;
-  display: flex;
-  float: left;
+  margin-left: auto;
+  margin-right: auto;
+  width: 400px;
 }
-
-/*#left {
-  width: 80%;
-  display: flex;
-  float: left;
-
-  margin: 0;
-  padding: 0;
-}
-
-#right {
-  text-align: right;
-  width: 20%;
-  float: right;
-
-  margin: 0;
-  padding: 0;
-}*/
 
 #btn_grid,
 #btn_synch,

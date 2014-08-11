@@ -1,40 +1,3 @@
-var move = false;
-
-function startMove(event)
-{
-  move = true;
-}
-
-
-function processMove(event)
-{
-  if (move)
-  {
-    inspect();
-  }
-}
-
-function inspect()
-{//TODO
-  $('#x').val(stacks.stacks[0].focusPointX);
-  $('#y').val(stacks.stacks[0].focusPointY);
-}
-
-function stopMove(event)
-{
-  move = false;
-}
-
-
-function test()
-{
-  var x = $('#x').val();
-  var y = $('#y').val();
-
-  stacks.setFocusPoint(x, y);
-  stacks.update();
-  return false;
-}
 
 function rearrangeInterface()
 {
@@ -48,26 +11,6 @@ function rearrangeInterface()
 
   stacks.rearrange(nx, ny, width);
   layerManager.arrangeInterface();
-}
-
-function addLayer()
-{
-  var id = $('#id').val();
-  var z = $('#z').val();
-  layerManager.autoAddTileLayer(id, z, $('#id option:selected').html());
-  return false;
-}
-
-//TODO
-function addOutlineLayer()
-{
-  var id = 'Outline320'; //$('#id').val();
-  var z = $('#z').val();
-
-  stacks.stacks[0].loadOutlineLayer(id, '/outlines/wholeOutline/320.svg', z);
-
-  inspect(); 
-  return false;
 }
 
 function detailsGenerator(info, $div)
@@ -167,9 +110,6 @@ function detailsGenerator(info, $div)
   return $div;
 }
 
-var testSubsets = null;
-var id2name = {};
-
 var loginConsole = null;
 var images = null;
 var stacks = null;
@@ -203,7 +143,10 @@ $(function()
 
         case 'browse':
           $('#browsePanel').show();
-          $('#browsePanel .search-content-wrapper>div').folder('refresh');
+          $('#navbarBrowse').show();
+          $('#searchResults>div').folder('refresh');
+          $('.basket-visible #searchImageBasketList>div').folder('refresh');
+          //$('#browsePanel .search-content-wrapper>div').folder('refresh');
           break;
 
         case 'visualise':
@@ -465,7 +408,37 @@ $(function()
       }
     }
   });
-  
+
+
+  $('#btn_filters').click(function()
+  {
+    if ($(this).hasClass('selected'))
+    {
+      $('#searchPanelDiv').removeClass('filters-visible');
+      $(this).removeClass('selected');
+    }
+    else
+    {
+      $('#searchPanelDiv').addClass('filters-visible');
+      $(this).addClass('selected');
+    }
+  });
+
+  $('#btn_basket_search').click(function()
+  {
+    if ($(this).hasClass('selected'))
+    {
+      $('#searchPanelDiv').removeClass('basket-visible');
+      $(this).removeClass('selected');
+    }
+    else
+    {
+      $('#searchPanelDiv').addClass('basket-visible');
+      $('#searchImageBasketList>div').folder('refresh');
+      $(this).addClass('selected');
+    }
+  });
+
 
 
   $("#cart").cart();
