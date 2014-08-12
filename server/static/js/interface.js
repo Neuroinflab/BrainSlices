@@ -306,17 +306,17 @@
        * Destructor: destroy
        *
        * Prepare the object for being disposed.
-      \***************************************************************************/
+       ***************************************************************************/
       destroy:
       function()
       {
         this.$div.find('.clickable_close').unbind('click', this.close);
-        this.close = null;
-
         $('body').unbind('keydown', this.closeByKey);
-        this.closeByKey = null;
-        this.onOpen = null;
-        this.onClose = null;
+
+        for (var name in this)
+        {
+          delete this[name];
+        }
       }
     }
   }
@@ -742,5 +742,115 @@
   else
   {
     console.warn('BrainSlices.gui.CTableManager already defined.');
+  }
+
+  if (BS.gui.CMessage == null)
+  {
+    /**
+     * Class: CMessage
+     *
+     * A class for outputing simple messages to user.
+     *
+     * Attributes:
+     *   window - A <CCloseableDiv> object.
+     *****************************************************************
+     *
+     * Constructor: CAlert
+     *
+     * Parameters:
+     *  $div - A jQuery object for <CCloseableDiv> object.
+     ******************************************************************/
+    BS.gui.CMessage = function($div)
+    {
+      var $content = $div.find('.content');
+      this.window = new BS.gui.CCloseableDiv($div);
+
+      /**
+       * Method: message
+       *
+       * Display a simple message.
+       *
+       * Parameters:
+       *   message - A HTML message to be displayed;
+       **********************************************/
+      this.message = function(message)
+      {
+        $content
+          .removeClass('error success')
+          .html(message);
+
+        this.window.open();
+      }
+
+      /**
+       * Method: error
+       *
+       * Display an error message.
+       *
+       * Parameters:
+       *   message - A HTML message to be displayed;
+       **********************************************/
+      this.error = function(message)
+      {
+        $content
+          .removeClass('success')
+          .addClass('error')
+          .html(message);
+
+        this.window.open();
+      }
+
+      /**
+       * Method: success
+       *
+       * Display an error message.
+       *
+       * Parameters:
+       *   message - A HTML message to be displayed;
+       **********************************************/
+      this.success = function(message)
+      {
+        $content
+          .removeClass('error')
+          .addClass('success')
+          .html(message);
+
+        this.window.open();
+      }
+    }
+
+    BS.gui.CMessage.prototype =
+    {
+      /**
+       * Destructor: destroy
+       *
+       * Prepare the object for being disposed.
+       ********************************************/
+      destroy:
+      function()
+      {
+        this.window.destroy();
+
+        for (var name in this)
+        {
+          delete this[name];
+        }
+      },
+
+      /**
+       * Method: close
+       *
+       * An alias of this.window.close();
+       ***********************************/
+      close:
+      function()
+      {
+        this.window.close();
+      }
+    }
+  }
+  else
+  {
+    console.warn('BrainSlices.gui.CCloseableDiv already defined.')
   }
 })(BrainSlices, jQuery);

@@ -213,3 +213,14 @@ form[name=confirmationForm] p
   text-align: center;
   width: 30em;
 }
+
+.error
+{
+  background: #FFEEEE;
+  border: 1px solid #FFAAAA;
+  border-radius: 10px;
+  padding: 5px;
+  color: #000000;
+  text-align: center;
+  width: 30em;
+}

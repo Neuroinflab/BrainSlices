@@ -184,19 +184,6 @@ To complete the regeneration process please check your e&#8209;mail box and foll
                         message = message,
                         logged = status)
 
-  @useTemplate('userPanel')
-  def confirmRegistration(self, request):
-    login = request.login
-    confirmId = request.confirm
-    uid = self.userBase.checkConfirmationID(login, confirmId)
-    if uid:
-      mode = 'confirmation'
-      request.session['userID'] = uid
-
-    else:
-      mode = 'confirmation failed'
-
-    return [], [('<!--%modeHere%--!>', mode)]
 
   @useTemplate('userPanel')
   def index(self):
@@ -222,6 +209,8 @@ To complete the regeneration process please check your e&#8209;mail box and foll
 
 class UserServer(Server):
   def __init__(self, servicePath, userBase):
+    self.userBase = userBase
+
     self.serviceDir = servicePath
     self.userGenerator = UserGenerator(os.path.join(servicePath, 'templates'), userBase)
 
@@ -248,12 +237,18 @@ class UserServer(Server):
   @cherrypy.expose
   @serveContent(RegisterRequest)
   def registerUser(self, request):  
-      return self.userGenerator.generateUser(request)
+    return self.userGenerator.generateUser(request)
 
   @cherrypy.expose
   @serveContent(ConfirmRegistrationRequest)
   def confirmRegistration(self, request):
-    return self.userGenerator.confirmRegistration(request)
+    uid = self.userBase.checkConfirmationID(request.login, request.confirm)
+    if uid:
+      request.session['userID'] = uid
+      raise cherrypy.HTTPRedirect("/?user=confirmed")
+
+    request.session['userID'] = None
+    raise cherrypy.HTTPRedirect("/?user=confirmationfailed")
 
   @cherrypy.expose
   @serveContent(RegeneratePasswordRequest)

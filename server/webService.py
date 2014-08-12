@@ -53,10 +53,11 @@ class WebGenerator(Generator):
     index = self.templateEngine('myapi.html')
     index['<!--%controlPanel%-->'] = stackControlPanel
     index['<!--%loginWindow%-->'] = self.templateEngine('loginWindow.html')
+    index['<!--%alertWindow%-->'] = self.templateEngine('alertWindow.html')
     index['<!--%homePanel%-->'] = self.templateEngine('homePanel.html')
     index['<!--%browsePanel%-->'] = self.templateEngine('browsePanel.html')
     index['<!--%uploadPanel%-->'] = self.templateEngine('todo.html')
-    index['<!--%userPanel%-->'] = self.templateEngine('todo.html')
+    index['<!--%userPanel%-->'] = self.templateEngine('userPanel.html')
 
     self['index'] = index
 

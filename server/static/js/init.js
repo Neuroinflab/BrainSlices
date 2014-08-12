@@ -5,6 +5,7 @@ var images = null;
 var stacks = null;
 var layerManager = null;
 var searchEngine = null;
+var alertWindow = null; 
 
 var state = {iids: [],
              shape: [1, 1],
@@ -85,12 +86,14 @@ $(function()
 
   initVisualise();
   initBrowse();
+  initUser();
 
   $('#btn_cart').click(function()
   {
     scope.set('cart', !scope.get('cart'));
   });
 
+  alertWindow = new BrainSlices.gui.CMessage($('#alertWindow'));
   loginConsole = new BrainSlices.ajax.CUserPanel($('#loginWindow'),
                                                  $('#btn_login'),
                                                  $('#btn_logout'),
@@ -125,6 +128,7 @@ $(function()
     }
 
     initVisualiseFinish(state);
+    initUserFinish(state);
 
     var loadImageI = 0;
     var loadedImages = [];

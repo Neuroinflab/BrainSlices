@@ -22,6 +22,25 @@ function parseState(search)
 
     switch (argName)
     {
+      case 'user':
+        switch (argVal)
+        {
+          case 'confirmed':
+            state.interface = 'user';
+
+          case 'confirmationfailed':
+          case 'regenerate':
+            break;
+
+          default:
+            console.warn('Invalid user value: ' + argVal);
+            continue;
+        }
+      case 'login':
+      case 'confirm':
+        state[argName] = argVal;
+        break;
+
       case 'interface':
         switch (argVal)
         {
@@ -235,6 +254,7 @@ function parseState(search)
       }
     }
   }
+
   return state;
 }
 
