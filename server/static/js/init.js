@@ -13,12 +13,26 @@ var state = {iids: [],
              display: 'matrix',
              sync: true,
              zoom: 1.,
-             'interface': 'home'};
+             'interface': 'home',
+             cart: false};
 
 $(function()
 {
   var scope = BrainSlices.scope;
   scope
+    .registerChange(function(value)
+    {
+      if (value)
+      {
+        $('#btn_cart').addClass('selected');
+      }
+      else
+      {
+        $('#btn_cart').removeClass('selected');
+      }
+
+      state.cart = value; // XXX obsolete
+    }, 'cart')
     .registerChange(function(value)
     {
       $('#main>div').hide();
@@ -72,6 +86,10 @@ $(function()
   initVisualise();
   initBrowse();
 
+  $('#btn_cart').click(function()
+  {
+    scope.set('cart', !scope.get('cart'));
+  });
 
   loginConsole = new BrainSlices.ajax.CUserPanel($('#loginWindow'),
                                                  $('#btn_login'),
@@ -193,6 +211,7 @@ $(function()
 
 
     scope.set('interfaceMode', state.interface);
+    scope.set('cart', state.cart);
   });
 
 

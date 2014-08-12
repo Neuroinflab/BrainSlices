@@ -131,36 +131,35 @@ function initBrowse()
   $('#searchFiltersFold').click(filtersFold);
   $('#searchFiltersUnfold').click(filtersUnfold);
 
-  function basketUnfold()
-  {
-    $('#searchPanelDiv').addClass('basket-visible');
-    $('#btn_basket_search').addClass('selected');
-    $('#searchImageBasketList>div').folder('refresh');
-    $('#searchResults>div').folder('refresh');
-    $('#searchImageBasketList>div').folder('refresh');
-  }
-
-  function basketFold()
-  {
-    $('#searchPanelDiv').removeClass('basket-visible');
-    $('#btn_basket_search').removeClass('selected');
-    $('#searchResults>div').folder('refresh');
-  }
-
-  $('#btn_basket_search').click(function()
-  {
-    if ($(this).hasClass('selected'))
+  scope
+    .registerChange(function(value)
     {
-      basketFold();
-    }
-    else
-    {
-      basketUnfold();
-    }
-  });
+      if (value)
+      {
+        $('#searchPanelDiv').addClass('basket-visible');
+      }
+      else
+      {
+        $('#searchPanelDiv').removeClass('basket-visible');
+      }
 
-  $('#searchBasketFold').click(basketFold);
-  $('#searchBasketUnfold').click(basketUnfold);
+      if (scope.get('interfaceMode') == 'browse')
+      {
+        if (value)
+        {
+          $('#searchImageBasketList>div').folder('refresh');
+          $('#searchResults>div').folder('refresh');
+        }
+        else
+        {
+          $('#searchResults>div').folder('refresh');
+        }
+      }
+    }, 'cart');
+
+
+  $('#searchBasketFold').click(scope.getCallback('cart', false));
+  $('#searchBasketUnfold').click(scope.getCallback('cart', true));
 }
 
 var searchEngine = null;

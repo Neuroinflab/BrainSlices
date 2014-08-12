@@ -212,18 +212,7 @@ function initVisualise()
 
   $('#btn_basket_visualise').click(function()
   {
-    if ($(this).hasClass('selected'))
-    {
-      $(this).removeClass('selected');
-      $('#visualisePanel').removeClass('basket-visible');
-    }
-    else
-    {
-      $(this).addClass('selected');
-      $('#visualisePanel').addClass('basket-visible');
-    }
-
-    stacks.resize();
+    scope.set('cart', !scope.get('cart'));
   });
 
 
@@ -254,7 +243,23 @@ function initVisualise()
     {
       state.shape = [val.x, val.y]; // XXX obsoleted
       rearrangeInterface();
-    }, 'grid_dims');
+    }, 'grid_dims')
+    .registerChange(function(val)
+    {
+      if (val)
+      {
+        $('#visualisePanel').addClass('basket-visible');
+      }
+      else
+      {
+        $('#visualisePanel').removeClass('basket-visible');
+      }
+
+      if (scope.get('interfaceMode') == 'visualise')
+      {
+        stacks.resize();
+      }
+    }, 'cart');
 
 }
 
