@@ -210,6 +210,23 @@ function initVisualise()
       layerManager.arrangeInterface();
     });
 
+  $('#btn_basket_visualise').click(function()
+  {
+    if ($(this).hasClass('selected'))
+    {
+      $(this).removeClass('selected');
+      $('#visualisePanel').removeClass('basket-visible');
+    }
+    else
+    {
+      $(this).addClass('selected');
+      $('#visualisePanel').addClass('basket-visible');
+    }
+
+    stacks.resize();
+  });
+
+
   $("#btn_help").button();
   $("#btn_login").button();
   $("#btn_logout").button();

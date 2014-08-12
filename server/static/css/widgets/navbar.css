@@ -38,7 +38,7 @@
 {
   margin-left: auto;
   margin-right: auto;
-  width: 400px;
+  width: 420px;
 }
 
 #btn_grid,
@@ -50,7 +50,8 @@
 #btn_zoom,
 #btn_trans,
 #target_select,
-#quality_button
+#quality_button,
+#btn_basket_visualise
 {
   float: left;
 }

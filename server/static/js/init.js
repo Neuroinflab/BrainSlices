@@ -73,9 +73,6 @@ $(function()
   initBrowse();
 
 
-  $("#cart").cart();
-
-
   loginConsole = new BrainSlices.ajax.CUserPanel($('#loginWindow'),
                                                  $('#btn_login'),
                                                  $('#btn_logout'),
