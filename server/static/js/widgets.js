@@ -948,7 +948,6 @@ var CFilterPanel = null;
     {
       this.$wrapper = $('<span>').appendTo(this.element);
       var $div = $('<div>')
-        .addClass('property-column')
         .appendTo(this.$wrapper);
 
 
@@ -957,14 +956,13 @@ var CFilterPanel = null;
         .appendTo($div);
 
       $div = $('<div>')
-        .addClass('condition-column')
         .appendTo(this.$wrapper);
+
+      this.$filter = $('<div>')
+        .appendTo($div);
 
       var $add = $('<span>')
         .addClass('add-filter-button fa fa-plus')
-        .appendTo($div);
-
-      this.$filter = $('<div>')
         .appendTo($div);
 
       this._createNewPropertyFilter($what);
