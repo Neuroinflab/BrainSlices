@@ -35,7 +35,8 @@ from config import BS_EMAIL_PASSWORD, BS_EMAIL_SERVER, BS_EMAIL_PORT,\
 BS_EMAIL_FROM = ("%s<%s>" % (BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)).encode(BS_EMAIL_ENCODING)
 
 #registration templates
-CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
+#CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
+CONFIRMATION_LINK_TEMPLATE = 'http://%s/?user=confirm&confirm=%%s&login=%%s' % BS_SERVICE_SERVER
 
 REGISTRATION_EMAIL_SUBJECT = '%s account registration' % BS_SERVICE_NAME
 

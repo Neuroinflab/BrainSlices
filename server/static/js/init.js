@@ -216,6 +216,22 @@ $(function()
 
     scope.set('interfaceMode', state.interface);
     scope.set('cart', state.cart);
+  },
+  null,
+  function (response)
+  {
+    if (response.status)
+    {
+      alertWindow.success(response.message);
+      loginConsole.hidePanel()
+      loginConsole.showLoginForm();
+      scope.set('interfaceMode', 'user');
+    }
+    else
+    {
+      loginConsole.showConfirmationForm(null, null, null, response.message);
+      loginConsole.showPanel();
+    }
   });
 
 

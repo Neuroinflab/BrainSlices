@@ -243,12 +243,23 @@ class UserServer(Server):
   @serveContent(ConfirmRegistrationRequest)
   def confirmRegistration(self, request):
     uid = self.userBase.checkConfirmationID(request.login, request.confirm)
-    if uid:
-      request.session['userID'] = uid
-      raise cherrypy.HTTPRedirect("/?user=confirmed")
+    request.session['userID'] = uid
+    return generateJson(status=uid is not None,
+                        message=("""
+                                 Thank you for registration in our service, %s.<br>
+                                 Your account has been successfully activated.
+                                 """ % request.login) if uid is not None\
+                                 else """
+                                 Confirmation of registration failed.<br>
+                                 Please check your credentials carefully.
+                                 """,
+                        logged = uid is not None)
+    #if uid:
+    #  request.session['userID'] = uid
+    #  raise cherrypy.HTTPRedirect("/?user=confirmed")
 
-    request.session['userID'] = None
-    raise cherrypy.HTTPRedirect("/?user=confirmationfailed")
+    #request.session['userID'] = None
+    #raise cherrypy.HTTPRedirect("/?user=confirmationfailed")
 
   @cherrypy.expose
   @serveContent(RegeneratePasswordRequest)

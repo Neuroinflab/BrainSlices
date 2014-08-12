@@ -75,7 +75,12 @@ function initUserFinish(state)
   {
     switch (state.user)
     {
-      case 'confirmed':
+      case 'confirm':
+        loginConsole.showConfirmationFormHandler(null, state.login, state.confirm);
+        loginConsole.confirmRegistration(state.login, state.confirm);
+        break;
+
+/*      case 'confirmed':
         alertWindow.success('Thank you for registration in our service.<br>'
                           + 'Your account has been successfully activated.');
         break;
@@ -83,8 +88,8 @@ function initUserFinish(state)
       case 'confirmationfailed':
         alertWindow.error('Confirmation failed.<br>'
                         + 'Please check your credentials carefully.');
-        break;
-   }
+        break;*/
+    }
   }
 
   /*

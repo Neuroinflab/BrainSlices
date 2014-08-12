@@ -570,6 +570,18 @@
     ajax.CLoginConsole.prototype =
     {
       /**
+       * Method: isOpened
+       *
+       * Return:
+       *   Whether console is opened or not.
+      \***************************************************************************/
+      isOpened:
+      function()
+      {
+        return this.closeManager.opened;
+      },
+
+      /**
        * Method: showPanel
        *
        * Show the login panel window.
@@ -586,6 +598,17 @@
       },
 
       /**
+       * Method: hidePanel
+       *
+       * Hide the login panel window.
+      \***************************************************************************/
+      hidePanel:
+      function()
+      {
+        this.closeManager.close();
+      },
+
+      /**
        * Destructor: destroy
        *
        * Prepare the object for being disposed.
@@ -598,14 +621,15 @@
       //TODO: provide some kind of control (like in CLoginManager)
         this.loginManager.destroy();
         this.closeManager.destroy();
-        this.onLogin = null;
 
         this.$panelShowButton.unbind('click',  this.panelShowButtonHandler);
-        this.panelShowButtonHandler = null;
         this.$logoutButton.unbind('click',  this.logoutButtonHandler);
-        this.logoutButtonHandler = null;
         this.$controlPanel.find('form[name="loginForm"]').unbind('submit', this.loginButtonHandler);
-        this.loginButtonHandler = null;
+
+        for (var name in this)
+        {
+          delete this[name];
+        }
       },
 
       /**
@@ -736,12 +760,13 @@
    *                   function or null or undefined
    *   onClose - A trigger to be executed when the login panel window is
    *             closed. function or null or undefined
+   *   onConfirm - A callback for registration confirmation.
   \***************************************************************************/
   if (ajax.CUserPanel == null)
   {
     ajax.CUserPanel = function ($controlPanel, $panelShowButton,
                                 $logoutButton, onlogin, onlogout,
-                                finalFunction, onClose)
+                                finalFunction, onClose, onConfirm)
     {
       this.$controlPanel = $controlPanel;
 
@@ -833,13 +858,7 @@
                             {
                               if (response.status)
                               {
-                                //$registerForm.hide();
-                                //$registerForm.find('.formField').val('');
-                                thisInstance.showConfirmationForm(response.message, login);
-    //                            $confirmationForm.find('input[name="login"]').val(login);
-    //                            $confirmationForm.find('.success').html(response.message);
-    //                            //$success.html(response.message).show();
-     //                           $confirmationForm.show();
+                                thisInstance.showConfirmationForm(response.message, login, '');
                               }
                               else
                               {
@@ -868,7 +887,9 @@
       this.showLoginForm = function()
       {
         $registerForm.hide();
+        $confirmationForm.hide();
         $regenerateForm.hide();
+        $regenerateFinalForm.hide();
         $loginForm.find('.formField').val('');
         $loginForm.show();
       };
@@ -878,7 +899,7 @@
       this.showRegeneratePasswordForm = function()
       {
         $loginForm.hide();
-        //$confirmationForm.hide();
+        $confirmationForm.hide();
         $regenerateFinalForm.hide();
         $controlPanel.find('.formErrorMessages').empty();
         $regenerateForm.find('.formField').val('');
@@ -1043,6 +1064,17 @@
 
       $regenerateFinalForm.bind('submit', this.submitRegeneratePasswordFinalForm);
 
+
+      this.confirmRegistration = function(login, confirm)
+      {
+        this.ajax('/user/confirmRegistration',
+                  onConfirm,
+                  {
+                    confirm: confirm,
+                    login: login
+                  });
+      }
+
       this.validateConfirmationForm = function()
       {
         var confirm = $confirmationForm.find('input[name="confirm"]').val().trim();
@@ -1062,30 +1094,45 @@
           valid = false;
         }
 
-        return valid;
+        if (valid)
+        {
+          thisInstance.confirmRegistration(login, confirm);
+        }
+
+        return false;
       }
 
       $confirmationForm.bind('submit', this.validateConfirmationForm);
 
-      this.showConfirmationForm = function(message, login, sucess)
+      this.showConfirmationForm = function(success, login, confirm, fail)
       {
-        $confirmationForm.find('.formField').val('');
         if (login != null)
         {
           $confirmationForm.find('input[name="login"]').val(login);
         }
 
-        if (message != null)
+        if (confirm != null)
         {
-          $confirmationForm.children('p').first().hide();
-          $confirmationForm.find('.success').html(message).show();
+          $confirmationForm.find('input[name="confirm"]').val(confirm);
+        }
+
+        $confirmationForm.children('p').first().hide();
+        $confirmationForm.find('.success').hide();
+        $confirmationForm.find('.error').hide();
+        if (success != null)
+        {
+          $confirmationForm.find('.success').html(success).show();
+        }
+        else if (fail != null)
+        {
+          $confirmationForm.find('.error').html(fail).show();
         }
         else
         {
-          $confirmationForm.find('.success').hide();
           $confirmationForm.children('p').first().show();
         }
 
+        $loginForm.hide();
         $registerForm.hide();
         $registerForm.find('.formField').val('');
         $confirmationForm.show();
@@ -1093,7 +1140,7 @@
 
       this.showConfirmationFormHandler = function()
       {
-        thisInstance.showConfirmationForm();
+        thisInstance.showConfirmationForm(null, '', '');
       }
 
       $controlPanel.find('.showConfirmationFormButton').bind('click',
@@ -1120,6 +1167,8 @@
                                               $success.hide();
                                               //XXX: is this necessary?
                                               $controlPanel.find('.formField').val('');
+
+                                              console.log('closing eth.');
                                               if (onClose != null)
                                               {
                                                 onClose();
@@ -1130,6 +1179,17 @@
     ajax.CUserPanel.prototype =
     {
       /**
+       * Method: isOpened
+       *
+       * An alias to loginManager.isOpened(); see <CUserPanel.isOpened>.
+      \***************************************************************************/
+      isOpened:
+      function()
+      {
+        this.loginManager.isOpened();
+      },
+
+      /**
        * Method: showPanel
        *
        * An alias to loginManager.showPanel(onLogin); see <CUserPanel.showPanel>.
@@ -1138,6 +1198,17 @@
       function(onLogin)
       {
         this.loginManager.showPanel(onLogin);
+      },
+
+      /**
+       * Method: hidePanel
+       *
+       * An alias to loginManager.hidePanel(); see <CUserPanel.hidePanel>.
+      \***************************************************************************/
+      hidePanel:
+      function()
+      {
+        this.loginManager.hidePanel();
       },
 
       /**
@@ -1153,31 +1224,19 @@
       //TODO: provide some kind of control (like in CLoginManager)
         this.loginManager.destroy();
         this.$controlPanel.find('.showRegisterFormButton').unbind('click', this.showRegisterForm);
-        this.showRegisterForm = null;
         this.$controlPanel.find('form[name="registerForm"]').unbind('submit', this.submitRegisterForm);
-        this.submitRegisterForm = null;
         this.$controlPanel.find('.showLoginFormButton').unbind('click', this.showLoginForm);
-        this.showLoginForm = null;
-
         this.$controlPanel.find('.showRegeneratePasswordFormButton').unbind('click', this.showRegeneratePasswordForm);
-        this.showRegeneratePasswordForm = null;
-
         this.$controlPanel.find('form[name="regeneratePasswordForm"]').unbind('submit', this.submitRegeneratePasswordForm);
-        this.submitRegeneratePasswordForm = null;
-
         this.$controlPanel.find('.showRegeneratePasswordFinalFormButton').unbind('click', this.showRegeneratePasswordFinalFormHandler);
-        this.showRegeneratePasswordFinalFormHandler = null;
-        this.showRegeneratePasswordFinalForm = null;
-
         this.$controlPanel.find('form[name="regeneratePasswordFinalForm"]').unbind('submit', this.submitRegeneratePasswordFinalForm);
-        this.submitRegeneratePasswordFinalForm = null;
-
         this.$controlPanel.find('form[name="confirmationForm"]').unbind('submit', this.validateConfirmationForm);
-        this.validateConfirmationForm = null;
-
         this.$controlPanel.find('.showConfirmationFormButton').unbind('click', this.showConfirmationFormHandler);
-        this.showConfirmationFormHandler = null;
-        this.showConfirmationForm = null;
+
+        for (var name in this)
+        {
+          delete this[name];
+        }
       },
 
       /**

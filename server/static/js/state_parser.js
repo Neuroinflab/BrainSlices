@@ -25,10 +25,7 @@ function parseState(search)
       case 'user':
         switch (argVal)
         {
-          case 'confirmed':
-            state.interface = 'user';
-
-          case 'confirmationfailed':
+          case 'confirm':
           case 'regenerate':
             break;
 
@@ -252,6 +249,16 @@ function parseState(search)
         }
         if (loaded == null) break;
       }
+    }
+  }
+
+  if ('user' in state)
+  {
+    if (state.user == 'confirm' && !('login' in state && 'confirm' in state))
+    {
+      delete state.user;
+      if ('login' in state) delete state.login;
+      if ('confirm' in state) delete state.confirm;
     }
   }
 
