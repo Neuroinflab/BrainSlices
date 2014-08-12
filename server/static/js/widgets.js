@@ -327,7 +327,7 @@ var CFilterPanel = null;
     function()
     {
       console.debug('_create');
-      this.$wrapper = $('<span>')
+      this.$wrapper = $('<div>')
                         .addClass('brainslices-propertyfilter')
                         .appendTo(this.element);
     },

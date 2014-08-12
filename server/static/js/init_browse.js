@@ -100,6 +100,12 @@ function initBrowse()
 {
   var scope = BrainSlices.scope;
 
+  var newFilterWindow = new BrainSlices.gui.CCloseableDiv($('#newFilterWindow'));
+  $('#newFilterButton').click(function()
+  {
+    newFilterWindow.open();
+  })
+
   function filtersUnfold()
   {
     $('#searchPanelDiv').addClass('filters-visible');

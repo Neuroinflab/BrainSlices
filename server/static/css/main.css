@@ -1,4 +1,5 @@
-body {
+body
+{
   font: 14px/150% Verdana, Tahoma, sans-serif;
   color: #7F7F7F;
 
@@ -6,7 +7,8 @@ body {
   padding: 0;
 }
 
-button {
+button
+{
   height:; 1em;
 
   display: inline-block;
@@ -35,14 +37,17 @@ button {
   -webkit-touch-callout: none;
 }
 
-button.icon {
+button.icon 
+{
   height: 50px;
   width: 50px;
 
   text-align: center;
 }
 
-button:hover, button.selected {
+button:hover,
+button.selected
+{
   color: #FFFFFF;
   border-color: #388AD4;
   text-decoration: none;
@@ -51,12 +56,16 @@ button:hover, button.selected {
   background-color: #2D7DC5;
 }
 
-button:active {
+button:active
+{
   position: relative;
   top: 2px;
 }
 
-select, input, textarea {
+select,
+input,
+textarea
+{
   padding: 5px;
   border: solid 1px #E5E5E5;
   outline: 0;
@@ -80,12 +89,17 @@ select
   background-size: 20px, 8px;
 }
 
-input:hover, textarea:hover, input:focus, textarea:focus {
+input:hover,
+textarea:hover,
+input:focus,
+textarea:focus
+{
   border-color: #C9C9C9;
   -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
 }
 
-.ui-tooltip {
+.ui-tooltip
+{
   position: absolute;
 
   border: solid 1px #dddddd;
@@ -99,9 +113,12 @@ input:hover, textarea:hover, input:focus, textarea:focus {
   box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
   -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
   -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+
+  z-index: 9999;
 }
 
-.ui-slider {
+.ui-slider
+{
   background: #dddddd;
   border: 1px solid #aaaaaa;
   border-radius: 4px;
@@ -114,7 +131,8 @@ input:hover, textarea:hover, input:focus, textarea:focus {
   display: block;
 }
 
-.ui-slider-range {
+.ui-slider-range
+{
   background: #69c6fd;
   border: 0;
   border-radius: 4px;
@@ -128,7 +146,8 @@ input:hover, textarea:hover, input:focus, textarea:focus {
   display: block;
 }
 
-.ui-slider-handle {
+.ui-slider-handle
+{
   border: 1px solid #888888;
   border-radius: 7px;
   /*background: #388AD4;*/
@@ -145,7 +164,8 @@ input:hover, textarea:hover, input:focus, textarea:focus {
   display: block;
 }
 
-.ui-slider-handle:focus {
+.ui-slider-handle:focus
+{
   border: 1px solid #388AD4;
   background: #f0f0f0;
 
@@ -169,6 +189,8 @@ input:hover, textarea:hover, input:focus, textarea:focus {
   box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
   -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
   -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+
+  z-index: 9999;
 }
 
 .ui-autocomplete li

@@ -57,12 +57,12 @@ img.clickable_close
 div.overlay
 {
   padding-top: 10%;
-  position: absolute;
+  position: fixed;
   left:0px;
   top:0px;
   bottom:0px;
   right:0px;
-  z-index: 95;
+  z-index: 999;
   background:rgba(0,0,0,0.1);
   text-align:center;
 }

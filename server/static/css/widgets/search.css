@@ -187,15 +187,21 @@
   overflow: hidden; /*WTF?*/
 }
 
+
 #newFilter
 {
+/*
   position: absolute;
   top: auto;
   bottom: 35px;
-  height: 120px;
   left: 0;
   right: 0;
+  */
+  height: 120px;
+
+  /*
   overflow: auto;
+  */
 }
 
 #searchPropertySearch
@@ -300,11 +306,14 @@ details.filter-property-info .brainslices-property-filter
 	width: 120px;
 }
 
-.brainslices-propertyfilter {
-	display: inline !important;
+.brainslices-propertyfilter
+{
+	display: inline-block;
+  width: 210px;
 }
 
-.numeric-property-input {
+.numeric-property-input
+{
 	width: 40px;
 }
 
@@ -420,9 +429,13 @@ details.filter-property-info .brainslices-property-filter
   vertical-align: middle;
 }
 
-.brainslices-property-filter
+.filter-property-info .brainslices-property-filter
 {
   overflow: hidden;
+}
+
+span.brainslices-property-filter
+{
 }
 
 .brainslices-number-property-filter,
