@@ -1,59 +1,59 @@
 body {
-    font: 14px/150% Verdana, Tahoma, sans-serif;
-    color: #7F7F7F;
+  font: 14px/150% Verdana, Tahoma, sans-serif;
+  color: #7F7F7F;
 
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 button {
-    height:; 1em;
+  height:; 1em;
 
-    display: inline-block;
-    padding: 5px;
-    font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
-    font-size: 13px;
-    color: #3C3C3D;
-    text-shadow: 1px 1px 0 #FFFFFF;
-    background: #ECECEC;
-    white-space: nowrap;
-    overflow: visible;
-    cursor: pointer;
-    text-decoration: none;
-    border: 1px solid #CACACA;
-    -webkit-border-radius: 2px;
-    -moz-border-radius: 2px;
-    border-radius: 2px;
-    outline: none;
-    position: relative;
-    zoom: 1;
-    line-height: 1.11;
+  display: inline-block;
+  padding: 5px;
+  font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
+  font-size: 13px;
+  color: #3C3C3D;
+  text-shadow: 1px 1px 0 #FFFFFF;
+  background: #ECECEC;
+  white-space: nowrap;
+  overflow: visible;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid #CACACA;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  outline: none;
+  position: relative;
+  zoom: 1;
+  line-height: 1.11;
 
-    -moz-user-select: none;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
+  -moz-user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 button.icon {
-    height: 50px;
-    width: 50px;
+  height: 50px;
+  width: 50px;
 
-    text-align: center;
+  text-align: center;
 }
 
 button:hover, button.selected {
-    color: #FFFFFF;
-    border-color: #388AD4;
-    text-decoration: none;
-    text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
-    background-position: 0 -40px;
-    background-color: #2D7DC5;
+  color: #FFFFFF;
+  border-color: #388AD4;
+  text-decoration: none;
+  text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+  background-position: 0 -40px;
+  background-color: #2D7DC5;
 }
 
 button:active {
-    position: relative;
-    top: 2px;
+  position: relative;
+  top: 2px;
 }
 
 select, input, textarea {
@@ -81,122 +81,122 @@ select
 }
 
 input:hover, textarea:hover, input:focus, textarea:focus {
-    border-color: #C9C9C9;
-    -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
+  border-color: #C9C9C9;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
 }
 
 .ui-tooltip {
-    position: absolute;
+  position: absolute;
 
-    border: solid 1px #dddddd;
-    background: #ffffff;
+  border: solid 1px #dddddd;
+  background: #ffffff;
 
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
 
-    box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
-    -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
-    -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
 
 .ui-slider {
-    background: #dddddd;
-    border: 1px solid #aaaaaa;
-    border-radius: 4px;
+  background: #dddddd;
+  border: 1px solid #aaaaaa;
+  border-radius: 4px;
 
-    width: 10px;
+  width: 10px;
 
-    position: relative;
-    text-align: left;
+  position: relative;
+  text-align: left;
 
-    display: block;
+  display: block;
 }
 
 .ui-slider-range {
-    background: #69c6fd;
-    border: 0;
-    border-radius: 4px;
+  background: #69c6fd;
+  border: 0;
+  border-radius: 4px;
 
-    width: 10px;
+  width: 10px;
 
-    position: absolute;
-    left: 0;
-    bottom: 0;
+  position: absolute;
+  left: 0;
+  bottom: 0;
 
-    display: block;
+  display: block;
 }
 
 .ui-slider-handle {
-    border: 1px solid #888888;
-    border-radius: 7px;
-    /*background: #388AD4;*/
-    background: #eeeeee;
+  border: 1px solid #888888;
+  border-radius: 7px;
+  /*background: #388AD4;*/
+  background: #eeeeee;
 
-    width: 14px;
-    height: 14px;
-    left: -3px;
-    margin-left: 0;
-    margin-bottom: -7px;
+  width: 14px;
+  height: 14px;
+  left: -3px;
+  margin-left: 0;
+  margin-bottom: -7px;
 
-    position: absolute;
+  position: absolute;
 
-    display: block;
+  display: block;
 }
 
 .ui-slider-handle:focus {
-    border: 1px solid #388AD4;
-    background: #f0f0f0;
+  border: 1px solid #388AD4;
+  background: #f0f0f0;
 
-    outline: none;
-    -moz-box-shadow:    0px 0px 2px 0px #388AD4;
-    -webkit-box-shadow: 0px 0px 2px 0px #388AD4;
-    box-shadow:         0px 0px 2px 0px #388AD4;
+  outline: none;
+  -moz-box-shadow:  0px 0px 2px 0px #388AD4;
+  -webkit-box-shadow: 0px 0px 2px 0px #388AD4;
+  box-shadow:     0px 0px 2px 0px #388AD4;
 }
 
 .ui-autocomplete
 {
-    border: solid 1px #dddddd;
-    background: #ffffff;
+  border: solid 1px #dddddd;
+  background: #ffffff;
 
-    max-width: 210px;
-    list-style-type: none;
+  max-width: 210px;
+  list-style-type: none;
 
-    padding: 0;
-    margin: 0;
+  padding: 0;
+  margin: 0;
 
-    box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
-    -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
-    -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
 
 .ui-autocomplete li
 {
-    /*width: 100%;*/
-    display: block;
-    text-align: left;
+  /*width: 100%;*/
+  display: block;
+  text-align: left;
 }
 
 .ui-autocomplete li.ui-autocomplete-category
 {
-    /*text-align: left;*/
-    padding-left: 0.5em;
+  /*text-align: left;*/
+  padding-left: 0.5em;
 }
 
 .ui-autocomplete li.ui-menu-item
 {
-    /*text-align: center;*/
-    padding-left: 1em;
+  /*text-align: center;*/
+  padding-left: 1em;
 }
 
 .ui-autocomplete li.ui-menu-item:hover
 {
-    font-size: bold;
+  font-size: bold;
 
-    color: white;
-    
-    background: #2d7dc5;
+  color: white;
+  
+  background: #2d7dc5;
 }
 
 .scale
