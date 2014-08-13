@@ -135,12 +135,17 @@ function initUpload()
     });
  
 
-    scope.registerChange(function()
+    scope.registerChange(function(value)
     {
       // fetch list of available batches
       // and update #batchId select
       var $batchSelect = $('#batchId')
         .html('<option value="None" selected="selected">None</option>');
+
+      if (value == null)
+      {
+        return;
+      }
     
       loginConsole.ajax(
         '/upload/batchList',
@@ -148,6 +153,7 @@ function initUpload()
         {
           if (!response.status)
           {
+            alertWindow.error(response.message);
             return;
           }
     
