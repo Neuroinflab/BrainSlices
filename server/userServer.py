@@ -144,45 +144,45 @@ To complete the regeneration process please check your e&#8209;mail box and foll
 
     return generateJson(data = login, status = status, message = message)
 
-  @useTemplate('userPanel')
-  def confirmPasswordRegeneration(self, request):
-    login = request.login
-    rawId = request.confirm
-    #TODO: simplify!!!
-    uid = self.userBase.checkConfirmationID(login, rawId)
-    if uid != None:
-      confirmID = self.userBase.newConfirmationID(login)
-      if confirmID:
-        return ([('<!--%confirmHere%--!>', confirmID),
-                 ('<!--%loginHere%--!>', login)],
-                [('<!--%modeHere%--!>', 'regeneration')])
-
-    return [], [('<!--%modeHere%--!>', 'regeneration failed')]
-
-  def changePasswordRegenerate(self, request):
-    confirmId = request.confirm
-    login = request.login
-    npass = request.password
-    status = False
-    message = 'Failed to change the password.'
-    uid = self.userBase.checkConfirmationID(login, confirmId)
-    if uid:
-      if self.userBase.changePassword(login, npass):
-        status = True
-        message = 'Password changed successfuly.'
-
-    else:
-      message = 'Login not registered.'
-      if self.userBase.userRegistered(login):
-        message = 'Confirmation key mismatch' \
-                  if self.userBase.getUserEnabled(login) \
-                  else 'Account disabled.'
-
-    request.session['userID'] = uid
-    return generateJson(data = login,
-                        status = status,
-                        message = message,
-                        logged = status)
+#  @useTemplate('userPanel')
+#  def confirmPasswordRegeneration(self, request):
+#    login = request.login
+#    rawId = request.confirm
+#    #TODO: simplify!!!
+#    uid = self.userBase.checkConfirmationID(login, rawId)
+#    if uid != None:
+#      confirmID = self.userBase.newConfirmationID(login)
+#      if confirmID:
+#        return ([('<!--%confirmHere%--!>', confirmID),
+#                 ('<!--%loginHere%--!>', login)],
+#                [('<!--%modeHere%--!>', 'regeneration')])
+#
+#    return [], [('<!--%modeHere%--!>', 'regeneration failed')]
+#
+#  def changePasswordRegenerate(self, request):
+#    confirmId = request.confirm
+#    login = request.login
+#    npass = request.password
+#    status = False
+#    message = 'Failed to change the password.'
+#    uid = self.userBase.checkConfirmationID(login, confirmId)
+#    if uid:
+#      if self.userBase.changePassword(login, npass):
+#        status = True
+#        message = 'Password changed successfuly.'
+#
+#    else:
+#      message = 'Login not registered.'
+#      if self.userBase.userRegistered(login):
+#        message = 'Confirmation key mismatch' \
+#                  if self.userBase.getUserEnabled(login) \
+#                  else 'Account disabled.'
+#
+#    request.session['userID'] = uid
+#    return generateJson(data = login,
+#                        status = status,
+#                        message = message,
+#                        logged = status)
 
 
   @useTemplate('userPanel')
@@ -269,9 +269,34 @@ class UserServer(Server):
   @cherrypy.expose
   @serveContent(ChangePasswordRegenerateRequest)
   def changePasswordRegenerate(self, request):
-    return self.userGenerator.changePasswordRegenerate(request)
+    #return self.userGenerator.changePasswordRegenerate(request)
+    confirmId = request.confirm
+    login = request.login
+    npass = request.password
+    status = False
+    message = 'Failed to change the password.'
+    uid = self.userBase.checkConfirmationID(login, confirmId)
+    if uid:
+      if self.userBase.changePassword(login, npass):
+        status = True
+        message = 'Password changed successfuly.'
 
-  @cherrypy.expose
-  @serveContent(ConfirmRegistrationRequest)
-  def confirmPasswordRegeneration(self, request):
-    return self.userGenerator.confirmPasswordRegeneration(request)
+    else:
+      message = 'Login not registered.'
+      if self.userBase.userRegistered(login):
+        message = 'Confirmation key mismatch' \
+                  if self.userBase.getUserEnabled(login) \
+                  else 'Account disabled.'
+
+    request.session['userID'] = uid
+    return generateJson(data = login,
+                        status = status,
+                        message = message,
+                        logged = status)
+
+  #@cherrypy.expose
+  #@serveContent(ConfirmRegistrationRequest)
+  #def confirmPasswordRegeneration(self, request):
+  #  return self.userGenerator.confirmPasswordRegeneration(request)
+
+

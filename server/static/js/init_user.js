@@ -80,15 +80,10 @@ function initUserFinish(state)
         loginConsole.confirmRegistration(state.login, state.confirm);
         break;
 
-/*      case 'confirmed':
-        alertWindow.success('Thank you for registration in our service.<br>'
-                          + 'Your account has been successfully activated.');
+      case 'regenerate':
+        loginConsole.showRegeneratePasswordFinalForm(state.login, null, state.confirm);
+        loginConsole.showPanel();
         break;
-
-      case 'confirmationfailed':
-        alertWindow.error('Confirmation failed.<br>'
-                        + 'Please check your credentials carefully.');
-        break;*/
     }
   }
 

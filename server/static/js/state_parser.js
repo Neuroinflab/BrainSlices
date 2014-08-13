@@ -254,7 +254,8 @@ function parseState(search)
 
   if ('user' in state)
   {
-    if (state.user == 'confirm' && !('login' in state && 'confirm' in state))
+    if ((state.user == 'confirm' || state.user == 'regenerate') &&
+        !('login' in state && 'confirm' in state))
     {
       delete state.user;
       if ('login' in state) delete state.login;

@@ -51,7 +51,8 @@ Sincerely yours,
 %s''' % (BS_SERVICE_NAME, BS_SERVICE_SIGNATURE)
 
 #regeneration templates
-REGENERATION_LINK_TEMPLATE = 'http://%s/user/confirmPasswordRegeneration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
+#REGENERATION_LINK_TEMPLATE = 'http://%s/user/confirmPasswordRegeneration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
+REGENERATION_LINK_TEMPLATE = 'http://%s/?user=regenerate&confirm=%%s&login=%%s' % BS_SERVICE_SERVER
  
 REGENERATION_EMAIL_SUBJECT = '%s password regeneration' % BS_SERVICE_NAME
 
