@@ -31,21 +31,43 @@ function initUser()
       if (value == 'user')
       {
         $('#changePassword .personalDataVals').val('');
+        $('#changePassword .formErrorMessages').empty();
       }
     }, 'interfaceMode');
 
 
-  $('#changePasswordButton').click(function()
+  $('#changePassword').bind('submit', function()
   {     
     var oldPassword = $('#oldPassword').val();
     var newPassword = $('#newPassword').val();
     var passwordRetype = $('#newPasswordRetype').val();
+    var valid = true;
 
-    if (newPassword != passwordRetype)
+    $('#changePassword .formErrorMessages').empty();
+    if (oldPassword == '')
     {
-      $('#newPasswordFieldError').text("Passwords do not match.");
+      $('#oldPasswordFieldError').text("Confirm change with your password.");
+      valid = false;
     }
-    else
+
+    if (newPassword == '')
+    {
+      $('#newPasswordFieldError').text("Provide the new password.");
+      valid = false;
+    }
+
+    if (passwordRetype == '')
+    {
+      $('#newPasswordRetypeFieldError').text("Retype the new password.");
+      valid = false;
+    }
+    else if (newPassword != passwordRetype)
+    {
+      $('#newPasswordRetypeFieldError').text("New passwords do not match.");
+      valid = false;
+    }
+
+    if (valid)
     {
       loginConsole.ajax('/user/changePassword',
                         function(data)
@@ -65,6 +87,8 @@ function initUser()
                           passwordRetype: passwordRetype
                         });
     }
+
+    return false;
   });
 }
 
