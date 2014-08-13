@@ -30,7 +30,6 @@ function initUser()
     {
       if (value == 'user')
       {
-        //$('#changePassword .personalDataVals').text('');
         $('#changePassword .personalDataVals').val('');
       }
     }, 'interfaceMode');
@@ -86,36 +85,4 @@ function initUserFinish(state)
         break;
     }
   }
-
-  /*
-  if (!mode)
-  {
-    mode = 'normal';
-  }
-
-  if (mode == 'normal')
-  {
-    $('#helloMessage').text('Not logged in');
-  }
-  else if (mode == 'confirmation')
-  {
-    $('#helloMessage').text('Logged in')
-  }
-  else if (mode == 'regeneration')
-  {
-    loginConsole.showRegeneratePasswordFinalForm(
-      login,
-      'Your identity has been confirmed. Provide a new password, please.',
-      confirmId);
-  }
-  else if (mode == 'regeneration failed')
-  {
-    $('#welcomeDiv').hide();
-    $('#regeneratePasswordFail').show();
-  }
-  else
-  {
-    alert(mode);
-  }
-  */
 }
