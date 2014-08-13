@@ -86,6 +86,7 @@ $(function()
 
   initVisualise();
   initBrowse();
+  initUpload();
   initUser();
 
   $('#btn_cart').click(function()
@@ -129,6 +130,7 @@ $(function()
 
     initVisualiseFinish(state);
     initUserFinish(state);
+    initUploadFinish();
 
     var loadImageI = 0;
     var loadedImages = [];

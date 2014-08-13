@@ -56,8 +56,9 @@ class WebGenerator(Generator):
     index['<!--%alertWindow%-->'] = self.templateEngine('alertWindow.html')
     index['<!--%homePanel%-->'] = self.templateEngine('homePanel.html')
     index['<!--%browsePanel%-->'] = self.templateEngine('browsePanel.html')
-    index['<!--%uploadPanel%-->'] = self.templateEngine('todo.html')
+    index['<!--%uploadPanel%-->'] = self.templateEngine('uploadPanel.html')
     index['<!--%userPanel%-->'] = self.templateEngine('userPanel.html')
+    index['<!--%brokenDuplicatePanel%-->'] = self.templateEngine('brokenDuplicatePanel.html')
 
     self['index'] = index
 
