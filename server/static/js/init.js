@@ -95,25 +95,37 @@ $(function()
   });
 
   alertWindow = new BrainSlices.gui.CMessage($('#alertWindow'));
+
+  // a nice trick
+  scope
+    .registerChange(function(login)
+    {
+      if (login == null)
+      {
+        $('#userPanelButton').hide();
+        $('#uploadPanelButton').hide();
+        if (scope.get('interfaceMode') in {upload: null,
+                                           user: null})
+        {
+          scope.set('interfaceMode', 'home');
+        }
+      }
+      else
+      {
+        $('#userPanelButton').show();
+        $('#uploadPanelButton').show();
+        $('.userLogin').text(login);
+      }
+    }, 'login');
+
   loginConsole = new BrainSlices.ajax.CUserPanel($('#loginWindow'),
                                                  $('#btn_login'),
                                                  $('#btn_logout'),
-                                                 function(login)
-                                                 {
-                                                   $('#userPanelButton').show();
-                                                   $('#uploadPanelButton').show();
-                                                   $('.userLogin').text(loginConsole.isLoggedAs());
-                                                 },
                                                  function()
                                                  {
-                                                   $('#userPanelButton').hide();
-                                                   $('#uploadPanelButton').hide();
-                                                   if (scope.get('interfaceMode') in {upload: null,
-                                                                                      user: null})
-                                                   {
-                                                     scope.set('interfaceMode', 'home');
-                                                   }
+                                                   scope.set('login', loginConsole.isLoggedAs());
                                                  },
+                                                 scope.getCallback('login', null),
                                                  function()
   {
     /* login state is known here :-D  */

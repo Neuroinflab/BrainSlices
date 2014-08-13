@@ -3,7 +3,8 @@ var fileUploader = null;
 
 function initUpload()
 {
-  with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP})
+  with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
+         scope: BrainSlices.scope})
   {
     /*
     var deleteButtons = {};
@@ -132,39 +133,37 @@ function initUpload()
     
       return false;
     });
-  }
  
 
-  // XXX: function to be called on login/logout
-  /*
-  function listBatches()
-  {
-    // fetch list of available batches
-    // and update #batchId select
-    var $batchSelect = $('#batchId')
-      .html('<option value="None" selected="selected">None</option>');
-  
-    loginConsole.ajax(
-      '/upload/batchList',
-      function(response)
-      {
-        if (!response.status)
+    scope.registerChange(function()
+    {
+      // fetch list of available batches
+      // and update #batchId select
+      var $batchSelect = $('#batchId')
+        .html('<option value="None" selected="selected">None</option>');
+    
+      loginConsole.ajax(
+        '/upload/batchList',
+        function(response)
         {
-          alert(response.message);
-          return;
-        }
-  
-        var list = response.data;
-        for (var i = 0; i < list.length; i++)
-        {
-          $batchSelect.append('<option value="' + list[i][0] + '">' +
-                              BrainSlices.gui.escapeHTML(list[i][1]) + '</option>');
-        }
-      },
-      null, null, null,
-      {cache: false});
+          if (!response.status)
+          {
+            alert(response.message);
+            return;
+          }
+    
+          var list = response.data;
+          for (var i = 0; i < list.length; i++)
+          {
+            $batchSelect.append('<option value="' + list[i][0] + '">' +
+                                BrainSlices.gui.escapeHTML(list[i][1]) + '</option>');
+          }
+        },
+        null, null, null,
+        {cache: false});
+    }, 'login');
+
   }
-  */
 
   $('#newBatch')
     .click(function()
