@@ -4,7 +4,7 @@
 #                                                                             #
 #    BrainSlices Software                                                     #
 #                                                                             #
-#    Copyright (C) 2012-2013 Jakub M. Kowalski, J. Potworowski                #
+#    Copyright (C) 2012-2014 Jakub M. Kowalski, J. Potworowski                #
 #                                                                             #
 #    This software is free software: you can redistribute it and/or modify    #
 #    it under the terms of the GNU General Public License as published by     #
@@ -99,7 +99,7 @@ def ensureLogged(f):
     @param request: Object representing the client request.
     """
     uid = request.session.get('userID')
-    if uid == None:
+    if uid is None:
       return generateJson(status = False,
                           message = "Unknown user identity.")
 

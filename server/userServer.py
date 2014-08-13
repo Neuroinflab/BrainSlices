@@ -4,7 +4,7 @@
 #                                                                             #
 #    BrainSlices Software                                                     #
 #                                                                             #
-#    Copyright (C) 2012-2013 Jakub M. Kowalski, J. Potworowski                #
+#    Copyright (C) 2012-2014 Jakub M. Kowalski, J. Potworowski                #
 #                                                                             #
 #    This software is free software: you can redistribute it and/or modify    #
 #    it under the terms of the GNU General Public License as published by     #
@@ -32,7 +32,7 @@ from request import LoginRequest, LogoutRequest, LoggedRequest,\
                     ChangePasswordRequest, RegeneratePasswordRequest,\
                     ChangePasswordRegenerateRequest
 
-from server import generateJson, Server, serveContent
+from server import generateJson, Server, serveContent, ensureLogged
 
 smtpErrors = {450: "Requested mail action not taken: mailbox unavailable",
               550: "Requested action not taken: mailbox unavailable", 
@@ -49,7 +49,7 @@ class UserServer(Server):
     login = request.login
     password = request.password
     uid = self.userBase.checkPassword(login, password)
-    if uid != None:
+    if uid is not None:
       request.session['userID'] = uid
       message = 'logged in'
 
@@ -72,20 +72,14 @@ class UserServer(Server):
     return generateJson(message = 'logged out')
 
   @serveContent(LoggedRequest)
-  def logged(self, request):
-    #TODO: what if session['userID'] does not exist (e.g. before login)?
-    # HTTP returncode 500 because of KeyError: 'userID'
-    # see server.py for solution (ensureLogged decorator)
-    uid = request.session.get('userID')
-    if uid is not None:
-      login = self.userBase.getUserLogin(uid)
-      return  generateJson(logged = request.session.get('userID') != None, data= login) 
-
-    return generateJson(logged = False)
+  @ensureLogged
+  def logged(self, uid, request):
+    login = self.userBase.getUserLogin(uid)
+    return generateJson(logged = True, data= login) 
 
   @serveContent(ChangePasswordRequest)
-  def changePassword(self, request):
-    uid = request.session.get('userID')
+  @ensureLogged
+  def changePassword(self, uid, request):
     oldPassword = request.oldPassword
     newPassword = request.newPassword
     status = False
@@ -96,13 +90,13 @@ class UserServer(Server):
         status = True
         message = 'Password changed successfully.'
 
-    return generateJson(data = uid,
+    return generateJson(#data = uid,
                         status = status,
                         message = message,
-                        logged = uid != None)
+                        logged = True)
 
   @serveContent(RegisterRequest)
-  def registerUser(self, request):  
+  def registerUser(self, request):
     login = request.login
     password = request.password
     name = request.name
