@@ -32,22 +32,19 @@ from request import LoginRequest, LogoutRequest, LoggedRequest,\
                     ChangePasswordRequest, RegeneratePasswordRequest,\
                     ChangePasswordRegenerateRequest
 
-from server import Generator, useTemplate,  generateJson, Server, serveContent
+from server import generateJson, Server, serveContent
 
 smtpErrors = {450: "Requested mail action not taken: mailbox unavailable",
               550: "Requested action not taken: mailbox unavailable", 
               552: "Requested mail action aborted: exceeded storage allocation",
               553: "Requested action not taken: mailbox name not allowed"}
 
-class UserGenerator(Generator):
-  def __init__(self, templatesPath, userBase):
-    Generator.__init__(self, templatesPath) 
+
+class UserServer(Server):
+  def __init__(self, servicePath, userBase):
     self.userBase = userBase
-    userPanel = self.templateEngine('user_panel.html')
-    userPanel['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
-    self['userPanel'] = userPanel
 
-
+  @serveContent(LoginRequest)
   def login(self, request):
     login = request.login
     password = request.password
@@ -66,24 +63,46 @@ class UserGenerator(Generator):
                         status = uid != None, 
                         message = message, 
                         logged = uid != None)
-            
+
+  @serveContent(LogoutRequest)
   def logout(self, request):
-    request.session['userID'] = None
-    
+    if 'userID' in request.session:
+      del request.session['userID']
+
     return generateJson(message = 'logged out')
 
+  @serveContent(LoggedRequest)
   def logged(self, request):
     #TODO: what if session['userID'] does not exist (e.g. before login)?
     # HTTP returncode 500 because of KeyError: 'userID'
     # see server.py for solution (ensureLogged decorator)
     uid = request.session.get('userID')
-    if uid!=None:
+    if uid is not None:
       login = self.userBase.getUserLogin(uid)
       return  generateJson(logged = request.session.get('userID') != None, data= login) 
 
-    return generateJson(logged = request.session.get('userID') != None)
+    return generateJson(logged = False)
 
-  def generateUser(self, request):
+  @serveContent(ChangePasswordRequest)
+  def changePassword(self, request):
+    uid = request.session.get('userID')
+    oldPassword = request.oldPassword
+    newPassword = request.newPassword
+    status = False
+    message = "Unable to change the password."
+    login = self.userBase.checkPassword(uid, oldPassword, record=False)
+    if login != None:
+      if self.userBase.changePassword(login, newPassword):
+        status = True
+        message = 'Password changed successfully.'
+
+    return generateJson(data = uid,
+                        status = status,
+                        message = message,
+                        logged = uid != None)
+
+  @serveContent(RegisterRequest)
+  def registerUser(self, request):  
     login = request.login
     password = request.password
     name = request.name
@@ -115,6 +134,22 @@ instructions in the e&#8209;mail."""
 
     return generateJson(data = login, status = status, message = message)
 
+  @serveContent(ConfirmRegistrationRequest)
+  def confirmRegistration(self, request):
+    uid = self.userBase.checkConfirmationID(request.login, request.confirm)
+    request.session['userID'] = uid
+    return generateJson(status=uid is not None,
+                        message=("""
+                                 Thank you for registration in our service, %s.<br>
+                                 Your account has been successfully activated.
+                                 """ % request.login) if uid is not None\
+                                 else """
+                                 Confirmation of registration failed.<br>
+                                 Please check your credentials carefully.
+                                 """,
+                        logged = uid is not None)
+
+  @serveContent(RegeneratePasswordRequest)
   def regeneratePassword(self, request):
     status = False
     login = request.login
@@ -144,132 +179,8 @@ To complete the regeneration process please check your e&#8209;mail box and foll
 
     return generateJson(data = login, status = status, message = message)
 
-#  @useTemplate('userPanel')
-#  def confirmPasswordRegeneration(self, request):
-#    login = request.login
-#    rawId = request.confirm
-#    #TODO: simplify!!!
-#    uid = self.userBase.checkConfirmationID(login, rawId)
-#    if uid != None:
-#      confirmID = self.userBase.newConfirmationID(login)
-#      if confirmID:
-#        return ([('<!--%confirmHere%--!>', confirmID),
-#                 ('<!--%loginHere%--!>', login)],
-#                [('<!--%modeHere%--!>', 'regeneration')])
-#
-#    return [], [('<!--%modeHere%--!>', 'regeneration failed')]
-#
-#  def changePasswordRegenerate(self, request):
-#    confirmId = request.confirm
-#    login = request.login
-#    npass = request.password
-#    status = False
-#    message = 'Failed to change the password.'
-#    uid = self.userBase.checkConfirmationID(login, confirmId)
-#    if uid:
-#      if self.userBase.changePassword(login, npass):
-#        status = True
-#        message = 'Password changed successfuly.'
-#
-#    else:
-#      message = 'Login not registered.'
-#      if self.userBase.userRegistered(login):
-#        message = 'Confirmation key mismatch' \
-#                  if self.userBase.getUserEnabled(login) \
-#                  else 'Account disabled.'
-#
-#    request.session['userID'] = uid
-#    return generateJson(data = login,
-#                        status = status,
-#                        message = message,
-#                        logged = status)
-
-
-  @useTemplate('userPanel')
-  def index(self):
-    return [], [('<!--%modeHere%--!>', 'normal')]
-
-  def changePassword(self, request):
-    uid = request.session.get('userID')
-    oldPassword = request.oldPassword
-    newPassword = request.newPassword
-    status = False
-    message = "Unable to change the password."
-    login = self.userBase.checkPassword(uid, oldPassword, record=False)
-    if login != None:
-      if self.userBase.changePassword(login, newPassword):
-        status = True
-        message = 'Password changed successfully.'
-
-    return generateJson(data = uid,
-                        status = status,
-                        message = message,
-                        logged = uid != None)
-
-
-class UserServer(Server):
-  def __init__(self, servicePath, userBase):
-    self.userBase = userBase
-
-    self.serviceDir = servicePath
-    self.userGenerator = UserGenerator(os.path.join(servicePath, 'templates'), userBase)
-
-  @serveContent()
-  def index(self):
-    return self.userGenerator.index()
-
-  @serveContent(LoginRequest)
-  def login(self, request):
-    return self.userGenerator.login(request)
-
-  @serveContent(LogoutRequest)
-  def logout(self, request):
-    return self.userGenerator.logout(request)
-
-  @serveContent(LoggedRequest)
-  def logged(self, request):
-    return self.userGenerator.logged(request)
-
-  @serveContent(ChangePasswordRequest)
-  def changePassword(self, request):
-    return self.userGenerator.changePassword(request)
-
-  @cherrypy.expose
-  @serveContent(RegisterRequest)
-  def registerUser(self, request):  
-    return self.userGenerator.generateUser(request)
-
-  @cherrypy.expose
-  @serveContent(ConfirmRegistrationRequest)
-  def confirmRegistration(self, request):
-    uid = self.userBase.checkConfirmationID(request.login, request.confirm)
-    request.session['userID'] = uid
-    return generateJson(status=uid is not None,
-                        message=("""
-                                 Thank you for registration in our service, %s.<br>
-                                 Your account has been successfully activated.
-                                 """ % request.login) if uid is not None\
-                                 else """
-                                 Confirmation of registration failed.<br>
-                                 Please check your credentials carefully.
-                                 """,
-                        logged = uid is not None)
-    #if uid:
-    #  request.session['userID'] = uid
-    #  raise cherrypy.HTTPRedirect("/?user=confirmed")
-
-    #request.session['userID'] = None
-    #raise cherrypy.HTTPRedirect("/?user=confirmationfailed")
-
-  @cherrypy.expose
-  @serveContent(RegeneratePasswordRequest)
-  def regeneratePassword(self, request):
-    return self.userGenerator.regeneratePassword(request)
-
-  @cherrypy.expose
   @serveContent(ChangePasswordRegenerateRequest)
   def changePasswordRegenerate(self, request):
-    #return self.userGenerator.changePasswordRegenerate(request)
     confirmId = request.confirm
     login = request.login
     npass = request.password
@@ -293,10 +204,4 @@ class UserServer(Server):
                         status = status,
                         message = message,
                         logged = status)
-
-  #@cherrypy.expose
-  #@serveContent(ConfirmRegistrationRequest)
-  #def confirmPasswordRegeneration(self, request):
-  #  return self.userGenerator.confirmPasswordRegeneration(request)
-
 
