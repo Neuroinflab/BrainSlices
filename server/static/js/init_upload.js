@@ -148,7 +148,6 @@ function initUpload()
         {
           if (!response.status)
           {
-            alert(response.message);
             return;
           }
     

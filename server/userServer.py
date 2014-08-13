@@ -72,10 +72,13 @@ class UserServer(Server):
     return generateJson(message = 'logged out')
 
   @serveContent(LoggedRequest)
-  @ensureLogged
-  def logged(self, uid, request):
-    login = self.userBase.getUserLogin(uid)
-    return generateJson(logged = True, data= login) 
+  def logged(self, request):
+    uid = request.session.get('userID')
+    if uid is not None:
+      login = self.userBase.getUserLogin(uid)
+      return generateJson(logged=True, data= login) 
+
+    return generateJson(logged=False)
 
   @serveContent(ChangePasswordRequest)
   @ensureLogged
