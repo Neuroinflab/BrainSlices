@@ -50,14 +50,21 @@ class WebGenerator(Generator):
 #    stackControlPanel['<!--%searchbox%-->'] = self.templateEngine('searchbox.html')
 #    controlPanel['<!--%content%-->'] = stackControlPanel
 
+    passwordStrength = self.templateEngine('passwordStrength.html')
+    loginWindow = self.templateEngine('loginWindow.html')
+    loginWindow['<!--%passwordStrength%-->'] = passwordStrength
+
+    userPanel = self.templateEngine('userPanel.html')
+    userPanel['<!--%passwordStrength%-->'] = passwordStrength
+
     index = self.templateEngine('myapi.html')
     index['<!--%controlPanel%-->'] = stackControlPanel
-    index['<!--%loginWindow%-->'] = self.templateEngine('loginWindow.html')
+    index['<!--%loginWindow%-->'] = loginWindow
     index['<!--%alertWindow%-->'] = self.templateEngine('alertWindow.html')
     index['<!--%homePanel%-->'] = self.templateEngine('homePanel.html')
     index['<!--%browsePanel%-->'] = self.templateEngine('browsePanel.html')
     index['<!--%uploadPanel%-->'] = self.templateEngine('uploadPanel.html')
-    index['<!--%userPanel%-->'] = self.templateEngine('userPanel.html')
+    index['<!--%userPanel%-->'] = userPanel
     index['<!--%brokenDuplicatePanel%-->'] = self.templateEngine('brokenDuplicatePanel.html')
 
     self['index'] = index
