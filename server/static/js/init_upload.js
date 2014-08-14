@@ -3,177 +3,183 @@ var fileUploader = null;
 
 function initUpload()
 {
-  with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
-         scope: BrainSlices.scope})
+  var STATUS_MAP = BrainSlices.gui.STATUS_MAP;
+  var scope = BrainSlices.scope;
+  
+  /*
+  var deleteButtons = {};
+  
+  function deleteImages()
   {
-    /*
-    var deleteButtons = {};
-  
-    function deleteImages()
+    var toDelete = [];
+    var deleteMapping = {};
+    for (var id in deleteButtons)
     {
-      var toDelete = [];
-      var deleteMapping = {};
-      for (var id in deleteButtons)
-      {
-        var $del = deleteButtons[id];
-        if (!$del) continue;
-        if ($del.filter(':checked').length == 0) continue;
-        var image = images.getCachedImage(id);
-        if (image == null) continue;
-        var iid = image.info.iid;
-        toDelete.push(iid);
-        deleteMapping[iid] = id;
-      }
-  
-      if (toDelete.length > 0 &&
-          confirm("Do you really want to delete " +
-                  (toDelete.length == 1 ?
-                   "the image" :
-                   toDelete.length + " images") + " permanently?"))
-      {
-        loginConsole.ajax('/upload/deleteImages',
-                          function(response)
-                          {
-                            if (!response.status)
-                            {
-                              alert(response.message);
-                              return;
-                            }
-                            var data = response.data;
-                            if (data.length != toDelete.length)
-                            {
-                              alert("Some of images not found in the database.");
-                            }
-  
-                            var preserved = false;
-                            for (var i = 0; i < data.length; i++)
-                            {
-                              var item = data[i];
-                              if (item[1])
-                              {
-                                layerManager.removeLayer(deleteMapping[item[0]],
-                                                         false);
-                              }
-                              else
-                              {
-                                preserved = true;
-                              }
-                            }
-                            if (preserved)
-                            {
-                              alert("Not enough privileges to delete some of images.");
-                            }
-                            layerManager.updateOrder();
-                          },
-                          {iids: toDelete.join(',')});
-      }
+      var $del = deleteButtons[id];
+      if (!$del) continue;
+      if ($del.filter(':checked').length == 0) continue;
+      var image = images.getCachedImage(id);
+      if (image == null) continue;
+      var iid = image.info.iid;
+      toDelete.push(iid);
+      deleteMapping[iid] = id;
     }
   
-    */
-  
-    // layerManager operations disabled
-    $('#batchDetails').click(function()
+    if (toDelete.length > 0 &&
+        confirm("Do you really want to delete " +
+                (toDelete.length == 1 ?
+                 "the image" :
+                 toDelete.length + " images") + " permanently?"))
     {
-      // Fetch info about images in selected batch
-      // and append them to the uploaded files table
-      var bid = $('#batchId').val();
-      var query = (bid == 'None') ? '' : 'bid=' + bid;
-    
-      loginConsole.ajax('/upload/batchDetails',
-                        function(data)
+      loginConsole.ajax('/upload/deleteImages',
+                        function(response)
                         {
-                          if (!data.status)
+                          if (!response.status)
                           {
-                            alert(data.message);
-                            return false;
+                            alert(response.message);
+                            return;
                           }
-    
-                          // layerManager.flush();
-                          fileUploader.reset();
-                          data.data.sort(function(a, b)
-                                         {
-                                           if (a.filename < b.filename)
-                                           {
-                                             return -1;
-                                           }
-                                           if (a.filename > b.filename)
-                                           {
-                                             return 1;
-                                           }
-                                           return a.iid - b.iid;
-                                         });
-    
-                      		for (var i = 0; i < data.data.length; i++)
-                      		{
-                            var image = data.data[i];
-                            var id = image.iid;
-                            if (image.status >= 6)
+                          var data = response.data;
+                          if (data.length != toDelete.length)
+                          {
+                            alert("Some of images not found in the database.");
+                          }
+  
+                          var preserved = false;
+                          for (var i = 0; i < data.length; i++)
+                          {
+                            var item = data[i];
+                            if (item[1])
                             {
-                              // status: completed
-  
-                              // layerManager.autoAddTileLayer(image);
+                              layerManager.removeLayer(deleteMapping[item[0]],
+                                                       false);
                             }
-                            fileUploader
-                              .append(image.filename
-                                      + (image.status == 7 ?
-                                         '' :
-                                         ' (' + STATUS_MAP[image.status] + ')'),
-                                      image.declaredFilesize,
-                                      image.sourceFilesize,
-                                      image.iid,
-                                      image.sourceCRC32);
-                      		}
-  
-                          // layerManager.updateOrder();
+                            else
+                            {
+                              preserved = true;
+                            }
+                          }
+                          if (preserved)
+                          {
+                            alert("Not enough privileges to delete some of images.");
+                          }
+                          layerManager.updateOrder();
                         },
-                        query,
-                        null,
-                        'GET');
-    //    //type: 'POST', //causes 412 error on refresh -_-
-    
-      return false;
-    });
- 
-
-    scope.registerChange(function(value)
-    {
-      // fetch list of available batches
-      // and update #batchId select
-      var $batchSelect = $('#batchId')
-        .html('<option value="None" selected="selected">None</option>');
-
-      if (value == null)
-      {
-        return;
-      }
-    
-      loginConsole.ajax(
-        '/upload/batchList',
-        function(response)
-        {
-          if (!response.status)
-          {
-            alertWindow.error(response.message);
-            return;
-          }
-    
-          var list = response.data;
-          for (var i = 0; i < list.length; i++)
-          {
-            $batchSelect.append('<option value="' + list[i][0] + '">' +
-                                BrainSlices.gui.escapeHTML(list[i][1]) + '</option>');
-          }
-        },
-        null, null, null,
-        {cache: false});
-    }, 'login');
-
+                        {iids: toDelete.join(',')});
+    }
   }
+  
+  */
+  
+  // layerManager operations disabled
+  function batchDetails()
+  {
+    // Fetch info about images in selected batch
+    // and append them to the uploaded files table
+    var bid = $('#batchId').val();
+    var query = (bid == 'None') ? '' : 'bid=' + bid;
+  
+    loginConsole.ajax('/upload/batchDetails',
+                      function(data)
+                      {
+                        if (!data.status)
+                        {
+                          alert(data.message);
+                          return false;
+                        }
+  
+                        // layerManager.flush();
+                        fileUploader.reset();
+                        data.data.sort(function(a, b)
+                                       {
+                                         if (a.filename < b.filename)
+                                         {
+                                           return -1;
+                                         }
+                                         if (a.filename > b.filename)
+                                         {
+                                           return 1;
+                                         }
+                                         return a.iid - b.iid;
+                                       });
+  
+                    		for (var i = 0; i < data.data.length; i++)
+                    		{
+                          var image = data.data[i];
+                          var id = image.iid;
+                          if (image.status >= 6)
+                          {
+                            // status: completed
+  
+                            // layerManager.autoAddTileLayer(image);
+                          }
+                          fileUploader
+                            .append(image.filename
+                                    + (image.status == 7 ?
+                                       '' :
+                                       ' (' + STATUS_MAP[image.status] + ')'),
+                                    image.declaredFilesize,
+                                    image.sourceFilesize,
+                                    image.iid,
+                                    image.sourceCRC32);
+                    		}
+  
+                        // layerManager.updateOrder();
+                      },
+                      query,
+                      null,
+                      'GET');
+  //    //type: 'POST', //causes 412 error on refresh -_-
+  
+    return false;
+  }
+
+
+  $('#batchDetails').click(batchDetails);
+  $('#batchId').change(batchDetails);
+
+
+  scope.registerChange(function(value)
+  {
+    // fetch list of available batches
+    // and update #batchId select
+    var $batchSelect = $('#batchId')
+      .html('<option value="None" selected="selected">None</option>');
+
+    if (value == null)
+    {
+      return;
+    }
+
+    loginConsole.ajax(
+      '/upload/batchList',
+      function(response)
+      {
+        if (!response.status)
+        {
+          alertWindow.error(response.message);
+          return;
+        }
+  
+        var list = response.data;
+        for (var i = 0; i < list.length; i++)
+        {
+          $batchSelect.append('<option value="' + list[i][0] + '">' +
+                              BrainSlices.gui.escapeHTML(list[i][1]) + '</option>');
+        }
+      },
+      null, null, null,
+      {cache: false});
+  }, 'login');
+
+  
 
   $('#newBatch')
     .click(function()
     {
       // create (and select) a new batch
+      fileUploader.reset();
+
       var comment = $('#newBatchComment').val();
       var $batchSelect = $('#batchId');
     

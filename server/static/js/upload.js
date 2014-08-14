@@ -719,7 +719,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       }
       ajaxOptions = {async: false};
       ajaxProvider.ajax(
-        'getBrokenDuplicates',
+        '/upload/getBrokenDuplicates',
         function(response)
         {
           if (response.status)
@@ -912,7 +912,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       if (iids.length > 0)
       {
         ajaxProvider.ajax(
-          'getImagesStatuses',
+          '/upload/getImagesStatuses',
           function(response)
           {
             if (response.status)
@@ -1144,7 +1144,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
             console.assert(!(iid in iid2id) || iid2id[iid] == id);
             iid2id[iid] = id;
 
-            ajaxProvider.ajax('continueImageUpload',
+            ajaxProvider.ajax('/upload/continueImageUpload',
                               sendNextChunk,
                               form_data,
                               function(data)
@@ -1273,7 +1273,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
               xhr: uploadedFiles.getUploadMonitor(file.id, 0,
                                                   Math.min(cSize, total), 0)};
             ajaxProvider.ajax(
-              'uploadNewImage',
+              '/upload/uploadNewImage',
               getSendNextChunkFunction(file.file, file.id),
               form_data,
               function(data)
