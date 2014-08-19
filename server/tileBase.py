@@ -470,20 +470,14 @@ class TileBase(dbBase):
     User must also privilege to view the image for it to be considered as a duplicate
     """
     cursor.execute("""
-                   SELECT iid, status, filename
+                   SELECT iid, filename
                    FROM images 
                    WHERE source_md5 = %s AND declared_size = %s
                          AND ((status >= %s AND owner = %s) OR status = %s); 
                    """, (imageHash.lower(), filesize, IMAGE_STATUS_RECEIVED, uid,
                          IMAGE_STATUS_ACCEPTED))
-    r = cursor.fetchall()
-    if r:
-      # row[0] and row[1] was casted to str
-      return [(row[0], row[1], row[2], imageHash) for row in r\
-              if self.canAccessImage(row[0], uid,
-                                     thresholdStatus = IMAGE_STATUS_RECEIVED)]
-
-    return []
+    return [row for row in cursor if self.canAccessImage(row[0], uid,
+                                   thresholdStatus = IMAGE_STATUS_RECEIVED)]
 
 # broken image -> view privileges are not enough!!!
 # TODO: refactoring

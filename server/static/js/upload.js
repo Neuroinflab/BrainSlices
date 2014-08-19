@@ -21,6 +21,13 @@
 *                                                                             *
 \*****************************************************************************/
 
+/**
+ * Const: REFRESH_INTERVAL
+ *
+ * The interval between refresh requests [ms].
+ **********************************************/
+REFRESH_INTERVAL = 20000;
+
 /*****************************************************************************\
  * Function: imageCMP                                                        *
  *                                                                           *
@@ -308,7 +315,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
 
       if (image.status != null && image.status < 6 && image.status >= 0)
       {
-        this.incompleted[image.iid] = id;
+        this.incomplete[image.iid] = id;
         this.refresh();
       }
 
@@ -857,9 +864,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         ajaxOptions);
     }
 
-    var to_refresh = [];
+    var toRefresh = {};
     var $dialogContent = $dialog.find('.content');
-    var setIntervalId = null;
+    var refreshTimer = null;
+    var refreshInProgress = 0;
+
     var dialog = new CCloseableDiv($dialog,
                                    function()
                                    {
@@ -870,10 +879,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                                    function()
                                    {
                                      $dialogContent.empty();
-                                     if (setIntervalId != null)
+                                     toRefresh = {};
+                                     if (refreshTimer != null)
                                      {
-                                       clearInterval(setIntervalId);
-                                       setIntervalId = null;
+                                       clearTimeout(refreshTimer);
+                                       refreshTimer = null;
                                      }
                                    });
 
@@ -885,7 +895,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       var show_dialog = false;
   //    var $dialog_content = $("<form />"); // Very imp for "cancel" functionality of dialog to work
       var duplicate_iids = [];
-      to_refresh = []; //XXX: almost global
+      toRefresh = {}; //XXX: almost global
 
       for (var i = 0; i < files.length; i++)
       {
@@ -896,8 +906,10 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         if (broken.length > 0 || duplicates.length > 0)
         {
           show_dialog = true;
-          var $div = $('<div />');
-          $div.append($("<h3 />").text(files[i].name + ":"));
+          var $div = $('<div />')
+            .append(
+              $("<h3 />")
+                .text(files[i].name + ":"));
 
           if (broken.length > 0)
           {
@@ -925,25 +937,36 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
               $("<h4 />").text("Duplicate upload"
                                + (duplicates.length > 1 ? "s:" : ":")));
             var $ul = $("<ul />");
-            var text; var status = 0; var image = null; var li;
+            var $li, duplicate, duplicate_iid, $status, $refresh;
             for (var j = 0; j < duplicates.length; j++)
             {
-              var duplicate = duplicates[j];
-              var duplicate_iid = duplicate[0];
-              var duplicate_status = duplicate[1];
+              duplicate = duplicates[j];
+              duplicate_iid = duplicate[0];
               duplicate_iids.push(duplicate_iid);
-              if (duplicate_status < 7)
+
+              $status = $("<span />")
+                .text('UNKNOWN');
+              $li = $("<li />")
+                .text("#" + duplicate_iid + " " + duplicate[1] + ". Status: ")
+                .append($status);
+
+              (function(iid)
               {
-                to_refresh.push(duplicate_iid);
-              }
-    //          text = "#" + duplicate[0] + " " + duplicate[2] + " " + duplicate[3] + " " + STATUS_MAP[duplicate[1]];
-              var text = "#" + duplicate_iid + " " + duplicate[2] + ". Status: ";
-              var $li = $("<li />").text(text);
-              $li.append($("<span />").attr({"data-iid": duplicate_iid}).text(STATUS_MAP[duplicate_status]));
-              $li.append($("<a />").attr({title: 'Refresh status',
-                                          "data-iid": duplicate_iid}).
-                  addClass('refreshStatus lmargin10 link').text("Refresh"));
+                $refresh = $("<a />")
+                  .attr('title', 'Refresh status')
+                  .addClass('refreshStatus lmargin10 link')
+                  .text("Refresh")
+                  .appendTo($li)
+                  .click(function()
+                  {
+                    refreshStatusForIidsOnce([iid]);
+                  });
+              })(duplicate_iid);
+
               $ul.append($li);
+              toRefresh[duplicate_iid] = {$status: $status,
+                                           $row: $li,
+                                           $refresh: $refresh};
             }
 
             $div.append($("<div />").append($ul));
@@ -982,17 +1005,9 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         // (might be refreshing completed/accepted images)
         //
         // might be a race between two AJAX calls (one late)
-        if (duplicate_iids.length > 0)
-        {
-          if (setIntervalId != null)
-          {
-            clearInterval(setIntervalId);
-          }
-          setIntervalId = setInterval(refreshStatusForIids, 20*1000);
-        }
 
         uploadedFiles.message("Pick what to do...");
-        refreshStatusForIidsOnce(duplicate_iids, refreshStatusForIidsCallback);
+        refreshStatusForIids(duplicate_iids);
       }
       else
       {
@@ -1000,57 +1015,73 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       }
     }
 
-    /*
-     * Refresh the status of an image when clicked by making an AJAX call
-     */
-    // XXX a global trigger!!!
-    //
-    if ($(".refreshStatus").length>0)
-    $(".refreshStatus").live("click", function()
-    {
-      var iid = $(this).attr('data-iid');
-      refreshStatusForIidsiOnce([iid]);
-    });
 
     /*
      * Refreshes the status of passed IIDs
      */
-    function refreshStatusForIidsOnce(iids, callback)
+    function refreshStatusForIids(iids)
     {
       if (iids.length > 0)
       {
+        refreshInProgress++;
+
         ajaxProvider.ajax(
           '/upload/getImagesStatuses',
           function(response)
           {
+            refreshInProgress--;
+
             if (response.status)
             {
               var iid_status = response.data;
-              var span;
-              var not_accepted = [];
+              var iid, row, iface, $iface, status;
               for (var i = 0; i < iid_status.length; i++)
               {
                 // XXX: iid_status might be not ordered!!!
-                var row = iid_status[i];
-                var iid = row.iid;
-                var status = row.status;
-                span = $dialogContent.find("span[data-iid='"+iid+"']");
-                $(span).text(STATUS_MAP[status]);
-                $(span).parent("li").find("img").remove(); // Remove existing images if any
+                row = iid_status[i];
+                iid = row.iid;
+                if (!(iid in toRefresh))
+                {
+                  continue;
+                }
+                iface = toRefresh[iid];
+                $iface = iface.$row
+
+                status = row.status;
+
+                iface.$status.text(STATUS_MAP[status]);
+
                 if (status >= 6)
                 {
-                  $(span).parent("li").append(getThumbnail(iid, row.imageWidth, row.imageHeight));
+                  if ($iface.find("img").length == 0)
+                  {
+                    $iface.append(getThumbnail(iid,
+                                               row.imageWidth,
+                                               row.imageHeight));
+                  }
                 }
 
-                if (status < 7)
+                if (status == 7)
                 {
-                  not_accepted.push(iid);
+                  iface.$refresh.remove();
+                  delete toRefresh[iid];
                 }
               }
 
-              if (callback)
+              var notAccepted = [];
+              for (iid in toRefresh)
               {
-                callback(not_accepted);
+                notAccepted.push(iid);
+              }
+
+              if (refreshInProgress == 0)
+              {
+                refreshTimer = setTimeout(function()
+                  {
+                    refreshTimer = null;
+                    refreshStatusForIids(notAccepted)
+                  },
+                  REFRESH_INTERVAL);
               }
             }
           },
@@ -1059,24 +1090,6 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     }
 
   
-    function refreshStatusForIidsCallback(not_accepted)
-    {
-      to_refresh = not_accepted; //XXX: almost global
-    }
-
-    function refreshStatusForIids()
-    {
-      if (to_refresh.length == 0)
-      {
-        clearInterval(setIntervalId);
-        setIntervalId = null;
-      }
-      else
-      {
-        refreshStatusForIidsOnce(to_refresh, refreshStatusForIidsCallback);
-      }
-    }
-
     /**
      * Preprocess list of files for upload according to the user choice and
      * request upload.
