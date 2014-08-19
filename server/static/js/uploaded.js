@@ -72,8 +72,6 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
     {
       if (thisInstance.refreshInProgress) return;
 
-      thisInstance.refreshInProgress = true;
-
       thisInstance.timeoutId = null;
 
       console.log('refresh');
@@ -81,10 +79,12 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
       var iids = [];
       for (var iid in thisInstance.incomplete)
       {
-        iids.push[iid];
+        iids.push(iid);
       }
 
       if (iids.length == 0) return;
+
+      thisInstance.refreshInProgress = true;
 
       ajaxProvider.ajax(
         '/upload/getImagesStatuses',
@@ -279,7 +279,7 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
       }
       else
       {
-        this.update(id, image.uploaded, image.crc32, image.iid);
+        this.update(id, image.uploaded, image.crc32, image.iid, image.status);
       }
 
       if (image.status != null && image.status < 6 && image.status >= 0)

@@ -280,9 +280,10 @@ function initUpload()
 
 function initUploadFinish()
 {
-  uploadedFiles = new CUploadedImages($('#upload table.uploaded>tbody'),
+  uploadedFiles = new CUploadedImages($('#uploadDiv table.uploaded>tbody'),
                                       null,
-                                      $('#upload_status_message'));
+                                      $('#upload_status_message'),
+                                      loginConsole);
   fileUploader = new CFileUploader(
     loginConsole, uploadedFiles, $('#brokenDuplicatePanel'),
     function(callback)
