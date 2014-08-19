@@ -6,8 +6,16 @@ function detailsGenerator(info, $div)
     $div = $('<div></div>');
   }
 
-  // XXX: a hack :-/ //i have absolutly no idea why considered a hack?
-  $div.append(BrainSlices.gui.getThumbnail(info.iid, info.imageWidth, info.imageHeight, 64, 64));
+  $div
+    .append($('<a>')
+      .addClass('fa fa-arrow-circle-o-down layer-download-button')
+      .attr(
+      {
+        href: '/images/' + info.iid + '/image.png',
+        download: ''
+      }))
+    .append(BrainSlices.gui.getThumbnail(info.iid, info.imageWidth, info.imageHeight, 64, 64));
+
   if (properties)
   {
     properties = $.extend({}, properties);
