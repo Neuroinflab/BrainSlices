@@ -4,11 +4,28 @@
   overflow-y: auto;
 }
 
+#upload,
 #uploadDiv
 {
-  max-height: 10ex;
+  position: absolute;
+  width: auto;
+  top: 0;
+  bottom: 0;
+  height: auto;
+  padding: 10px;
+}
+
+#uploadDiv
+{
+  left: 50%;
+  right: 0;
   overflow-y: auto;
-/*  display: inline-block;*/
+}
+
+#upload
+{
+  left: 0;
+  right: 50%;
 }
 
 #upload table.uploaded

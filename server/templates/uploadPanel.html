@@ -39,9 +39,8 @@
     <button onclick="centerImage();">Center Images</button>
     <button onclick="resetImage();">Reset</button>
     <button onclick="saveUpdated();">Save Changes</button>
--->
-    <!--%searchbox%-->
     <hr>
+-->
     <form action="upload" method="post" enctype="multipart/form-data" id="upload" onsubmit="return false;">
   
      <div class="batch">
@@ -63,31 +62,31 @@
       <input id="uploadFiles" type="button" value="Upload" />
       <p class="ui-state-highlight" style="display: none;" id="upload_status_message"></p>
      </div>
- 
-     <div id="uploadDiv">
-      <table border class="uploaded">
-       <thead>
-        <tr>
-         <th>
-          Filename
-         </th>
-         <th>
-          Size
-         </th>
-         <th>
-          IID
-         </th>
-         <th>
-          crc32
-         </th>
-        </tr>
-       </thead>
-       <tfoot>
-       </tfoot>
-       <tbody>
-       </tbody>
-      </table>
-     </div>
-  
     </form>
+ 
+    <div id="uploadDiv">
+     <table border class="uploaded">
+      <thead>
+       <tr>
+        <th>
+         Filename
+        </th>
+        <th>
+         Size
+        </th>
+        <th>
+         IID
+        </th>
+        <th>
+         crc32
+        </th>
+       </tr>
+      </thead>
+      <tfoot>
+      </tfoot>
+      <tbody>
+      </tbody>
+     </table>
+    </div>
+  
 
