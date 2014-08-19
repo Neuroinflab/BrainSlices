@@ -114,14 +114,15 @@ function initUpload()
                             // layerManager.autoAddTileLayer(image);
                           }
                           fileUploader
-                            .append(image.filename
-                                    + (image.status == 7 ?
-                                       '' :
-                                       ' (' + STATUS_MAP[image.status] + ')'),
+                            .append(image.filename,
+                                    //+ (image.status == 7 ?
+                                    //   '' :
+                                    //   ' (' + STATUS_MAP[image.status] + ')'),
                                     image.declaredFilesize,
                                     image.sourceFilesize,
                                     image.iid,
-                                    image.sourceCRC32);
+                                    image.sourceCRC32,
+                                    image.status);
                     		}
   
                         // layerManager.updateOrder();

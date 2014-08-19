@@ -61,6 +61,8 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
    *   nextId - An unique ID of next appended image.
    *   lowId  - The lowest valid ID (for debug purposes).
    *   $msg - jQuery object representing message field.
+   *   incomlete - A mapping of IIDs of incompleted images to IDs.
+   *   ajaxManager - an object providing AJAX connection to the server.
    *
    *******************************
    * Constructor: CUploadedImages
@@ -72,12 +74,93 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
    *            element providing information about uploaded files to the user
    *   images - images objects to be appended (if any).
    *   $msg - jQuery object representing message field.
+   *   ajaxProvider - an object providing AJAX connection to the server.
   \**************************************************************************/
-  function CUploadedImages($table, images, $msg)
+  function CUploadedImages($table, images, $msg, ajaxProvider)
   {
     this.table = new BrainSlices.gui.CTableManager($table);
     this.nextId = 0;
     this.$msg = $msg;
+    this.incomplete = null;
+
+    var thisInstance = this;
+    this.timeoutId = null;
+    this.refreshInProgress = false;
+
+    /**
+     * Method: refresh
+     *
+     * Update statuses of current images if necessary.
+     *************************************************/
+    function refresh()
+    {
+      if (thisInstance.refreshInProgress) return;
+
+      thisInstance.refreshInProgress = true;
+
+      thisInstance.timeoutId = null;
+
+      console.log('refresh');
+
+      var iids = [];
+      for (var iid in thisInstance.incomplete)
+      {
+        iids.push[iid];
+      }
+
+      if (iids.length == 0) return;
+
+      ajaxProvider.ajax(
+        '/upload/getImagesStatuses',
+        function(response)
+        {
+          thisInstance.refreshInProgress = false;
+          if (response.status)
+          {
+            console.log(response.data);
+            var table = thisInstance.table;
+            var incomplete = thisInstance.incomplete;
+            var iid_status = response.data;
+            for (var i = 0; i < iid_status.length; i++)
+            {
+              var row = iid_status[i];
+              var iid = row.iid;
+              if (iid in incomplete)
+              {
+                var id = incomplete[iid];
+                var status = row.status;
+
+                var image = table.get(id);
+                if (status != image.status)
+                {
+                  image.status = status;
+                  image.$status.text(STATUS_MAP[status]);
+                }
+
+                if (status >= 6 || status < 0)
+                {
+                  delete incomplete[iid];
+                }
+              }
+            }
+
+            for (var iid in incomplete)
+            {
+              // XXX: race condition possible
+              thisInstance.timeoutId = setTimeout(refresh, 20 * 1000);
+              break;
+            }
+          }
+          else
+          {
+            console.error(response.message);
+          }
+        },
+        { 'iids': iids.join(',') }, null, null, {async: false});
+    }
+
+    this.refresh = refresh;
+
     this.reset(images);
   }
 
@@ -99,8 +182,15 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     reset:
     function(images)
     {
+      this.incomplete = {};
       this.table.flush();
       this.lowId = this.nextId;
+
+      if (this.timeoutId != null)
+      {
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
+      }
 
       var ids = [];
 
@@ -162,9 +252,10 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      *           - crc32 - CRC32 checksum of the uploaded file
      *                     (if not given assumed the upload has not started
      *                      yet - only MD5 computation),
-     *           - iid - An IID assigned to the file by the server
+     *           - iid - an IID assigned to the file by the server
      *                   (if not given assumed data has not reached the server
-     *                   yet).
+     *                   yet),
+     *           - status - a status of the image in the server.
      *
      * Returns:
      *   An ID assigned to the image.
@@ -175,6 +266,11 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       var $progress = $('<progress></progress>')
                         .attr('max', image.size);
       var $size = $('<span></span>');
+
+      var $status = $('<td></td>')
+        .append($progress)
+        .append($size);
+
       var $iid = $('<td></td>');
       var $crc32 = $('<td></td>');
       var $row = $('<tr></tr>')
@@ -182,9 +278,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                     .append($('<td></td>')
                       .prop('draggable', true)
                       .text(image.name))
-                    .append($('<td></td>')
-                      .append($progress)
-                      .append($size))
+                    .append($status)
                     .append($iid)
                     .append($crc32);
 
@@ -194,8 +288,10 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                   $size: $size,
                   $iid: $iid,
                   $crc32: $crc32,
+                  $status: $status,
                   size: image.size,
-                  name: image.name};
+                  name: image.name,
+                  status: image.status};
 
       this.table.add($row, id, null, null, null, null, null, data);
 
@@ -208,6 +304,12 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       else
       {
         this.update(id, image.uploaded, image.crc32, image.iid);
+      }
+
+      if (image.status != null && image.status < 6 && image.status >= 0)
+      {
+        this.incompleted[image.iid] = id;
+        this.refresh();
       }
 
       return id;
@@ -286,6 +388,17 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         else
         {
           image.$size.text('Upload completed (' + size + ').');
+          image.status = 0;
+          if (this.incomplete == null)
+          {
+            this.incomplete = {};
+            this.incomplete[image.iid] = id;
+            this.refresh();
+          }
+          else
+          {
+            this.incomplete[image.iid] = id;
+          }
         }
       }
     },
@@ -463,7 +576,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
       iid2id = {};
     };
 
-    this.append = function(name, size, uploaded, iid, crc32)
+    this.append = function(name, size, uploaded, iid, crc32, status)
     {
     /**
      * Method: append
@@ -476,6 +589,7 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
      *   uploaded - Size of already uploaded part of the file.
      *   iid - An identifier of the file in the database.
      *   crc32 - A checksum of the uploaded part of the file.
+     *   status - Status of the image (if given).
      *
      * Returns:
      *   An identifier in the uploaded table.
@@ -484,7 +598,8 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                                      size: size,
                                      uploaded: uploaded,
                                      iid: iid,
-                                     crc32: crc32});
+                                     crc32: crc32,
+                                     status: status});
       if (iid)
       {
         console.assert(!(iid in iid2id));
@@ -865,28 +980,19 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
         // Trigger Auto Refresh of status for every 20s
         // TODO: make it better
         // (might be refreshing completed/accepted images)
+        //
+        // might be a race between two AJAX calls (one late)
         if (duplicate_iids.length > 0)
         {
           if (setIntervalId != null)
           {
             clearInterval(setIntervalId);
           }
-          setIntervalId = setInterval(function()
-                                      {
-                                        if (to_refresh.length == 0)
-                                        {
-                                          clearInterval(setIntervalId);
-                                          setIntervalId = null;
-                                        }
-                                        else
-                                        {
-                                          refreshStatusForIids(to_refresh);
-                                        }
-                                      }, 20*1000);
+          setIntervalId = setInterval(refreshStatusForIids, 20*1000);
         }
 
         uploadedFiles.message("Pick what to do...");
-        refreshStatusForIids(duplicate_iids);
+        refreshStatusForIidsOnce(duplicate_iids, refreshStatusForIidsCallback);
       }
       else
       {
@@ -897,17 +1003,19 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
     /*
      * Refresh the status of an image when clicked by making an AJAX call
      */
-    if($(".refreshStatus").length>0)
+    // XXX a global trigger!!!
+    //
+    if ($(".refreshStatus").length>0)
     $(".refreshStatus").live("click", function()
     {
       var iid = $(this).attr('data-iid');
-      refreshStatusForIids([iid]);
+      refreshStatusForIidsiOnce([iid]);
     });
 
     /*
      * Refreshes the status of passed IIDs
      */
-    function refreshStatusForIids(iids)
+    function refreshStatusForIidsOnce(iids, callback)
     {
       if (iids.length > 0)
       {
@@ -939,10 +1047,33 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
                   not_accepted.push(iid);
                 }
               }
-              to_refresh = not_accepted; //XXX: almost global
+
+              if (callback)
+              {
+                callback(not_accepted);
+              }
             }
           },
           { 'iids': iids.join(',') }, null, null, {async: false});
+      }
+    }
+
+  
+    function refreshStatusForIidsCallback(not_accepted)
+    {
+      to_refresh = not_accepted; //XXX: almost global
+    }
+
+    function refreshStatusForIids()
+    {
+      if (to_refresh.length == 0)
+      {
+        clearInterval(setIntervalId);
+        setIntervalId = null;
+      }
+      else
+      {
+        refreshStatusForIidsOnce(to_refresh, refreshStatusForIidsCallback);
       }
     }
 
