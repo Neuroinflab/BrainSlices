@@ -384,6 +384,10 @@ with ({gui: BrainSlices.gui,
           }
         }
 
+        // XXX: hardcoded values
+        var dt = Math.floor(0.5 * (83 - 20 * this.stacks.ny));
+        layer.$visibility.css('padding-top', dt > 0 ? dt + 'px': 0);
+
         var toDismiss = loadButtons.splice(nmax);
         for (var i = 0; i < toDismiss.length; i++)
         {

@@ -244,7 +244,7 @@ function initVisualise()
       state.shape = [val.x, val.y]; // XXX obsoleted
       rearrangeInterface();
 
-      $('#layer-visible-column')
+      $('.visible-column')
         .width(Math.max(val.x * 20, 65)); // XXX hard coded
     }, 'grid_dims')
     .registerChange(function(val)

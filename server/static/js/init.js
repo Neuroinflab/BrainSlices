@@ -255,7 +255,7 @@ $(function()
   stacks = new BrainSlices.api.CSynchronizedStacksDisplay($('#sliceDisplay'), 1, 1,
                                           null, null, null, null, null, null, null,
                                           '/static/gfx', images);
-  layerManager = new CLayerManager($.merge($('#layersConsoleTable tbody'),
+  layerManager = new CLayerManager($.merge($('#layerList'),
                                            $('#searchImageBasketList')),
                                    stacks,
                                    loginConsole,
@@ -283,19 +283,21 @@ $(function()
 
 
       // making the layer-related row
-      var $row =  $('<tr></tr>');
-      $drag = $('<div draggable="true"></div>');
+      var $row =  $('<div>');
+      $drag = $('<div draggable="true"></div>')
+        .addClass('label-column')
+        .appendTo($row);
 
       var dragMIME = [];
 
-      $row.append(
-        $('<td>')
-          .addClass('label-column')
-          .append($drag));
+    //  $row.append(
+    //    $('<div>')
+    //      .addClass('label-column')
+    //      .append($drag));
 
 
       // visibility interface
-      var $visibility = $('<td></td>')
+      var $visibility = $('<div>')
         .addClass('visible-column');
       $row.append($visibility);
 
@@ -356,18 +358,15 @@ $(function()
       }
 
       $row.append(
-        $('<td></td>')
+        $('<div>')
           .append($adjust)
           .append($iface)
           .addClass('adjust-column'));
 
       //removal
-      $rem = $('<span class="layer-delete-button fa fa-times"></span>');
-      $rem.bind('click', onremove);
-      $row.append(
-        $('<td></td>')
-          .append($rem)
-          .addClass('delete-column'));
+      $rem = $('<span class="layer-delete-button fa fa-times"></span>')
+        .bind('click', onremove)
+        .appendTo($row);
 
       this.addTileLayer(id, $.merge($row, $searchRow),
                         $visibility, zIndex, dragMIME,

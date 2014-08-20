@@ -1233,7 +1233,9 @@ var CFilterPanel = null;
   {
     options:
     {
-      treshold: 85
+      treshold: 85,
+      folded: true,
+      fit: true
     },
 
     _fold:
@@ -1241,6 +1243,15 @@ var CFilterPanel = null;
     {
       this.element.removeClass('unfolded')
                   .addClass('folded');
+      this.options.folded = true;
+      if (this.options.fit)
+      {
+        this.element.height(this.options.treshold);
+        var height = this.element.outerHeight(true);
+        var delta = height - this.element.height();
+        var parentHeight = this.element.parent().height();
+        this.element.height(parentHeight - delta);
+      }
     },
 
     _unfold:
@@ -1248,6 +1259,11 @@ var CFilterPanel = null;
     {
       this.element.removeClass('folded')
                   .addClass('unfolded');
+      this.options.folded = false;
+      if (this.options.fit)
+      {
+        this.element.css('height', '');
+      }
     },
 
     _create:
@@ -1271,15 +1287,37 @@ var CFilterPanel = null;
     refresh:
     function()
     {
-      var wasUnfolded = this.element.hasClass('unfolded');
       this.element.removeClass('folded unfolded');
-      if (this.element.outerHeight() > this.options.treshold)
+
+      if (this.options.fit)
       {
-        if (wasUnfolded)
+        this.element.height(this.options.treshold);
+        var parentHeight = this.element.parent().height();
+        this.element.css('height', '');
+        var height = this.element.outerHeight(true);
+        var delta = height - this.element.height();
+        if (height > parentHeight)
         {
-          this._unfold();
+          if (this.options.folded)
+          {
+            this.element.addClass('folded');
+            this.element.height(parentHeight - delta);
+          }
+          else
+          {
+            this.element.addClass('unfolded');
+          }
         }
-        this._fold();
+      }
+      else
+      {
+        this.element.css('height', '');
+        if (this.element.outerHeight(true) > this.options.treshold)
+        {
+          this.element.addClass(this.options.folded ?
+                                'folded' :
+                                'unfolded');
+        }
       }
     },
 

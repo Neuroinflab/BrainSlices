@@ -4,15 +4,13 @@
   top: 0;
   bottom: 0;
   right: 0;
-  left: 50%;
-/*	width: 500px;*/
+/*  left: 50%;*/
+  width: 524px;
 
 	border: 1px solid #aaaaaa;
 
 	padding: 0;
 	margin: 0;
-
-  overflow-y: auto;
 
   display: none;
 }
@@ -24,36 +22,82 @@
 
 .basket-visible #sliceDisplay
 {
-/*  right: 500px;*/
-  right: 50%;
+  right: 524px;
+/*  right: 50%;*/
 }
 
 #layersConsoleTable
 {
-	width: 100%;
-
-	border-spacing: 0;
-  border-collapse: collapse;
+  position: absolute;
+  top: 40px;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
-#layersConsoleTable tr
+#layersConsoleTable>div:first-of-type
+{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+}
+
+
+#layerList
+{
+  position: absolute;
+  top: 25px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  overflow-y: scroll;
+/*  display: table;*/
+}
+
+#layerList>div,
+#layersConsoleTable>div:first-of-type
 {
 	border-bottom: 1px solid #aaaaaa;
+  border-top: 1px solid #aaaaaa;
+  margin: 1px 0;
+
+  overflow: hidden;
+/*  display: table-row;*/
 }
 
-#layersConsoleTable td
+#layerList>div
+{
+  position: relative;
+  min-height: 85px;
+  box-sizing: border-box;
+}
+
+#layerList>div>div,
+#layersConsoleTable>div:first-of-type>div
 {
 	text-align: center;
-	vertical-align: middle;
 
 	padding: 0;
 	margin: 0;
+
+  /*float: left;*/
+  display: inline-block;
+  vertical-align: top;
+  /*display: table-cell;*/
 }
 
 
 .label-column
 {
-	width: 400px;
+	width: 384px;
+}
+
+#layerList .label-column
+{
+/*  vertical-align: top;*/
 }
 
 .thumbnail-only .label-column
@@ -61,16 +105,25 @@
   width: 84px;
 }
 
+.visible-column
+{
+  width: 65px;
+}
+
+#layerList .visible-column
+{
+/*  vertical-align: top;*/
+}
+
 .adjust-column
 {
-	width: 60px;
+	width: 55px;
 }
 
-.delete-column
+#layerList .adjust-column
 {
-	width: 60px;
+  padding-top: 30px !important;
 }
-
 
 .layer-cb-table
 {
