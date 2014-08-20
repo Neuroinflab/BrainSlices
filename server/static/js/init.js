@@ -273,6 +273,7 @@ $(function()
         .bind('click', onremove);
         
       var $searchRow = $('<div draggable="true"></div>')
+        .append($('<div>').addClass('description-buttons-placeholder'))
         .append($rem);
 
       var image = null;
@@ -388,7 +389,23 @@ $(function()
                           if (onsuccess) onsuccess();
                           
                           detailsGenerator(img.info, $searchRow);
+                          $searchRow
+                            .append($('<a>')
+                              .addClass('fa fa-arrow-circle-o-down layer-download-button')
+                              .attr(
+                              {
+                                href: path + '/image.png',
+                                download: ''
+                              }));
                           detailsGenerator(img.info, $drag);
+                          $row
+                            .append($('<a>')
+                              .addClass('fa fa-arrow-circle-o-down layer-download-button')
+                              .attr(
+                              {
+                                href: path + '/image.png',
+                                download: ''
+                              }));
                         },
                         onfailure, isvalid, onUpdate);
       
