@@ -89,18 +89,30 @@
 }
 
 .layer-delete-button,
-.layer-download-button {
+.layer-download-button,
+.add-image-to-cart-button
+{
 	color: #aaaaaa;
-
 	font-size: 20px;
-
-	padding: 5px;
+	/*padding: 5px;*/
+  float: right;
+  padding: 11px 5px;
+  display: block;
 }
 
-.layer-delete-button:hover {
+.layer-delete-button:hover
+{
 	color: #ff0000;
 }
 
-.layer-download-button:hover {
-	color: #2d7dc5;
+.add-image-to-cart-button:hover,
+.layer-download-button:hover
+{
+/*	color: #2d7dc5;*/
+  color: #6ee000;
+}
+
+a.layer-download-button
+{
+  text-decoration: none;
 }

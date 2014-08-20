@@ -673,27 +673,6 @@ div.unfolding-button
   margin: 0 0 5px 0;
 }
 
-#searchResults>div>span.add-image-to-cart-button
-{
-  float: right;
-  padding: 11px 5px;
-  display: block;
-	color: #aaaaaa;
-	font-size: 20px;
-}
-
-#searchResults>div>span.add-image-to-cart-button:hover
-{
-	color: #6ee000;
-}
-
-#searchImageBasketList>div>span.layer-delete-button
-{
-  float: right;
-  padding: 11px 5px;
-  display: block;
-}
-
 .search-content-wrapper>div>ul
 {
   margin: 0px;
