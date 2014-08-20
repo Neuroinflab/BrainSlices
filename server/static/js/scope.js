@@ -117,6 +117,16 @@
       }
     },
 
+    getToggle:
+    function(variable)
+    {
+      var thisInstance = this;
+      return function()
+      {
+        thisInstance.set(variable, !thisInstance.get(variable));
+      }
+    },
+
     /**
      * Function: _getPrivate
      *

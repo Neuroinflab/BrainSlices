@@ -140,22 +140,38 @@ var BrainSlices = {
     \************************************************************************/
     getThumbnail: function(iid, imageWidth, imageHeight, width, height)
     {
+      var paddingTop = '0 ';
+      var paddingBottom = '0 ';
+      var paddingLeft = '0 ';
+      var paddingRight = '0 ';
+      var delta, imgWidth, imgHeight;
+
       if (width == null) width = 128;
       if (height == null) height = 128;
       if (imageWidth / width > imageHeight / height)
       {
-        height = Math.round(width * imageHeight / imageWidth);
+        imgWidth = width;
+        imgHeight = Math.round(width * imageHeight / imageWidth);
+        delta = 0.5 * (height - imgHeight);
+        paddingTop = Math.floor(delta) + 'px ';
+        paddingBottom = Math.ceil(delta) + 'px ';
       }
       else
       {
-        width = Math.round(height * imageWidth / imageHeight);
+        imgHeight= height;
+        imgWidth = Math.round(height * imageWidth / imageHeight);
+        delta = 0.5 * (width - imgWidth);
+        paddingLeft = Math.floor(delta) + 'px ';
+        paddingRight = Math.ceil(delta) + 'px ';
       }
       return $("<img />")
                .attr({src: '/images/'+iid+'/tiles/0/0/0.jpg',
                       alt: 'thumbnail of image #' + iid})
                .addClass("polaroid-image")
-               .css({width: width + 'px',
-                     height: height + 'px'});
+               .css({width: imgWidth + 'px',
+                     height: imgHeight + 'px',
+                     'box-sizing': 'content-box',
+                     'padding': paddingTop + paddingRight + paddingBottom + paddingLeft});
     },
 
     /**

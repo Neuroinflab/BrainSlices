@@ -243,6 +243,9 @@ function initVisualise()
     {
       state.shape = [val.x, val.y]; // XXX obsoleted
       rearrangeInterface();
+
+      $('#layer-visible-column')
+        .width(Math.max(val.x * 20, 65)); // XXX hard coded
     }, 'grid_dims')
     .registerChange(function(val)
     {
@@ -259,8 +262,17 @@ function initVisualise()
       {
         stacks.resize();
       }
-    }, 'cart');
+    }, 'cart')
+    .registerChange(cartFolder, 'cart')
+    .registerChange(cartFolder, 'interfaceMode');
 
+  function cartFolder()
+  {
+    if (scope.get('cart') && scope.get('interfaceMode') == 'visualise')
+    {
+      $('#layersConsoleTable .image-details').folder('refresh');
+    }
+  }
 }
 
 

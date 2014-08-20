@@ -603,23 +603,27 @@ div>.filter-delete-button
 {
   border: solid 1px #e5e5e5;
   padding: 0; /*50px 0 0;*/
+}
+
+.image-details
+{
   position: relative;
   overflow: hidden;
 }
 
-.search-content-wrapper>div.folded
+.image-details.folded
 {
   height: 83px;
 /*  padding-bottom: 0px;*/
 }
 
-.search-content-wrapper>div.unfolded
+.image-details.unfolded
 {
   padding-bottom: 20px;
 }
 
-.search-content-wrapper>div>div.folding-button,
-.search-content-wrapper>div>div.unfolding-button
+.image-details>div.folding-button,
+.image-details>div.unfolding-button
 {
   position: absolute;
   right: 0px;
@@ -637,12 +641,12 @@ div>.filter-delete-button
   background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
 }
 
-.search-content-wrapper>div>div.folding-button:before
+.image-details>div.folding-button:before
 {
   content: "fold";
 }
 
-.search-content-wrapper>div>div.unfolding-button:before
+.image-details>div.unfolding-button:before
 {
   content: "unfold";
 }
@@ -659,7 +663,7 @@ div.unfolding-button
   display: block;
 }
 
-.search-content-wrapper>div>h1
+.image-details>h1
 {
   text-align: left;
   font-size: 14px;
@@ -667,30 +671,43 @@ div.unfolding-button
   margin: 0;
 }
 
-.search-content-wrapper>div>p.image-description
+.image-details>p.image-description
 {
   text-align: left;
   margin: 0 0 5px 0;
 }
 
-.search-content-wrapper>div>ul
+.image-details>ul
 {
   margin: 0px;
   padding: 0px;
 }
 
-.search-content-wrapper>div>ul>li
+.image-details>ul>li
 {
   list-style-type: none;
   text-align: left;
 }
 
-.search-content-wrapper .polaroid-image
+.image-details>.polaroid-image
 {
   float: left;
   margin: 3px 10px 5px 3px;
 }
 
+.thumbnail-only .image-details.unfolded>div.folding-button,
+.thumbnail-only .image-details.folded>div.unfolding-button,
+.thumbnail-only .image-details>h1,
+.thumbnail-only .image-details>p.image-description,
+.thumbnail-only .image-details>ul
+{
+  display: none;
+}
+
+.thumbnail-only .image-details>.polaroid-image
+{
+  margin: 3px 5px;
+}
 
 #searchImageBasket .search-header-label
 {

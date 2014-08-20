@@ -7,6 +7,8 @@ function detailsGenerator(info, $div)
   }
 
   $div
+    .addClass('image-details')
+    .append($('<div>').addClass('description-buttons-placeholder'))
     .append($('<a>')
       .addClass('fa fa-arrow-circle-o-down layer-download-button')
       .attr(
@@ -108,36 +110,33 @@ function initBrowse()
 {
   var scope = BrainSlices.scope;
 
-  function filtersUnfold()
-  {
-    $('#searchPanelDiv').addClass('filters-visible');
-    $('#btn_filters').addClass('selected');
-    $('#searchResults>div').folder('refresh');
-    $('.basket-visible #searchImageBasketList>div').folder('refresh');
-  }
 
-  function filtersFold()
-  {
-    $('#searchPanelDiv').removeClass('filters-visible');
-    $('#btn_filters').removeClass('selected');
-    $('#searchResults>div').folder('refresh');
-    $('.basket-visible #searchImageBasketList>div').folder('refresh');
-  }
-
-  $('#btn_filters').click(function()
-  {
-    if ($(this).hasClass('selected'))
+  scope
+    .registerChange(function(value)
     {
-      filtersFold();
-    }
-    else
-    {
-      filtersUnfold();
-    }
-  });
+      if (value)
+      {
+        $('#searchPanelDiv').addClass('filters-visible');
+        $('#btn_filters').addClass('selected');
+        $('#searchResults>div').folder('refresh');
+        $('.basket-visible #searchImageBasketList>div').folder('refresh');
+      }
+      else
+      {
+        $('#searchPanelDiv').removeClass('filters-visible');
+        $('#btn_filters').removeClass('selected');
+        $('#searchResults>div').folder('refresh');
+        $('.basket-visible #searchImageBasketList>div').folder('refresh');
+      }
+    }, 'filters');
 
-  $('#searchFiltersFold').click(filtersFold);
-  $('#searchFiltersUnfold').click(filtersUnfold);
+  $('#btn_filters')
+    .click(scope.getToggle('filters'));
+
+  $('#searchFiltersFold')
+    .click(scope.getCallback('filters', false));
+  $('#searchFiltersUnfold')
+    .click(scope.getCallback('filters', true));
 
   scope
     .registerChange(function(value)

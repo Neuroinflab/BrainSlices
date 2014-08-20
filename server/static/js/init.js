@@ -15,7 +15,8 @@ var state = {iids: [],
              sync: true,
              zoom: 1.,
              'interface': 'home',
-             cart: false};
+             cart: false,
+             filters: true};
 
 $(function()
 {
@@ -230,6 +231,7 @@ $(function()
 
     scope.set('interfaceMode', state.interface);
     scope.set('cart', state.cart);
+    scope.set('filters', state.filters);
   },
   null,
   function (response)
@@ -281,17 +283,21 @@ $(function()
 
       // making the layer-related row
       var $row =  $('<tr></tr>');
-      $drag = $('<td draggable="true">' + label + '</td>');//XXX .append(label) ?
+      $drag = $('<div draggable="true"></div>');
+
       var dragMIME = [];
 
-      $row.append($drag);
+      $row.append(
+        $('<td>')
+          .addClass('label-column')
+          .append($drag));
 
-      // download link
-      $row.append('<td><a href="' + path + '/image.png"><span class="layer-download-button fa fa-arrow-circle-o-down"</span></a></td>');
 
       // visibility interface
-      var $visibility = $('<td></td>');
+      var $visibility = $('<td></td>')
+        .addClass('visible-column');
       $row.append($visibility);
+
 
       //adjustment
       var $adjust = $('<input type="checkbox">');
@@ -348,12 +354,19 @@ $(function()
         $iface.find('select[name="status"]').val(info.status);
       }
 
-      $row.append($('<td></td>').append($adjust).append($iface));
+      $row.append(
+        $('<td></td>')
+          .append($adjust)
+          .append($iface)
+          .addClass('adjust-column'));
 
       //removal
       $rem = $('<span class="layer-delete-button fa fa-times"></span>');
       $rem.bind('click', onremove);
-      $row.append($('<td></td>').append($rem));
+      $row.append(
+        $('<td></td>')
+          .append($rem)
+          .addClass('delete-column'));
 
       this.addTileLayer(id, $.merge($row, $searchRow),
                         $visibility, zIndex, dragMIME,
@@ -375,6 +388,7 @@ $(function()
                           if (onsuccess) onsuccess();
                           
                           detailsGenerator(img.info, $searchRow);
+                          detailsGenerator(img.info, $drag);
                         },
                         onfailure, isvalid, onUpdate);
       

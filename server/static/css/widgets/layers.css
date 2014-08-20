@@ -4,7 +4,8 @@
   top: 0;
   bottom: 0;
   right: 0;
-	width: 500px;
+  left: 50%;
+/*	width: 500px;*/
 
 	border: 1px solid #aaaaaa;
 
@@ -23,7 +24,8 @@
 
 .basket-visible #sliceDisplay
 {
-  right: 500px;
+/*  right: 500px;*/
+  right: 50%;
 }
 
 #layersConsoleTable
@@ -31,53 +33,61 @@
 	width: 100%;
 
 	border-spacing: 0;
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
-#layersConsoleTable tr {
+#layersConsoleTable tr
+{
 	border-bottom: 1px solid #aaaaaa;
 }
 
-#layersConsoleTable td {
+#layersConsoleTable td
+{
 	text-align: center;
 	vertical-align: middle;
 
-	padding-top: 10px;
-	padding-bottom: 10px;
-	padding-left: 0px;
-	padding-right: 0px;
+	padding: 0;
 	margin: 0;
 }
 
-.label-column{
-	width: 55px;
+
+.label-column
+{
+	width: 400px;
 }
 
-.download-column{
-	width: 85px;
+.thumbnail-only .label-column
+{
+  width: 84px;
 }
 
-.adjust-column{
+.adjust-column
+{
 	width: 60px;
 }
 
-.delete-column{
+.delete-column
+{
 	width: 60px;
 }
 
-.layer-cb-table {
+
+.layer-cb-table
+{
 	border-spacing: 0;
-    border-collapse: collapse;
+  border-collapse: collapse;
 
-    margin-left: auto;
-    margin-right: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.layer-cb-table tr {
+.layer-cb-table tr
+{
 	border-bottom: none !important;
 }
 
-.layer-cb-table td {
+.layer-cb-table td
+{
 	text-align: center;
 	vertical-align: middle;
 
@@ -94,10 +104,31 @@
 {
 	color: #aaaaaa;
 	font-size: 20px;
-	/*padding: 5px;*/
-  float: right;
-  padding: 11px 5px;
+/*	padding: 5px;
+  float: right;*/
+/*  padding: 11px 5px;*/
   display: block;
+
+  position: absolute;
+  top: 5px;
+}
+
+.layer-download-button
+{
+  right: 30px;
+}
+
+.layer-delete-button,
+.add-image-to-cart-button
+{
+  right: 5px;
+}
+
+.description-buttons-placeholder
+{
+  height: 30px;
+  width: 55px;
+  float: right;
 }
 
 .layer-delete-button:hover
