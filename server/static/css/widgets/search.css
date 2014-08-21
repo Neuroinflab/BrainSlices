@@ -116,6 +116,7 @@
   right: 20px;
 }
 
+/*
 .basket-visible #resultsWrapper
 {
   right: 50%;
@@ -138,7 +139,7 @@
   display: block;
   padding-left: 25px;
 }
-
+*/
 
 #searchBasketFold
 {
@@ -155,7 +156,8 @@
 .basket-visible #searchBasketFold
 {
   display: block;
-  left: 50%;
+/*  left: 50%;*/
+  right: 0;
   z-index: 1;
 }
 

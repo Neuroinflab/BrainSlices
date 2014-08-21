@@ -24,33 +24,89 @@ $(function()
   scope
     .registerChange(function(value)
     {
+      var $cart = $('#layersConsole');
+      var $panels = $('#panels');
+      function complete()
+      {
+        if (scope.get('interfaceMode') == 'visualise')
+        {
+          stacks.resize();
+        }
+      }
+
       if (value)
       {
+        var cartWidth = Math.round(0.5 * $('#main').width());
         $('#btn_cart').addClass('selected');
+        $cart.show(function()
+        {
+          $panels
+            .animate(
+            {
+              right: cartWidth + 'px'
+            },
+            {
+              queue: false,
+              complete: complete
+            });
+          $cart
+            .animate(
+            {
+              width: cartWidth + 'px'
+            },
+            {
+              queue: false
+            });
+        });
       }
       else
       {
         $('#btn_cart').removeClass('selected');
+        $cart
+          .animate(
+          {
+            width: 0
+          },
+          {
+            queue: false,
+            complete:
+            function()
+            {
+              $cart.hide();
+            }
+          });
+        $panels
+          .animate(
+          {
+            right: 0
+          },
+          {
+            queue: false,
+            complete: complete
+          });
       }
 
       state.cart = value; // XXX obsolete
     }, 'cart')
     .registerChange(function(value)
     {
-      $('#main>div').hide();
+      $('#panels>div').hide();
+
       $('#navbarMiddle>div').hide();
       $('#navbar .panelButton').removeClass('selected');
+
       switch (value)
       {
         case 'home':
           $('#homePanel').show();
+          //$('#layersConsole').animate
           break;
 
         case 'browse':
           $('#browsePanel').show();
           $('#navbarBrowse').show();
-          $('#searchResults>div').folder('refresh');
-          $('.basket-visible #searchImageBasketList>div').folder('refresh');
+          //$('#searchResults>div').folder('refresh');
+          //$('.basket-visible #searchImageBasketList>div').folder('refresh');
           //$('#browsePanel .search-content-wrapper>div').folder('refresh');
           break;
 
@@ -252,11 +308,12 @@ $(function()
 
 
   images = new BrainSlices.api.CImageManager(loginConsole);
-  stacks = new BrainSlices.api.CSynchronizedStacksDisplay($('#sliceDisplay'), 1, 1,
+  stacks = new BrainSlices.api.CSynchronizedStacksDisplay($('#visualisePanel'), 1, 1,
                                           null, null, null, null, null, null, null,
                                           '/static/gfx', images);
-  layerManager = new CLayerManager($.merge($('#layerList'),
-                                           $('#searchImageBasketList')),
+  layerManager = new CLayerManager($('#layerList'),
+                                   //$.merge($('#layerList'),
+                                   //        $('#searchImageBasketList')),
                                    stacks,
                                    loginConsole,
   {
@@ -265,16 +322,16 @@ $(function()
     {
       var thisInstance = this;
 
-      var onremove = function()
+      function onremove()
       {
         thisInstance.tableManager.remove(id);
       }
-      var $rem = $('<span class="layer-delete-button fa fa-times"></span>')
-        .bind('click', onremove);
-        
-      var $searchRow = $('<div draggable="true"></div>')
-        .append($('<div>').addClass('description-buttons-placeholder'))
-        .append($rem);
+//      var $rem = $('<span class="layer-delete-button fa fa-times"></span>')
+//        .bind('click', onremove);
+//        
+//      var $searchRow = $('<div draggable="true"></div>')
+//        .append($('<div>').addClass('description-buttons-placeholder'))
+//        .append($rem);
 
       var image = null;
       var path = '/images/' + id;
@@ -368,7 +425,7 @@ $(function()
         .bind('click', onremove)
         .appendTo($row);
 
-      this.addTileLayer(id, $.merge($row, $searchRow),
+      this.addTileLayer(id, $row, //$.merge($row, $searchRow),
                         $visibility, zIndex, dragMIME,
                         null,
                         path, info, true,
@@ -387,15 +444,15 @@ $(function()
 
                           if (onsuccess) onsuccess();
                           
-                          detailsGenerator(img.info, $searchRow);
-                          $searchRow
-                            .append($('<a>')
-                              .addClass('fa fa-arrow-circle-o-down layer-download-button')
-                              .attr(
-                              {
-                                href: path + '/image.png',
-                                download: ''
-                              }));
+                          //detailsGenerator(img.info, $searchRow);
+                          //$searchRow
+                          //  .append($('<a>')
+                          //    .addClass('fa fa-arrow-circle-o-down layer-download-button')
+                          //    .attr(
+                          //    {
+                          //      href: path + '/image.png',
+                          //      download: ''
+                          //    }));
                           detailsGenerator(img.info, $drag);
                           $row
                             .append($('<a>')

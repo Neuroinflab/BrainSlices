@@ -5,7 +5,8 @@
   bottom: 0;
   right: 0;
 /*  left: 50%;*/
-  width: 524px;
+/*  width: 524px;*/
+  width: 0;
 
 	border: 1px solid #aaaaaa;
 
@@ -15,6 +16,7 @@
   display: none;
 }
 
+/*
 .basket-visible #layersConsole
 {
   display: block;
@@ -23,8 +25,8 @@
 .basket-visible #sliceDisplay
 {
   right: 524px;
-/*  right: 50%;*/
 }
+*/
 
 #layersConsoleTable
 {
