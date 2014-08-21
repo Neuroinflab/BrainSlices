@@ -6,6 +6,7 @@ var stacks = null;
 var layerManager = null;
 var searchEngine = null;
 var alertWindow = null; 
+var waitWindow = null;
 
 var state = {iids: [],
              shape: [1, 1],
@@ -152,6 +153,7 @@ $(function()
   });
 
   alertWindow = new BrainSlices.gui.CMessage($('#alertWindow'));
+  waitWindow = new BrainSlices.gui.CMessage($('#waitWindow'));
 
   // a nice trick
   scope

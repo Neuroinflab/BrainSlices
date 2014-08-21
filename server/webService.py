@@ -61,6 +61,7 @@ class WebGenerator(Generator):
     index['<!--%controlPanel%-->'] = stackControlPanel
     index['<!--%loginWindow%-->'] = loginWindow
     index['<!--%alertWindow%-->'] = self.templateEngine('alertWindow.html')
+    index['<!--%waitWindow%-->'] = self.templateEngine('waitWindow.html')
     index['<!--%homePanel%-->'] = self.templateEngine('homePanel.html')
     index['<!--%browsePanel%-->'] = self.templateEngine('browsePanel.html')
     index['<!--%uploadPanel%-->'] = self.templateEngine('uploadPanel.html')

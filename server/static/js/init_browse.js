@@ -378,41 +378,51 @@ function initBrowseFinish()
 
   $('#searchPropertySearch').click(function()
   {
+    waitWindow.message('Querying the server. Please wait. <span class="fa fa-refresh fa-spin"></span>');
     var search = searchEngine.search(function(result)
     {
-      var $parent = $('#searchResults').empty();
-      for (var i = 0; i < result.length; i++)
+      console.log('returned');
+      waitWindow.success('Parsing the response. Please wait. <span class="fa fa-refresh fa-spin"></span>');
+      setTimeout(function()
       {
-        var info = result[i];
-        var $div = $('<div></div>')
-          .append($('<a>')
-            .addClass('fa fa-arrow-circle-o-down layer-download-button')
-            .attr(
-            {
-              href: '/images/' + info.iid + '/image.png',
-              download: ''
-            }))
-          .append($('<div>')
-            .addClass('description-buttons-placeholder'))
-          .appendTo($parent);
-        detailsGenerator(info, $div);
-
-        var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
-        $div.prepend($button);
-        (function(info)
+        var $parent = $('#searchResults').empty();
+        for (var i = 0; i < result.length; i++)
         {
-          $button.click(function()
+          var info = result[i];
+          var $div = $('<div></div>')
+            .append($('<a>')
+              .addClass('fa fa-arrow-circle-o-down layer-download-button')
+              .attr(
+              {
+                href: '/images/' + info.iid + '/image.png',
+                download: ''
+              }))
+            .append($('<div>')
+              .addClass('description-buttons-placeholder'))
+            .appendTo($parent);
+          detailsGenerator(info, $div);
+
+          var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
+          $div.prepend($button);
+
+          (function(info)
           {
-            //global
-            layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
-          });
-        })(info);
-      }
+            $button.click(function()
+            {
+              //global
+              layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
+            });
+          })(info);
+        }
+
+        waitWindow.close();
+      }, 50);
     });
 
     if (!search)
     {
-      alert('Chosen filters can not match any images.');
+      waitWindow.close();
+      alertWindow.error('Chosen filters can not match any images.');
     }
   });
 
@@ -431,7 +441,7 @@ function initBrowseFinish()
                           {
                             if (name != null && searchEngine.has(name))
                             {
-                              alert('Property ' + name + ' already selected.');
+                              alertWindow.error('Property ' + name + ' already selected.');
                             }
                             else
                             {
@@ -443,7 +453,7 @@ function initBrowseFinish()
                       }
                       else
                       {
-                        alert(data.message);
+                        alertWindow.error(data.message);
                       }
                     });
 }
