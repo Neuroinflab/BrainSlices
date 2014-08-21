@@ -2,7 +2,11 @@ body
 {
   font: 14px/150% Verdana, Tahoma, sans-serif;
   color: #7F7F7F;
+}
 
+body,
+div
+{
   margin: 0;
   padding: 0;
 }
@@ -14,8 +18,6 @@ a
 
 button
 {
-  height:; 1em;
-
   display: inline-block;
   padding: 5px;
   font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;

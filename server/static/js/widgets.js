@@ -421,6 +421,7 @@ var CFilterPanel = null;
         $.merge($input, $cb);
         $wrapper
           .append($('<label>')
+                  .addClass('brainslices-enum-property-filter')
                   .text(key)
                   .prepend($cb))
           .append(' ');
@@ -443,21 +444,31 @@ var CFilterPanel = null;
         }
       }
       var $input = $('<input>')
+                      .addClass('brainslices-text-property-filter')
                       .attr({type: 'text',
                              value: this.options.conditions})
                       .appendTo(this.$wrapper)
                       .change(change);
       this.$wrapper
-        .append('<span class="fa fa-search" style="position: absolute; top: 0; left: 0; bottom: 0;"></span>')
         .removeClass('brainslices-number-property-filter brainslices-enum-property-filter')
-        .addClass('brainslices-text-property-filter');
+        .addClass('brainslices-text-property-filter')
+        .append($('<span>')
+          .addClass('fa fa-search brainslices-text-property-filter')
+          .css(
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0
+          }));
 
     },
 
     _makeFloatSelect:
     function(conditions, options)
     {
-      var $select = $('<select>');
+      var $select = $('<select>')
+        .addClass('brainslices-number-property-filter-select');
       var val = null;
       var labels = this.floatLabels;
 
@@ -479,6 +490,7 @@ var CFilterPanel = null;
                       .text('---')
                       .appendTo($select);
       var $input = $('<input>')
+                     .addClass('brainslices-number-property-filter-input')
                      .attr({type: 'number',
                             value: val != null ? val : 0});
       if (val == null)
@@ -545,10 +557,14 @@ var CFilterPanel = null;
       var $input2 = op2.$input.change(change);
 
       this.$wrapper
-        .append($select1)
-        .append($input1)
-        .append($select2)
-        .append($input2)
+        .append($('<div>')
+          .addClass('brainslices-number-property-filter-select')
+          .append($select1)
+          .append($select2))
+        .append($('<div>')
+          .addClass('brainslices-number-property-filter-input')
+          .append($input1)
+          .append($input2))
         .removeClass('brainslices-text-property-filter brainslices-enum-property-filter')
         .addClass('brainslices-number-property-filter');
     },
@@ -951,7 +967,7 @@ var CFilterPanel = null;
         .appendTo(this.$wrapper);
 
 
-      var $what = $('<span>')
+      var $what = $('<div>')
         .addClass('brainslices-new-property-filter')
         .appendTo($div);
 
@@ -961,12 +977,12 @@ var CFilterPanel = null;
       this.$filter = $('<div>')
         .appendTo($div);
 
-      var $add = $('<span>')
+      this.$add = $('<span>')
         .addClass('add-filter-button fa fa-plus')
-        .appendTo($div);
+        .click($.proxy(this, '_onSubmit'))
+        .appendTo(this.element);
 
       this._createNewPropertyFilter($what);
-      this._createSubmitButton($add);
     },
 
     _createNewPropertyFilter:
@@ -980,6 +996,9 @@ var CFilterPanel = null;
     function($span)
     {
       this.propertyName = ''; //null
+      var $wrapper = $('<div>')
+        .addClass('brainslices-new-property-filter-propertybox')
+        .appendTo($span);
       var $input = $('<input>')
         .attr(
         {
@@ -988,7 +1007,7 @@ var CFilterPanel = null;
           value: '' //this.options.anyLabel
         })
         .tooltip()
-        .addClass('ui-widget-content ui-state-default ui-corner-left')
+        .addClass('ui-widget-content ui-state-default ui-corner-left brainslices-new-property-filter-propertybox')
         .propertyboxsearch(
         {
           source: $.proxy(this, '_source'),
@@ -1002,7 +1021,7 @@ var CFilterPanel = null;
             //this._propertyChange();
           }
         }, this))
-        .appendTo($span);
+        .appendTo($wrapper);
 
       this.$input = $input;
       this._on(this.$input,
@@ -1040,6 +1059,7 @@ var CFilterPanel = null;
     _createTypeSelect: function($span)
     {
       this.$types = $('<select>')
+        .addClass('brainslices-new-property-filter-type')
         .appendTo($span);
 
       this.filter = //new CFilterPanel('<div>')
@@ -1095,12 +1115,6 @@ var CFilterPanel = null;
         //this.filter.make(t);
         this.filter.propertyfilter({type: t});
       }
-    },
-
-    _createSubmitButton: function($span)
-    {
-      $span
-        .click($.proxy(this, '_onSubmit'))
     },
 
     inSelect: false,
@@ -1212,6 +1226,7 @@ var CFilterPanel = null;
     function()
     {
       this.$wrapper.remove();
+      this.$add.remove();
       if (this.filter)
       {
         this.filter.destroy();
@@ -1235,15 +1250,19 @@ var CFilterPanel = null;
     {
       treshold: 85,
       folded: true,
-      fit: true
+      fit: false
     },
 
     _fold:
     function()
     {
+      /*
       this.element.removeClass('unfolded')
                   .addClass('folded');
+      */
       this.options.folded = true;
+
+      /*
       if (this.options.fit)
       {
         this.element.height(this.options.treshold);
@@ -1252,18 +1271,26 @@ var CFilterPanel = null;
         var parentHeight = this.element.parent().height();
         this.element.height(parentHeight - delta);
       }
+      */
+      this.refresh();
     },
 
     _unfold:
     function()
     {
+      /*
       this.element.removeClass('folded')
                   .addClass('unfolded');
+
+      */
       this.options.folded = false;
+      /*
       if (this.options.fit)
       {
         this.element.css('height', '');
       }
+      */
+      this.refresh();
     },
 
     _create:
@@ -1288,12 +1315,15 @@ var CFilterPanel = null;
     function()
     {
       this.element.removeClass('folded unfolded');
+      this.$fold.hide();
+      this.$unfold.hide();
 
       if (this.options.fit)
       {
         this.element.height(this.options.treshold);
         var parentHeight = this.element.parent().height();
         this.element.css('height', '');
+
         var height = this.element.outerHeight(true);
         var delta = height - this.element.height();
         if (height > parentHeight)
@@ -1301,22 +1331,32 @@ var CFilterPanel = null;
           if (this.options.folded)
           {
             this.element.addClass('folded');
+            this.$unfold.show();
             this.element.height(parentHeight - delta);
           }
           else
           {
             this.element.addClass('unfolded');
+            this.$fold.show();
           }
         }
       }
       else
       {
         this.element.css('height', '');
+
         if (this.element.outerHeight(true) > this.options.treshold)
         {
-          this.element.addClass(this.options.folded ?
-                                'folded' :
-                                'unfolded');
+          if (this.options.folded)
+          {
+            this.element.addClass('folded');
+            this.$unfold.show();
+          }
+          else
+          {
+            this.element.addClass('unfolded');
+            this.$fold.show();
+          }
         }
       }
     },
