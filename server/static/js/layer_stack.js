@@ -47,6 +47,7 @@
       this.nlayers = 0;
       this.gfx = gfx != null ? gfx : 'static/gfx';
       this.$scaleImage = $('<img>')
+                           .addClass('scale')
                            .attr(
                            {
                              src: this.gfx + '/scale.png',
@@ -55,11 +56,12 @@
                            })
                            .css('width', '20mm');
       this.$scaleUnit = $('<span></span>')
-                           .addClass('scale_unit');
+                           .addClass('scale scale_unit');
 
       var $mouseX = $('<span></span>');
       var $mouseY = $('<span></span>');
       var $cursorLocation = $('<span></span>')
+        .addClass('scale')
         .hide()
         .append($mouseX)
         .append('; ')

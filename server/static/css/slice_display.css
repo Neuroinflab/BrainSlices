@@ -9,42 +9,6 @@ div#sliceDisplay
   z-index: 0;
 }
 
-/*
-div.draggableDiv
-{
-  position: absolute;
-  right: 10%;
-  bottom: 10%;
-  z-index: 90;
-  background: #FFF;
-  border: solid gray 1px;
-}
-
-div.draggableDiv div.draggableDivContent
-{
-  padding: 1ex 1em;
-}
-
-div.draggableDiv div.dragBar
-{
-  text-align: center;
-  background: gray;
-  padding-left: 1em;
-  padding-right: 4em;
-  position: relative;
-}
-
-div.draggableDiv div.dragBar div
-{
-  position: absolute;
-  right: 0px;
-  float: right;
-  top: 0px;
-  color: navy;
-  padding-right: 1em;
-}
-*/
-
 div.topLayer, div.tileLayer, div.outlineLayer
 {
   position: absolute;
@@ -69,7 +33,7 @@ div.topLayer
   border: 1px solid black;
 }
 
-div.topLayer>img.crosshair
+img.crosshair
 {
   position: absolute;
   width: 101px;
@@ -77,7 +41,7 @@ div.topLayer>img.crosshair
 }
 
 
-div.topLayer>div.scale
+div.scale
 {
   position: absolute;
   bottom: 2ex;
@@ -85,26 +49,17 @@ div.topLayer>div.scale
   right: 2em;
   top: auto;
   text-align: right;
+  color: #000000;
 }
 
-div.topLayer>div.scale>span
+span.scale
 {
   margin-right: 1em;
-}
-
-div.topLayer>div.scale>div
-{
-  display: inline-block;
-}
-
-div.topLayer>div.scale>span,
-div.topLayer>div.scale>div
-{
   padding: 2px 6px;
   background: rgba(192, 192, 192, 0.7);
 }
 
-div.topLayer>div.scale>img
+img.scale
 {
   margin: 0.5ex 0;
   height: 1mm;
