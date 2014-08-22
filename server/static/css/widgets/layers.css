@@ -8,10 +8,10 @@
 /*  width: 524px;*/
   width: 0;
 
-	border: 1px solid #aaaaaa;
+  border: 1px solid #aaaaaa;
 
-	padding: 0;
-	margin: 0;
+  padding: 0;
+  margin: 0;
 
   display: none;
 }
@@ -62,7 +62,7 @@
 div.layer-row,
 #layersConsoleTable>div:first-of-type
 {
-	border-bottom: 1px solid #aaaaaa;
+  border-bottom: 1px solid #aaaaaa;
   border-top: 1px solid #aaaaaa;
   margin: 1px 0;
 
@@ -80,10 +80,10 @@ div.layer-row
 #layerList>div>div,
 #layersConsoleTable>div:first-of-type>div
 {
-	text-align: center;
+  text-align: center;
 
-	padding: 0;
-	margin: 0;
+  padding: 0;
+  margin: 0;
 
   /*float: left;*/
   display: inline-block;
@@ -94,7 +94,7 @@ div.layer-row
 
 .label-column
 {
-	width: 384px;
+  width: 384px;
 }
 
 #layerList .label-column
@@ -119,7 +119,7 @@ div.layer-row
 
 .adjust-column
 {
-	width: 55px;
+  width: 55px;
 }
 
 #layerList .adjust-column
@@ -129,7 +129,7 @@ div.layer-row
 
 .layer-cb-table
 {
-	border-spacing: 0;
+  border-spacing: 0;
   border-collapse: collapse;
 
   margin-left: auto;
@@ -138,28 +138,28 @@ div.layer-row
 
 .layer-cb-table tr
 {
-	border-bottom: none !important;
+  border-bottom: none !important;
 }
 
 .layer-cb-table td
 {
-	text-align: center;
-	vertical-align: middle;
+  text-align: center;
+  vertical-align: middle;
 
-	height: 20px;
-	width: 20px;
+  height: 20px;
+  width: 20px;
 
-	padding: 0 !important;
-	margin: 0;
+  padding: 0 !important;
+  margin: 0;
 }
 
 .layer-delete-button,
 .layer-download-button,
 .add-image-to-cart-button
 {
-	color: #aaaaaa;
-	font-size: 20px;
-/*	padding: 5px;
+  color: #aaaaaa;
+  font-size: 20px;
+/*  padding: 5px;
   float: right;*/
 /*  padding: 11px 5px;*/
   display: block;
@@ -188,13 +188,13 @@ div.layer-row
 
 .layer-delete-button:hover
 {
-	color: #ff0000;
+  color: #ff0000;
 }
 
 .add-image-to-cart-button:hover,
 .layer-download-button:hover
 {
-/*	color: #2d7dc5;*/
+/*  color: #2d7dc5;*/
   color: #6ee000;
 }
 
