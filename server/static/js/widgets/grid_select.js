@@ -4,20 +4,9 @@ $.widget("brainslices.grid_select",
   {
     numRows: 2,
     numCols: 2,
-    rows: new Array(),
     callback: function(x, y) {
       console.log("no callback specified for grid_select " + x + ", " + y);
     }
-  },
-
-  _create:
-  function()
-  {
-    this.currentPos =
-    {
-      x: 0,
-      y: 0
-    };
   },
 
   restart:
@@ -44,61 +33,68 @@ $.widget("brainslices.grid_select",
       y: selectedY
     };
 
-    var rows = new Array();
+    this.rows = [];
+
     var thisInstance = this;
 
     $(this.element).html("");
-    var floatView = $('<div class="grid_view_float"></div>')
-    var table = $('<table id="selectable" class="grid_view_table">');
-    floatView.append(table);
+    var $floatView = $('<div class="grid_view_float"></div>')
 
+    var $table = $('<div class="grid_view_table">');
+    this.$table = $table;
+    $floatView.append($table);
+
+    var $td;
     for (var i = 0; i < this.options.numRows; i++)
     {
-      var tr = $('<tr data-y="' + i + '"></tr>');
+      var $tr = $('<div data-y="' + i + '" class="grid_view_row"></div>');
 
       for (var j = 0; j < this.options.numCols; j++)
       {
         if ((j < x - 1) && (i < y - 1))
         {
-          tr.append('<td class="current-table" data-x="' + j + '" data-y="' + i + '"></td>');
+          $td = $('<div class="current-table grid_view_cell" data-x="' + j + '" data-y="' + i + '"></div>');
         }
         else
         {
-          tr.append('<td data-x="' + j + '" data-y="' + i + '"></td>');
+          $td = $('<div class="grid_view_cell" data-x="' + j + '" data-y="' + i + '"></div>');
         }
+        $td
+          .mouseover(this.getMouseOver(j, i))
+          .appendTo($tr);
       }
 
-      this.options.rows.push(tr);
-      table.append(tr);
+      this.rows.push($tr);
+      $table.append($tr);
     }
-
-    table.selectable(
+/*
+    $table.selectable(
       {
-        filter: "td",
+        filter: ".grid_view_cell",
         selecting: function(evt)
         {
           console.log(evt);
         }
-      });
+      });*/
 
     var button = $('<button id="btn_grid" class="icon"><div class="grid">&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<div></button>');
 
     var leave = function(evt)
     {
       thisInstance.restart(2, 2);
-      floatView.hide();
+      $floatView.hide(0);
     };
 
     button.button()
         .mousedown(function(evt)
         {
-          floatView.offset({top: evt.clientY - 10,
+          $floatView.offset({top: evt.clientY - 10,
                             left: evt.clientX - 10});
-          floatView.show();
+          $floatView.show(0);
         })
         .mouseup(leave);
 
-    floatView
+    $floatView
       .mouseleave(leave)
       .mouseup(function(evt)
       {
@@ -107,60 +103,12 @@ $.widget("brainslices.grid_select",
                                         thisInstance.currentPos.y);
 
         leave(evt);
-      })
-      .mouseover(function(evt)
-      {
-        if (evt.target.nodeName != "TD")
-        {
-          return;
-        }
-
-        if ($(evt.target).data("y") === (thisInstance.getNumRows() - 1))
-        {
-          thisInstance.addRow();
-        }
-
-        if (($(evt.target).data("y") >= (thisInstance.getInitialRows() - 2))
-          && ($(evt.target).data("y") < (thisInstance.getNumRows() - 2)))
-        {
-          thisInstance.deleteRowsFrom($(evt.target).data("y") + 2);
-        }
-
-        if ($(evt.target).data("x") === (thisInstance.getNumCols() - 1))
-        {
-          thisInstance.addCol();
-        }
-
-        if (($(evt.target).data("x") >= (thisInstance.getInitialCols() - 2))
-          && ($(evt.target).data("x") < (thisInstance.getNumCols() - 2)))
-        {
-          thisInstance.deleteColsFrom($(evt.target).data("x") + 2);
-        }
-
-        thisInstance.currentPos.x = $(evt.target).data("x");
-        thisInstance.currentPos.y = $(evt.target).data("y");
-
-        for (var x = 0; x < thisInstance.getNumCols(); x++)
-        {
-          for (var y = 0; y < thisInstance.getNumRows(); y++)
-          {
-            if ((x <= thisInstance.currentPos.x)
-              && (y <= thisInstance.currentPos.y))
-            {
-              $('td[data-x="' + x + '"][data-y="' + y + '"]').addClass("selected");
-            }
-            else
-            {
-              $('td[data-x="' + x + '"][data-y="' + y + '"]').removeClass("selected");  
-            }
-          }
-        }
       });
 
     $(this.element).append(button);
-    $(this.element).append(floatView);
+    $(this.element).append($floatView);
 
-    floatView.hide();
+    $floatView.hide(0);
   },
 
   _create:
@@ -169,17 +117,74 @@ $.widget("brainslices.grid_select",
     this.restart(this.options.numRows, this.options.numCols);
   },
 
+  getMouseOver:
+  function(x, y)
+  {
+    var thisInstance = this;
+    var rows = this.rows;
+
+    return function(evt)
+    {
+      console.debug(rows);
+      if (y == thisInstance.getNumRows() - 1)
+      {
+        thisInstance.addRow();
+      }
+
+      if ((y >= thisInstance.getInitialRows() - 2)
+        && (y < thisInstance.getNumRows() - 2))
+      {
+        thisInstance.deleteRowsFrom(y + 2);
+      }
+
+      if (x == thisInstance.getNumCols() - 1)
+      {
+        thisInstance.addCol();
+      }
+
+      if ((x >= thisInstance.getInitialCols() - 2)
+        && (x < thisInstance.getNumCols() - 2))
+      {
+        thisInstance.deleteColsFrom(x + 2);
+      }
+
+      thisInstance.currentPos.x = x;
+      thisInstance.currentPos.y = y;
+
+      console.log('at', x, y);
+
+      for (var xx = 0; xx < thisInstance.getNumCols(); xx++)
+      {
+        for (var yy = 0; yy < thisInstance.getNumRows(); yy++)
+        {
+          /*console.log(xx, x, yy, y)*/
+          if ((xx <= x) && (yy <= y))
+          {
+            console.log(xx, yy);
+            rows[yy].children('.grid_view_cell').eq(xx).addClass("selected");
+          }
+          else
+          {
+            rows[yy].children('.grid_view_cell').eq(xx).removeClass("selected");
+          }
+        }
+      }
+    }
+  },
+
   addRow:
   function()
   {
-    tr = $('<tr data-y="' + this.options.numRows + '"></tr>');
+    var $tr = $('<div class="grid_view_row" data-y="' + this.options.numRows + '"></div>');
     for (j = 0; j < this.options.numCols; j++)
     {
-      tr.append('<td data-x="' + j + '" data-y="' + this.options.numRows + '"></td>');
+      var $td = $('<div class="grid_view_cell" data-x="' + j + '" data-y="' + this.options.numRows + '"></div>')
+        .mouseover(this.getMouseOver(j, this.options.numRows))
+        .appendTo($tr);
     }
-    this.options.rows.push(tr);
+    this.rows.push($tr);
 
-    $(".grid_view_table").append(tr);
+    this.$table.append($tr);
 
     this.options.numRows++;
   },
@@ -187,16 +192,18 @@ $.widget("brainslices.grid_select",
   deleteRowsFrom:
   function(row)
   {
-    for (var i = 0; i < this.options.numRows; i++)
+    //for (var i = row; i < this.options.numRows; i++)
+    //{
+    //  this.$table.find('.grid_view_row[data-y="' + i + '"]').remove();
+    //}
+
+    this.rows.splice(row).map(function($tr)
     {
-      if (i >= row)
-      {
-        $('tr[data-y="' + i + '"]').each(function(index)
-        {
-          $(this).remove();
-        });
-      }
-    }
+      $tr.remove();
+    });
+
+    console.log('rows:', this.rows.length);
+
 
     this.options.numRows = row;
   },
@@ -204,11 +211,14 @@ $.widget("brainslices.grid_select",
   addCol:
   function()
   {
-    cols = this.options.numCols;
+    var thisInstance = this;
+    var cols = this.options.numCols;
 
-    this.options.rows.map(function(tr)
+    this.rows.map(function($tr, y)
     {
-      tr.append('<td data-x="' + cols + '" data-y="' + tr.data("y") + '"></td>');
+      var $td = $('<div class="grid_view_cell" data-x="' + cols + '" data-y="' + y + '"></div>')
+        .mouseover(thisInstance.getMouseOver(cols, y))
+        .appendTo($tr);
     });
 
     this.options.numCols++;
@@ -217,15 +227,9 @@ $.widget("brainslices.grid_select",
   deleteColsFrom:
   function(col)
   {
-    for (var i = 0; i < this.options.numCols; i++)
+    for (var i = col; i < this.options.numCols; i++)
     {
-      if (i >= col)
-      {
-        $('td[data-x="' + i + '"]').each(function(index)
-        {
-          $(this).remove();
-        });
-      }
+      this.$table.find('.grid_view_cell[data-x="' + i + '"]').remove();
     }
 
     this.options.numCols = col;

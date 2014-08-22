@@ -3,18 +3,25 @@
     font-size: 1.4em; 
 }
 
-#selectable { 
+.grid_view_table
+{
+    display: table;
     list-style-type: none; 
-    margin: 0; 
-    padding: 0; 
 }
 
-#selectable td { 
-    margin: 3px; 
+.grid_view_row
+{
+  display: table-row;
+}
+
+.grid_view_cell
+{
+    display: table-cell;
+    margin: 2px; 
     padding: 1px; 
     float: left; 
-    width: 40px; 
-    height: 40px; 
+    width: 20px; 
+    height: 20px; 
     font-size: 4em; 
     text-align: center;
 
@@ -22,17 +29,23 @@
     background: #ffffff;
 }
 
-#selectable .current-table {
+.grid_view_cell.current-table
+{
     background: #dddddd;
 }
 
-#selectable .selected {
+.grid_view_cell.selected
+{
     background: #69c6fd;
 }
 
 
-.grid_view_float  { 
-    position:absolute;
-    z-index:1000;
+.grid_view_float
+{ 
+/*  position:absolute;*/
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index:1000;
 }
 
