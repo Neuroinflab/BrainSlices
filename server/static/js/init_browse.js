@@ -127,6 +127,7 @@ function initBrowse()
 }
 
 var searchEngine = null;
+var perPage = 50;
 
 function initBrowseFinish()
 {
@@ -340,29 +341,31 @@ function initBrowseFinish()
     }
   });
 
-
-  $('#searchPropertySearch').click(function()
-  {
-    waitWindow.message('Querying the server. Please wait. <span class="fa fa-refresh fa-spin"></span>');
-
-    var tick0 = new Date().getTime();
-    var search = searchEngine.search(function(result)
+  var searchResults = [{properties:{}}];
+  var $searchPage = $('#searchResults');
+  searchPaginator = $('#searchResultsPaginator')
+    .paging(0,
     {
-      var tick1 = new Date().getTime();
-
-      waitWindow.success('Parsing the response. Please wait. <span class="fa fa-refresh fa-spin"></span>');
-      setTimeout(function()
+      format: '- (q .) nncnn (. p)',
+      perpage: perPage,
+      lapping: 0,
+      page: 1,
+      onSelect:
+      function(page)
       {
-        var tick2 = new Date().getTime();
+        console.debug(searchResults);
+        console.debug(this);
+        console.log(page);
 
-        var $parent = $('#searchResults').empty();
-        var $divs = $();
-        for (var i = 0; i < result.length; i++)
+        var slice = this.slice;
+        var end = slice[1];
+        $searchPage.empty();
+        for (var i = slice[0]; i < end; i++)
         {
-          var info = result[i];
+          var info = searchResults[i];
           var $row = $('<div>')
             .addClass('search-row')
-            .appendTo($parent);
+            .appendTo($searchPage);
 
           var $div = $('<div></div>')
             .append($('<a>')
@@ -389,22 +392,89 @@ function initBrowseFinish()
             });
           })(info);
 
-          $.merge($divs, $div);
+          $div.folder();
         }
 
-        var tick3 = new Date().getTime();
-        $divs.folder();
-        var tick4 = new Date().getTime();
-        console.log(tick1 - tick0)
-        console.log(tick2 - tick1)
-        console.log(tick3 - tick2)
-        console.log(tick4 - tick3)
+        return false;
+      },
+      onFormat:
+      function(type)
+      {
+        console.debug(this, type)
+        switch (type)
+        {
+          case 'left':
+          case 'right':
+          case 'block':
+            if (!this.active || this.pages <= 1)
+            {
+              return '';
+            }
+            if (this.value != this.page)
+            {
+              return ' <a href="javascript:void(0)" class="pager" title="' + 
+                     + (this.perpage * (this.value - 1) + 1)
+                     + '-'
+                     + Math.min(this.perpage * this.value, this.number)
+                     + '">' + this.value + '</a> ';
+            }
+            return ' <b>' + this.value + '</b> ';
 
-        waitWindow.close();
-      }, 50);
+          case 'next':
+            if (this.pages > 1 && this.active)
+            {
+              return ' <a href="javascript:void(0)" class="next">&raquo;</a> ';
+            }
+            return '';
+
+          case 'prev':
+            if (this.pages > 1 && this.active)
+            {
+              return ' <a href="javascript:void(0)" class="previous">&laquo;</a> ';
+            }
+            return '';
+
+          case 'fill':
+            var result = '';
+            if (this.active && this.pages > 1)
+            {
+              result += 'Displaying ' + (this.slice[0] + 1) + '-' + this.slice[1] + ' of ';
+            }
+            result += (this.number ? this.number : 'No') + ' specimen';
+            if (this.number != 1)
+            {
+              result += 's';
+            }
+            return result + ' found';
+
+          case 'leap':
+            if (this.active && this.pages > 1)
+            {
+              return ' ... ';
+            }
+            return '';
+        }
+      }
     });
 
-    if (!search)
+  function searchCallback(result)
+  {
+    waitWindow.success('Parsing the response. Please wait. <span class="fa fa-refresh fa-spin"></span>');
+    setTimeout(function()
+    {
+      searchResults = result;
+      searchPaginator.setNumber(result.length);
+      searchPaginator.setPage();
+      waitWindow.close();
+      console.debug(searchResults);
+    }, 50);
+  }
+
+  $('#searchPropertySearch').click(function()
+  {
+    waitWindow.message('Querying the server. Please wait. <span class="fa fa-refresh fa-spin"></span>');
+
+    if (!searchEngine.search(searchCallback))
     {
       waitWindow.close();
       alertWindow.error('Chosen filters can not match any images.');
