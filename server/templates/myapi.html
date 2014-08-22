@@ -76,16 +76,28 @@
     </div>
 
     <div id="navbarVisualise">
-     <div id="grid_select"></div>
-     <button id="btn_synch" class="icon selected"><span id="btn_synch_icon" class="fa fa-lock"></span></button>
-     <button id="btn_display" class="icon"><span id="btn_display_icon" class="fa fa-film"></span></button>
-     <button id="btn_compress" class="icon"><span class="fa fa-compress"></span></button>
-     <button id="btn_expand" class="icon"><span class="fa fa-expand"></span></button>
+     <div id="grid_select" title="display matrix dimensions"></div>
+     <button id="btn_synch" class="icon selected" title="link displays">
+      <span id="btn_synch_icon" class="fa fa-lock"></span>
+     </button>
+     <button id="btn_display" class="icon" title="display mode">
+      <span id="btn_display_icon" class="fa fa-film"></span>
+     </button>
+     <button id="btn_compress" class="icon" title="merge displays">
+      <span class="fa fa-compress"></span>
+     </button>
+     <button id="btn_expand" class="icon" title="scatter specimens">
+      <span class="fa fa-expand"></span>
+     </button>
      <div class="spacer"></div>
-     <button id="btn_zoom" class="icon"><span class="fa fa-search-plus"></span></button>
-     <button id="btn_trans" class="icon"><span class="fa fa-eye-slash"></span></button>
-     <div id="target_select"></div>
-     <div id="quality_button"></div>
+     <button id="btn_zoom" class="icon" title="zoom">
+      <span class="fa fa-search-plus"></span>
+     </button>
+     <button id="btn_trans" class="icon" title="transparency">
+      <span class="fa fa-eye-slash"></span>
+     </button>
+     <div id="target_select" title="focus"></div>
+     <div id="quality_button" title="quality"></div>
 
      <!--
      <div class="spacer"></div>
@@ -101,11 +113,24 @@
    </div>
 
    <div id="navbarRight">
-    <button id="btn_cart" class="icon"><span class="fa fa-shopping-cart"></span></button>
-    <button id="btn_help" class="icon"><span class="fa fa-question"></span></button>
-    <button id="btn_login" class="texticon icon"><span class="fa fa-power-off"> Login</span></button>
+    <button id="btn_cart" class="icon" title="image cart">
+     <span class="fa fa-shopping-cart"></span>
+    </button>
+    <button id="btn_help" class="icon" title="help">
+     <span class="fa fa-question"></span>
+    </button>
+    <button id="btn_login" class="texticon icon">
+     <span class="fa fa-power-off"> Login</span>
+    </button>
     <button id="userPanelButton" class="texticon panelButton">Account [<span class="userLogin"></span>]</button>
-    <button id="btn_logout" class="texticon icon"><span style="color:#ff0000" class="fa fa-power-off">Logout</span></button>
+    <button id="btn_logout" class="icon" title="logout">
+     <span style="color:#ff0000" class="fa fa-power-off"></span>
+    </button>
+    <!--
+    <button id="btn_logout" class="texticon icon">
+     <span style="color:#ff0000" class="fa fa-power-off">Logout</span>
+    </button>
+    -->
    </div>
 
   </div>
