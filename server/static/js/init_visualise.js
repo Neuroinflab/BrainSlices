@@ -49,7 +49,7 @@ function initVisualise()
   {
     $("#zoom").css("left", 21 + $("#btn_zoom").offset().left + "px");
     $("#zoom").css("top", 46 + $("#btn_zoom").offset().top + "px");
-    $("#zoom").show();
+    $("#zoom").show(0);
 
     function hideHandler(event)
     {
@@ -60,7 +60,7 @@ function initVisualise()
         return;
       }
 
-      $("#zoom").hide();
+      $("#zoom").hide(0);
 
       $(document).unbind("click", hideHandler);
     };
@@ -74,7 +74,7 @@ function initVisualise()
       height: '100px',
       'z-index': '9999'
     })
-    .hide()
+    .hide(0)
     .slider(
     {
       min:0,
@@ -97,7 +97,7 @@ function initVisualise()
       left: 21 + $("#btn_trans").offset().left + "px",
       top:  46 + $("#btn_trans").offset().top + "px"
     })
-    .show();
+    .show(0);
 
     function hideHandler(event)
     {
@@ -108,7 +108,7 @@ function initVisualise()
         return;
       }
 
-      $("#trans").hide();
+      $("#trans").hide(0);
 
       $(document).unbind("click", hideHandler);
     };
@@ -122,7 +122,7 @@ function initVisualise()
       height: "100px",
       'z-index': "9999"
     })
-    .hide()
+    .hide(0)
     .slider(
     {
       min:0,
@@ -249,30 +249,11 @@ function initVisualise()
     }, 'grid_dims')
     .registerChange(function(val)
     {
-      if (val)
-      {
-        $('#visualisePanel').addClass('basket-visible');
-      }
-      else
-      {
-        $('#visualisePanel').removeClass('basket-visible');
-      }
-
       if (scope.get('interfaceMode') == 'visualise')
       {
         stacks.resize();
       }
-    }, 'cart')
-    .registerChange(cartFolder, 'cart')
-    .registerChange(cartFolder, 'interfaceMode');
-
-  function cartFolder()
-  {
-    if (scope.get('cart') && scope.get('interfaceMode') == 'visualise')
-    {
-      $('#layersConsoleTable .image-details').folder('refresh');
-    }
-  }
+    }, 'cart');
 }
 
 

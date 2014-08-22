@@ -39,7 +39,7 @@ $(function()
       {
         var cartWidth = Math.round(0.5 * $('#main').width());
         $('#btn_cart').addClass('selected');
-        $cart.show(function()
+        $cart.show(0, function()
         {
           $panels
             .animate(
@@ -51,7 +51,7 @@ $(function()
               complete:
               function()
               {
-                $('#layertList>div')
+                $('#layerList')
                   .children('.layer-row')
                     .children('.image-details')
                       .folder('refresh');
@@ -97,7 +97,7 @@ $(function()
             complete:
             function()
             {
-              $cart.hide();
+              $cart.hide(0);
             }
           });
         $panels
@@ -115,38 +115,38 @@ $(function()
     }, 'cart')
     .registerChange(function(value)
     {
-      $('#panels>div').hide();
+      $('#panels>div').hide(0);
 
-      $('#navbarMiddle>div').hide();
+      $('#navbarMiddle>div').hide(0);
       $('#navbar .panelButton').removeClass('selected');
 
       switch (value)
       {
         case 'home':
-          $('#homePanel').show();
+          $('#homePanel').show(0);
           //$('#layersConsole').animate
           break;
 
         case 'browse':
-          $('#browsePanel').show();
-          $('#navbarBrowse').show();
+          $('#browsePanel').show(0);
+          $('#navbarBrowse').show(0);
           //$('#searchResults>div').folder('refresh');
           //$('.basket-visible #searchImageBasketList>div').folder('refresh');
           //$('#browsePanel .search-content-wrapper>div').folder('refresh');
           break;
 
         case 'visualise':
-          $('#visualisePanel').show();
-          $('#navbarVisualise').show();
+          $('#visualisePanel').show(0);
+          $('#navbarVisualise').show(0);
           stacks.resize();
           break;
 
         case 'upload':
-          $('#uploadPanel').show();
+          $('#uploadPanel').show(0);
           break;
 
         case 'user':
-          $('#userPanel').show();
+          $('#userPanel').show(0);
           break;
 
         default:
@@ -185,8 +185,8 @@ $(function()
     {
       if (login == null)
       {
-        $('#userPanelButton').hide();
-        $('#uploadPanelButton').hide();
+        $('#userPanelButton').hide(0);
+        $('#uploadPanelButton').hide(0);
         if (scope.get('interfaceMode') in {upload: null,
                                            user: null})
         {
@@ -195,8 +195,8 @@ $(function()
       }
       else
       {
-        $('#userPanelButton').show();
-        $('#uploadPanelButton').show();
+        $('#userPanelButton').show(0);
+        $('#uploadPanelButton').show(0);
         $('.userLogin').text(login);
       }
     }, 'login');
@@ -402,12 +402,12 @@ $(function()
       {
         if ($adjust.filter(':checked').length  != 0)
         {
-          $iface.show();
+          $iface.show(0);
           thisInstance.images.startAdjustment(id);
         }
         else
         {
-          $iface.hide();
+          $iface.hide(0);
           thisInstance.images.stopAdjustment(id);
         }
       });

@@ -120,6 +120,7 @@ function initBrowse()
       {
         $('#searchPanelDiv').removeClass('basket-visible');
       }
+      //XXX necessary for vertical folding bars
     }, 'cart');
 
   $('#searchBasketFold').click(scope.getCallback('cart', false));
@@ -353,54 +354,55 @@ function initBrowseFinish()
       onSelect:
       function(page)
       {
-        console.debug(searchResults);
-        console.debug(this);
-        console.log(page);
-
+        waitWindow.success('Parsing specimen properties. Please wait. <span class="fa fa-refresh fa-spin"></span>');
         var slice = this.slice;
-        var end = slice[1];
-        $searchPage.empty();
-        for (var i = slice[0]; i < end; i++)
+
+        setTimeout(function()
         {
-          var info = searchResults[i];
-          var $row = $('<div>')
-            .addClass('search-row')
-            .appendTo($searchPage);
-
-          var $div = $('<div></div>')
-            .append($('<a>')
-              .addClass('fa fa-arrow-circle-o-down layer-download-button')
-              .attr(
-              {
-                href: '/images/' + info.iid + '/image.png',
-                download: ''
-              }))
-            .append($('<div>')
-              .addClass('description-buttons-placeholder'))
-            .appendTo($row);
-          detailsGenerator(info, $div);
-
-          var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
-          $div.prepend($button);
-
-          (function(info)
+          var end = slice[1];
+          $searchPage.empty();
+          for (var i = slice[0]; i < end; i++)
           {
-            $button.click(function()
-            {
-              //global
-              layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
-            });
-          })(info);
+            var info = searchResults[i];
+            var $row = $('<div>')
+              .addClass('search-row')
+              .appendTo($searchPage);
 
-          $div.folder();
-        }
+            var $div = $('<div></div>')
+              .append($('<a>')
+                .addClass('fa fa-arrow-circle-o-down layer-download-button')
+                .attr(
+                {
+                  href: '/images/' + info.iid + '/image.png',
+                  download: ''
+                }))
+              .append($('<div>')
+                .addClass('description-buttons-placeholder'))
+              .appendTo($row);
+            detailsGenerator(info, $div);
+
+            var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
+            $div.prepend($button);
+
+            (function(info)
+            {
+              $button.click(function()
+              {
+                //global
+                layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
+              });
+            })(info);
+
+            $div.folder();
+          }
+          waitWindow.close();
+        }, 50);
 
         return false;
       },
       onFormat:
       function(type)
       {
-        console.debug(this, type)
         switch (type)
         {
           case 'left':
@@ -435,17 +437,18 @@ function initBrowseFinish()
             return '';
 
           case 'fill':
-            var result = '';
-            if (this.active && this.pages > 1)
-            {
-              result += 'Displaying ' + (this.slice[0] + 1) + '-' + this.slice[1] + ' of ';
-            }
-            result += (this.number ? this.number : 'No') + ' specimen';
+            var result = (this.number ? this.number : 'No') + ' specimen';
             if (this.number != 1)
             {
               result += 's';
             }
-            return result + ' found';
+            result += ' found.'
+
+            if (this.active && this.pages > 1)
+            {
+              result += ' Displaying ' + (this.slice[0] + 1) + '-' + this.slice[1] + '.<br>';
+            }
+            return result;
 
           case 'leap':
             if (this.active && this.pages > 1)
@@ -459,15 +462,9 @@ function initBrowseFinish()
 
   function searchCallback(result)
   {
-    waitWindow.success('Parsing the response. Please wait. <span class="fa fa-refresh fa-spin"></span>');
-    setTimeout(function()
-    {
-      searchResults = result;
-      searchPaginator.setNumber(result.length);
-      searchPaginator.setPage();
-      waitWindow.close();
-      console.debug(searchResults);
-    }, 50);
+    searchResults = result;
+    searchPaginator.setNumber(result.length);
+    searchPaginator.setPage();
   }
 
   $('#searchPropertySearch').click(function()

@@ -66,23 +66,3 @@ img.scale
   border: 1mm solid rgba(192, 192, 192, 0.7);
 }
 
-.vertical-align-top {
-	vertical-align: top;
-}
-
-.polaroid-image {
-	box-shadow: 0 3px 6px rgba(0,0,0,.25);
-  border: 5px solid #FFF;
-  margin: 10px;
-  display: block;
-}
-
-.lmargin10 {
-	margin-left: 10px;
-}
-
-.link {
-	color: #3b5998 !important;
-  cursor: pointer;
-  text-decoration: underline;
-}

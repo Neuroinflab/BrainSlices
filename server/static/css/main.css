@@ -1,6 +1,6 @@
 body
 {
-  font: 14px/150% Verdana, Tahoma, sans-serif;
+  font: 14px/20px Verdana, Tahoma, sans-serif;
   color: #7F7F7F;
 }
 
@@ -298,3 +298,27 @@ textarea:focus
 {
   width: auto;
 }
+
+
+.polaroid-image
+{
+	box-shadow: 0 3px 6px rgba(0,0,0,.25);
+  border: 5px solid #FFF;
+  margin: 10px;
+  display: block;
+}
+
+
+/* XXX: upload*/
+.lmargin10
+{
+	margin-left: 10px;
+}
+
+.link
+{
+	color: #3b5998 !important;
+  cursor: pointer;
+  text-decoration: underline;
+}
+

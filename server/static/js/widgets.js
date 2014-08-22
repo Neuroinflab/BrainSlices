@@ -75,7 +75,7 @@ var CFilterPanel = null;
     make: //XXX method might be obsolete
     function(t, data)
     {
-      this.$row.hide().empty();
+      this.$row.hide(0).empty();
       var $input;
       var thisInstance = this;
       switch (t)
@@ -158,7 +158,7 @@ var CFilterPanel = null;
           $input.change(this.change);
           $input2.change(this.change);
 
-          this.$row.show();
+          this.$row.show(0);
           break;
 
         case 'x':
@@ -170,7 +170,7 @@ var CFilterPanel = null;
             .val('')
             .appendTo(this.$row)
             .change(this.change);
-          this.$row.show();
+          this.$row.show(0);
           break;
 
         case 'e':
@@ -226,7 +226,7 @@ var CFilterPanel = null;
               .append(' ');
           }
           //$input.button();
-          this.$row.show();
+          this.$row.show(0);
           break;
 
         default:
@@ -338,29 +338,29 @@ var CFilterPanel = null;
       console.debug('_init');
       this.options = this._fixOptions(this.options);
 
-      this.$wrapper.hide().empty();
+      this.$wrapper.hide(0).empty();
       switch (this.options.type)
       {
         case 't':
           this.$wrapper
             .removeClass('brainslices-text-property-filter brainslices-number-property-filter brainslices-enum-property-filter')
             .text('Matches all images with the property set.')
-            .show();
+            .show(0);
           break;
 
         case 'f':
           this._createFloat();
-          this.$wrapper.show();
+          this.$wrapper.show(0);
           break;
 
         case 'x':
           this._createText();
-          this.$wrapper.show();
+          this.$wrapper.show(0);
           break;
 
         case 'e':
           this._createEnumerative();
-          this.$wrapper.show();
+          this.$wrapper.show(0);
           break;
 
         default:
@@ -1328,7 +1328,7 @@ var CFilterPanel = null;
         var delta = height - this.element.height();
         if (height > parentHeight)
         {
-          this.$toggle.show();
+          this.$toggle.show(0);
           if (this.options.folded)
           {
             this.element.addClass('folded');
@@ -1343,7 +1343,7 @@ var CFilterPanel = null;
         }
         else
         {
-          this.$toggle.hide();
+          this.$toggle.hide(0);
         }
       }
       else
@@ -1352,7 +1352,7 @@ var CFilterPanel = null;
 
         if (this.element.outerHeight(true) > this.options.treshold)
         {
-          this.$toggle.show();
+          this.$toggle.show(0);
           if (this.options.folded)
           {
             this.element.addClass('folded');
@@ -1366,7 +1366,7 @@ var CFilterPanel = null;
         }
         else
         {
-          this.$toggle.hide();
+          this.$toggle.hide(0);
         }
       }
     },
