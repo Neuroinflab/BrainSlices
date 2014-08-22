@@ -59,7 +59,7 @@
 /*  display: table;*/
 }
 
-#layerList>div,
+div.layer-row,
 #layersConsoleTable>div:first-of-type
 {
 	border-bottom: 1px solid #aaaaaa;
@@ -70,7 +70,7 @@
 /*  display: table-row;*/
 }
 
-#layerList>div
+div.layer-row
 {
   position: relative;
   min-height: 85px;

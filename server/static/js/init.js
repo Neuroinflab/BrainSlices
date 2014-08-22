@@ -48,7 +48,31 @@ $(function()
             },
             {
               queue: false,
-              complete: complete
+              complete:
+              function()
+              {
+                $('#layertList>div')
+                  .children('.layer-row')
+                    .children('.image-details')
+                      .folder('refresh');
+
+                switch (scope.get('interfaceMode'))
+                {
+                  case 'visualise':
+                    stacks.resize();
+                    break;
+
+                  case 'browse':
+                    $('#searchResults')
+                      .children('.search-row')
+                        .children('.image-details')
+                          .folder('refresh');
+                    break;
+
+                  default:
+                    break;
+                }
+              }
             });
           $cart
             .animate(
@@ -342,7 +366,8 @@ $(function()
 
 
       // making the layer-related row
-      var $row =  $('<div>');
+      var $row =  $('<div>')
+        .addClass('layer-row');
       $drag = $('<div draggable="true"></div>')
         .addClass('label-column')
         .appendTo($row);
@@ -446,16 +471,8 @@ $(function()
 
                           if (onsuccess) onsuccess();
                           
-                          //detailsGenerator(img.info, $searchRow);
-                          //$searchRow
-                          //  .append($('<a>')
-                          //    .addClass('fa fa-arrow-circle-o-down layer-download-button')
-                          //    .attr(
-                          //    {
-                          //      href: path + '/image.png',
-                          //      download: ''
-                          //    }));
-                          detailsGenerator(img.info, $drag);
+                          detailsGenerator(img.info, $drag)
+                            .folder({fit: true});
                           $row
                             .append($('<a>')
                               .addClass('fa fa-arrow-circle-o-down layer-download-button')

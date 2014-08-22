@@ -1293,18 +1293,20 @@ var CFilterPanel = null;
       this.refresh();
     },
 
+    _toggle:
+    function()
+    {
+      this.options.folded = !this.options.folded;
+      this.refresh();
+    },
+
     _create:
     function()
     {
-      this.$fold = $('<div class="folding-button"></div>')
+      this.$toggle = $('<div class="folding-button"></div>')
         .appendTo(this.element);
 
-      this._on(this.$fold, {click: '_fold'});
-
-      this.$unfold = $('<div class="unfolding-button"></div>')
-        .appendTo(this.element);
-
-      this._on(this.$unfold, {click: '_unfold'});
+      this._on(this.$toggle, {click: '_toggle'});
 
       this._on($(window), {resize: 'refresh'});
 
@@ -1315,8 +1317,6 @@ var CFilterPanel = null;
     function()
     {
       this.element.removeClass('folded unfolded');
-      this.$fold.hide();
-      this.$unfold.hide();
 
       if (this.options.fit)
       {
@@ -1328,17 +1328,22 @@ var CFilterPanel = null;
         var delta = height - this.element.height();
         if (height > parentHeight)
         {
+          this.$toggle.show();
           if (this.options.folded)
           {
             this.element.addClass('folded');
-            this.$unfold.show();
+            this.$toggle.addClass('folded');
             this.element.height(parentHeight - delta);
           }
           else
           {
             this.element.addClass('unfolded');
-            this.$fold.show();
+            this.$toggle.addClass('unfolded');
           }
+        }
+        else
+        {
+          this.$toggle.hide();
         }
       }
       else
@@ -1347,16 +1352,21 @@ var CFilterPanel = null;
 
         if (this.element.outerHeight(true) > this.options.treshold)
         {
+          this.$toggle.show();
           if (this.options.folded)
           {
             this.element.addClass('folded');
-            this.$unfold.show();
+            this.$toggle.addClass('folded');
           }
           else
           {
             this.element.addClass('unfolded');
-            this.$fold.show();
+            this.$toggle.addClass('unfolded');
           }
+        }
+        else
+        {
+          this.$toggle.hide();
         }
       }
     },

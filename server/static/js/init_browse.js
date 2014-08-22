@@ -8,7 +8,11 @@ function detailsGenerator(info, $div)
 
   $div
     .addClass('image-details')
-    .append(BrainSlices.gui.getThumbnail(info.iid, info.imageWidth, info.imageHeight, 64, 64));
+    .append(BrainSlices.gui.getThumbnail(info.iid,
+                                         info.imageWidth,
+                                         info.imageHeight,
+                                         64, 64)
+      .attr('draggable', 'true'));
 
   if (properties)
   {
@@ -65,35 +69,6 @@ function detailsGenerator(info, $div)
     }
   }
 
-  $div.folder();
-  $div.children('img')
-    .attr('draggable', 'true'); 
-  ////$div.appendTo($parent);
-  //if ($div.outerHeight() <= 85) // static height assumed
-  //{
-  //  return $div;
-  //}
-
-  //$div.addClass('folded');
-  //var $fold = $('<div class="folding-button" style="display: none;"></div>')
-  //  .appendTo($div)
-  //  .click(function()
-  //    {
-  //      $fold.hide();
-  //      $unfold.show();
-  //      $div.removeClass('unfolded')
-  //          .addClass('folded');
-  //    });
-  //var $unfold = $('<div class="unfolding-button"></div>')
-  //  .appendTo($div)
-  //  .click(function()
-  //    {
-  //      $unfold.hide();
-  //      $fold.show();
-  //      $div.removeClass('folded')
-  //          .addClass('unfolded');
-  //    });
-
   return $div;
 }
 
@@ -110,15 +85,19 @@ function initBrowse()
       {
         $('#searchPanelDiv').addClass('filters-visible');
         $('#btn_filters').addClass('selected');
-        $('#searchResults>div').folder('refresh');
-        $('.basket-visible #searchImageBasketList>div').folder('refresh');
+        $('#searchResults')
+          .children('.search-row')
+            .children('.image-details')
+              .folder('refresh');
       }
       else
       {
         $('#searchPanelDiv').removeClass('filters-visible');
         $('#btn_filters').removeClass('selected');
-        $('#searchResults>div').folder('refresh');
-        $('.basket-visible #searchImageBasketList>div').folder('refresh');
+        $('#searchResults')
+          .children('.search-row')
+            .children('.image-details')
+              .folder('refresh');
       }
     }, 'filters');
 
@@ -141,21 +120,7 @@ function initBrowse()
       {
         $('#searchPanelDiv').removeClass('basket-visible');
       }
-
-      if (scope.get('interfaceMode') == 'browse')
-      {
-        if (value)
-        {
-          $('#searchImageBasketList>div').folder('refresh');
-          $('#searchResults>div').folder('refresh');
-        }
-        else
-        {
-          $('#searchResults>div').folder('refresh');
-        }
-      }
     }, 'cart');
-
 
   $('#searchBasketFold').click(scope.getCallback('cart', false));
   $('#searchBasketUnfold').click(scope.getCallback('cart', true));
@@ -379,16 +344,26 @@ function initBrowseFinish()
   $('#searchPropertySearch').click(function()
   {
     waitWindow.message('Querying the server. Please wait. <span class="fa fa-refresh fa-spin"></span>');
+
+    var tick0 = new Date().getTime();
     var search = searchEngine.search(function(result)
     {
-      console.log('returned');
+      var tick1 = new Date().getTime();
+
       waitWindow.success('Parsing the response. Please wait. <span class="fa fa-refresh fa-spin"></span>');
       setTimeout(function()
       {
+        var tick2 = new Date().getTime();
+
         var $parent = $('#searchResults').empty();
+        var $divs = $();
         for (var i = 0; i < result.length; i++)
         {
           var info = result[i];
+          var $row = $('<div>')
+            .addClass('search-row')
+            .appendTo($parent);
+
           var $div = $('<div></div>')
             .append($('<a>')
               .addClass('fa fa-arrow-circle-o-down layer-download-button')
@@ -399,7 +374,7 @@ function initBrowseFinish()
               }))
             .append($('<div>')
               .addClass('description-buttons-placeholder'))
-            .appendTo($parent);
+            .appendTo($row);
           detailsGenerator(info, $div);
 
           var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
@@ -413,7 +388,17 @@ function initBrowseFinish()
               layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
             });
           })(info);
+
+          $.merge($divs, $div);
         }
+
+        var tick3 = new Date().getTime();
+        $divs.folder();
+        var tick4 = new Date().getTime();
+        console.log(tick1 - tick0)
+        console.log(tick2 - tick1)
+        console.log(tick3 - tick2)
+        console.log(tick4 - tick3)
 
         waitWindow.close();
       }, 50);

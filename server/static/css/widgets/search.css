@@ -116,31 +116,6 @@
   right: 20px;
 }
 
-/*
-.basket-visible #resultsWrapper
-{
-  right: 50%;
-}
-
-
-#searchImageBasket
-{
-  display: none;
-  position: absolute;
-  left: 50%;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 0;
-}
-
-.basket-visible #searchImageBasket
-{
-  display: block;
-  padding-left: 25px;
-}
-*/
-
 #searchBasketFold
 {
   display: none;
@@ -224,6 +199,7 @@ summary.filter-property-name
 {
   outline: none;
   padding: 0;
+  color: #5080FF;
 }
 
 summary.filter-property-name::-webkit-details-marker
@@ -238,32 +214,28 @@ summary.filter-property-name .fa-angle-double-down
   margin-right: 5px;
 }
 
-summary.filter-property-name .fa-angle-double-up
+summary.filter-property-name>.fa-angle-double-up
 {
   display: none;
 }
 
-summary.filter-property-name .fa-angle-double-down
+summary.filter-property-name>.fa-angle-double-down
 {
   display: inline-block;
 }
 
-details summary.filter-property-name
-{
-  color: #5080FF;
-}
 
-details[open] summary.filter-property-name
+details[open]>summary.filter-property-name
 {
   color: #7F7F7F;
 }
 
-details[open] summary.filter-property-name .fa-angle-double-up
+details[open]>summary.filter-property-name>.fa-angle-double-up
 {
   display: inline-block;
 }
 
-details[open] summary.filter-property-name .fa-angle-double-down
+details[open]>summary.filter-property-name>.fa-angle-double-down
 {
   display: none;
 }
@@ -280,7 +252,7 @@ details.filter-property-info .brainslices-property-filter
   margin-top: 5px;
 }
 
-.filter-property-name .fa-tag
+.filter-property-name>.fa-tag
 {
   margin-right: 5px;
   color: #808080;
@@ -420,7 +392,7 @@ select.brainslices-new-property-filter-type
   vertical-align: middle;
 }
 
-.filter-property-info .brainslices-property-filter
+.brainslices-property-filter
 {
   overflow: hidden;
 }
@@ -611,7 +583,7 @@ span.fa-search.brainslices-text-property-filter
 	overflow-y: scroll;
 }
 
-.search-content-wrapper>div
+.search-row
 {
   border: solid 1px #e5e5e5;
   padding: 0; /*50px 0 0;*/
@@ -635,7 +607,6 @@ span.fa-search.brainslices-text-property-filter
 }
 
 div.folding-button,
-div.unfolding-button
 {
   position: absolute;
   right: 0px;
@@ -653,29 +624,15 @@ div.unfolding-button
   background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
 }
 
-div.folding-button:before
+div.folding-button.unfolded:before
 {
   content: "fold";
 }
 
-div.unfolding-button:before
+div.folding-button.folded:before
 {
   content: "unfold";
 }
-
-/*
-div.folding-button,
-div.unfolding-button
-{
-  display: none;
-}
-
-.unfolded>div.folding-button,
-.folded>div.unfolding-button
-{
-  display: block;
-}
-*/
 
 .image-details>h1
 {
