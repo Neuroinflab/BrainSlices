@@ -35,14 +35,7 @@ $.widget("brainslices.grid_select",
 
     this.rows = [];
 
-    var thisInstance = this;
-
-    $(this.element).html("");
-    var $floatView = $('<div class="grid_view_float"></div>')
-
-    var $table = $('<div class="grid_view_table">');
-    this.$table = $table;
-    $floatView.append($table);
+    var $table = this.$table.empty();
 
     var $td;
     for (var i = 0; i < this.options.numRows; i++)
@@ -67,35 +60,52 @@ $.widget("brainslices.grid_select",
       this.rows.push($tr);
       $table.append($tr);
     }
-/*
-    $table.selectable(
-      {
-        filter: ".grid_view_cell",
-        selecting: function(evt)
-        {
-          console.log(evt);
-        }
-      });*/
+  },
 
-    var button = $('<button id="btn_grid" class="icon"><div class="grid">&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<div></button>');
+  _create:
+  function()
+  {
+    var mouseMove = false;
+    var thisInstance = this;
 
     var leave = function(evt)
     {
-      thisInstance.restart(2, 2);
+      mouseMove = false;
       $floatView.hide(0);
     };
 
-    button.button()
-        .mousedown(function(evt)
-        {
-          $floatView.offset({top: evt.clientY - 10,
-                            left: evt.clientX - 10});
-          $floatView.show(0);
-        })
-        .mouseup(leave);
+    var $table = $('<div class="grid_view_table">')
+      .mouseover(function(e)
+      {
+        mouseMove = false;
+      })
+      .mouseleave(function(e)
+      {
+        mouseMove = true;
+      });
 
-    $floatView
-      .mouseleave(leave)
+    this.$table = $table;
+
+    var $floatView = $('<div class="grid_view_float"></div>')
+      .hide(0)
+      .append($table)
+      .mousemove(function(e)
+      {
+        if (mouseMove)
+        {
+          var offset = $table.offset();
+          var dx = e.pageX - offset.left;
+          var dy = e.pageY - offset.top;
+          while ($table.outerWidth() < dx)
+          {
+            thisInstance.addCol();
+          }
+          while ($table.outerHeight() < dy)
+          {
+            thisInstance.addRow();
+          }
+        }
+      })
       .mouseup(function(evt)
       {
         // on mouse up it is assumed some selection has occured -> if not, you might be in a trouble
@@ -103,18 +113,27 @@ $.widget("brainslices.grid_select",
                                         thisInstance.currentPos.y);
 
         leave(evt);
-      });
+      })
+      .appendTo(this.element);
 
-    $(this.element).append(button);
-    $(this.element).append($floatView);
+    this.$floatView = $floatView;
 
-    $floatView.hide(0);
-  },
-
-  _create:
-  function()
-  {
-    this.restart(this.options.numRows, this.options.numCols);
+    var $button = $('<button id="btn_grid" class="icon"><div class="grid">&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<div></button>')
+      .button()
+      .mousedown(function(evt)
+      {
+        thisInstance.restart(2, 2);
+        $floatView
+          .show(0)
+          .offset(
+          {
+            top: evt.pageY - 10, 
+            left: evt.pageX - 10
+          });
+      })
+      .mouseup(leave)
+      .appendTo(this.element);
+    //this.restart(this.options.numRows, this.options.numCols);
   },
 
   getMouseOver:
@@ -125,7 +144,6 @@ $.widget("brainslices.grid_select",
 
     return function(evt)
     {
-      console.debug(rows);
       if (y == thisInstance.getNumRows() - 1)
       {
         thisInstance.addRow();
@@ -151,16 +169,12 @@ $.widget("brainslices.grid_select",
       thisInstance.currentPos.x = x;
       thisInstance.currentPos.y = y;
 
-      console.log('at', x, y);
-
       for (var xx = 0; xx < thisInstance.getNumCols(); xx++)
       {
         for (var yy = 0; yy < thisInstance.getNumRows(); yy++)
         {
-          /*console.log(xx, x, yy, y)*/
           if ((xx <= x) && (yy <= y))
           {
-            console.log(xx, yy);
             rows[yy].children('.grid_view_cell').eq(xx).addClass("selected");
           }
           else
@@ -192,18 +206,10 @@ $.widget("brainslices.grid_select",
   deleteRowsFrom:
   function(row)
   {
-    //for (var i = row; i < this.options.numRows; i++)
-    //{
-    //  this.$table.find('.grid_view_row[data-y="' + i + '"]').remove();
-    //}
-
     this.rows.splice(row).map(function($tr)
     {
       $tr.remove();
     });
-
-    console.log('rows:', this.rows.length);
-
 
     this.options.numRows = row;
   },

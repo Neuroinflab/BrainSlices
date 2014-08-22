@@ -17,13 +17,10 @@
 .grid_view_cell
 {
     display: table-cell;
-    margin: 2px; 
-    padding: 1px; 
+    /*margin: 2px; */
     float: left; 
-    width: 20px; 
-    height: 20px; 
-    font-size: 4em; 
-    text-align: center;
+    width: 25px; 
+    height: 25px; 
 
     border: solid 1px #aaaaaa;
     background: #ffffff;
@@ -31,12 +28,17 @@
 
 .grid_view_cell.current-table
 {
-    background: #dddddd;
+    background: #7F7F7F;
 }
 
 .grid_view_cell.selected
 {
-    background: #69c6fd;
+    background: #A5B0FF;
+}
+
+.grid_view_cell.current-table.selected
+{
+    background: #5080FF;
 }
 
 
@@ -44,8 +46,8 @@
 { 
 /*  position:absolute;*/
   position: fixed;
-  right: 0;
-  bottom: 0;
+  right: -60px;
+  bottom: -60px;
   z-index:1000;
 }
 
