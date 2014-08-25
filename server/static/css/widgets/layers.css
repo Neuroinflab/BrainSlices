@@ -27,10 +27,12 @@
   text-align: center;
 }
 
-#emptyCart:hover
+#emptyCart:hover,
+#emptyCart.selected
 {
   background-color: #FF0000;
-  border-color: #FF1010;
+  border-color: #FFBBBB;
+  color: #FFFFFF;
 }
 
 #layersConsoleTable

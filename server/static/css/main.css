@@ -23,7 +23,7 @@ button
   font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
   font-size: 13px;
   color: #3C3C3D;
-  text-shadow: 1px 1px 0 #FFFFFF;
+  /*text-shadow: 1px 1px 0 #FFFFFF;*/
   background: #ECECEC;
   white-space: nowrap;
   overflow: visible;
@@ -55,12 +55,12 @@ button.icon
 button:hover,
 button.selected
 {
-  color: #FFFFFF;
-  border-color: #388AD4;
-  text-decoration: none;
-  text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
-  background-position: 0 -40px;
-  background-color: #2D7DC5;
+  /*color: #FFFFFF;*/
+  border-color: #CCDDEE;
+  /*text-decoration: none;*/
+  /*text-shadow: -1px -1px 0 rgba(0,0,0,0.3);*/
+  /*background-position: 0 -40px;*/
+  background-color: #DDEEFF;
 }
 
 button:active

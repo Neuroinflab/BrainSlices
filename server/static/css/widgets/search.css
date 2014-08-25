@@ -661,6 +661,27 @@ div.folding-button.folded:before
 }
 
 
+#addResultsToCart:hover,
+#addResultsToCart.selected
+{
+  /*background-color: #66BB66;*/
+  background-color: #309F30;
+  border-color: #60B060;
+  color: #FFFFFF;
+}
+
+#moveResultsToCart:hover,
+#moveResultsToCart.selected
+{
+  /*background-color: #BB4242;*/
+  background-color: #FF0000;
+  border-color: #FF6060;
+  color: #FFFFFF;
+}
+
+
+
+
 /* TODO: optimize*/
 .image-details>h1
 {
