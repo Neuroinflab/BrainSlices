@@ -1,7 +1,7 @@
-#layersConsole
+#imageCart
 {
   position: absolute;
-  top: 0;
+  top: 40px;
   bottom: 0;
   right: 0;
 /*  left: 50%;*/
@@ -16,17 +16,22 @@
   display: none;
 }
 
-/*
-.basket-visible #layersConsole
+#imageCartHeader
 {
-  display: block;
+  position: absolute;
+  top: 5px;
+  left: 0;
+  right: 0;
+  height: 30px;
+
+  text-align: center;
 }
 
-.basket-visible #sliceDisplay
+#emptyCart:hover
 {
-  right: 524px;
+  background-color: #FF0000;
+  border-color: #FF1010;
 }
-*/
 
 #layersConsoleTable
 {
@@ -37,7 +42,7 @@
   right: 0;
 }
 
-#layersConsoleTable>div:first-of-type
+#layersConsoleTableHeader
 {
   position: absolute;
   top: 0;
@@ -60,7 +65,7 @@
 }
 
 div.layer-row,
-#layersConsoleTable>div:first-of-type
+#layersConsoleTableHeader
 {
   border-bottom: 1px solid #aaaaaa;
   border-top: 1px solid #aaaaaa;
@@ -77,8 +82,9 @@ div.layer-row
   box-sizing: border-box;
 }
 
-#layerList>div>div,
-#layersConsoleTable>div:first-of-type>div
+div.label-column,
+div.visible-column,
+div.adjust-column
 {
   text-align: center;
 
