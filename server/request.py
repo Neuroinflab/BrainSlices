@@ -828,8 +828,9 @@ SearchImagesRequest = Request.extend('SearchImagesRequest',
 """
 A class for image searching.
 """,
-required = 'query',
-atoms = {'query': (_ValidSearchImages, json.loads)})
+required = ['query', 'privilege'],
+atoms = {'query': (_ValidSearchImages, json.loads),
+         'privilege': (lambda x: x in frozenset('vaeom'), None)})
 
 #---------------------------------------------------------------------------
 #----------------------------   TESTS   ------------------------------------

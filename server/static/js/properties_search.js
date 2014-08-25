@@ -251,7 +251,7 @@ var CPropertiesSearch = null;
       },
 
       search:
-      function(onsuccess)
+      function(onsuccess, privilege)
       {
         var query = this.get();
         if (!query) return false;
@@ -261,7 +261,8 @@ var CPropertiesSearch = null;
                                  // caching etc.
                                  if (onsuccess) onsuccess(result.data);
                                },
-                               {query: JSON.stringify(query)});
+                               {query: JSON.stringify(query),
+                                privilege: privilege ? privilege : 'v'});
         return true;
       },
 

@@ -314,14 +314,43 @@ class MetaBase(dbBase):
     return cursor.fetchall()
 
   @provideCursor
-  def searchImagesPropertiesInfo(self, selectors, uid=None, limit=None, cursor=None):
+  def searchImagesPropertiesInfo(self, selectors, uid=None, privilege='v', limit=None, cursor=None):
+    cond = "img.status >%s %d AND " % ('=' if privilege == 'e' else '',
+                                       IMAGE_STATUS_COMPLETED)
+
     if uid is None:
-      cond = """
-             (img.status > %d AND (img.public_image_view OR
-                                   img.public_image_annotate OR
-                                   img.public_image_outline)
-              OR img.status >= %d AND img.public_image_edit)
-             """ % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_COMPLETED)
+      if privilege == 'v': # view
+        cond += """
+                (img.public_image_view OR
+                 img.public_image_annotate OR
+                 img.public_image_outline OR
+                 img.public_image_edit)
+                """
+
+      elif privilege == 'a': # annotate
+        cond += """
+                (img.public_image_annotate OR
+                 img.public_image_edit)
+                """
+
+      elif privilege == 'e': # edit
+        cond += """
+                img.public_image_edit
+                """
+
+      elif privilege == 'o': # outline
+        cond += """
+                (img.public_image_outline OR
+                 img.public_image_edit)
+                """
+
+      elif privilege == 'm': # meta
+        cond += """
+                (img.public_image_edit OR
+                 (img.public_image_outline AND
+                  img.public_image_annotate))
+                """
+
       tables = '(images AS img LEFT JOIN properties AS prop USING (iid))'
       query = """
               SELECT prop.property_name, prop.property_type,
@@ -354,16 +383,57 @@ class MetaBase(dbBase):
                      PUBLIC_PRIVILEGE, NO_PRIVILEGE)
 
     else:
-      cond = """
-             (img.status > %d AND (img.public_image_view OR
-                               img.public_image_annotate OR
-                               img.public_image_outline OR
-                               img.uid = %d)
-              OR img.status >= %d AND (img.public_image_edit OR
-                                   img.owner = %d OR
-                                   img.uid = %d AND img.image_edit))
-             """ % (IMAGE_STATUS_COMPLETED, uid,
-                    IMAGE_STATUS_COMPLETED, uid, uid)
+      if privilege == 'v': # view 
+        cond += """
+                (img.public_image_view OR
+                 img.public_image_annotate OR
+                 img.public_image_outline OR
+                 img.public_image_edit OR
+                 img.owner = %d OR
+                 img.uid = %d)
+                """ % (uid, uid)
+
+      elif privilege == 'a': # annotate
+        cond += """
+                (img.public_image_annotate OR
+                 img.public_image_edit OR
+                 img.owner = %d OR
+                 ((img.image_annotate OR
+                   img.image_edit) AND
+                  img.uid = %d))
+                """ % (uid, uid)
+
+      elif privilege == 'e': # edit
+        cond += """
+                (img.public_image_edit OR
+                 img.owner = %d OR
+                 (img.image_edit AND
+                  img.uid = %d))
+                """ % (uid, uid)
+
+      elif privilege == 'o': # outline
+        cond += """
+                (img.public_image_outline OR
+                 img.public_image_edit OR
+                 img.owner = %d OR
+                 ((img.image_outline OR
+                   img.image_edit) AND
+                  img.uid = %d)
+                """ % (uid, uid)
+
+      elif privilege == 'm': # meta
+        #FIXME: would not detect privileges from different groups
+        cond += """
+                ((img.public_image_annotate AND
+                  img.public_image_outline) OR
+                 img.public_image_edit OR
+                 img.owner = %d OR
+                 (((img.image_outline AND
+                    img.image_annotate) OR
+                   img.image_edit) AND
+                 img.uid = %d)
+                """ % (uid, uid)
+
       tables = """
                ((images LEFT JOIN image_privileges_cache USING (iid)) AS img
                LEFT JOIN properties AS prop USING (iid))

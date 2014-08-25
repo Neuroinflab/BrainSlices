@@ -2,6 +2,35 @@
  <div id="filtersWrapper">
   <div class="search-header-label">Filters</div>
   <div id="loadedFiltersWrapper">
+   <div class="filter-property-info filter-property-name">
+    <!--
+      <span class="fa fa-image"></span>
+    -->
+    <div class="brainslices-privilege-filter">
+     <select class="brainslices-privilege-filter" id="privilegeFilter">
+      <option value="v" selected="selected">
+       Images I can view
+      </option>
+      <option value="a">
+       Images I can annotate
+      </option>
+      <option value="e">
+       Images I can edit
+      </option>
+     </select>
+    </div>
+   </div>
+
+  <!--
+   <details class="filter-property-info">
+    <summary class="filter-property-name">
+     <span class="fa fa-angle-double-up"></span>
+     <span class="fa fa-angle-double-down"></span>
+     Privileges
+    </summary>
+
+   </details>
+   -->
    <div id="loadedFilters">
    </div>
    <details class="filter-property-info">

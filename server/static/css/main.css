@@ -1,6 +1,6 @@
 body
 {
-  font: 14px/20px Verdana, Tahoma, sans-serif;
+  font: 13px/20px Verdana, Tahoma, sans-serif;
   color: #7F7F7F;
 }
 
@@ -73,17 +73,23 @@ select,
 input,
 textarea
 {
-  padding: 5px;
   border: solid 1px #E5E5E5;
   outline: 0;
-  font: normal 13px/100% Verdana, Tahoma, sans-serif;
+  font: normal 13px/20px Verdana, Tahoma, sans-serif;
   color: #7F7F7F;
+
+  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+}
+
+input,
+textarea
+{
+  padding: 5px;
 
   background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
   background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
   box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
-  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
-  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
 
 select

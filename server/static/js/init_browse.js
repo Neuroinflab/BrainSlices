@@ -471,7 +471,8 @@ function initBrowseFinish()
   {
     waitWindow.message('Querying the server. Please wait. <span class="fa fa-refresh fa-spin"></span>');
 
-    if (!searchEngine.search(searchCallback))
+    if (!searchEngine.search(searchCallback,
+                             $('#privilegeFilter').val()))
     {
       waitWindow.close();
       alertWindow.error('Chosen filters can not match any images.');
