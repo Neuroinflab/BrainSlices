@@ -346,7 +346,8 @@
      *                 $row - row element,
      *                 callback - a callback function,
      *                 id - an unique identifier of the item in the manager,
-     *                 nr - a number of table the callback applies.
+     *                 nr - a number of table the callback applies,
+     *                 parmanent - do not remove after firing.
      ***************************************************************************
      * Constructor: CTableManager
      *
@@ -579,7 +580,7 @@
       },
 
       addLazyRefresh:
-      function(id, callbacks)
+      function(id, callbacks, permanent)
       {
       /**
        * Method: addLazyRefresh
@@ -593,7 +594,8 @@
        *               in case the item is visible;
        *               null means no callback is defined for a table;
        *               it is possible to give one function instead of
-       *               an array if only one table is managed.
+       *               an array if only one table is managed,
+       *   permanent - do not remove after firing.
        *
        * Returns:
        *   true if callback added successfully.
@@ -621,7 +623,8 @@
               $row: $rows.eq(i),
               callback: callback,
               nr: i,
-              id: id
+              id: id,
+              permanent: permanent
             });
           }
         }
@@ -666,6 +669,11 @@
           }
 
           cb.callback.call();
+
+          if (cb.permanent)
+          {
+            todo.push(cb);
+          }
         }
 
         this.lazyRefresh = todo;

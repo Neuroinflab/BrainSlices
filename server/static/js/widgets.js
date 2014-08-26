@@ -1288,6 +1288,8 @@ var CFilterPanel = null;
     _create:
     function()
     {
+      this.invalid = true;
+
       this.$parent = this.element.parent();
       this.$wrapper = this.element
         .wrapInner('<div class="folder-wrapper">')
@@ -1299,7 +1301,7 @@ var CFilterPanel = null;
 
       this._on(this.$toggle, {click: '_toggle'});
 
-      this._on($(window), {resize: 'refresh'});
+      this._on($(window), {resize: 'requestUpdate'});
 
       if (this.options.folded)
       {
@@ -1313,31 +1315,43 @@ var CFilterPanel = null;
     refresh:
     function()
     {
-      var contentHeight = this.$wrapper.outerHeight(true);
-//      console.debug(contentHeight, this.options.fit, this.$parent.height(), this.options.treshold);
-
-      if ((this.options.fit && contentHeight > this.$parent.height()) ||
-          (!this.options.fit && contentHeight > this.options.treshold)) 
+      console.log('refresh');
+      if (this.invalid)
       {
-        this.$toggle.show(0);
-      }
-      else
-      {
-        this.$toggle.hide(0);
-      }
+        console.log('refresh invalid');
+        var contentHeight = this.$wrapper.outerHeight(true);
+//        console.debug(contentHeight, this.options.fit, this.$parent.height(), this.options.treshold);
 
-
-      if (this.options.fit)
-      {
-        if (this.options.folded)
+        if ((this.options.fit && contentHeight > this.$parent.height()) ||
+            (!this.options.fit && contentHeight > this.options.treshold)) 
         {
-          this.element.height(this.$parent.height() + this.element.height() - this.element.outerHeight());
+          this.$toggle.show(0);
         }
         else
         {
-          this.element.height('');
+          this.$toggle.hide(0);
         }
+
+
+        if (this.options.fit)
+        {
+          if (this.options.folded)
+          {
+            this.element.height(this.$parent.height() + this.element.height() - this.element.outerHeight());
+          }
+          else
+          {
+            this.element.height('');
+          }
+        }
+        this.invalid = false;
       }
+    },
+
+    requestUpdate:
+    function()
+    {
+      this.invalid = true;
     },
 
     _setOptions:

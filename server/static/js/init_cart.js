@@ -101,6 +101,7 @@ function initCart()
 
   $layerList.scroll(function()
   {
+    console.log('scroll');
     layerManager.doLazyRefresh();
   });
 
@@ -245,6 +246,11 @@ function initCart()
                           {
                             toPostpone();
                           }
+
+                          thisInstance.tableManager.addLazyRefresh(id, function()
+                          {
+                            $drag.folder('refresh');
+                          }, true);
                         },
                         onfailure, isvalid, onUpdate);
       
