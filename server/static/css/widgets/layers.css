@@ -135,8 +135,10 @@ div.adjust-column
   padding-top: 30px !important;
 }
 
-.layer-cb-table
+div.layer-cb-table
 {
+  display: table;
+
   border-spacing: 0;
   border-collapse: collapse;
 
@@ -144,13 +146,16 @@ div.adjust-column
   margin-right: auto;
 }
 
-.layer-cb-table tr
+div..layer-cb-row
 {
+  display: table-row;
   border-bottom: none !important;
 }
 
-.layer-cb-table td
+div.layer-cb-cell
 {
+  display: table-cell;
+
   text-align: center;
   vertical-align: middle;
 

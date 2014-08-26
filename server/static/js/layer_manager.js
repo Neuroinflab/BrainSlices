@@ -362,25 +362,30 @@ with ({gui: BrainSlices.gui,
 
         layer.$visibility.empty();
 
-        var cbTable = $('<table class="layer-cb-table"></table>');
-        layer.$visibility.append(cbTable);
+        var $cbTable = $('<div>')
+          .addClass('layer-cb-table')
+          .appendTo(layer.$visibility);
         
-        for (y = 0; y < this.stacks.ny; y++) {
-          var actTr = $('<tr></tr>');
-          cbTable.append(actTr);
+        for (var y = 0; y < this.stacks.ny; y++)
+        {
+          var $actTr = $('<div>')
+            .addClass('layer-cb-row')
+            .appendTo($cbTable);
 
-          for (x = 0; x < this.stacks.nx; x++) {
+          for (var x = 0; x < this.stacks.nx; x++)
+          {
             var actNo = x * this.stacks.ny + y;
 
-            loadButtons[actNo] = (this.layerCB(id, actNo));
+            loadButtons[actNo] = this.layerCB(id, actNo);
             
-            var actTd = $('<td></td>');
-            actTr.append(actTd);
+            var $actTd = $('<div>')
+              .addClass('layer-cb-cell')
+              .appendTo($actTr);
 
             var $cb = loadButtons[actNo].$cb;
             $cb.prop('checked', this.stacks.has(actNo, id));
             
-            actTd.append($cb);
+            $actTd.append($cb);
           }
         }
 
