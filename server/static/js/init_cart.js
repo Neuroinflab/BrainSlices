@@ -30,10 +30,11 @@ function initCart()
               complete:
               function()
               {
-                $('#layerList')
+/*                $('#layerList')
                   .children('.layer-row')
                     .children('.image-details')
-                      .folder('refresh');
+                      .folder('refresh');*/
+                layerManager.doLazyRefresh();
 
                 switch (scope.get('interfaceMode'))
                 {
@@ -42,10 +43,10 @@ function initCart()
                     break;
 
                   case 'browse':
-                    $('#searchResults')
+/*                    $('#searchResults')
                       .children('.search-row')
                         .children('.image-details')
-                          .folder('refresh');
+                          .folder('refresh');*/
                     break;
 
                   default:
@@ -96,9 +97,14 @@ function initCart()
 
   $('#btn_cart').click(scope.getToggle('cart'));
 
-  layerManager = new CLayerManager($('#layerList'),
-                                   //$.merge($('#layerList'),
-                                   //        $('#searchImageBasketList')),
+  var $layerList = $('#layerList');
+
+  $layerList.scroll(function()
+  {
+    layerManager.doLazyRefresh();
+  });
+
+  layerManager = new CLayerManager($layerList,
                                    stacks,
                                    loginConsole,
   {
@@ -111,12 +117,6 @@ function initCart()
       {
         thisInstance.tableManager.remove(id);
       }
-//      var $rem = $('<span class="layer-delete-button fa fa-times"></span>')
-//        .bind('click', onremove);
-//        
-//      var $searchRow = $('<div draggable="true"></div>')
-//        .append($('<div>').addClass('description-buttons-placeholder'))
-//        .append($rem);
 
       var image = null;
       var path = '/images/' + id;
@@ -127,17 +127,11 @@ function initCart()
       // making the layer-related row
       var $row =  $('<div>')
         .addClass('layer-row');
-      $drag = $('<div draggable="true"></div>')
+      var $drag = $('<div draggable="true"></div>')
         .addClass('label-column')
         .appendTo($row);
 
       var dragMIME = [];
-
-    //  $row.append(
-    //    $('<div>')
-    //      .addClass('label-column')
-    //      .append($drag));
-
 
       // visibility interface
       var $visibility = $('<div>')
@@ -226,17 +220,31 @@ function initCart()
                           dragMIME.push(['text/uri-list', url]);
 
                           if (onsuccess) onsuccess();
+
+                          function toPostpone()
+                          {
+                            detailsGenerator(img.info, $drag)
+                              .folder({fit: true});
+
+                            $row
+                              .append($('<a>')
+                                .addClass('fa fa-arrow-circle-o-down layer-download-button')
+                                .attr(
+                                {
+                                  href: path + '/image.png',
+                                  download: ''
+                                }));
+                          }
+
+                          if (postponeUpdate)
+                          {
+                            thisInstance.tableManager.addLazyRefresh(id, toPostpone);
                           
-                          detailsGenerator(img.info, $drag)
-                            .folder({fit: true});
-                          $row
-                            .append($('<a>')
-                              .addClass('fa fa-arrow-circle-o-down layer-download-button')
-                              .attr(
-                              {
-                                href: path + '/image.png',
-                                download: ''
-                              }));
+                          }
+                          else
+                          {
+                            toPostpone();
+                          }
                         },
                         onfailure, isvalid, onUpdate);
       

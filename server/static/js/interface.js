@@ -341,6 +341,12 @@
      *   length - Number of items in the sequence.
      *   id2row - A mapping of item ifentifier to the object representanting the
      *            item.
+     *   lazyRefresh - An array of callback objects with callbacks to be called when
+     *                 a row is visible. Every callback object contains attributes:
+     *                 $row - row element,
+     *                 callback - a callback function,
+     *                 id - an unique identifier of the item in the manager,
+     *                 nr - a number of table the callback applies.
      ***************************************************************************
      * Constructor: CTableManager
      *
@@ -359,6 +365,7 @@
       this.$table = $table;
       this.onUpdate = onUpdate;
       this.id = id ? id : 'default';
+      this.lazyRefresh = [];
       $table.empty();
     }
 
@@ -441,6 +448,11 @@
           return null;
         }
 
+        this.lazyRefresh = this.lazyRefresh.filter(function(item)
+        {
+          return item.id != id;
+        });
+
         var row = this.id2row[id];
         delete this.id2row[id];
         var rows = this.rows;
@@ -508,6 +520,8 @@
         {
           this.onUpdate();
         }
+
+        this.doLazyRefresh();
       },
 
       move:
@@ -562,6 +576,99 @@
           ordered.push(this.rows[i].id);
         }
         return ordered;
+      },
+
+      addLazyRefresh:
+      function(id, callbacks)
+      {
+      /**
+       * Method: addLazyRefresh
+       *
+       * Add callback for lazy refresh (update of visible items).
+       *
+       * Parameters:
+       *   id - An unique identifier of the item in the manager.
+       *   callbacks - An array of callback functions (with respect
+       *               to a tabble to be refreshed) to be called
+       *               in case the item is visible;
+       *               null means no callback is defined for a table;
+       *               it is possible to give one function instead of
+       *               an array if only one table is managed.
+       *
+       * Returns:
+       *   true if callback added successfully.
+       ***************************************************************/
+        var $rows = this.id2row[id].$row;
+        if (callbacks.call != undefined)
+        {
+          callbacks = [callbacks];
+        }
+
+        if ($rows.length != callbacks.length)
+        {
+          console.error('addLazyRefresh - callback length mismatch');
+          console.debug($rows, callbacks);
+          return false;
+        }
+
+        for (var i = 0; i < callbacks.length; i++)
+        {
+          var callback = callbacks[i];
+          if (callback)
+          {
+            this.lazyRefresh.push(
+            {
+              $row: $rows.eq(i),
+              callback: callback,
+              nr: i,
+              id: id
+            });
+          }
+        }
+        return true;
+      },
+
+      doLazyRefresh:
+      function()
+      {
+      /**
+       * Method: doLazyRefresh
+       *
+       * Execute (and remove) callbacks for visible items
+       * in order they have been added.
+       ***************************************************/
+        var height = this.$table.map(function(_, item)
+        {
+          return $(item).innerHeight();
+        });
+
+        //XXX: warning for invisible tables!
+
+        var todo = [];
+        var lazyRefresh = this.lazyRefresh;
+        for (var i = 0; i < lazyRefresh.length; i++)
+        {
+          //XXX filter is not suitable because list traversing
+          //    order is unknown
+          var cb = lazyRefresh[i];
+          var $row = cb.$row;
+          var top = $row.position().top;
+          if (top > height[cb.nr])
+          {
+            todo.push(cb);
+            continue;
+          }
+
+          if (top + $row.height() < 0)
+          {
+            todo.push(cb);
+            continue;
+          }
+
+          cb.callback.call();
+        }
+
+        this.lazyRefresh = todo;
       },
 
       add:

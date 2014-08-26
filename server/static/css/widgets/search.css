@@ -615,24 +615,31 @@ select.brainslices-privilege-filter
   padding: 0; /*50px 0 0;*/
 }
 
-.image-details
+
+div.image-details
 {
   position: relative;
   overflow: hidden;
-}
-
-.image-details.folded
-{
-  height: 83px;
-/*  padding-bottom: 0px;*/
-}
-
-.image-details.unfolded
-{
   padding-bottom: 20px;
 }
 
-div.folding-button
+div.image-details.folded
+{
+  height: 83px;
+  padding-bottom: 0;
+}
+
+div.folder-wrapper
+{
+  position: static;
+  overflow: hidden;
+
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+div.folder-button
 {
   position: absolute;
   right: 0px;
@@ -650,12 +657,12 @@ div.folding-button
   background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
 }
 
-div.folding-button.unfolded:before
+div.folder-button:before
 {
   content: "fold";
 }
 
-div.folding-button.folded:before
+div.folder-button.folded:before
 {
   content: "unfold";
 }
@@ -682,8 +689,7 @@ div.folding-button.folded:before
 
 
 
-/* TODO: optimize*/
-.image-details>h1
+h1.image-details
 {
   text-align: left;
   font-size: 14px;
@@ -691,29 +697,31 @@ div.folding-button.folded:before
   margin: 0;
 }
 
-.image-details>p.image-description
+p.image-description.image-details
 {
   text-align: left;
   margin: 0 0 5px 0;
 }
 
-.image-details>ul
+ul.image-details
 {
   margin: 0px;
   padding: 0px;
 }
 
-.image-details>ul>li
+li.image-details
 {
   list-style-type: none;
   text-align: left;
 }
 
-.image-details>.polaroid-image
+.polaroid-image.image-details
 {
   float: left;
   margin: 3px 10px 5px 3px;
 }
+
+
 
 /*
 .thumbnail-only .image-details.unfolded>div.folding-button,

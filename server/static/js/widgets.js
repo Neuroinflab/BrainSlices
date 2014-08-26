@@ -1253,62 +1253,59 @@ var CFilterPanel = null;
       fit: false
     },
 
-    _fold:
-    function()
+    _updateFolded:
+    function(value)
     {
-      /*
-      this.element.removeClass('unfolded')
-                  .addClass('folded');
-      */
-      this.options.folded = true;
-
-      /*
-      if (this.options.fit)
+      if (value)
       {
-        this.element.height(this.options.treshold);
-        var height = this.element.outerHeight(true);
-        var delta = height - this.element.height();
-        var parentHeight = this.element.parent().height();
-        this.element.height(parentHeight - delta);
+        this.$toggle.addClass('folded');
+        this.element.addClass('folded');
+
+
+        if (this.options.fit)
+        {
+          this.element.height(this.$parent.height() + this.element.height() - this.element.outerHeight());
+        }
       }
-      */
-      this.refresh();
-    },
-
-    _unfold:
-    function()
-    {
-      /*
-      this.element.removeClass('folded')
-                  .addClass('unfolded');
-
-      */
-      this.options.folded = false;
-      /*
-      if (this.options.fit)
+      else
       {
-        this.element.css('height', '');
+        this.$toggle.removeClass('folded');
+        this.element.removeClass('folded');
+
+        if (this.options.fit)
+        {
+          this.element.height('');
+        }
       }
-      */
-      this.refresh();
     },
 
     _toggle:
     function()
     {
-      this.options.folded = !this.options.folded;
-      this.refresh();
+      this._updateFolded(this.options.folded = !this.options.folded);
     },
 
     _create:
     function()
     {
-      this.$toggle = $('<div class="folding-button"></div>')
+      this.$parent = this.element.parent();
+      this.$wrapper = this.element
+        .wrapInner('<div class="folder-wrapper">')
+        .children();
+
+      this.$toggle = $('<div>')
+        .addClass('folder-button')
         .appendTo(this.element);
 
       this._on(this.$toggle, {click: '_toggle'});
 
       this._on($(window), {resize: 'refresh'});
+
+      if (this.options.folded)
+      {
+        this.element.addClass('folded');
+        this.$toggle.addClass('folded');
+      }
 
       this.refresh();
     },
@@ -1316,57 +1313,29 @@ var CFilterPanel = null;
     refresh:
     function()
     {
-      this.element.removeClass('folded unfolded');
+      var contentHeight = this.$wrapper.outerHeight(true);
+//      console.debug(contentHeight, this.options.fit, this.$parent.height(), this.options.treshold);
 
-      if (this.options.fit)
+      if ((this.options.fit && contentHeight > this.$parent.height()) ||
+          (!this.options.fit && contentHeight > this.options.treshold)) 
       {
-        this.element.height(this.options.treshold);
-        var parentHeight = this.element.parent().height();
-        this.element.css('height', '');
-
-        var height = this.element.outerHeight(true);
-        var delta = height - this.element.height();
-        if (height > parentHeight)
-        {
-          this.$toggle.show(0);
-          if (this.options.folded)
-          {
-            this.element.addClass('folded');
-            this.$toggle.addClass('folded');
-            this.element.height(parentHeight - delta);
-          }
-          else
-          {
-            this.element.addClass('unfolded');
-            this.$toggle.addClass('unfolded');
-          }
-        }
-        else
-        {
-          this.$toggle.hide(0);
-        }
+        this.$toggle.show(0);
       }
       else
       {
-        this.element.css('height', '');
+        this.$toggle.hide(0);
+      }
 
-        if (this.element.outerHeight(true) > this.options.treshold)
+
+      if (this.options.fit)
+      {
+        if (this.options.folded)
         {
-          this.$toggle.show(0);
-          if (this.options.folded)
-          {
-            this.element.addClass('folded');
-            this.$toggle.addClass('folded');
-          }
-          else
-          {
-            this.element.addClass('unfolded');
-            this.$toggle.addClass('unfolded');
-          }
+          this.element.height(this.$parent.height() + this.element.height() - this.element.outerHeight());
         }
         else
         {
-          this.$toggle.hide(0);
+          this.element.height('');
         }
       }
     },
@@ -1378,12 +1347,23 @@ var CFilterPanel = null;
       this.refresh();
     },
 
+    _setOption:
+    function(key, value)
+    {
+      if (key == 'folded')
+      {
+        this._updateFolded(value);
+      }
+
+      this._super(key, value);
+    },
+
     _destroy:
     function()
     {
-      this.$fold.remove();
-      this.$unfold.remove();
-      this.element.removeClass('folded unfolded');
+      this.$wrapper.children().unwrap();
+      this.$toggle.remove();
+      this.element.removeClass('folded');
     }
   });
 

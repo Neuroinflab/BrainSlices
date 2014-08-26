@@ -39,9 +39,6 @@ $(function()
         case 'browse':
           $('#browsePanel').show(0);
           $('#navbarBrowse').show(0);
-          //$('#searchResults>div').folder('refresh');
-          //$('.basket-visible #searchImageBasketList>div').folder('refresh');
-          //$('#browsePanel .search-content-wrapper>div').folder('refresh');
           break;
 
         case 'visualise':

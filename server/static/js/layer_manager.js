@@ -340,8 +340,19 @@ with ({gui: BrainSlices.gui,
     updateOrder:
     function()
     {
-      this.tableManager.update();
       this.arrangeInterface(); // XXX: is this call necessary???
+      this.tableManager.update();
+    },
+
+    /**
+     * Method: doLazyRefresh
+     *
+     * An alias to <CTableManager.doLazyRefresh>().
+     **********************************************/
+    doLazyRefresh:
+    function()
+    {
+      this.tableManager.doLazyRefresh();
     },
 
     /**
@@ -352,6 +363,7 @@ with ({gui: BrainSlices.gui,
     arrangeInterface:
     function()
     {
+      var thisInstance = this;
       this.$layerList.find('.recyclableElement').detach();
       var nmax = this.stacks.nx * this.stacks.ny;
 
@@ -374,17 +386,48 @@ with ({gui: BrainSlices.gui,
 
           for (var x = 0; x < this.stacks.nx; x++)
           {
-            var actNo = x * this.stacks.ny + y;
 
-            loadButtons[actNo] = this.layerCB(id, actNo);
-            
+            var stackId = x * this.stacks.ny + y;
+            var $cb;
+
+            if (loadButtons.length > stackId)
+            {
+              $cb = loadButtons[stackId].$cb;
+            }
+            else
+            {
+              (function(stackId)
+              {
+                var changeHandler = function()
+                {
+                  if (this.checked)
+                  {
+                    thisInstance.load(stackId, id, true);
+                  }
+                  else
+                  {
+                    thisInstance.unload(stackId, id, true);
+                  }
+                };
+
+                $cb = $('<input>')
+                  .attr('type', 'checkbox')
+                  .addClass('recyclableElement')
+                  .change(changeHandler);
+
+                loadButtons[stackId] =
+                {
+                  $cb: $cb,
+                  changeHandler: changeHandler
+                };
+              })(stackId);
+            }
+
             var $actTd = $('<div>')
               .addClass('layer-cb-cell')
               .appendTo($actTr);
 
-            var $cb = loadButtons[actNo].$cb;
-            $cb.prop('checked', this.stacks.has(actNo, id));
-            
+            $cb.prop('checked', this.stacks.has(stackId, id));
             $actTd.append($cb);
           }
         }
@@ -402,45 +445,6 @@ with ({gui: BrainSlices.gui,
 
         layer.loadButtons = loadButtons;
       }
-    },
-
-    /**
-     * Method: layerCB
-     *
-     * Create a checkbox for the visibility panel of a layer.
-     *
-     * Parameters:
-     *   id - An identifier of the layer.
-     *   stackId - An identifier of the stack (its number);
-     *
-     * Returns:
-     *   An object of two attributes: '$cb' being the created jQuery checkbox
-     *   element and 'changeHandler' being the handler of its 'change' event.
-     *
-     * Note:
-     *   An auxilary method that might change and even disappear.
-     ************************************************************************/
-    layerCB:
-    function(id, stackId)
-    {
-      var thisInstance = this;
-      var $cb = $('<input type="checkbox" class="recyclableElement">');
-      var changeHandler = function()
-      {
-        if (this.checked)
-        {
-          thisInstance.load(stackId, id, true);
-        }
-        else
-        {
-          thisInstance.unload(stackId, id, true);
-        }
-      };
-
-      $cb.bind('change', changeHandler);
-
-      return {$cb: $cb,
-              changeHandler: changeHandler};
     },
 
     /**

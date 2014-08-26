@@ -1,6 +1,7 @@
 function detailsGenerator(info, $div)
 {
   var properties = info.properties;
+
   if (!$div)
   {
     $div = $('<div></div>');
@@ -12,6 +13,7 @@ function detailsGenerator(info, $div)
                                          info.imageWidth,
                                          info.imageHeight,
                                          64, 64)
+      .addClass('image-details')
       .attr('draggable', 'true'));
 
   if (properties)
@@ -20,13 +22,18 @@ function detailsGenerator(info, $div)
 
     if ('name' in properties && properties.name.type != 't')
     {
-      $div.append($('<h1></h1>').text(properties.name.value));
+      $div.append($('<h1>')
+        .addClass('image-details')
+        .text(properties.name.value));
       delete properties.name;
     }
 
     if ('description' in properties && properties.description.type != 't')
     {
-      $div.append($('<p class="image-description"></p>').text(properties.description.value));
+      $div.append($('<p>')
+        .addClass('image-description image-details')
+        .text(properties.description.value));
+
       delete properties.description;
     }
 
@@ -40,15 +47,18 @@ function detailsGenerator(info, $div)
     {
       names.sort();
 
-      var $ul = $('<ul></ul>');
+      var $ul = $('<ul>')
+        .addClass('image-details');
       $div.append($ul);
 
       for (var j = 0; j < names.length; j++)
       {
         var name = names[j];
-        var $li = $('<li>' + name + '</li>');
-        $ul.append($li);
-        //$ul.append('<dt>' + name + '</dt>');
+        var $li = $('<li>')
+          .addClass('image-details')
+          .text(name)
+          .appendTo($ul);
+
         var property = properties[name];
         switch (property.type)
         {
@@ -57,12 +67,10 @@ function detailsGenerator(info, $div)
           case 'e':
           case 'f':
           case 'i':
-            //$ul.append('<dd>' + property.value + '</dd>');
             $li.append(': ' + property.value);
             break;
 
           case 't':
-            //$ul.append('<dd>Tag</dd>');
             break;
         }
       }
@@ -85,19 +93,19 @@ function initBrowse()
       {
         $('#searchPanelDiv').addClass('filters-visible');
         $('#btn_filters').addClass('selected');
-        $('#searchResults')
+/*        $('#searchResults')
           .children('.search-row')
             .children('.image-details')
-              .folder('refresh');
+              .folder('refresh');*/
       }
       else
       {
         $('#searchPanelDiv').removeClass('filters-visible');
         $('#btn_filters').removeClass('selected');
-        $('#searchResults')
+/*        $('#searchResults')
           .children('.search-row')
             .children('.image-details')
-              .folder('refresh');
+              .folder('refresh');*/
       }
     }, 'filters');
 
