@@ -493,6 +493,7 @@
         var rows = this.rows;
         from = from != null ? Math.max(from, 0) : 0;
         to = to != null ? Math.min(to, rows.length) : rows.length;
+        console.log(from, to);
         for (var i = from; i < to; i++)
         {
           var row = rows[i];

@@ -103,7 +103,7 @@ function initCart()
                                    loginConsole,
   {
     addTileLayer:
-    function(id, info, zIndex, label, onsuccess, onfailure, isvalid)
+    function(id, info, postponeUpdate, zIndex, onsuccess, onfailure, isvalid)
     {
       var thisInstance = this;
 
@@ -214,12 +214,9 @@ function initCart()
       this.addTileLayer(id, $row, //$.merge($row, $searchRow),
                         $visibility, zIndex, dragMIME,
                         null,
-                        path, info, true,
+                        path, info, !postponeUpdate,
                         function(img)
                         {
-                          console.log('on success handler');
-                          console.debug(img);
-
                           image = img;
 
                           var url = document.createElement('a');

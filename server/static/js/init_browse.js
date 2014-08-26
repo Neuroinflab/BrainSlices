@@ -389,7 +389,7 @@ function initBrowseFinish()
               $button.click(function()
               {
                 //global
-                layerManager.autoAddTileLayer(info.iid, info, null, '#' + info.iid);
+                layerManager.autoAddTileLayer(info.iid, info);
               });
             })(info);
 
@@ -467,6 +467,26 @@ function initBrowseFinish()
     searchPaginator.setPage();
   }
 
+  function addToCart()
+  {
+    for (var i = 0; i < searchResults.length; i++)
+    {
+      var info = searchResults[i];
+      var iid = info.iid;
+
+      layerManager.autoAddTileLayer(info.iid, info, true);
+    }
+
+    layerManager.updateOrder();
+  }
+
+  $('#addResultsToCart').click(addToCart);
+  $('#moveResultsToCart').click(function()
+  {
+    layerManager.flush();
+    addToCart();
+  });
+
   $('#searchPropertySearch').click(function()
   {
     waitWindow.message('Querying the server. Please wait. <span class="fa fa-refresh fa-spin"></span>');
@@ -478,6 +498,7 @@ function initBrowseFinish()
       alertWindow.error('Chosen filters can not match any images.');
     }
   });
+
 
   loginConsole.ajax('/meta/getPropertyList',
                     function(data)

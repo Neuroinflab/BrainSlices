@@ -134,6 +134,8 @@ $(function()
 
     var loadImageI = 0;
     var loadedImages = [];
+    var imageLoadErrors = [];
+
     function loadNextImage()
     {
       if (loadImageI < state.iids.length)
@@ -143,29 +145,36 @@ $(function()
         var id = pair[0];
         var md5 = pair[1].toLowerCase();
 
-        id = layerManager.autoAddTileLayer(id, null, state.iids.length - imageI - 1,
-                                           '#'+id, loadNextImage,
-                                       function(msg)
-                                       {
-                                         alert(msg);
-                                         loadedImages[imageI] = null;
-                                         loadNextImage();
-                                       },
-                                       function(info)
-                                       {
-                                         if (info.md5.toLowerCase() != md5)
-                                         {
-                                           alert('Image of iid ' + info.iid + ' has been changed.')
-                                           loadedImages[imageI] = null;
-                                           loadNextImage();
-                                           return false;
-                                         }
-                                         return true;
-                                       });
+        id = layerManager
+          .autoAddTileLayer(id, null, true, state.iids.length - imageI - 1,
+                            loadNextImage,
+                            function(msg)
+                            {
+                              imageLoadErrors.push(msg);
+                              loadedImages[imageI] = null;
+                              loadNextImage();
+                            },
+                            function(info)
+                            {
+                              if (info.md5.toLowerCase() != md5)
+                              {
+                                imageLoadErrors.push('Image of iid ' + info.iid + ' has been changed.')
+                                loadedImages[imageI] = null;
+                                loadNextImage();
+                                return false;
+                              }
+                              return true;
+                            });
         loadedImages.push(id);
       }
       else
       {
+        if (imageLoadErrors.length > 0)
+        {
+          alertWindow.error(imageLoadErrors.join('<br>'));
+        }
+
+        layerManager.updateOrder();
         for (var i = 0; i < state.loaded.length; i++)
         {
           var loaded = state.loaded[i];
