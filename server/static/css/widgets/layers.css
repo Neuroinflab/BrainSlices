@@ -97,6 +97,8 @@ div.adjust-column
   display: inline-block;
   vertical-align: top;
   /*display: table-cell;*/
+
+  display: none;
 }
 
 
@@ -146,7 +148,7 @@ div.layer-cb-table
   margin-right: auto;
 }
 
-div..layer-cb-row
+div.layer-cb-row
 {
   display: table-row;
   border-bottom: none !important;

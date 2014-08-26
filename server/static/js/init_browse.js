@@ -342,7 +342,7 @@ function initBrowseFinish()
     }
   });
 
-  var searchResults = [{properties:{}}];
+  var searchResults = [];
   var $searchPage = $('#searchResults');
   searchPaginator = $('#searchResultsPaginator')
     .paging(0,
