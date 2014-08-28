@@ -1315,15 +1315,22 @@ var CFilterPanel = null;
     refresh:
     function()
     {
-      console.log('refresh');
-      if (this.invalid)
-      {
-        console.log('refresh invalid');
-        var contentHeight = this.$wrapper.outerHeight(true);
-//        console.debug(contentHeight, this.options.fit, this.$parent.height(), this.options.treshold);
+//      console.log('refresh');
+      if (!this.invalid) return;
+//      console.log('refresh invalid');
+      var contentHeight = this.$wrapper.outerHeight(true);
+//      console.debug(contentHeight, this.options.fit, this.$parent.height(), this.options.treshold);
 
-        if ((this.options.fit && contentHeight > this.$parent.height()) ||
-            (!this.options.fit && contentHeight > this.options.treshold)) 
+      if (this.options.fit)
+      {
+        if (this.options.folded)
+        {
+          var delta = this.element.height() - this.element.outerHeight();
+        }
+
+        this.element.hide(0);
+        var parentHeight = this.$parent.height();
+        if (contentHeight > parentHeight)
         {
           this.$toggle.show(0);
         }
@@ -1332,24 +1339,25 @@ var CFilterPanel = null;
           this.$toggle.hide(0);
         }
 
-
-        if (this.options.fit)
-        {
-          if (this.options.folded)
-          {
-            var delta = this.element.height() - this.element.outerHeight();
-            this.element
-              .hide(0)
-              .height(this.$parent.height() + delta)
-              .show(0);
-          }
-          else
-          {
-            this.element.height('');
-          }
-        }
-        this.invalid = false;
+        this.element
+          .height(this.options.folded ?
+                  parentHeight + delta :
+                  '')
+          .show(0);
       }
+      else
+      {
+        if (contentHeight > this.options.treshold)
+        {
+          this.$toggle.show(0);
+        }
+        else
+        {
+          this.$toggle.hide(0);
+        }
+      }
+
+      this.invalid = false;
     },
 
     requestUpdate:

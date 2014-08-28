@@ -109,6 +109,11 @@ function initCart()
     addTileLayer:
     function(id, info, postponeUpdate, zIndex, onsuccess, onfailure, isvalid)
     {
+      if (zIndex == null)
+      {
+        zIndex = 0;
+      }
+
       var thisInstance = this;
 
       function onremove()
@@ -133,70 +138,27 @@ function initCart()
 
       // visibility interface
       var $visibility = $('<div>')
-        .addClass('visible-column');
-      $row.append($visibility);
+        .addClass('visible-column')
+        .appendTo($row);
 
 
       //adjustment
-      var $adjust = $('<input type="checkbox">');
-      var $iface = $('<span style="display: none;">' +
-                      '<input type="number" class="imageLeft">' +
-                      '<input type="number" class="imageTop">' +
-                      '<input type="number" class="pixelSize">' +
-                      '<select name="status">' +
-                       '<option value="6">Completed</option>' +
-                       '<option value="7">Accepted</option>' +
-                      '</select>' +
-                     '</span>');
-
-      $adjust.bind('change', function()
-      {
-        if ($adjust.filter(':checked').length  != 0)
-        {
-          $iface.show(0);
-          thisInstance.images.startAdjustment(id);
-        }
-        else
-        {
-          $iface.hide(0);
-          thisInstance.images.stopAdjustment(id);
-        }
-      });
-
-      $iface.find('input').bind('change', function()
-      {
-        if (image)
-        {
-          var imageLeft = parseFloat($iface.find('input.imageLeft').val());
-          var imageTop = parseFloat($iface.find('input.imageTop').val());
-          var pixelSize = parseFloat($iface.find('input.pixelSize').val());
-          image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
-        }
-      });
-
-      $iface.find('select[name="status"]').bind('change', function()
-      {
-        if (image)
-        {
-          var status = parseInt($iface.find('select[name="status"]').val());
-          image.updateInfo(null, null, null, status, false);
-        }
-      });
+      var $adjustment = $('<div>')
+        .addClass('adjust-column')
+        .appendTo($row);
+      var $imageLeft = $('<input>');
+      var $imageTop = $('<input>');
+      var $pixelSize = $('<input>');
+      var $status = $('<select>');
 
       function onUpdate()
       {
         var info = this.info;
-        $iface.find('input.imageLeft').val(info.imageLeft);
-        $iface.find('input.imageTop').val(info.imageTop);
-        $iface.find('input.pixelSize').val(info.pixelSize);
-        $iface.find('select[name="status"]').val(info.status);
+        $imageLeft.val(info.imageLeft);
+        $imageTop.val(info.imageTop);
+        $pixelSize.val(info.pixelSize);
+        $status.val(info.status);
       }
-
-      $row.append(
-        $('<div>')
-          .append($adjust)
-          .append($iface)
-          .addClass('adjust-column'));
 
       //removal
       $rem = $('<span class="layer-delete-button fa fa-times"></span>')
@@ -224,6 +186,66 @@ function initCart()
                             detailsGenerator(img.info, $drag)
                               .folder({fit: true});
 
+      var adjusted = thisInstance.isAdjusted(id);
+
+      $('<input>')
+        .attr('type', 'checkbox')
+        .prop('checked', adjusted)
+        .change(function()
+        {
+          if (this.checked)
+          {
+            $iface.show(0);
+            thisInstance.images.startAdjustment(id);
+          }
+          else
+          {
+            $iface.hide(0);
+            thisInstance.images.stopAdjustment(id);
+          }
+
+          $drag.folder('requestUpdate');
+          thisInstance.doLazyRefresh();
+        })
+        .appendTo($adjustment);
+
+      var $iface = $('<span>')
+        .css('display', adjusted ? '': 'none')
+        .append($imageLeft
+        //  .addClass('imageLeft')
+          .attr('type', 'number')
+          .change(function()
+          {
+            image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
+          }))
+        .append($imageTop
+        //  .addClass('imageTop')
+          .attr('type', 'number')
+          .change(function()
+          {
+            image.updateInfo(null, parseFloat($imageTop.val()), null, null, false);
+          }))
+        .append($pixelSize
+        //  .addClass('pixelSize')
+          .attr('type', 'number')
+          .change(function()
+          {
+            image.updateInfo(null, null, parseFloat($pixelSize.val()), null, false);
+          }))
+        .append($status
+        //  .attr('name', 'status')
+          .append($('<option>')
+                   .text('Processed')
+                   .attr('value', '6'))
+          .append($('<option>')
+                   .text('Accepted')
+                   .attr('value', '7'))
+          .change(function()
+          {
+            image.updateInfo(null, null, null, parseInt($status.val()), false);
+          }))
+        .appendTo($adjustment);
+
                             $row
                               .append($('<a>')
                                 .addClass('fa fa-arrow-circle-o-down layer-download-button')
@@ -237,7 +259,6 @@ function initCart()
                           if (postponeUpdate)
                           {
                             thisInstance.tableManager.addLazyRefresh(id, toPostpone);
-                          
                           }
                           else
                           {
