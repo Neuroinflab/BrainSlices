@@ -358,34 +358,40 @@
       updateCachedTiledImage:
       function(id, path, onSuccess, onUpdate, $row)
       {
-        this.removeCachedImage(id);
+        this.removeCachedImage(id); //XXX: not sure if do what expected
         this.cacheTiledImage(id, path, onSuccess, onUpdate, $row);
       },
 
       cacheTiledImageOffline:
-      function(id, path, data, onSuccess, onUpdate, $row, zIndex)
+      function(id, path, info, onSuccess, onUpdate, $row, zIndex, onAdjust, data)
       {
         if (!this.has(id))
         {
           var cachedImage = Object.create(imagePrototype);
-          cachedImage.info = data;
+          cachedImage.info = info;
+          cachedImage.data = data;
 
-          data._imageLeft = data.imageLeft;
-          data._imageTop = data.imageTop;
-          data._pixelSize = data.pixelSize;
-          data._status = data.status;
+          info._imageLeft = info.imageLeft;
+          info._imageTop = info.imageTop;
+          info._pixelSize = info.pixelSize;
+          info._status = info.status;
 
           cachedImage.references = {};
           cachedImage.path = path;
           cachedImage.type = 'tiledImage';
           cachedImage.cacheId = 0;
           cachedImage.onUpdate = onUpdate;
+          cachedImage.onAdjust = onAdjust;
           cachedImage.$row = $row;
           cachedImage.id = id;
           cachedImage.z = zIndex != null ? zIndex : 0;
 
           this.images[id] = cachedImage;
           cachedImage.reset();
+          if (onAdjust)
+          {
+            onAdjust(false);
+          }
         }
 
         if (onSuccess != null)
@@ -395,28 +401,28 @@
       },
 
       cacheTiledImage:
-      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid)
+      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid, onAdjust, data)
       {
         var thisInstance = this;
         this.ajaxProvider.ajax(path + '/info.json',
-                               function(data)
+                               function(response)
                                {
-                                 if (data.status)
+                                 if (response.status)
                                  {
-                                   if (isValid == null || isValid(data.data))
+                                   if (isValid == null || isValid(response.data))
                                    {
-                                     thisInstance.cacheTiledImageOffline(id, path, data.data, onSuccess, onUpdate, $row, zIndex);
+                                     thisInstance.cacheTiledImageOffline(id, path, response.data, onSuccess, onUpdate, $row, zIndex, onAdjust, data);
                                    }
                                  }
                                  else
                                  {
                                    if (onFailure)
                                    {
-                                     onFailure(data.message);
+                                     onFailure(response.message);
                                    }
                                    else
                                    {
-                                     alert(data.message);
+                                     alert(response.message);
                                    }
                                  }
                                },
@@ -432,7 +438,7 @@
       startAdjustment:
       function(id)
       {
-        if (!(id in this.images))
+        if (id != null && !(id in this.images))
         {
           return false;
         }
@@ -442,8 +448,30 @@
           this.adjust = {};
         }
 
-        this.adjust[id] = this.images[id];
+        if (id == null)
+        {
+          $.each(this.images,
+                 $.proxy(this._startAdjustment,
+                         this));
+        }
+        else
+        {
+          this._startAdjustment(id, this.images[id]);
+        }
+
         return true;
+      },
+
+      _startAdjustment:
+      function(id, image)
+      {
+        if (id in this.adjust) return;
+
+        this.adjust[id] = image;
+        if (image.onAdjust)
+        {
+          image.onAdjust(true);
+        }
       },
 
       has:
@@ -481,11 +509,27 @@
       {
         if (this.adjust && id in this.adjust)
         {
+          var image = this.adjust[id];
+          if (image.onAdjust)
+          {
+            image.onAdjust(false);
+          }
           delete this.adjust[id];
         }
 
         if (id == null)
         {
+          if (this.adjust)
+          {
+            $.each(this.adjust,
+            function(_, image)
+            {
+              if (image.onAdjust)
+              {
+                image.onAdjust(false);
+              }
+            });
+          }
           this.adjust = null;
         }
         else

@@ -1,4 +1,4 @@
-function detailsGenerator(info, $div)
+function detailsGenerator(info, $div, $adjust)
 {
   var properties = info.properties;
 
@@ -26,6 +26,11 @@ function detailsGenerator(info, $div)
         .addClass('image-details')
         .text(properties.name.value));
       delete properties.name;
+    }
+
+    if ($adjust)
+    {
+      $div.append($adjust);
     }
 
     if ('description' in properties && properties.description.type != 't')
@@ -74,6 +79,13 @@ function detailsGenerator(info, $div)
             break;
         }
       }
+    }
+  }
+  else
+  {
+    if ($adjust)
+    {
+      $div.append($adjust);
     }
   }
 

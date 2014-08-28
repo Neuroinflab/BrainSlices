@@ -143,9 +143,10 @@ function initCart()
 
 
       //adjustment
-      var $adjustment = $('<div>')
-        .addClass('adjust-column')
-        .appendTo($row);
+      var $adjustment = $('<div>');
+      var $iface = $('<span>');
+      var $adjust = $('<input>')
+        .attr('type', 'checkbox');
       var $imageLeft = $('<input>');
       var $imageTop = $('<input>');
       var $pixelSize = $('<input>');
@@ -158,6 +159,12 @@ function initCart()
         $imageTop.val(info.imageTop);
         $pixelSize.val(info.pixelSize);
         $status.val(info.status);
+      }
+
+      function onAdjust(adjusted)
+      {
+        $iface.css('display', adjusted ? '': 'none');
+        $adjust.prop('checked', adjusted);
       }
 
       //removal
@@ -183,68 +190,67 @@ function initCart()
 
                           function toPostpone()
                           {
-                            detailsGenerator(img.info, $drag)
+                            $adjustment
+                              .addClass('adjustPanel')
+                              .css('display', img.info.editPrivilege && scope.get('edit') ?
+                                              '': 'none')
+                              .append($adjust
+                                .change(function()
+                                {
+                                  if (this.checked)
+                                  {
+                                    $iface.show(0);
+                                    thisInstance.images.startAdjustment(id);
+                                  }
+                                  else
+                                  {
+                                    $iface.hide(0);
+                                    thisInstance.images.stopAdjustment(id);
+                                  }
+
+                                  $drag.folder('requestUpdate');
+                                  thisInstance.doLazyRefresh();
+                                }))
+                              .append($iface
+                                .append($imageLeft
+                                //  .addClass('imageLeft')
+                                  .attr('type', 'number')
+                                  .addClass('adjustPanel')
+                                  .change(function()
+                                  {
+                                    image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
+                                  }))
+                                .append($imageTop
+                                //  .addClass('imageTop')
+                                  .attr('type', 'number')
+                                  .addClass('adjustPanel')
+                                  .change(function()
+                                  {
+                                    image.updateInfo(null, parseFloat($imageTop.val()), null, null, false);
+                                  }))
+                                .append($pixelSize
+                                //  .addClass('pixelSize')
+                                  .attr('type', 'number')
+                                  .addClass('adjustPanel')
+                                  .change(function()
+                                  {
+                                    image.updateInfo(null, null, parseFloat($pixelSize.val()), null, false);
+                                  }))
+                                .append($status
+                                //  .attr('name', 'status')
+                                  .append($('<option>')
+                                           .text('Processed')
+                                           .attr('value', '6'))
+                                  .append($('<option>')
+                                           .text('Accepted')
+                                           .attr('value', '7'))
+                                  .change(function()
+                                  {
+                                    image.updateInfo(null, null, null, parseInt($status.val()), false);
+                                  })));
+
+                            detailsGenerator(img.info, $drag, $adjustment)
                               .folder({fit: true});
-
-      var adjusted = thisInstance.isAdjusted(id);
-
-      $('<input>')
-        .attr('type', 'checkbox')
-        .prop('checked', adjusted)
-        .change(function()
-        {
-          if (this.checked)
-          {
-            $iface.show(0);
-            thisInstance.images.startAdjustment(id);
-          }
-          else
-          {
-            $iface.hide(0);
-            thisInstance.images.stopAdjustment(id);
-          }
-
-          $drag.folder('requestUpdate');
-          thisInstance.doLazyRefresh();
-        })
-        .appendTo($adjustment);
-
-      var $iface = $('<span>')
-        .css('display', adjusted ? '': 'none')
-        .append($imageLeft
-        //  .addClass('imageLeft')
-          .attr('type', 'number')
-          .change(function()
-          {
-            image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
-          }))
-        .append($imageTop
-        //  .addClass('imageTop')
-          .attr('type', 'number')
-          .change(function()
-          {
-            image.updateInfo(null, parseFloat($imageTop.val()), null, null, false);
-          }))
-        .append($pixelSize
-        //  .addClass('pixelSize')
-          .attr('type', 'number')
-          .change(function()
-          {
-            image.updateInfo(null, null, parseFloat($pixelSize.val()), null, false);
-          }))
-        .append($status
-        //  .attr('name', 'status')
-          .append($('<option>')
-                   .text('Processed')
-                   .attr('value', '6'))
-          .append($('<option>')
-                   .text('Accepted')
-                   .attr('value', '7'))
-          .change(function()
-          {
-            image.updateInfo(null, null, null, parseInt($status.val()), false);
-          }))
-        .appendTo($adjustment);
 
                             $row
                               .append($('<a>')
@@ -270,7 +276,10 @@ function initCart()
                             $drag.folder('refresh');
                           }, true);
                         },
-                        onfailure, isvalid, onUpdate);
+                        onfailure, isvalid, onUpdate, onAdjust,
+                        {
+                          $adjustPanel: $adjustment
+                        });
       
 
       return id;

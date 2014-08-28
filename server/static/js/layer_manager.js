@@ -218,10 +218,13 @@ with ({gui: BrainSlices.gui,
      *   onUpdate - A method for internal image object of <CImageManager>
      *              to be called when some basic image metadata (imageLeft,
      *              imageTop, pixelSize, status) has changed.
+     *   onAdjust - A method for internal image object of <CImageManager>
+     *              to be called when image "adjust" status changes.
+     *   data - Extra data.
      *************************************************************************/
     addTileLayer:
-    function(id, $row, $visibility, zIndex, dragMIME, onremove,
-             path, info, update, onsuccess, onfailure, isvalid, onUpdate)
+    function(id, $row, $visibility, zIndex, dragMIME, onremove, path, info,
+             update, onsuccess, onfailure, isvalid, onUpdate, onAdjust, data)
     {
       var thisInstance = this;
 
@@ -252,7 +255,8 @@ with ({gui: BrainSlices.gui,
                                         return false;
                                       }
                                       return true;
-                                    });
+                                    },
+                                    onAdjust, data);
       }
       else
       {
@@ -263,7 +267,7 @@ with ({gui: BrainSlices.gui,
         else
         {
           this.images.cacheTiledImageOffline(id, path, info, finishCaching,
-                                             onUpdate, $row);
+                                             onUpdate, $row, null, onAdjust, data);
         }
       }
     },
@@ -387,7 +391,7 @@ with ({gui: BrainSlices.gui,
 
         while (loadButtons.length < nmax)
         {
-          (function(stackId)
+          (function(stackId, id)
           {
             var changeHandler = function()
             {
@@ -418,7 +422,7 @@ with ({gui: BrainSlices.gui,
               $td: $td,
               changeHandler: changeHandler
             });
-          })(loadButtons.length);
+          })(loadButtons.length, id);
         }
         
         for (var y = 0; y < this.stacks.ny; y++)

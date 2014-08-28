@@ -85,8 +85,7 @@ div.layer-row
 }
 
 div.label-column,
-div.visible-column,
-div.adjust-column
+div.visible-column
 {
   text-align: center;
 
@@ -125,14 +124,16 @@ div.adjust-column
 /*  vertical-align: top;*/
 }
 
-.adjust-column
+div.adjustPanel
 {
-  width: 55px;
+  /*display: inline-block;*/
+  /*float: left;*/
+  text-align: left;
 }
 
-#layerList .adjust-column
+input.adjustPanel
 {
-  padding-top: 30px !important;
+  width: 80px;
 }
 
 div.layer-cb-table

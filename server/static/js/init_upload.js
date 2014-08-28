@@ -140,38 +140,73 @@ function initUpload()
   $('#batchId').change(batchDetails);
 
 
-  scope.registerChange(function(value)
-  {
-    // fetch list of available batches
-    // and update #batchId select
-    var $batchSelect = $('#batchId')
-      .html('<option value="None" selected="selected">None</option>');
+  $('#editCart')
+    .click(scope.getToggle('edit'));
 
-    if (value == null)
+  scope
+    .registerChange(function(value)
     {
-      return;
-    }
-
-    loginConsole.ajax(
-      '/upload/batchList',
-      function(response)
+      if (value)
       {
-        if (!response.status)
+        $('#editCart')
+          .addClass('selected');
+
+        images.apply(null, function(image)
         {
-          alertWindow.error(response.message);
-          return;
-        }
-  
-        var list = response.data;
-        for (var i = 0; i < list.length; i++)
+          image.data.$adjustPanel.css('display', image.info.editPrivilege > 0 ?
+                                                 '' :
+                                                 'none');
+        });
+      }
+      else
+      {
+        $('#editCart')
+          .removeClass('selected');
+
+        images.apply(null, function(image)
         {
-          $batchSelect.append('<option value="' + list[i][0] + '">' +
-                              BrainSlices.gui.escapeHTML(list[i][1]) + '</option>');
-        }
-      },
-      null, null, null,
-      {cache: false});
-  }, 'login');
+          image.data.$adjustPanel.css('display', 'none');
+        });
+
+        layerManager.stopAdjustment();
+      }
+    }, 'edit')
+    .registerChange(function(value)
+    {
+      // fetch list of available batches
+      // and update #batchId select
+      var $batchSelect = $('#batchId')
+        .html('<option value="None" selected="selected">None</option>');
+
+      if (value == null)
+      {
+        scope.set('edit', false);
+        $('#editCart').hide();
+        return;
+      }
+
+      $('#editCart').show();
+
+      loginConsole.ajax(
+        '/upload/batchList',
+        function(response)
+        {
+          if (!response.status)
+          {
+            alertWindow.error(response.message);
+            return;
+          }
+    
+          var list = response.data;
+          for (var i = 0; i < list.length; i++)
+          {
+            $batchSelect.append('<option value="' + list[i][0] + '">' +
+                                BrainSlices.gui.escapeHTML(list[i][1]) + '</option>');
+          }
+        },
+        null, null, null,
+        {cache: false});
+    }, 'login');
 
   
 
@@ -436,4 +471,6 @@ function initUploadFinish()
       }
     });
     */
+
+  BrainSlices.scope.set('edit', false);
 }
