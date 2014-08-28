@@ -150,7 +150,13 @@ function initCart()
       var $imageLeft = $('<input>');
       var $imageTop = $('<input>');
       var $pixelSize = $('<input>');
-      var $status = $('<select>');
+      var $status = $('<select>')
+        .append($('<option>')
+                 .text('Processed')
+                 .attr('value', '6'))
+        .append($('<option>')
+                 .text('Accepted')
+                 .attr('value', '7'));
 
       function onUpdate()
       {
@@ -238,12 +244,6 @@ function initCart()
                                   }))
                                 .append($status
                                 //  .attr('name', 'status')
-                                  .append($('<option>')
-                                           .text('Processed')
-                                           .attr('value', '6'))
-                                  .append($('<option>')
-                                           .text('Accepted')
-                                           .attr('value', '7'))
                                   .change(function()
                                   {
                                     image.updateInfo(null, null, null, parseInt($status.val()), false);
