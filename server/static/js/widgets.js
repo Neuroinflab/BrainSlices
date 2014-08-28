@@ -1337,7 +1337,11 @@ var CFilterPanel = null;
         {
           if (this.options.folded)
           {
-            this.element.height(this.$parent.height() + this.element.height() - this.element.outerHeight());
+            var delta = this.element.height() - this.element.outerHeight();
+            this.element
+              .hide(0)
+              .height(this.$parent.height() + delta)
+              .show(0);
           }
           else
           {

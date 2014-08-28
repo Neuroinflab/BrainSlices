@@ -341,13 +341,6 @@
      *   length - Number of items in the sequence.
      *   id2row - A mapping of item ifentifier to the object representanting the
      *            item.
-     *   lazyRefresh - An array of callback objects with callbacks to be called when
-     *                 a row is visible. Every callback object contains attributes:
-     *                 $row - row element,
-     *                 callback - a callback function,
-     *                 id - an unique identifier of the item in the manager,
-     *                 nr - a number of table the callback applies,
-     *                 parmanent - do not remove after firing.
      ***************************************************************************
      * Constructor: CTableManager
      *
@@ -366,7 +359,6 @@
       this.$table = $table;
       this.onUpdate = onUpdate;
       this.id = id ? id : 'default';
-      this.lazyRefresh = [];
       $table.empty();
     }
 
@@ -448,11 +440,6 @@
         {
           return null;
         }
-
-        this.lazyRefresh = this.lazyRefresh.filter(function(item)
-        {
-          return item.id != id;
-        });
 
         var row = this.id2row[id];
         delete this.id2row[id];
@@ -600,30 +587,30 @@
        * Returns:
        *   true if callback added successfully.
        ***************************************************************/
-        var $rows = this.id2row[id].$row;
         if (callbacks.call != undefined)
         {
           callbacks = [callbacks];
         }
 
-        if ($rows.length != callbacks.length)
+        if (this.$table.length != callbacks.length)
         {
           console.error('addLazyRefresh - callback length mismatch');
           console.debug($rows, callbacks);
           return false;
         }
 
+        var onVisible = this.id2row[id].onVisible;
+
+
         for (var i = 0; i < callbacks.length; i++)
         {
+          var lazyRefresh = onVisible[i];
           var callback = callbacks[i];
           if (callback)
           {
-            this.lazyRefresh.push(
+            lazyRefresh.push(
             {
-              $row: $rows.eq(i),
               callback: callback,
-              nr: i,
-              id: id,
               permanent: permanent
             });
           }
@@ -632,51 +619,89 @@
       },
 
       doLazyRefresh:
-      function()
+      function(minLeft, maxRight)
       {
-      /**
-       * Method: doLazyRefresh
-       *
-       * Execute (and remove) callbacks for visible items
-       * in order they have been added.
-       ***************************************************/
-        var height = this.$table.map(function(_, item)
+       /**
+        * Method: doLazyRefresh
+        *
+        * Execute (and remove) callbacks for visible items
+        * in order they have been added.
+        *
+        * Parameters:
+        *   minLeft - lower bound for indices of items to be
+        *             considered visible,
+        *   maxRight - an upper bound for indices of items to be
+        *              considered visible
+        *********************************************************/
+        if (this.length == 0) return;
+        if (minLeft == undefined)
         {
-          return $(item).innerHeight();
-        });
-
-        //XXX: warning for invisible tables!
-
-        var todo = [];
-        var lazyRefresh = this.lazyRefresh;
-        for (var i = 0; i < lazyRefresh.length; i++)
+          minLeft = 0;
+        }
+        if (maxRight == undefined)
         {
-          //XXX filter is not suitable because list traversing
-          //    order is unknown
-          var cb = lazyRefresh[i];
-          var $row = cb.$row;
-          var top = $row.position().top;
-          if (top > height[cb.nr])
-          {
-            todo.push(cb);
-            continue;
-          }
-
-          if (top + $row.height() < 0)
-          {
-            todo.push(cb);
-            continue;
-          }
-
-          cb.callback.call();
-
-          if (cb.permanent)
-          {
-            todo.push(cb);
-          }
+          maxRight = this.length - 1;
         }
 
-        this.lazyRefresh = todo;
+
+        var rows = this.rows;
+
+        this.$table.each(function(idx, table)
+        {
+          var height = $(table).innerHeight();
+          if (height == 0) return; // XXX: probably not visible
+
+          var left = minLeft;
+          var right = maxRight;
+          var middle, $row, row;
+          while (left + 1 < right)
+          {
+            // invariant: rows[left]...bottom < 0 
+            middle = parseInt((left + right) / 2);
+            row = rows[middle];
+            $row = row.$row.eq(idx);
+            if ($row.position().top + $row.height() < 0)
+            {
+              left = middle;
+            }
+            else
+            {
+              right = middle;
+            }
+          }
+
+          var onVisible, top, cb, todo;
+          while (left <= maxRight)
+          {
+            row = rows[left];
+            $row = row.$row.eq(idx);
+            if ($row.position().top > height)
+            {
+              console.log('break-of-height', $row.position(), height);
+              break;
+            }
+
+
+            console.log();
+            onVisible = row.onVisible[idx];
+            var todo = [];
+            for (var i = 0; i < onVisible.length; i++)
+            {
+              cb = onVisible[i];
+              cb.callback.call();
+              if (cb.permanent)
+              {
+                todo.push(cb);
+              }
+            }
+            row.onVisible[idx] = todo;
+
+            left++;
+          }
+
+         // console.debug(row);
+         // console.log(left, maxRight)
+        });
       },
 
       add:
@@ -737,6 +762,7 @@
                     id: id,
                     onRemove: onRemove,
                     onUpdate: onUpdate,
+                    onVisible: $row.map(function(){return [[]];}),
                     index: index
                   };
 

@@ -1,6 +1,6 @@
 function initVisualise()
 {
-  function rearrangeInterface()
+  function rearrangeInterface(gridChanged)
   {
     dims = scope.get("grid_dims");
     var nx = dims.x;
@@ -11,7 +11,15 @@ function initVisualise()
                            parseInt(Math.max(100, 66 * nx / ny)) + '%';
   
     stacks.rearrange(nx, ny, width);
-    layerManager.arrangeInterface();
+    if (gridChanged)
+    {
+      layerManager.arrangeInterface();
+      $('#layerList')
+        .children('.layer-row')
+          .children('.image-details')
+            .folder('requestUpdate');
+      layerManager.doLazyRefresh();
+    }
   }
 
   var scope = BrainSlices.scope;
@@ -242,7 +250,7 @@ function initVisualise()
     .registerChange(function(val)
     {
       state.shape = [val.x, val.y]; // XXX obsoleted
-      rearrangeInterface();
+      rearrangeInterface(true);
 
       $('.visible-column')
         .width(Math.max(val.x * 20, 65)); // XXX hard coded

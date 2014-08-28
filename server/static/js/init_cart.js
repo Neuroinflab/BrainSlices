@@ -8,9 +8,22 @@ function initCart()
       var $panels = $('#panels');
       function complete()
       {
-        if (scope.get('interfaceMode') == 'visualise')
+        switch (scope.get('interfaceMode'))
         {
-          stacks.resize();
+          case 'visualise':
+            stacks.resize();
+            break;
+
+          case 'browse':
+            $('#searchResults')
+              .children('.search-row')
+                .children('.image-details')
+                  .folder('requestUpdate')
+                  .folder('refresh');
+            break;
+
+          default:
+            break;
         }
       }
 
@@ -27,32 +40,7 @@ function initCart()
             },
             {
               queue: false,
-              complete:
-              function()
-              {
-/*                $('#layerList')
-                  .children('.layer-row')
-                    .children('.image-details')
-                      .folder('refresh');*/
-                layerManager.doLazyRefresh();
-
-                switch (scope.get('interfaceMode'))
-                {
-                  case 'visualise':
-                    stacks.resize();
-                    break;
-
-                  case 'browse':
-/*                    $('#searchResults')
-                      .children('.search-row')
-                        .children('.image-details')
-                          .folder('refresh');*/
-                    break;
-
-                  default:
-                    break;
-                }
-              }
+              complete: complete
             });
           $cart
             .animate(
@@ -60,7 +48,16 @@ function initCart()
               width: cartWidth + 'px'
             },
             {
-              queue: false
+              queue: false,
+              complete:
+              function()
+              {
+                $('#layerList')
+                  .children('.layer-row')
+                    .children('.image-details')
+                      .folder('requestUpdate');
+                layerManager.doLazyRefresh();
+              }
             });
         });
       }

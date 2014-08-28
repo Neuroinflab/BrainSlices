@@ -377,6 +377,49 @@ with ({gui: BrainSlices.gui,
         var $cbTable = $('<div>')
           .addClass('layer-cb-table')
           .appendTo(layer.$visibility);
+
+        loadButtons
+          .splice(nmax)
+          .map(function(item)
+          {
+            item.$cb.unbind('change', item.changeHandler);
+          });
+
+        while (loadButtons.length < nmax)
+        {
+          (function(stackId)
+          {
+            var changeHandler = function()
+            {
+              if (this.checked)
+              {
+                thisInstance.load(stackId, id, true);
+              }
+              else
+              {
+                thisInstance.unload(stackId, id, true);
+              }
+            };
+
+            var $td = $('<div>')
+              .addClass('layer-cb-cell recyclableElement');
+
+            var $cb = $('<input>')
+              .attr('type', 'checkbox')
+              .appendTo($td)
+              .change(changeHandler);
+
+
+            console.assert(loadButtons.length == stackId);
+
+            loadButtons.push(
+            {
+              $cb: $cb,
+              $td: $td,
+              changeHandler: changeHandler
+            });
+          })(loadButtons.length);
+        }
         
         for (var y = 0; y < this.stacks.ny; y++)
         {
@@ -388,47 +431,11 @@ with ({gui: BrainSlices.gui,
           {
 
             var stackId = x * this.stacks.ny + y;
-            var $cb;
+            var button = loadButtons[stackId];
+            button.$cb
+              .prop('checked', this.stacks.has(stackId, id));
 
-            if (loadButtons.length > stackId)
-            {
-              $cb = loadButtons[stackId].$cb;
-            }
-            else
-            {
-              (function(stackId)
-              {
-                var changeHandler = function()
-                {
-                  if (this.checked)
-                  {
-                    thisInstance.load(stackId, id, true);
-                  }
-                  else
-                  {
-                    thisInstance.unload(stackId, id, true);
-                  }
-                };
-
-                $cb = $('<input>')
-                  .attr('type', 'checkbox')
-                  .addClass('recyclableElement')
-                  .change(changeHandler);
-
-                loadButtons[stackId] =
-                {
-                  $cb: $cb,
-                  changeHandler: changeHandler
-                };
-              })(stackId);
-            }
-
-            var $actTd = $('<div>')
-              .addClass('layer-cb-cell')
-              .appendTo($actTr);
-
-            $cb.prop('checked', this.stacks.has(stackId, id));
-            $actTd.append($cb);
+            button.$td.appendTo($actTr);
           }
         }
 
@@ -436,12 +443,6 @@ with ({gui: BrainSlices.gui,
         var dt = Math.floor(0.5 * (83 - 20 * this.stacks.ny));
         layer.$visibility.css('padding-top', dt > 0 ? dt + 'px': 0);
 
-        var toDismiss = loadButtons.splice(nmax);
-        for (var i = 0; i < toDismiss.length; i++)
-        {
-          var item = toDismiss[i];
-          item.$cb.unbind('change', item.changeHandler);
-        }
 
         layer.loadButtons = loadButtons;
       }
