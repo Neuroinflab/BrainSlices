@@ -93,19 +93,19 @@ function initBrowse()
       {
         $('#searchPanelDiv').addClass('filters-visible');
         $('#btn_filters').addClass('selected');
-/*        $('#searchResults')
+        $('#searchResults')
           .children('.search-row')
             .children('.image-details')
-              .folder('refresh');*/
+              .folder('forceRefresh');
       }
       else
       {
         $('#searchPanelDiv').removeClass('filters-visible');
         $('#btn_filters').removeClass('selected');
-/*        $('#searchResults')
+        $('#searchResults')
           .children('.search-row')
             .children('.image-details')
-              .folder('refresh');*/
+              .folder('forceRefresh');
       }
     }, 'filters');
 
@@ -486,14 +486,26 @@ function initBrowseFinish()
     }
 
     layerManager.updateOrder();
+    waitWindow.close();
   }
 
-  $('#addResultsToCart').click(addToCart);
-  $('#moveResultsToCart').click(function()
-  {
-    layerManager.flush();
-    addToCart();
-  });
+  $('#addResultsToCart')
+    .click(function()
+    {
+      waitWindow.message('Adding images to the cart.');
+      setTimeout(addToCart, 50);
+    });
+
+  $('#moveResultsToCart')
+    .click(function()
+    {
+      waitWindow.message('Moving images to the cart.');
+      setTimeout(function()
+      {
+        layerManager.flush();
+        addToCart();
+      }, 50);
+    });
 
   $('#searchPropertySearch').click(function()
   {

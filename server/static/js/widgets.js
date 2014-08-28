@@ -1316,7 +1316,15 @@ var CFilterPanel = null;
     function()
     {
 //      console.log('refresh');
-      if (!this.invalid) return;
+      if (this.invalid)
+      {
+        this.forceRefresh();
+      }
+    },
+
+    forceRefresh:
+    function()
+    {
 //      console.log('refresh invalid');
       var contentHeight = this.$wrapper.outerHeight(true);
 //      console.debug(contentHeight, this.options.fit, this.$parent.height(), this.options.treshold);
