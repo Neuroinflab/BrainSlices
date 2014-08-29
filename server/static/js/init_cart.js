@@ -102,6 +102,14 @@ function initCart()
     layerManager.doLazyRefresh();
   });
 
+  $(window).resize(function()
+  {
+    if (scope.get('cart'))
+    {
+      layerManager.doLazyRefresh();
+    }
+  });
+
   layerManager = new CLayerManager($layerList,
                                    stacks,
                                    loginConsole,
