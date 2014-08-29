@@ -84,11 +84,14 @@ div.layer-row
   box-sizing: border-box;
 }
 
+div.layer-row.changed
+{
+  background: #FFEEEE; 
+}
+
 div.label-column,
 div.visible-column
 {
-  text-align: center;
-
   padding: 0;
   margin: 0;
 
@@ -99,13 +102,20 @@ div.visible-column
 }
 
 
-.label-column
+div.label-column
 {
-  width: 384px;
+  /*width: 384px;*/
+  text-align: left;
+}
+
+div.visible-column
+{
+  text-align: center;
 }
 
 #layerList .label-column
 {
+
 /*  vertical-align: top;*/
 }
 
@@ -126,14 +136,66 @@ div.visible-column
 
 div.adjustPanel
 {
-  /*display: inline-block;*/
+  display: inline-block;
   /*float: left;*/
   text-align: left;
+}
+
+label.adjustPanelAdjust:after
+{
+  content: " adjust";
+}
+
+label.adjustPanelLeft:before
+{
+  content: "left: ";
+}
+
+label.adjustPanelLeft:after,
+label.adjustPanelTop:after
+{
+  content: " \00B5m";
+}
+
+label.adjustPanelTop:before
+{
+  content: "top: ";
+}
+
+label.adjustPanelRes:before
+{
+  content: "Resolution: ";
+}
+
+label.adjustPanelRes:after
+{
+  content: " DPI";
 }
 
 input.adjustPanel
 {
   width: 80px;
+  border-radius: 4px;
+}
+
+label.adjustPanelStatus:before
+{
+  content: "Status: ";
+}
+
+select.adjustPanelStatus
+{
+  border-radius: 4px;
+  margin: 0;
+}
+
+div.adjustPanelStatus
+{
+  display: inline-block;
+  border-radius: 4px;
+  background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+  background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+  box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
 
 div.layer-cb-table

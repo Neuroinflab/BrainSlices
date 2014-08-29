@@ -150,26 +150,16 @@ function initUpload()
       {
         $('#editCart')
           .addClass('selected');
-
-        images.apply(null, function(image)
-        {
-          image.data.$adjustPanel.css('display', image.info.editPrivilege > 0 ?
-                                                 '' :
-                                                 'none');
-        });
       }
       else
       {
         $('#editCart')
           .removeClass('selected');
 
-        images.apply(null, function(image)
-        {
-          image.data.$adjustPanel.css('display', 'none');
-        });
-
         layerManager.stopAdjustment();
       }
+
+      layerManager.doLazyRefresh();
     }, 'edit')
     .registerChange(function(value)
     {

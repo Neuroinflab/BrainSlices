@@ -171,7 +171,7 @@ function initCart()
         var info = this.info;
         $imageLeft.val(info.imageLeft);
         $imageTop.val(info.imageTop);
-        $pixelSize.val(info.pixelSize);
+        $pixelSize.val(25400. / info.pixelSize);
         $status.val(info.status);
       }
 
@@ -206,56 +206,71 @@ function initCart()
                           {
                             $adjustment
                               .addClass('adjustPanel')
-                              .css('display', img.info.editPrivilege && scope.get('edit') ?
-                                              '': 'none')
-                              .append($adjust
-                                .change(function()
-                                {
-                                  if (this.checked)
+                              .append($('<label>')
+                                .addClass('adjustPanelAdjust')
+                                .append($adjust
+                                  .change(function()
                                   {
-                                    $iface.show(0);
-                                    thisInstance.images.startAdjustment(id);
-                                  }
-                                  else
-                                  {
-                                    $iface.hide(0);
-                                    thisInstance.images.stopAdjustment(id);
-                                  }
+                                    if (this.checked)
+                                    {
+                                      $iface.show(0);
+                                      thisInstance.images.startAdjustment(id);
+                                    }
+                                    else
+                                    {
+                                      $iface.hide(0);
+                                      thisInstance.images.stopAdjustment(id);
+                                    }
 
-                                  $drag.folder('requestUpdate');
-                                  thisInstance.doLazyRefresh();
-                                }))
+                                    $drag.folder('requestUpdate');
+                                    thisInstance.doLazyRefresh();
+                                  })))
+                              .append('<br>')
                               .append($iface
-                                .append($imageLeft
-                                //  .addClass('imageLeft')
-                                  .attr('type', 'number')
-                                  .addClass('adjustPanel')
-                                  .change(function()
-                                  {
-                                    image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
-                                  }))
-                                .append($imageTop
-                                //  .addClass('imageTop')
-                                  .attr('type', 'number')
-                                  .addClass('adjustPanel')
-                                  .change(function()
-                                  {
-                                    image.updateInfo(null, parseFloat($imageTop.val()), null, null, false);
-                                  }))
-                                .append($pixelSize
-                                //  .addClass('pixelSize')
-                                  .attr('type', 'number')
-                                  .addClass('adjustPanel')
-                                  .change(function()
-                                  {
-                                    image.updateInfo(null, null, parseFloat($pixelSize.val()), null, false);
-                                  }))
-                                .append($status
-                                //  .attr('name', 'status')
-                                  .change(function()
-                                  {
-                                    image.updateInfo(null, null, null, parseInt($status.val()), false);
-                                  })));
+                                .append($('<label>')
+                                  .addClass('adjustPanelLeft')
+                                  .append($imageLeft
+                                //    .addClass('imageLeft')
+                                    .attr('type', 'number')
+                                    .addClass('adjustPanel')
+                                    .change(function()
+                                    {
+                                      image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
+                                    })))
+                                .append('<br>')
+                                .append($('<label>')
+                                  .addClass('adjustPanelTop')
+                                  .append($imageTop
+                                  //  .addClass('imageTop')
+                                    .attr('type', 'number')
+                                    .addClass('adjustPanel')
+                                    .change(function()
+                                    {
+                                      image.updateInfo(null, parseFloat($imageTop.val()), null, null, false);
+                                    })))
+                                .append('<br>')
+                                .append($('<label>')
+                                  .addClass('adjustPanelRes')
+                                  .append($pixelSize
+                                  //  .addClass('pixelSize')
+                                    .attr('type', 'number')
+                                    .addClass('adjustPanel')
+                                    .change(function()
+                                    {
+                                      image.updateInfo(null, null, 25400. / parseFloat($pixelSize.val()), null, false);
+                                    })))
+                                .append('<br>')
+                                .append($('<label>')
+                                  .addClass('adjustPanelStatus')
+                                  .append($('<div>')
+                                    .addClass('adjustPanelStatus')
+                                    .append($status
+                                    //  .attr('name', 'status')
+                                      .addClass('adjustPanelStatus')
+                                      .change(function()
+                                      {
+                                        image.updateInfo(null, null, null, parseInt($status.val()), false);
+                                      })))));
 
                             detailsGenerator(img.info, $drag, $adjustment)
                               .folder({fit: true});
@@ -270,24 +285,25 @@ function initCart()
                                 }));
                           }
 
-                          if (postponeUpdate)
-                          {
-                            thisInstance.tableManager.addLazyRefresh(id, toPostpone);
-                          }
-                          else
-                          {
-                            toPostpone();
-                          }
-
+                          thisInstance.tableManager.addLazyRefresh(id, toPostpone);
                           thisInstance.tableManager.addLazyRefresh(id, function()
                           {
-                            $drag.folder('refresh');
+                            $adjustment
+                              .css('display', img.info.editPrivilege && scope.get('edit') ?
+                                              '': 'none');
+                            var visWidth = Math.max(scope.get('grid_dims').x * 20, 65);
+                            $visibility.width(visWidth);
+                            $drag
+                              .width($row.width() - visWidth - 55)
+                              .folder('refresh');
                           }, true);
+
+                          if (!postponeUpdate)
+                          {
+                            thisInstance.tableManager.doLazyRefresh();
+                          }
                         },
-                        onfailure, isvalid, onUpdate, onAdjust,
-                        {
-                          $adjustPanel: $adjustment
-                        });
+                        onfailure, isvalid, onUpdate, onAdjust);
       
 
       return id;
