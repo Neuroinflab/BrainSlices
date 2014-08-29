@@ -179,6 +179,15 @@ function initCart()
       {
         $iface.css('display', adjusted ? '': 'none');
         $adjust.prop('checked', adjusted);
+        try
+        {
+          $drag.folder('requestUpdate');
+        }
+        catch (err)
+        {
+          // throws error on first call
+          //console.debug(err);
+        }
       }
 
       //removal
@@ -222,7 +231,6 @@ function initCart()
                                       thisInstance.images.stopAdjustment(id);
                                     }
 
-                                    $drag.folder('requestUpdate');
                                     thisInstance.doLazyRefresh();
                                   })))
                               .append('<br>')
@@ -270,7 +278,14 @@ function initCart()
                                       .change(function()
                                       {
                                         image.updateInfo(null, null, null, parseInt($status.val()), false);
-                                      })))));
+                                      }))))
+                                .append('<br>')
+                                .append($('<button>')
+                                  .text('Reset')
+                                  .click(function()
+                                  {
+                                    image.reset(true);
+                                  })));
 
                             detailsGenerator(img.info, $drag, $adjustment)
                               .folder({fit: true});
@@ -303,7 +318,8 @@ function initCart()
                             thisInstance.tableManager.doLazyRefresh();
                           }
                         },
-                        onfailure, isvalid, onUpdate, onAdjust);
+                        onfailure, isvalid, onUpdate, onAdjust,
+                        $drag);
       
 
       return id;

@@ -281,13 +281,25 @@
         {
           if (id in this.images)
           {
-            f(this.images[id], updateIFace);
+            f.call(this, this.images[id], updateIFace);
+          }
+        }
+      },
+
+      applyAdjusted:
+      function(f, updateIFace)
+      {
+        if (this.adjust)
+        {
+          for (id in this.adjust)
+          {
+            this.apply(id, f, updateIFace);
           }
         }
       },
 
       saveUpdatedTiled:
-      function()
+      function(checkEditPrivilege)
       {
         var changed = [];
         var changedMapping = {};
@@ -299,6 +311,12 @@
             if (image.changed)
             {
               var info = image.info;
+              if (checkEditPrivilege && info.editPrivilege == 0)
+              {
+                console.log('Not enough privileges to save changes in image of ID: ' + id);
+                continue;
+              }
+
               changed.push(info.iid + ',' + info.imageLeft + ',' + info.imageTop
                            + ',' + info.pixelSize + ',' + info.status);
               changedMapping[info.iid] = image;
@@ -363,13 +381,12 @@
       },
 
       cacheTiledImageOffline:
-      function(id, path, info, onSuccess, onUpdate, $row, zIndex, onAdjust, data)
+      function(id, path, info, onSuccess, onUpdate, $row, zIndex, onAdjust)
       {
         if (!this.has(id))
         {
           var cachedImage = Object.create(imagePrototype);
           cachedImage.info = info;
-          cachedImage.data = data;
 
           info._imageLeft = info.imageLeft;
           info._imageTop = info.imageTop;
@@ -401,7 +418,7 @@
       },
 
       cacheTiledImage:
-      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid, onAdjust, data)
+      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid, onAdjust)
       {
         var thisInstance = this;
         this.ajaxProvider.ajax(path + '/info.json',
@@ -411,7 +428,7 @@
                                  {
                                    if (isValid == null || isValid(response.data))
                                    {
-                                     thisInstance.cacheTiledImageOffline(id, path, response.data, onSuccess, onUpdate, $row, zIndex, onAdjust, data);
+                                     thisInstance.cacheTiledImageOffline(id, path, response.data, onSuccess, onUpdate, $row, zIndex, onAdjust);
                                    }
                                  }
                                  else

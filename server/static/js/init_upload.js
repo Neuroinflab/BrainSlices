@@ -143,6 +143,96 @@ function initUpload()
   $('#editCart')
     .click(scope.getToggle('edit'));
 
+  $('#adjustPanelAdjust')
+    .change(function()
+    {
+      if (this.checked)
+      {
+        images.apply(null, function(image, updateIface)
+        {
+          if (image.info.editPrivilege > 0)
+          {
+            images.startAdjustment(image.id);
+          }
+        });
+      }
+      else
+      {
+        images.stopAdjustment();
+      }
+
+      layerManager.doLazyRefresh();
+    });
+
+  $('#centerAdjustment')
+    .click(function()
+    {
+      images.applyAdjusted(function(image, updateIface)
+      {
+        var info = image.info;
+        var factor = -0.5 * info.pixelSize;
+        var imageLeft = factor * info.imageWidth;
+        var imageTop = factor * info.imageHeight;
+        image.updateInfo(imageLeft, imageTop, null, null, updateIface);
+      });
+    });
+
+  $('#adjustPanelLeft')
+    .change(function()
+    {
+      var val = $(this).val();
+      images.applyAdjusted(function(image, updateIface)
+      {
+        image.updateInfo(parseFloat(val), null, null, null, updateIface);
+      });
+    });
+
+  $('#adjustPanelTop')
+    .change(function()
+    {
+      var val = $(this).val();
+      images.applyAdjusted(function(image, updateIface)
+      {
+        image.updateInfo(null, parseFloat(val), null, null, updateIface);
+      });
+    });
+
+  $('#adjustPanelRes')
+    .change(function()
+    {
+      var val = $(this).val();
+      images.applyAdjusted(function(image, updateIface)
+      {
+        image.updateInfo(null, null, 25400. / parseFloat(val), null, updateIface);
+      });
+    });
+
+  $('#adjustPanelStatus')
+    .change(function()
+    {
+      var val = $(this).val();
+      images.applyAdjusted(function(image, updateIface)
+      {
+        image.updateInfo(null, null, null, parseInt(val), updateIface);
+      });
+    });
+
+  $('#saveAdjustment')
+    .click(function()
+    {
+      images.saveUpdatedTiled(true);
+    });
+
+
+  $('#resetAdjustment')
+    .click(function()
+    {
+      images.apply(null, function(image, updateIface)
+      {
+        image.reset(updateIface);
+      });
+    });
+
   scope
     .registerChange(function(value)
     {
@@ -150,6 +240,9 @@ function initUpload()
       {
         $('#editCart')
           .addClass('selected');
+
+        $('#layersConsoleTable').addClass('editPanel');
+        $('#editPanel').show();
       }
       else
       {
@@ -157,6 +250,8 @@ function initUpload()
           .removeClass('selected');
 
         layerManager.stopAdjustment();
+        $('#editPanel').hide();
+        $('#layersConsoleTable').removeClass('editPanel');
       }
 
       layerManager.doLazyRefresh();
@@ -245,62 +340,6 @@ function initUpload()
 
   $('#filesForUpload').change(updateFiles);
   $('#filterImageType').change(updateFiles);
-
-
-  /*
-  // XXX: Some quick hacks
-  
-  function saveUpdated()
-  {
-    //TODO: move to layerManager or so...
-    layerManager.images.saveUpdatedTiled();
-  }
-  
-  function updatePixelSize()
-  {
-    var ps = parseFloat($('#nps').val());
-    layerManager.images.updateImage(null, null, null, ps);
-  }
-  
-  function updateLeft()
-  {
-    var nleft = parseFloat($('#nleft').val());
-    layerManager.images.updateImage(null, nleft);
-  }
-  
-  function updateTop()
-  {
-    var ntop = parseFloat($('#ntop').val());
-    layerManager.images.updateImage(null, null, ntop);
-  }
-  
-  function updateStatus()
-  {
-    var nstatus = parseInt($('#nstatus').val());
-    layerManager.images.updateImageStatus(null, nstatus);
-  }
-  
-  function centerImage(id)
-  {
-    layerManager.images.apply(id, function(image, updateIfeace)
-    {
-      var info = image.info;
-      var factor = -0.5 * info.pixelSize;
-      var imageLeft = factor * info.imageWidth;
-      var imageTop = factor * info.imageHeight;
-      image.updateInfo(imageLeft, imageTop, null, null, updateIfeace);
-    });
-  }
-  
-  function resetImage(id)
-  {
-    layerManager.images.apply(id, function(image, updateIface)
-    {
-      image.reset(updateIface);
-    });
-  }
-  
-  */
 }
 
 function initUploadFinish()

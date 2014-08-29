@@ -220,11 +220,12 @@ with ({gui: BrainSlices.gui,
      *              imageTop, pixelSize, status) has changed.
      *   onAdjust - A method for internal image object of <CImageManager>
      *              to be called when image "adjust" status changes.
-     *   data - Extra data.
+     *   $imageRow - An jQuery HTML element representing the layer (for
+     *               <CImageManager> object).
      *************************************************************************/
     addTileLayer:
     function(id, $row, $visibility, zIndex, dragMIME, onremove, path, info,
-             update, onsuccess, onfailure, isvalid, onUpdate, onAdjust, data)
+             update, onsuccess, onfailure, isvalid, onUpdate, onAdjust, $imageRow)
     {
       var thisInstance = this;
 
@@ -242,7 +243,7 @@ with ({gui: BrainSlices.gui,
 
       if (info == null)
       {
-        this.images.cacheTiledImage(id, path, finishCaching, onUpdate, $row,
+        this.images.cacheTiledImage(id, path, finishCaching, onUpdate, $imageRow,
                                     null,
                                     onfailure,
                                     isvalid == null ?
@@ -256,7 +257,7 @@ with ({gui: BrainSlices.gui,
                                       }
                                       return true;
                                     },
-                                    onAdjust, data);
+                                    onAdjust);
       }
       else
       {
@@ -267,7 +268,7 @@ with ({gui: BrainSlices.gui,
         else
         {
           this.images.cacheTiledImageOffline(id, path, info, finishCaching,
-                                             onUpdate, $row, null, onAdjust, data);
+                                             onUpdate, $imageRow, null, onAdjust);
         }
       }
     },

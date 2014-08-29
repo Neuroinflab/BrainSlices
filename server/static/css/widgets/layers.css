@@ -84,9 +84,9 @@ div.layer-row
   box-sizing: border-box;
 }
 
-div.layer-row.changed
+div.changed
 {
-  background: #FFEEEE; 
+  background: #FFEEEE !important; 
 }
 
 div.label-column,
@@ -113,11 +113,7 @@ div.visible-column
   text-align: center;
 }
 
-#layerList .label-column
-{
 
-/*  vertical-align: top;*/
-}
 
 .thumbnail-only .label-column
 {
@@ -129,10 +125,7 @@ div.visible-column
   width: 65px;
 }
 
-#layerList .visible-column
-{
-/*  vertical-align: top;*/
-}
+
 
 div.adjustPanel
 {
@@ -176,6 +169,7 @@ input.adjustPanel
 {
   width: 80px;
   border-radius: 4px;
+  padding: 0 3px;
 }
 
 label.adjustPanelStatus:before
@@ -197,6 +191,10 @@ div.adjustPanelStatus
   background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
   box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
+
+
+
+
 
 div.layer-cb-table
 {
@@ -277,4 +275,19 @@ div.layer-cb-cell
 a.layer-download-button
 {
   text-decoration: none;
+}
+
+
+#editPanel
+{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 200px;
+}
+
+#layersConsoleTable.editPanel
+{
+  bottom: 200px;
 }
