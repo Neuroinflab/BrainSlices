@@ -9,6 +9,15 @@ function detailsGenerator(info, $div, $adjust)
 
   $div
     .addClass('image-details')
+    .append($('<a>')
+      .addClass('fa fa-arrow-circle-o-down layer-download-button')
+      .attr(
+      {
+        href: '/images/' + info.iid + '/image.png',
+        download: ''
+      }))
+    .append($('<div>')
+      .addClass('description-buttons-placeholder'))
     .append(BrainSlices.gui.getThumbnail(info.iid,
                                          info.imageWidth,
                                          info.imageHeight,
@@ -388,16 +397,7 @@ function initBrowseFinish()
               .addClass('search-row')
               .appendTo($searchPage);
 
-            var $div = $('<div></div>')
-              .append($('<a>')
-                .addClass('fa fa-arrow-circle-o-down layer-download-button')
-                .attr(
-                {
-                  href: '/images/' + info.iid + '/image.png',
-                  download: ''
-                }))
-              .append($('<div>')
-                .addClass('description-buttons-placeholder'))
+            var $div = $('<div>')
               .appendTo($row);
             detailsGenerator(info, $div);
 

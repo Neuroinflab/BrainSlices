@@ -92,9 +92,6 @@ div.changed
 div.label-column,
 div.visible-column
 {
-  padding: 0;
-  margin: 0;
-
   /*float: left;*/
   display: inline-block;
   vertical-align: top;
@@ -181,6 +178,9 @@ select.adjustPanelStatus
 {
   border-radius: 4px;
   margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 3px;
 }
 
 div.adjustPanelStatus
@@ -284,10 +284,10 @@ a.layer-download-button
   left: 0;
   right: 0;
   bottom: 0;
-  height: 200px;
+  height: 90px;
 }
 
 #layersConsoleTable.editPanel
 {
-  bottom: 200px;
+  bottom: 90px;
 }

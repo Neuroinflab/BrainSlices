@@ -190,10 +190,6 @@ function initCart()
         }
       }
 
-      //removal
-      $rem = $('<span class="layer-delete-button fa fa-times"></span>')
-        .bind('click', onremove)
-        .appendTo($row);
 
       this.addTileLayer(id, $row, //$.merge($row, $searchRow),
                         $visibility, zIndex, dragMIME,
@@ -290,14 +286,12 @@ function initCart()
                             detailsGenerator(img.info, $drag, $adjustment)
                               .folder({fit: true});
 
-                            $row
-                              .append($('<a>')
-                                .addClass('fa fa-arrow-circle-o-down layer-download-button')
-                                .attr(
-                                {
-                                  href: path + '/image.png',
-                                  download: ''
-                                }));
+                            //removal
+                            $drag
+                              .append($('<span>')
+                                .addClass('layer-delete-button fa fa-times')
+                                .click(onremove));
+
                           }
 
                           thisInstance.tableManager.addLazyRefresh(id, toPostpone);
@@ -309,7 +303,7 @@ function initCart()
                             var visWidth = Math.max(scope.get('grid_dims').x * 20, 65);
                             $visibility.width(visWidth);
                             $drag
-                              .width($row.width() - visWidth - 55)
+                              .width($row.width() - visWidth)
                               .folder('refresh');
                           }, true);
 
