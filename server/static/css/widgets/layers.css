@@ -123,6 +123,12 @@ div.visible-column
 }
 
 
+#editMode
+{
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 
 div.adjustPanel
 {
@@ -138,10 +144,10 @@ label.adjustPanelAdjust:after
 
 label.adjustPanelLeft:before
 {
-  content: "left: ";
+  content: "position: ";
 }
 
-label.adjustPanelLeft:after,
+/*label.adjustPanelLeft:after,*/
 label.adjustPanelTop:after
 {
   content: " \00B5m";
@@ -149,7 +155,7 @@ label.adjustPanelTop:after
 
 label.adjustPanelTop:before
 {
-  content: "top: ";
+  content: "x";
 }
 
 label.adjustPanelRes:before
@@ -176,19 +182,25 @@ label.adjustPanelStatus:before
 
 select.adjustPanelStatus
 {
-  border-radius: 4px;
-  margin: 0;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 3px;
 }
 
-div.adjustPanelStatus
+
+select.selectWrapper
+{
+  border-radius: 4px;
+  margin: 0;
+}
+
+div.selectWrapper
 {
   display: inline-block;
   border-radius: 4px;
   background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
   background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+  background: linear-gradient(top, #FFFFFF, #EEEEEE, 4%, #FFFFFF, 61%);
   box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
 

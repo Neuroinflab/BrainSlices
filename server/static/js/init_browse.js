@@ -1,11 +1,13 @@
-function detailsGenerator(info, $div, $adjust)
+function detailsGenerator(info, $div)
 {
   var properties = info.properties;
 
   if (!$div)
   {
-    $div = $('<div></div>');
+    $div = $('<div>');
   }
+
+  var result = {$div: $div};
 
   $div
     .addClass('image-details')
@@ -27,29 +29,31 @@ function detailsGenerator(info, $div, $adjust)
 
   if (properties)
   {
+    result.properties = {};
     properties = $.extend({}, properties);
 
     if ('name' in properties && properties.name.type != 't')
     {
-      $div.append($('<h1>')
+
+      $div.append(result.properties.name = $('<h1>')
         .addClass('image-details')
         .text(properties.name.value));
       delete properties.name;
     }
 
-    if ($adjust)
-    {
-      $div.append($adjust);
-    }
-
     if ('description' in properties && properties.description.type != 't')
     {
-      $div.append($('<p>')
+      $div.append(result.properties.description = $('<p>')
         .addClass('image-description image-details')
         .text(properties.description.value));
 
       delete properties.description;
     }
+
+    var $ul = $('<ul>')
+      .addClass('image-details')
+      .appendTo($div);
+    result.$properties = $ul;
 
     var names = [];
     for (var name in properties)
@@ -61,10 +65,6 @@ function detailsGenerator(info, $div, $adjust)
     {
       names.sort();
 
-      var $ul = $('<ul>')
-        .addClass('image-details');
-      $div.append($ul);
-
       for (var j = 0; j < names.length; j++)
       {
         var name = names[j];
@@ -72,6 +72,8 @@ function detailsGenerator(info, $div, $adjust)
           .addClass('image-details')
           .text(name)
           .appendTo($ul);
+
+        result.properties[name] = $li;
 
         var property = properties[name];
         switch (property.type)
@@ -90,15 +92,8 @@ function detailsGenerator(info, $div, $adjust)
       }
     }
   }
-  else
-  {
-    if ($adjust)
-    {
-      $div.append($adjust);
-    }
-  }
 
-  return $div;
+  return result;
 }
 
 

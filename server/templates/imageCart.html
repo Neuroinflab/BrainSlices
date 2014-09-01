@@ -4,6 +4,15 @@
   <button id="editCart" title="edit images">
    <span class="fa fa-pencil-square-o"></span>
   </button>
+
+  <div class="selectWrapper">
+   <select id="editMode" class="selectWrapper">
+    <option value="adjust">Basic</option>
+    <option value="privileges">Privileges</option>
+    <option value="properties">Annotations</option>
+   </select>
+  </div>
+
   <button id="emptyCart" title="empty image cart">
    <span class="fa fa-trash-o"></span>
   </button>
@@ -40,8 +49,8 @@
      </label>
 
      <label class="adjustPanelStatus">
-      <div class="adjustPanelStatus">
-       <select id="adjustPanelStatus" class="adjustPanelStatus">
+      <div class="selectWrapper">
+       <select id="adjustPanelStatus" class="adjustPanelStatus selectWrapper">
         <option value="6">
          Processed
         </option>

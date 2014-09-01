@@ -1,5 +1,6 @@
 var uploadedFiles = null;
 var fileUploader = null;
+var privilegeManager = null;
 
 function initUpload()
 {
@@ -143,6 +144,12 @@ function initUpload()
   $('#editCart')
     .click(scope.getToggle('edit'));
 
+  $('#editMode')
+    .change(function()
+    {
+      scope.set('editMode', $('#editMode').val());
+    });
+
   $('#adjustPanelAdjust')
     .change(function()
     {
@@ -242,7 +249,8 @@ function initUpload()
           .addClass('selected');
 
         $('#layersConsoleTable').addClass('editPanel');
-        $('#editPanel').show();
+        $('#editPanel').show(0);
+        $('#editMode').show(0);
       }
       else
       {
@@ -250,7 +258,8 @@ function initUpload()
           .removeClass('selected');
 
         layerManager.stopAdjustment();
-        $('#editPanel').hide();
+        $('#editPanel').hide(0);
+        $('#editMode').hide(0);
         $('#layersConsoleTable').removeClass('editPanel');
       }
 
@@ -340,6 +349,8 @@ function initUpload()
 
   $('#filesForUpload').change(updateFiles);
   $('#filterImageType').change(updateFiles);
+
+  privilegeManager = new CImagePrivilegesManager(loginConsole); 
 }
 
 function initUploadFinish()
@@ -382,7 +393,6 @@ function initUploadFinish()
         {cache: false});
     });
   
-  
     // TODO: check if the function is somehow useful
   
     /*
@@ -392,94 +402,7 @@ function initUploadFinish()
       addTileLayer:
       function(info)
       {
-        var id = info.iid;
-  
-        if (this.has(id)) return;
-  
-        var image = null;
-        var path = '/images/' + id;
-  
-        var thisInstance = this
-  
-        // making the layer-related row
-        var $row =  $('<tr></tr>');
-        var $drag = $('<td draggable="true">' + info.filename + '</td>');
-  
-        var dragMIME = [];
-  
-        $row.append($drag);
-  
-        // visibility interface
-        var $visibility = $('<td></td>');
-        $row.append($visibility);
-  
-        //adjustment
-        var $adjust = $('<input type="checkbox">');
-        var $iface = $('<span style="display: none;">' +
-                        '<input type="number" class="imageLeft">' +
-                        '<input type="number" class="imageTop">' +
-                        '<input type="number" class="pixelSize">' +
-                        '<select name="status">' +
-                         '<option value="6">Completed</option>' +
-                         '<option value="7">Accepted</option>' +
-                        '</select>' +
-                       '</span>');
-  
-        $adjust.bind('change', function()
-        {
-          if ($adjust.filter(':checked').length  != 0)
-          {
-            $iface.show();
-            thisInstance.images.startAdjustment(id);
-          }
-          else
-          {
-            $iface.hide();
-            thisInstance.images.stopAdjustment(id);
-          }
-        });
-  
-        $iface.find('input').bind('change', function()
-        {
-          if (image)
-          {
-            var imageLeft = parseFloat($iface.find('input.imageLeft').val());
-            var imageTop = parseFloat($iface.find('input.imageTop').val());
-            var pixelSize = parseFloat($iface.find('input.pixelSize').val());
-            image.updateInfo(imageLeft, imageTop, pixelSize, null, false);
-          }
-        });
-  
-        $iface.find('select[name="status"]').bind('change', function()
-        {
-          if (image)
-          {
-            var status = parseInt($iface.find('select[name="status"]').val());
-            image.updateInfo(null, null, null, status, false);
-          }
-        });
-  
-        function onUpdate()
-        {
-          var info = this.info;
-          $iface.find('input.imageLeft').val(info.imageLeft);
-          $iface.find('input.imageTop').val(info.imageTop);
-          $iface.find('input.pixelSize').val(info.pixelSize);
-          $iface.find('select[name="status"]').val(info.status);
-        }
-  
-        $row.append($adjust, $iface);
-  
-        //removal
-  
-        var $rem = $('<button>Remove</button>');
-  
-        $rem.bind('click', function()
-        {
-          thisInstance.tableManager.remove(id);
-        });
-        $row.append($('<td></td>').append($rem));
-  
+        /// XXX: A LARGE CUT
         //deletion
         var $del = $('<input type="checkbox">');
         deleteButtons[id] = $del;
@@ -496,10 +419,8 @@ function initUploadFinish()
                             image = img;
                           },
   			null, null,onUpdate);
-  
-      }
-    });
     */
 
   BrainSlices.scope.set('edit', false);
+  BrainSlices.scope.set('editMode', 'adjust');
 }

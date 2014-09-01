@@ -207,6 +207,8 @@ function initCart()
 
                           if (onsuccess) onsuccess();
 
+                          var rowElements;
+
                           function toPostpone()
                           {
                             $adjustment
@@ -229,8 +231,14 @@ function initCart()
 
                                     thisInstance.doLazyRefresh();
                                   })))
-                              .append('<br>')
                               .append($iface
+                                .append($('<button>')
+                                  .text('Reset')
+                                  .click(function()
+                                  {
+                                    image.reset(true);
+                                  }))
+                                .append('<br>')
                                 .append($('<label>')
                                   .addClass('adjustPanelLeft')
                                   .append($imageLeft
@@ -241,7 +249,6 @@ function initCart()
                                     {
                                       image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
                                     })))
-                                .append('<br>')
                                 .append($('<label>')
                                   .addClass('adjustPanelTop')
                                   .append($imageTop
@@ -263,27 +270,24 @@ function initCart()
                                     {
                                       image.updateInfo(null, null, 25400. / parseFloat($pixelSize.val()), null, false);
                                     })))
-                                .append('<br>')
+                                .append('&nbsp;')
                                 .append($('<label>')
                                   .addClass('adjustPanelStatus')
                                   .append($('<div>')
-                                    .addClass('adjustPanelStatus')
+                                    .addClass('selectWrapper')
                                     .append($status
                                     //  .attr('name', 'status')
-                                      .addClass('adjustPanelStatus')
+                                      .addClass('adjustPanelStatus selectWrapper')
                                       .change(function()
                                       {
                                         image.updateInfo(null, null, null, parseInt($status.val()), false);
                                       }))))
-                                .append('<br>')
-                                .append($('<button>')
-                                  .text('Reset')
-                                  .click(function()
-                                  {
-                                    image.reset(true);
-                                  })));
+                                .append('<br>'));
 
-                            detailsGenerator(img.info, $drag, $adjustment)
+                            rowElements = detailsGenerator(img.info, $drag);
+
+                            $drag
+                              .append($adjustment)
                               .folder({fit: true});
 
                             //removal
@@ -297,9 +301,26 @@ function initCart()
                           thisInstance.tableManager.addLazyRefresh(id, toPostpone);
                           thisInstance.tableManager.addLazyRefresh(id, function()
                           {
-                            $adjustment
-                              .css('display', img.info.editPrivilege && scope.get('edit') ?
-                                              '': 'none');
+                            if (scope.get('edit'))
+                            {
+                              rowElements.$properties.hide(0);
+                              switch (scope.get('editMode'))
+                              {
+                                case 'adjust':
+                                  $adjustment.show(0);
+                                  break;
+                                case 'privileges':
+                                case 'properties':
+                                  $adjustment.hide();
+                                  break
+                              }
+                            }
+                            else
+                            {
+                              rowElements.$properties.show(0);
+                              $adjustment.hide(0);
+                            }
+
                             var visWidth = Math.max(scope.get('grid_dims').x * 20, 65);
                             $visibility.width(visWidth);
                             $drag
