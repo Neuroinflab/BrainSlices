@@ -37,7 +37,7 @@ from uploadServer import UploadServer
 from tileServer import TileServer, OutlineServer
 from userServer import UserServer
 from metaServer import MetaServer
-
+from indexerServer import IndexerServer
 
 class WebGenerator(Generator):
   def __init__(self, templatesPath):
@@ -83,7 +83,8 @@ class WebService(Server):
     self.outlines = OutlineServer(os.path.join(servicePath, 'outlines'))
     self.user = UserServer(servicePath, userBase)
     self.upload = UploadServer(servicePath, tileBase) #TODO: remove servicePath after tests
-    self.meta = MetaServer(metaBase, tileBase, servicePath) # tileBase as privilege manager 
+    self.meta = MetaServer(metaBase, tileBase, servicePath) # tileBase as privilege manager
+    self.indexer = IndexerServer(tileBase, metaBase, servicePath)
 
     Server.__init__(self)
 

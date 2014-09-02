@@ -23,6 +23,10 @@ tools.staticfile.on = True
 tools.staticfile.filename = "${pwd}/server/static/gfx/nut.ico"
 tools.staticfile.content_types  = {'ico': 'image/x-icon'} #image/vnd.microsoft.icon does not work, LOL!
 
+[/robots.txt]
+tools.staticfile.on = True
+tools.staticfile.filename = "${pwd}/server/robots.txt"
+tools.staticfile.content_types  = {'txt': 'text/plain'}
 
 [/testImages]
 #tools.caching.on     =  True

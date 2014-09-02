@@ -300,18 +300,115 @@ class MetaBase(dbBase):
     return res
 
   @provideCursor
-  def searchImages(self, selectors, limit=None, cursor=None):
-    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors, None)
+  def searchImages(self, selectors, uid=None, privilege='v', limit=None, cursor=None):
+    cond = "img.status >%s %d AND " % ('=' if privilege == 'e' else '',
+                                       IMAGE_STATUS_COMPLETED)
+
+    if uid is None:
+      if privilege == 'v': # view
+        cond += """
+                (img.public_image_view OR
+                 img.public_image_annotate OR
+                 img.public_image_outline OR
+                 img.public_image_edit)
+                """
+
+      elif privilege == 'a': # annotate
+        cond += """
+                (img.public_image_annotate OR
+                 img.public_image_edit)
+                """
+
+      elif privilege == 'e': # edit
+        cond += """
+                img.public_image_edit
+                """
+
+      elif privilege == 'o': # outline
+        cond += """
+                (img.public_image_outline OR
+                 img.public_image_edit)
+                """
+
+      elif privilege == 'm': # meta
+        cond += """
+                (img.public_image_edit OR
+                 (img.public_image_outline AND
+                  img.public_image_annotate))
+                """
+
+      tables = 'images AS img'
+
+    else:
+      if privilege == 'v': # view 
+        cond += """
+                (img.public_image_view OR
+                 img.public_image_annotate OR
+                 img.public_image_outline OR
+                 img.public_image_edit OR
+                 img.owner = %d OR
+                 img.uid = %d)
+                """ % (uid, uid)
+
+      elif privilege == 'a': # annotate
+        cond += """
+                (img.public_image_annotate OR
+                 img.public_image_edit OR
+                 img.owner = %d OR
+                 ((img.image_annotate OR
+                   img.image_edit) AND
+                  img.uid = %d))
+                """ % (uid, uid)
+
+      elif privilege == 'e': # edit
+        cond += """
+                (img.public_image_edit OR
+                 img.owner = %d OR
+                 (img.image_edit AND
+                  img.uid = %d))
+                """ % (uid, uid)
+
+      elif privilege == 'o': # outline
+        cond += """
+                (img.public_image_outline OR
+                 img.public_image_edit OR
+                 img.owner = %d OR
+                 ((img.image_outline OR
+                   img.image_edit) AND
+                  img.uid = %d)
+                """ % (uid, uid)
+
+      elif privilege == 'm': # meta
+        #FIXME: would not detect privileges from different groups
+        cond += """
+                ((img.public_image_annotate AND
+                  img.public_image_outline) OR
+                 img.public_image_edit OR
+                 img.owner = %d OR
+                 (((img.image_outline AND
+                    img.image_annotate) OR
+                   img.image_edit) AND
+                 img.uid = %d)
+                """ % (uid, uid)
+
+      tables = """
+               (images LEFT JOIN image_privileges_cache USING (iid))
+               """
     query = """
-            SELECT tmp0.iid
+            SELECT img.iid
             FROM %s
             WHERE %s
-            %s;
-            """ % (' JOIN '.join(tables), ' AND '.join(cond),
-                   ('%d' % limit) if limit != None else '')
+            ORDER BY img.iid;
+            """
+    _, tables, cond, data = reduce(lambda x, y: y.getQuery(x), selectors,
+                                   (0, [tables], [cond], []))
 
+
+    query = query % (' JOIN '.join(tables), ' AND '.join(cond))
+
+    print query
     cursor.execute(query, data)
-    return cursor.fetchall()
+    return [row[0] for row in cursor]
 
   @provideCursor
   def searchImagesPropertiesInfo(self, selectors, uid=None, privilege='v', limit=None, cursor=None):

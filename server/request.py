@@ -341,6 +341,13 @@ class Request(object):
 
 
 
+IndexerRequest = Request.extend('IndexerRequest',
+"""
+A class for parsing indexer requests
+""",
+optional = {'id': None},
+atoms = {'id': (lambda x: x > 0, int)}
+)
 
 #########################################################
 #                    User Requests                      #
