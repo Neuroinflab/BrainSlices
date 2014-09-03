@@ -50,7 +50,7 @@ class WebGenerator(Generator):
     userPanel = self.templateEngine('userPanel.html')
     userPanel['<!--%passwordStrength%-->'] = passwordStrength
 
-    index = self.templateEngine('myapi.html')
+    index = self.templateEngine('main.html')
     index['<!--%imageCart%-->'] = self.templateEngine('imageCart.html')
     index['<!--%loginWindow%-->'] = loginWindow
     index['<!--%alertWindow%-->'] = self.templateEngine('alertWindow.html')

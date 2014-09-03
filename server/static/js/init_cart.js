@@ -207,7 +207,7 @@ function initCart()
 
                           if (onsuccess) onsuccess();
 
-
+console.debug(img)
                           var privileges = img.info.privileges;
                           var privilegeItem = [img.info.iid,
                                                [privileges.publicView,

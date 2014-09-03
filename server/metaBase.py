@@ -638,10 +638,9 @@ class MetaBase(dbBase):
                            'imageHeight', 'tileWidth', 'tileHeight',
                            'pixelSize', 'crc32', 'md5', 'status'],
                           info + row[15:]))
-          if row[9] > NO_PRIVILEGE:
-            info['privileges'] = dict(zip(['publicView', 'publicEdit',
-                                           'publicAnnotate', 'publicOutline'],
-                                          row[11:15]))
+          info['privileges'] = dict(zip(['publicView', 'publicEdit',
+                                         'publicAnnotate', 'publicOutline'],
+                                        row[11:15]))
 
         if name is not None:
           last[name] = unwrapProperties(t, n, s, v, e)
