@@ -62,37 +62,6 @@ class UploadServer(Generator, Server):
     Generator.__init__(self, os.path.join(servicePath, 'templates'))
     self.tileBase = tileBase
 
-    controlPanel = self.templateEngine('draggableWindow.html')
-    controlPanel['__windowId__'] = 'controlPanel'
-    controlPanel['<!--%title%-->'] = """Control panel
-                                        <a href="javascript:void(0)" id="loginLink">login</a><a href="javascript:void(0)" id="logoutLink"></a>"""
-
-    acceptControlPanel = self.templateEngine('acceptPanel.html')
-    controlPanel['<!--%content%-->'] = acceptControlPanel
-
-    upload = self.templateEngine('upload.html')
-    upload['<!--%controlPanel%-->'] = controlPanel
-    upload['<!--%brokenDuplicatePanel%-->'] = self.templateEngine('brokenDuplicatePanel.html')
-    upload['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
-    self['index'] = upload
-
-    privileges = self.templateEngine('privileges_panel.html')
-    privileges['<!--%userPanel%-->'] = self.templateEngine('loginWindow.html')
-    self['privileges'] = privileges
-
-  @cherrypy.expose
-  @serveContent()
-  @useTemplate('index')
-  def index(self):
-    return [], []
-
-  @cherrypy.expose
-  @serveContent()
-  @useTemplate('privileges')
-  def privileges(self):
-    return [], []
-
-  @cherrypy.expose
   @serveContent(GetBrokenDuplicatesRequest)
   @ensureLogged
   def getBrokenDuplicates(self, uid, request):
@@ -109,7 +78,6 @@ class UploadServer(Generator, Server):
 
     return generateJson(data = data, status = True, logged = uid != None)
 
-  @cherrypy.expose
   @serveContent(GetImagesStatusesRequest)
   @ensureLogged
   def getImagesStatuses(self, uid, request):
@@ -122,7 +90,6 @@ class UploadServer(Generator, Server):
                         status = True,
                         logged = uid != None)
 
-  @cherrypy.expose
   @serveContent(UploadNewImageRequest)
   @ensureLogged
   def uploadNewImage(self, uid, request):
@@ -132,7 +99,6 @@ class UploadServer(Generator, Server):
                                     bid = request.bid)
     return self.appendSlot(slot, request.data)
 
-  @cherrypy.expose
   @serveContent(ContinueImageUploadRequest)
   @ensureLogged
   def continueImageUpload(self, uid, request):
@@ -152,7 +118,6 @@ class UploadServer(Generator, Server):
                          'size': slot.size,
                          'crc32': slot.crc32}, logged = True)
 
-  @cherrypy.expose
   @serveContent(NewBatchRequest)
   @ensureLogged
   def newBatch(self, uid, request):
@@ -164,14 +129,12 @@ class UploadServer(Generator, Server):
     bid = self.tileBase.newBatch(uid, comment = comment)
     return generateJson({'bid': bid, 'comment': comment}, logged = True)
 
-  @cherrypy.expose
   @serveContent(BatchListRequest)
   @ensureLogged
   def batchList(self, uid, request):
     batches = self.tileBase.listOpenBatches(uid)
     return generateJson(batches, logged = True)
 
-  @cherrypy.expose
   @serveContent(BatchDetailsRequest)
   @ensureLogged
   def batchDetails(self, uid, request):
@@ -186,7 +149,6 @@ class UploadServer(Generator, Server):
                             'filename']) for row in details]
     return generateJson(data, logged = True)
 
-  @cherrypy.expose
   @serveContent(UpdateMetadataRequest)
   @ensureLogged
   def updateMetadata(self, uid, request):
@@ -207,7 +169,6 @@ class UploadServer(Generator, Server):
     return generateJson(result, logged = True)
 
 
-  @cherrypy.expose
   @serveContent(DeleteImagesRequest)
   @ensureLogged
   def deleteImages(self, uid, request):
@@ -227,7 +188,6 @@ class UploadServer(Generator, Server):
 
     return generateJson(result, logged = True)
 
-  @cherrypy.expose
   @serveContent(GetImagesPrivilegesRequest)
   @ensureLogged
   def getPrivileges(self, uid, request):
@@ -241,7 +201,6 @@ class UploadServer(Generator, Server):
 
     return generateJson(result, logged = True)
 
-  @cherrypy.expose
   @serveContent(ChangePublicPrivilegesRequest)
   @ensureLogged
   def changePublicPrivileges(self, uid, request):
