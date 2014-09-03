@@ -207,6 +207,34 @@ function initCart()
 
                           if (onsuccess) onsuccess();
 
+
+                          var privileges = img.info.privileges;
+                          var privilegeItem = [img.info.iid,
+                                               [privileges.publicView,
+                                                privileges.publicEdit,
+                                                privileges.publicAnnotate,
+                                                privileges.publicOutline],
+                                               []];
+                          
+                          var $publicView = $('<input>')
+                            .attr('type', 'checkbox');
+                          var $publicEdit = $('<input>')
+                            .attr('type', 'checkbox');
+                          var $publicOutline = $('<input>')
+                            .attr('type', 'checkbox');
+                          var $publicAnnotate = $('<input>')
+                            .attr('type', 'checkbox');
+
+                          privilegeManager.add(privilegeItem, $drag, function(privilege)
+                          {
+                            $publicView.prop('checked', privilege.view);
+                            $publicEdit.prop('checked', privilege.edit);
+                            $publicOutline.prop('checked', privilege.outline);
+                            $publicAnnotate.prop('checked', privilege.annotate);
+                            console.debug(privilege);
+                          });
+
+
                           var rowElements;
 
                           function toPostpone()
@@ -286,6 +314,38 @@ function initCart()
 
                             rowElements = detailsGenerator(img.info, $drag);
 
+                            rowElements.$privileges = $('<div>')
+                              .addClass('privilegePanel')
+                              .append($('<label>')
+                                .append($publicView
+                                  .change(function()
+                                  {
+                                    privilegeManager.changePublic(id, this.checked);
+                                  }))
+                                .append('view'))
+                              .append($('<label>')
+                                .append($publicEdit
+                                  .change(function()
+                                  {
+                                    privilegeManager.changePublic(id, null, this.checked);
+                                  }))
+                                .append('edit'))
+                              .append($('<label>')
+                                .append($publicAnnotate
+                                  .change(function()
+                                  {
+                                    privilegeManager.changePublic(id, null, null, this.checked);
+                                  }))
+                                .append('annotate'))
+                              .append($('<label>')
+                                .append($publicOutline
+                                  .change(function()
+                                  {
+                                    privilegeManager.changePublic(id, null, null, null, this.checked);
+                                  }))
+                                .append('outline'))
+                              .appendTo($drag);
+
                             $drag
                               .append($adjustment)
                               .folder({fit: true});
@@ -295,6 +355,7 @@ function initCart()
                               .append($('<span>')
                                 .addClass('layer-delete-button fa fa-times')
                                 .click(onremove));
+
 
                           }
 
@@ -307,18 +368,33 @@ function initCart()
                               switch (scope.get('editMode'))
                               {
                                 case 'adjust':
-                                  $adjustment.show(0);
+                                  rowElements.$privileges.hide(0);
+                                  if (image.info.editPrivilege > 0)
+                                  {
+                                    $adjustment.show(0);
+                                  }
                                   break;
                                 case 'privileges':
+                                  $adjustment.hide();
+                                  if (image.info.editPrivilege > 0)
+                                  {
+                                    rowElements.$privileges.show(0);
+                                  }
+                                  break;
                                 case 'properties':
                                   $adjustment.hide();
+                                  rowElements.$privileges.hide(0);
+                                  if (image.info.annotatePrivilege > 0)
+                                  {
+                                  }
                                   break
                               }
                             }
                             else
                             {
-                              rowElements.$properties.show(0);
                               $adjustment.hide(0);
+                              rowElements.$privileges.hide(0);
+                              rowElements.$properties.show(0);
                             }
 
                             var visWidth = Math.max(scope.get('grid_dims').x * 20, 65);

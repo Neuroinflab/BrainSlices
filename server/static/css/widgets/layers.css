@@ -89,6 +89,11 @@ div.changed
   background: #FFEEEE !important; 
 }
 
+div.privilegeChanged
+{
+  background: #FFEEEE !important;
+}
+
 div.label-column,
 div.visible-column
 {

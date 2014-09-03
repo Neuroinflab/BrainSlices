@@ -464,6 +464,9 @@ class MetaBase(dbBase):
                      CASE WHEN img.public_image_outline THEN %d
                           ELSE %d END,
 
+                     img.public_image_view, img.public_image_edit,
+                     img.public_image_annotate, img.public_image_outline,
+
                      img.image_top, img.image_left,
                      img.image_width, img.image_height,
                      img.tile_width, img.tile_height,
@@ -558,6 +561,9 @@ class MetaBase(dbBase):
                           WHEN img.public_image_outline THEN %d
                           ELSE %d END,
 
+                     img.public_image_view, img.public_image_edit,
+                     img.public_image_annotate, img.public_image_outline,
+
                      img.image_top, img.image_left,
                      img.image_width, img.image_height,
                      img.tile_width, img.tile_height,
@@ -572,6 +578,9 @@ class MetaBase(dbBase):
 
                        img.iid,
                        img.image_width, img.image_height,
+
+                       img.public_image_view, img.public_image_edit,
+                       img.public_image_annotate, img.public_image_outline,
 
                        img.image_top, img.image_left,
                        img.tile_width, img.tile_height,
@@ -605,7 +614,11 @@ class MetaBase(dbBase):
                        'imageTop', 'imageLeft', 'imageWidth',
                        'imageHeight', 'tileWidth', 'tileHeight',
                        'pixelSize', 'crc32', 'md5', 'status'],
-                      info + row[11:]))
+                      info + row[15:]))
+      info['privileges'] = dict(zip(['publicView', 'publicEdit',
+                                     'publicAnnotate', 'publicOutline'],
+                                    row[11:15]))
+
       for row in cursor:
         name, t, n, s, v, e, iid = row[:7] #, w, h = row[:9]
 
@@ -624,8 +637,11 @@ class MetaBase(dbBase):
                            'imageTop', 'imageLeft', 'imageWidth',
                            'imageHeight', 'tileWidth', 'tileHeight',
                            'pixelSize', 'crc32', 'md5', 'status'],
-                          info + row[11:]))
-
+                          info + row[15:]))
+          if row[9] > NO_PRIVILEGE:
+            info['privileges'] = dict(zip(['publicView', 'publicEdit',
+                                           'publicAnnotate', 'publicOutline'],
+                                          row[11:15]))
 
         if name is not None:
           last[name] = unwrapProperties(t, n, s, v, e)

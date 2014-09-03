@@ -253,7 +253,8 @@ class TileBase(dbBase):
                             extraFields = """, image_top, image_left,
                             image_width, image_height, tile_width,
                             tile_height, pixel_size, image_crc32, image_md5,
-                            iid""",
+                            iid, public_image_view, public_image_edit,
+                            public_image_annotate, public_image_outline""",
                             thresholdStatus = IMAGE_STATUS_PREVIEWABLE)
 
     #return self.canViewImage(request.id,

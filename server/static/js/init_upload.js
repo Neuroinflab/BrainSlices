@@ -150,6 +150,9 @@ function initUpload()
       scope.set('editMode', $('#editMode').val());
     });
 
+
+// adjustement
+
   $('#adjustPanelAdjust')
     .change(function()
     {
@@ -240,6 +243,70 @@ function initUpload()
       });
     });
 
+
+// privileges
+  $('#publicViewPrivilege').click(function()
+  {
+    var checked = this.checked;
+    images.apply(null, function(image, updateIface)
+    {
+      if (image.info.editPrivilege > 0)
+      {
+        privilegeManager.changePublic(image.info.iid,
+          checked, null, null, null, updateIface == false);
+      }
+    });
+  });
+
+  $('#publicEditPrivilege').click(function()
+  {
+    var checked = this.checked;
+    images.apply(null, function(image, updateIface)
+    {
+      if (image.info.editPrivilege > 0)
+      {
+        privilegeManager.changePublic(image.info.iid,
+          null, checked, null, null, updateIface == false);
+      }
+    });
+  });
+
+  $('#publicAnnotatePrivilege').click(function()
+  {
+    var checked = this.checked;
+    images.apply(null, function(image, updateIface)
+    {
+      if (image.info.editPrivilege > 0)
+      {
+        privilegeManager.changePublic(image.info.iid,
+          null, null, checked, null, updateIface == false);
+      }
+    });
+  });
+
+  $('#publicOutlinePrivilege').click(function()
+  {
+    var checked = this.checked;
+    images.apply(null, function(image, updateIface)
+    {
+      if (image.info.editPrivilege > 0)
+      {
+        privilegeManager.changePublic(image.info.iid,
+          null, null, null, checked, updateIface == false);
+      }
+    });
+  });
+
+  $('#resetPrivileges').click(function()
+  {
+    privilegeManager.reset();
+  });
+
+  $('#savePrivileges').click(function()
+  {
+    privilegeManager.savePublic();
+  });
+
   scope
     .registerChange(function(value)
     {
@@ -265,6 +332,28 @@ function initUpload()
 
       layerManager.doLazyRefresh();
     }, 'edit')
+    .registerChange(function(value)
+    {
+      switch (value)
+      {
+        case 'adjust':
+          $('#privilegesPanel').hide(0);
+          $('#adjustPanel').show(0);
+          break;
+
+        case 'privileges':
+          $('#adjustPanel').hide(0);
+          $('#privilegesPanel').show(0);
+          break;
+
+        case 'properties':
+          $('#privilegesPanel').hide(0);
+          $('#adjustPanel').hide(0);
+          break;
+      }
+
+      layerManager.doLazyRefresh();
+    }, 'editMode')
     .registerChange(function(value)
     {
       // fetch list of available batches
@@ -349,12 +438,12 @@ function initUpload()
 
   $('#filesForUpload').change(updateFiles);
   $('#filterImageType').change(updateFiles);
-
-  privilegeManager = new CImagePrivilegesManager(loginConsole); 
 }
 
 function initUploadFinish()
 {
+  privilegeManager = new CImagePrivilegesManager(loginConsole);
+
   uploadedFiles = new CUploadedImages($('#uploadDiv table.uploaded>tbody'),
                                       null,
                                       $('#upload_status_message'),

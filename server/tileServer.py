@@ -62,9 +62,19 @@ class TileServer(Server):
   @serveContent(ImageRequest)
   def __call__(self, request):
     if request.method == 'info.json':
-      data = self.tileBase.info(request)
-      if data:
-        data = unwrapRow(data)
+      row = self.tileBase.info(request)
+      if row:
+        data = dict(zip(['status', 'viewPrivilege', 'editPrivilege',
+                         'annotatePrivilege', 'outlinePrivilege',
+                         'imageTop', 'imageLeft', 'imageWidth',
+                         'imageHeight', 'tileWidth', 'tileHeight',
+                         'pixelSize', 'crc32', 'md5', 'iid'],
+                         row[:15]))
+
+        data['privileges'] = dict(zip(['publicView', 'publicEdit',
+                                       'publicAnnotate', 'publicOutline'],
+                                      row[15:]))
+
         if self.metaBase:
           properties = self.metaBase.getProperties(request.id)
           data['properties'] = properties
