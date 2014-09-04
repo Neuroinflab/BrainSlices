@@ -1,6 +1,7 @@
 var uploadedFiles = null;
 var fileUploader = null;
 var privilegeManager = null;
+var propertiesManager = null;
 
 function initUpload()
 {
@@ -443,6 +444,7 @@ function initUpload()
 function initUploadFinish()
 {
   privilegeManager = new CImagePrivilegesManager(loginConsole);
+  propertiesManager = new CPropertiesManager(loginConsole);
 
   uploadedFiles = new CUploadedImages($('#uploadDiv table.uploaded>tbody'),
                                       null,

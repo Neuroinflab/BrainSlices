@@ -126,12 +126,11 @@ var CPropertiesManager = null;
       {
         this.ondestroy();
       }
-      this.onremove = null;
-      this.onupdate = null;
-      this.ondestroy = null;
-      this.onchange = null;
-      this.onnew = null;
-      this.data = null;
+
+      for (var name in this)
+      {
+        delete this[name];
+      }
     },
 
     change: function(value, donotupdate)
@@ -367,12 +366,12 @@ var CPropertiesManager = null;
       if (this.ondestroy)
       {
         this.ondestroy();
-        this.ondestroy = null;
       }
 
-      this.onchange = null;
-      this.autoAdd = null;
-      this.data = null;
+      for (var name in this)
+      {
+        delete this[name];
+      }
     },
 
     getChanges: function()
@@ -495,6 +494,11 @@ var CPropertiesManager = null;
                  },
                  null,
                  iid);
+    },
+
+    get: function(iid)
+    {
+      return this.images[iid].properties;
     },
 
     getChanges: function()
