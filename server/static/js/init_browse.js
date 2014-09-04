@@ -1,15 +1,59 @@
-function detailsGenerator(info, $div)
+function makePropertyList(properties, $ul)
 {
-  var properties = info.properties;
-
-  if (!$div)
+  if (!$ul)
   {
-    $div = $('<div>');
+    $ul = $('<ul>');
+  }
+  else
+  {
+    $ul.empty();
+  }
+  $ul.addClass('image-dateils');
+
+  var names = [];
+  var name;
+  for (name in properties)
+  {
+    if (name == 'name' || name == 'description') continue;
+    names.push(name);
   }
 
-  var result = {$div: $div};
+  if (names.length > 0)
+  {
+    names.sort();
 
-  $div
+    var $li, property;
+    for (var j = 0; j < names.length; j++)
+    {
+      name = names[j];
+      $li = $('<li>')
+        .addClass('image-details')
+        .text(name)
+        .appendTo($ul);
+
+      property = properties[name];
+      switch (property.type)
+      {
+        case 's':
+        case 'x':
+        case 'e':
+        case 'f':
+        case 'i':
+          $li.append(document.createTextNode(': ' + property.value));
+          break;
+
+        case 't':
+          break;
+      }
+    }
+  }
+
+  return $ul;
+}
+
+function makeBasicDetails(info, $div)
+{
+  return $div
     .addClass('image-details')
     .append($('<a>')
       .addClass('fa fa-arrow-circle-o-down layer-download-button')
@@ -26,74 +70,41 @@ function detailsGenerator(info, $div)
                                          64, 64)
       .addClass('image-details')
       .attr('draggable', 'true'));
+}
+
+function detailsGenerator(info, $div)
+{
+  var properties = info.properties;
+
+  if (!$div)
+  {
+    $div = $('<div>');
+  }
+
+  makeBasicDetails(info, $div);
 
   if (properties)
   {
-    result.properties = {};
-    properties = $.extend({}, properties);
-
     if ('name' in properties && properties.name.type != 't')
     {
-
-      $div.append(result.properties.name = $('<h1>')
-        .addClass('image-details')
-        .text(properties.name.value));
-      delete properties.name;
+      $div
+        .append($('<h1>')
+          .addClass('image-details')
+          .text(properties.name.value));
     }
 
     if ('description' in properties && properties.description.type != 't')
     {
-      $div.append(result.properties.description = $('<p>')
-        .addClass('image-description image-details')
-        .text(properties.description.value));
-
-      delete properties.description;
+      $div
+        .append($('<p>')
+          .addClass('image-description image-details')
+          .text(properties.description.value));
     }
 
-    var $ul = $('<ul>')
-      .addClass('image-details')
-      .appendTo($div);
-    result.$properties = $ul;
-
-    var names = [];
-    for (var name in properties)
-    {
-      names.push(name);
-    }
-
-    if (names.length > 0)
-    {
-      names.sort();
-
-      for (var j = 0; j < names.length; j++)
-      {
-        var name = names[j];
-        var $li = $('<li>')
-          .addClass('image-details')
-          .text(name)
-          .appendTo($ul);
-
-        result.properties[name] = $li;
-
-        var property = properties[name];
-        switch (property.type)
-        {
-          case 's':
-          case 'x':
-          case 'e':
-          case 'f':
-          case 'i':
-            $li.append(': ' + property.value);
-            break;
-
-          case 't':
-            break;
-        }
-      }
-    }
+    $div.append(makePropertyList(properties));
   }
 
-  return result;
+  return $div;
 }
 
 
@@ -392,9 +403,8 @@ function initBrowseFinish()
               .addClass('search-row')
               .appendTo($searchPage);
 
-            var $div = $('<div>')
+            var $div = detailsGenerator(info)
               .appendTo($row);
-            detailsGenerator(info, $div);
 
             var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
             $div.prepend($button);

@@ -186,7 +186,7 @@ var CPropertiesManager = null;
   }
 
 
-  function CImageProperties(triggers)
+  function CImageProperties(triggers, properties)
   {
     this.properties = {};
     this.removed = {};
@@ -195,6 +195,13 @@ var CPropertiesManager = null;
     this.autoAdd = getTrigger('add', triggers);
     this.data = getTrigger('data', triggers);
     this.changed = false;
+    if (properties)
+    {
+      for (var name in properties)
+      {
+        this.autoAdd(name, properties[name], true);
+      }
+    }
   }
 
   CImageProperties.prototype =
@@ -206,7 +213,7 @@ var CPropertiesManager = null;
     },
   
     add:
-    function(name, type, value, triggers, original, edit, view)
+    function(name, property, triggers, original)
     {
       if (this.has(name)) return false;
 
@@ -219,8 +226,9 @@ var CPropertiesManager = null;
         }
       }
 
-      this.properties[name] = new CProperty(type, value, triggers, original,
-                                            edit, view);
+      this.properties[name] = new CProperty(property.type, property.value,
+                                            triggers, original,
+                                            property.edit, property.view);
       return true;
     },
 
@@ -441,11 +449,11 @@ var CPropertiesManager = null;
     },
 
     addImage:
-    function(iid, triggers)
+    function(iid, triggers, properties)
     {
       if (this.hasImage(iid)) return false;
 
-      this.images[iid] = new CImageProperties(triggers);
+      this.images[iid] = new CImageProperties(triggers, properties);
       return true;
     },
 
@@ -490,19 +498,17 @@ var CPropertiesManager = null;
     },
 
     add:
-    function(iid, name, type, value, triggers, original, edit, view)
+    function(iid, name, property, triggers, original)
     {
       if (!this.hasImage(iid)) return false;
-      return this.images[iid].add(name, type, value, triggers, original,
-                                  edit, view);
+      return this.images[iid].add(name, property, triggers, original);
     },
 
     autoAdd:
-    function(iid, name, type, value, original, edit, view, extraData)
+    function(iid, name, property, original, extraData)
     {
       if (!this.hasImage(iid)) return false;
-      return this.images[iid].autoAdd(name, type, value, original, edit, view,
-                                      extraData);
+      return this.images[iid].autoAdd(name, property, original, extraData);
     },
 
     remove:

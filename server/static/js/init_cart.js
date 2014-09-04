@@ -1,3 +1,212 @@
+var PImagePropertyTriggers =
+{
+  add: //autoAdd
+  function (name, property, original)
+  {
+    var type = property.type;
+    var data = {};
+
+    var thisInstance = this;
+
+    if (name in this.data.fixedOut)
+    {
+      data.$out = this.data.fixedOut[name].show(0);
+    }
+    else
+    {
+      var $outRow = $('<li>')
+        .text(name)
+        .addClass('image-details')
+        .appendTo(this.data.$outList);
+
+      data.$outRow = $outRow;
+
+      if (type != 't')
+      {
+        data.$out = $('<span>')
+          .text(property.value)
+          .appendTo($outRow.append(': '));
+      }
+    }
+
+    var $inRow = $('<li>')
+      .text(name)
+      .appendTo(this.data.$inList);
+    data.$inRow = $inRow;
+
+    if (type != 't')
+    {
+      var $input;
+      switch (type)
+      {
+        case 'x':
+          $input = $('<textarea>');
+          break;
+
+        case 's':
+        case 'e':
+          $input = $('<input>')
+            .attr('type', 'text');
+          break;
+
+        case 'i':
+          $input = $('<input>')
+            .attr(
+            {
+              type: 'number',
+              step: '1'
+            });
+          break;
+
+        case 'f':
+          $input = $('<input>')
+            .attr('type', 'number');
+      }
+
+      $input
+        .val(property.value) // might be a problem with textarea...
+
+        .bind(type != 'e' ? 'change' : 'comboboxchange',
+              function()
+              {
+                var val = $input.val();
+                thisInstance.change(name, val, true);
+              })
+        .appendTo($inRow.append(': '));
+
+      if (type == 'e')
+      {
+        $input
+        .combobox(
+        {
+          source:
+          function(request, response)
+          {
+            var suggestions = [];
+            if (name in enumeratedProperties)
+            {
+              var filter = new RegExp(
+                $.ui.autocomplete.escapeRegex(request.term), 'i');
+
+              $.each(enumeratedProperties[name], function(i, v)
+              {
+                if (!request.term || filter.test(v))
+                {
+                  suggestions.push(v);
+                }
+              });
+            }
+            response(suggestions);
+          }
+        });
+      }
+      data.$input = $input;
+    }
+
+    $('<button>')
+      .text('X')
+      .appendTo($inRow)
+      .click(function()
+         {
+           thisInstance.remove(name);
+         });
+
+    var propertyTriggers = Object.create(PPropertyTriggers);
+    propertyTriggers.data = data;
+    return this.add(name, property, propertyTriggers, original);
+  },
+
+  change: //onChange or so...
+  function()
+  {
+    if (this.changed)
+    {
+      this.data.$row.addClass('propertyChanged');
+    }
+    else if (this.data.$row.hasClass('propertyChanged'))
+    {
+      this.data.$row.removeClass('propertyChanged');
+    }
+  }
+};
+
+
+var PPropertyTriggers =
+{
+  update: function()
+  {
+    if (this.data.$input)
+    {
+      this.data.$input.val(this.value);
+    }
+
+    if (this.data.$out)
+    {
+      this.data.$out.text(this.value);
+    }
+  },
+
+  destroy: function()
+  {
+    if (this.data.$inRow) this.data.$inRow.remove();
+
+    if (this.data.$outRow) this.data.$outRow.remove();
+  },
+
+  new: function()
+  {
+    if (this.new)
+    {
+      this.data.$inRow.addClass('propertyNew');
+    }
+    else if (this.data.$inRow.hasClass('propertyNew'))
+    {
+      this.data.$inRow.removeClass('propertyNew');
+    }
+  },
+
+  change: function()
+  {
+    if (this.changed)
+    {
+      this.data.$inRow.addClass('propertyChanged');
+    }
+    else if (this.data.$inRow.hasClass('propertyChanged'))
+    {
+      this.data.$inRow.removeClass('propertyChanged');
+    }
+  },
+
+  remove: function()
+  {
+    if (this.removed)
+    {
+      if (this.data.$inRow) this.data.$inRow.hide(0);
+      if (this.data.$outRow)
+      {
+        this.data.$outRow.hide(0);
+      }
+      else
+      {
+        this.data.$out.hide(0);
+      }
+    }
+    else
+    {
+      if (this.data.$row) this.data.$row.show(0);
+      if (this.data.$outRow)
+      {
+        this.data.$outRow.show(0);
+      }
+      else
+      {
+        this.data.$out.show(0);
+      }
+    }
+  }
+};
+
+
 function initCart()
 {
   var scope = BrainSlices.scope;
@@ -138,7 +347,8 @@ function initCart()
       // making the layer-related row
       var $row =  $('<div>')
         .addClass('layer-row');
-      var $drag = $('<div draggable="true"></div>')
+      var $drag = $('<div>')
+        .attr('draggable', 'true')
         .addClass('label-column')
         .appendTo($row);
 
@@ -193,7 +403,11 @@ function initCart()
 
       this.addTileLayer(id, $row, //$.merge($row, $searchRow),
                         $visibility, zIndex, dragMIME,
-                        null,
+                        function()
+                        {
+                          privilegeManager.remove(id);
+                          propertiesManager.removeImage(id);
+                        },
                         path, info, !postponeUpdate,
                         function(img)
                         {
@@ -233,6 +447,29 @@ console.debug(img)
                             $publicAnnotate.prop('checked', privilege.annotate);
                             console.debug(privilege);
                           });
+
+                          var $propertiesEdit = $('<ul>');
+                          var $propertiesView = $('<ul>');
+                          var $nameView = $('<h1>');
+                          var $descriptionView = $('<p>');
+
+                          var imagePropertyTriggers = Object.create(PImagePropertyTriggers);
+                          imagePropertyTriggers.data =
+                          {
+                            $row: $drag,
+                            $inList: $propertiesEdit,
+                            $outList: $propertiesView,
+                            fixedOut:
+                            {
+                              name: $nameView,
+                              description: $descriptionView
+                            }
+                          }
+                          propertiesManager
+                            .addImage(id, imagePropertyTriggers,
+                                      img.info.properties);
+
+                          //delete img.info.properties;
 
 
                           var rowElements;
@@ -312,7 +549,21 @@ console.debug(img)
                                       }))))
                                 .append('<br>'));
 
-                            rowElements = detailsGenerator(img.info, $drag);
+                            rowElements =
+                            {
+                              $div: $drag,
+                              $name: $nameView,
+                              $description: $descriptionView,
+                              $properties: $propertiesView
+                            };
+
+                            makeBasicDetails(img.info, $drag)
+                              .append($nameView
+                                .addClass('image-details'))
+                              .append($descriptionView
+                                .addClass('image-description image-details'))
+                              .append($propertiesView
+                                .addClass('image-dateils'));
 
                             rowElements.$privileges = $('<div>')
                               .addClass('privilegePanel')
@@ -395,6 +646,7 @@ console.debug(img)
                               $adjustment.hide(0);
                               rowElements.$privileges.hide(0);
                               rowElements.$properties.show(0);
+                              rowElements.$name.show(0);
                             }
 
                             var visWidth = Math.max(scope.get('grid_dims').x * 20, 65);
