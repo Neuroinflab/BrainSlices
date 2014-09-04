@@ -308,6 +308,8 @@ function initUpload()
     privilegeManager.savePublic();
   });
 
+
+
   scope
     .registerChange(function(value)
     {
@@ -339,17 +341,20 @@ function initUpload()
       {
         case 'adjust':
           $('#privilegesPanel').hide(0);
+          $('#propertyPanel').hide(0);
           $('#adjustPanel').show(0);
           break;
 
         case 'privileges':
           $('#adjustPanel').hide(0);
+          $('#propertyPanel').hide(0);
           $('#privilegesPanel').show(0);
           break;
 
         case 'properties':
           $('#privilegesPanel').hide(0);
           $('#adjustPanel').hide(0);
+          $('#propertyPanel').show(0);
           break;
       }
 
@@ -511,6 +516,59 @@ function initUploadFinish()
                           },
   			null, null,onUpdate);
     */
+
+
+  // properties
+
+  updatePropertySuggestions(null,
+    function()
+    {
+      $('#propertyPanel')
+        .append(makeAddPropertyPanel(
+        {
+          Add:
+          function(name, property)
+          {
+            images.apply(null, function(image, updateIface)
+            {
+              var info = image.info;
+              if (info.annotatePrivilege > 0 &&
+                  !propertiesManager.has(info.iid, name))
+              {
+                propertiesManager.autoAdd(info.iid, name, property);
+              }
+            });
+          },
+          Set:
+          function(name, property)
+          {
+            images.apply(null, function(image, updateIface)
+            {
+              var info = image.info;
+              if (info.annotatePrivilege > 0)
+              {
+                if (propertiesManager.has(info.iid, name))
+                {
+                  propertiesManager.remove(info.iid, name);
+                }
+                propertiesManager.autoAdd(info.iid, name, property);
+              }
+            });
+          }
+        },
+        {
+          Reset:
+          function()
+          {
+            propertiesManager.reset();
+          },
+          Save:
+          function()
+          {
+            propertiesManager.save();
+          }
+        }));
+    });
 
   BrainSlices.scope.set('edit', false);
   BrainSlices.scope.set('editMode', 'adjust');

@@ -1,3 +1,273 @@
+var makeAddPropertyPanel;
+var updatePropertySuggestions;
+
+(function()
+{
+  var suggestedProperties = {};
+  var enumeratedProperties = {};
+  
+  var TYPES = [['t', 'Tag'],
+               ['i', 'Integer'],
+               ['f', 'Float'],
+               ['s', 'String'],
+               ['x', 'Text'],
+               ['e', 'Enumerative']];
+  
+  function makeTypeOption(type, i)
+  {
+    var t = type[0];
+    var $option = $('<option>')
+      .attr('value', t)
+      .text(type[1])
+    if (i == 0)
+    {
+      $option.attr('selected', 'selected');
+    }
+    this[t] = $option;
+    return $option;
+  }
+  
+  makeAddPropertyPanel = function(onsubmit, onclick)
+  {
+    var $addPanel = $('<div>');
+    var suggestedEnumerated = [];
+    var typeOptions = {};
+    //var inSelect = false;
+  
+    function nameChanged()
+    {
+      //if (inSelect) return;
+      var name = $name.val().trim().toLowerCase();
+      console.debug(name);
+      $type.children('option').removeClass('suggested-type');
+      if (name in suggestedProperties)
+      {
+        var suggested = suggestedProperties[name];
+        var $options = $.merge($([]), typeOptions.t);
+
+        for (var i = 0; i < suggested.length; i++)
+        {
+          $.merge($options,
+                  typeOptions[suggested[i]]);
+
+          switch(suggested[i])
+          {
+            case 'x':
+              $.merge($options, typeOptions.s);
+              break
+  
+            case 'f':
+              $.merge($options, typeOptions.i);
+              break
+  
+            case 'e':
+              suggestedEnumerated = name in enumeratedProperties ?
+                                    enumeratedProperties[name] : [];
+              break;
+  
+            default:
+              break;
+          }
+        }
+        $options.addClass('suggested-type');
+      }
+    }
+  
+    function source(request, response)
+    {
+      var suggestions = [];
+      var filter = new RegExp(
+        $.ui.autocomplete.escapeRegex(request.term), 'i');
+  
+      $.each(suggestedEnumerated, function(i, v)
+      {
+        if (!request.term || filter.test(v))
+        {
+          suggestions.push(v);
+        }
+      });
+  
+      response(suggestions);
+    }
+  
+    var $name = $('<input>')
+      .attr('type', 'text')
+      .appendTo($addPanel)
+      .combobox({source: $.map(suggestedProperties,
+                               function(v, k){return k;})})
+      .on('comboboxchange', nameChanged)
+      .on('comboboxselect', function(event, ui)
+      {
+        //inSelect = true;
+        $name.val(ui.item.value).blur();
+        //inSelect = false;
+        nameChanged();
+      });
+ 
+    var $type = $('<select>')
+      .append(TYPES.map(makeTypeOption, typeOptions))
+      .change(function()
+      {
+        var type = $type.val();
+        for (var t in inputBases)
+        {
+          inputBases[t][t == type ? 'show' : 'hide'](0);
+        }
+      })
+      .appendTo($addPanel);
+
+    var inputs =
+    {
+      i: $('<input>')
+        .attr(
+        {
+          type: 'number',
+          step: '1',
+          value: '0'
+        })
+        .css('display', 'none'),
+      f: $('<input>')
+        .attr(
+        {
+          type: 'number',
+          value: '0'
+        })
+        .css('display', 'none'),
+      s: $('<input>')
+        .attr('type', 'text')
+        .css('display', 'none'),
+      e: $('<input>')
+        .attr('type', 'text'),
+      x: $('<textarea>')
+        .css('display', 'none')
+    };
+
+    var inputBases = Object.create(inputs);
+    inputBases.e = $('<span>')
+      .css('display', 'none')
+      .append(inputs.e
+        .combobox(
+        {
+          source: source
+        }));
+
+    for (var t in inputBases)
+    {
+      inputBases[t].appendTo($addPanel);
+    }
+
+    for (var submitText in onsubmit)
+    {
+      (function(submitText, onsubmit)
+      {
+        $('<button>')
+          .text(submitText)
+          .appendTo($addPanel)
+          .click(function()
+          {
+            var name = $name.val().trim();
+            if (name == '')
+            {
+              alertWindow.error('Property name must be given.');
+              return;
+            }
+  
+            var type = $type.val();
+            var property = {type: type}; // no property privileges set
+
+            console.debug(type, inputs);
+
+            if (type in inputs)
+            {
+              if ((property.value = inputs[type].val().trim()) == '')
+              {
+                alertWindow.error('Property value must be given.');
+                return;
+              }
+            }
+
+            onsubmit(name, property);
+          });
+      })(submitText, onsubmit[submitText]);
+    }
+
+    if (onclick)
+    {
+      for (var clickText in onclick)
+      {
+        (function(clickText, onclick)
+        {
+          $('<button>')
+            .text(clickText)
+            .appendTo($addPanel)
+            .click(onclick);
+        })(clickText, onclick[clickText]);
+      }
+    }
+    return $addPanel;
+  }
+
+  updatePropertySuggestions = function(name, property)
+  {
+    if (name == null)
+    {
+      return loginConsole
+        .ajax('/meta/getPropertyList',
+          function(data)
+          {
+            if (data.status)
+            {
+              suggestedProperties = data.data[0];
+              enumeratedProperties = data.data[1];
+              if (property)
+              {
+                property();
+              }
+            }
+            else
+            {
+              alertWindow.error(data.message);
+            }
+          });
+    }
+
+    if (!(name in suggestedProperties))
+    {
+      suggestedProperties[name] = property.type == 't' ?
+                                  '' :
+                                  property.type;
+      if (property.type == 'e')
+      {
+        enumeratedProperties[name] = [property.value];
+      }
+      return; // nothing to do
+    }
+
+    switch (property.type)
+    {
+      case 't':
+        return;
+
+      case 'e':
+        if (!(name in enumeratedProperties))
+        {
+          enumeratedProperties[name] = [property.value];
+          return;
+        }
+        var values = enumeratedProperties[name];
+        if (values.indexOf(property.value) < 0)
+        {
+          values.push(property.value);
+        }
+      default:
+        if (suggestedProperties[name].indexOf(property.type) < 0)
+        {
+          suggestedProperties[name] += property.type;
+        }
+    }
+  }
+})();
+
 var PImagePropertyTriggers =
 {
   add: //autoAdd
@@ -421,7 +691,6 @@ function initCart()
 
                           if (onsuccess) onsuccess();
 
-console.debug(img)
                           var privileges = img.info.privileges;
                           var privilegeItem = [img.info.iid,
                                                [privileges.publicView,
@@ -445,7 +714,6 @@ console.debug(img)
                             $publicEdit.prop('checked', privilege.edit);
                             $publicOutline.prop('checked', privilege.outline);
                             $publicAnnotate.prop('checked', privilege.annotate);
-                            console.debug(privilege);
                           });
 
                           var $propertiesEdit = $('<ul>');
@@ -555,7 +823,7 @@ console.debug(img)
                               .append($descriptionView
                                 .addClass('image-description image-details'))
                               .append($propertiesView
-                                .addClass('image-dateils'));
+                                .addClass('image-details'));
 
                             rowElements =
                             {
@@ -565,6 +833,27 @@ console.debug(img)
                               $properties: $propertiesView,
                               $annotate: $('<span>')
                                 .append($propertiesEdit)
+                                .append(makeAddPropertyPanel(
+                                {
+                                  Add:
+                                  function(name, property)
+                                  {
+                                    console.log('add');
+                                    if (propertiesManager.has(id, name))
+                                    {
+                                      alertWindow.error('Property already defined.');
+                                      return;
+                                    }
+                                    propertiesManager.autoAdd(id, name, property);
+                                  }
+                                },
+                                {
+                                  Reset:
+                                  function()
+                                  {
+                                    propertiesManager.reset(id);
+                                  }
+                                }))
                                 .appendTo($drag)
                             };
 
@@ -618,44 +907,44 @@ console.debug(img)
                           {
                             if (scope.get('edit'))
                             {
-                              rowElements.$properties.hide(0);
+                              rowElements.$properties.css('display', '');
                               switch (scope.get('editMode'))
                               {
                                 case 'adjust':
-                                  rowElements.$privileges.hide(0);
-                                  rowElements.$annotate.hide(0);
+                                  rowElements.$privileges.css('display', 'none');
+                                  rowElements.$annotate.css('display', 'none');
                                   if (image.info.editPrivilege > 0)
                                   {
-                                    $adjustment.show(0);
+                                    $adjustment.css('display', '');
                                   }
                                   break;
                                 case 'privileges':
-                                  $adjustment.hide(0);
-                                  rowElements.$annotate.hide(0);
+                                  $adjustment.css('display', 'none');
+                                  rowElements.$annotate.css('display', 'none');
                                   if (image.info.editPrivilege > 0)
                                   {
-                                    rowElements.$privileges.show(0);
+                                    rowElements.$privileges.css('display', '');
                                   }
                                   break;
                                 case 'properties':
-                                  $adjustment.hide(0);
-                                  rowElements.$privileges.hide(0);
-                                  rowElements.$name.hide(0);
+                                  $adjustment.css('display', 'none');
+                                  rowElements.$privileges.css('display', 'none');
+                                  rowElements.$name.css('display', 'none');
                                   if (image.info.annotatePrivilege > 0)
                                   {
-                                    rowElements.$annotate.show(0);
+                                    rowElements.$annotate.css('display', '');
                                   }
                                   break
                               }
                             }
                             else
                             {
-                              $adjustment.hide(0);
-                              rowElements.$privileges.hide(0);
-                              rowElements.$annotate.hide(0);
+                              $adjustment.css('display', 'none');
+                              rowElements.$privileges.css('display', 'none');
+                              rowElements.$annotate.css('display', 'none');
 
-                              rowElements.$properties.show(0);
-                              rowElements.$name.show(0);
+                              rowElements.$properties.css('display', '');
+                              rowElements.$name.css('display', '');
                             }
 
                             var visWidth = Math.max(scope.get('grid_dims').x * 20, 65);
