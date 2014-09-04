@@ -93,8 +93,25 @@ var updatePropertySuggestions;
     var $name = $('<input>')
       .attr('type', 'text')
       .appendTo($addPanel)
-      .combobox({source: $.map(suggestedProperties,
-                               function(v, k){return k;})})
+      .combobox(
+      {
+        source:
+        function(request, response)
+        {
+          var suggestions = [];
+          var filter = new RegExp(
+            $.ui.autocomplete.escapeRegex(request.term), 'i');
+          for (var name in suggestedProperties)
+          {
+            if (!request.term || filter.test(name))
+            {
+              suggestions.push(name);
+            }
+          }
+
+          response(suggestions);
+        }
+      })
       .on('comboboxchange', nameChanged)
       .on('comboboxselect', function(event, ui)
       {
@@ -187,6 +204,7 @@ var updatePropertySuggestions;
             }
 
             onsubmit(name, property);
+            updatePropertySuggestions(name, property);
           });
       })(submitText, onsubmit[submitText]);
     }
@@ -907,7 +925,7 @@ function initCart()
                           {
                             if (scope.get('edit'))
                             {
-                              rowElements.$properties.css('display', '');
+                              rowElements.$properties.css('display', 'none');
                               switch (scope.get('editMode'))
                               {
                                 case 'adjust':
