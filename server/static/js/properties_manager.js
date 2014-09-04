@@ -78,8 +78,10 @@ var CPropertiesManager = null;
     this.reset();
   }
 
-  CProperty.prototype = {
-    reset: function()
+  CProperty.prototype =
+  {
+    reset:
+    function()
     {
       this.changed = false;
       if (this.onchange)
@@ -110,7 +112,8 @@ var CPropertiesManager = null;
       return this;
     },
 
-    remove: function()
+    remove:
+    function()
     {
       if (!this.removed && this.onremove)
       {
@@ -120,7 +123,8 @@ var CPropertiesManager = null;
       return this;
     },
 
-    destroy: function()
+    destroy:
+    function()
     {
       if (this.ondestroy != null)
       {
@@ -133,7 +137,8 @@ var CPropertiesManager = null;
       }
     },
 
-    change: function(value, donotupdate)
+    change:
+    function(value, donotupdate)
     {
       if (this.type == 't')
       {
@@ -155,7 +160,8 @@ var CPropertiesManager = null;
       }
     },
 
-    accept: function()
+    accept:
+    function()
     {
       this.changed = false;
       this.new = false;
@@ -191,13 +197,16 @@ var CPropertiesManager = null;
     this.changed = false;
   }
 
-  CImageProperties.prototype = {
-    has: function(name)
+  CImageProperties.prototype =
+  {
+    has:
+    function(name)
     {
       return name in this.properties; // && !this.properties[name].removed;
     },
   
-    add: function(name, type, value, triggers, original, edit, view)
+    add:
+    function(name, type, value, triggers, original, edit, view)
     {
       if (this.has(name)) return false;
 
@@ -215,7 +224,8 @@ var CPropertiesManager = null;
       return true;
     },
 
-    change: function(name, value, donotupdate)
+    change:
+    function(name, value, donotupdate)
     {
       if (this.has(name))
       {
@@ -228,7 +238,8 @@ var CPropertiesManager = null;
       }
     },
 
-    remove: function(name)
+    remove:
+    function(name)
     {
       if (!this.has(name)) return;
 
@@ -249,7 +260,8 @@ var CPropertiesManager = null;
       }
     },
 
-    reset: function()
+    reset:
+    function()
     {
       for (var name in this.properties)
       {
@@ -279,7 +291,8 @@ var CPropertiesManager = null;
       }
     },
 
-    updateChanged: function()
+    updateChanged:
+    function()
     {
       for (var name in this.removed)
       {
@@ -302,7 +315,8 @@ var CPropertiesManager = null;
       }
     },
 
-    accept: function(name, removed)
+    accept:
+    function(name, removed)
     {
       if (name != null)
       {
@@ -351,7 +365,8 @@ var CPropertiesManager = null;
       }
     },
 
-    destroy: function()
+    destroy:
+    function()
     {
       for (var name in this.removed)
       {
@@ -374,7 +389,8 @@ var CPropertiesManager = null;
       }
     },
 
-    getChanges: function()
+    getChanges:
+    function()
     {
       var unset = [];
       for (var name in this.removed)
@@ -410,18 +426,22 @@ var CPropertiesManager = null;
     this.ajaxProvider = ajaxProvider;
   }
 
-  CPropertiesManager.prototype = {
-    hasImage: function(iid)
+  CPropertiesManager.prototype =
+  {
+    hasImage:
+    function(iid)
     {
       return iid in this.images;
     },
 
-    has: function(iid, name)
+    has:
+    function(iid, name)
     {
       return iid in this.images && this.images[iid].has(name);
     },
 
-    addImage: function(iid, triggers)
+    addImage:
+    function(iid, triggers)
     {
       if (this.hasImage(iid)) return false;
 
@@ -429,7 +449,8 @@ var CPropertiesManager = null;
       return true;
     },
 
-    removeImage: function(iid)
+    removeImage:
+    function(iid)
     {
       if (!this.hasImage(iid)) return;
 
@@ -437,7 +458,8 @@ var CPropertiesManager = null;
       delete this.images[iid];
     },
 
-    apply: function(f, args, iid)
+    apply:
+    function(f, args, iid)
     {
       if (iid == null)
       {
@@ -455,7 +477,8 @@ var CPropertiesManager = null;
       return f.apply(this.images[iid], args);
     },
 
-    change: function(iid, name, value, donotupdate)
+    change:
+    function(iid, name, value, donotupdate)
     {
       this.apply(function()
                  {
@@ -466,27 +489,31 @@ var CPropertiesManager = null;
                  }, null, iid);
     },
 
-    add: function(iid, name, type, value, triggers, original, edit, view)
+    add:
+    function(iid, name, type, value, triggers, original, edit, view)
     {
       if (!this.hasImage(iid)) return false;
       return this.images[iid].add(name, type, value, triggers, original,
                                   edit, view);
     },
 
-    autoAdd: function(iid, name, type, value, original, edit, view, extraData)
+    autoAdd:
+    function(iid, name, type, value, original, edit, view, extraData)
     {
       if (!this.hasImage(iid)) return false;
       return this.images[iid].autoAdd(name, type, value, original, edit, view,
                                       extraData);
     },
 
-    remove: function(iid, name)
+    remove:
+    function(iid, name)
     {
       if (!this.hasImage(iid)) return;
       this.images[iid].remove(name);
     },
 
-    reset: function(iid)
+    reset:
+    function(iid)
     {
       this.apply(function()
                  {
@@ -496,12 +523,14 @@ var CPropertiesManager = null;
                  iid);
     },
 
-    get: function(iid)
+    get:
+    function(iid)
     {
       return this.images[iid].properties;
     },
 
-    getChanges: function()
+    getChanges:
+    function()
     {
       var res = [];
       for (var iid in this.images)
@@ -516,7 +545,8 @@ var CPropertiesManager = null;
       return res;
     },
 
-    save: function()
+    save:
+    function()
     {
       var changes = this.getChanges();
       if (changes.length == 0) return;
