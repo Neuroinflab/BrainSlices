@@ -549,14 +549,6 @@ console.debug(img)
                                       }))))
                                 .append('<br>'));
 
-                            rowElements =
-                            {
-                              $div: $drag,
-                              $name: $nameView,
-                              $description: $descriptionView,
-                              $properties: $propertiesView
-                            };
-
                             makeBasicDetails(img.info, $drag)
                               .append($nameView
                                 .addClass('image-details'))
@@ -564,6 +556,17 @@ console.debug(img)
                                 .addClass('image-description image-details'))
                               .append($propertiesView
                                 .addClass('image-dateils'));
+
+                            rowElements =
+                            {
+                              $div: $drag,
+                              $name: $nameView,
+                              $description: $descriptionView,
+                              $properties: $propertiesView,
+                              $annotate: $('<span>')
+                                .append($propertiesEdit)
+                                .appendTo($drag)
+                            };
 
                             rowElements.$privileges = $('<div>')
                               .addClass('privilegePanel')
@@ -620,23 +623,27 @@ console.debug(img)
                               {
                                 case 'adjust':
                                   rowElements.$privileges.hide(0);
+                                  rowElements.$annotate.hide(0);
                                   if (image.info.editPrivilege > 0)
                                   {
                                     $adjustment.show(0);
                                   }
                                   break;
                                 case 'privileges':
-                                  $adjustment.hide();
+                                  $adjustment.hide(0);
+                                  rowElements.$annotate.hide(0);
                                   if (image.info.editPrivilege > 0)
                                   {
                                     rowElements.$privileges.show(0);
                                   }
                                   break;
                                 case 'properties':
-                                  $adjustment.hide();
+                                  $adjustment.hide(0);
                                   rowElements.$privileges.hide(0);
+                                  rowElements.$name.hide(0);
                                   if (image.info.annotatePrivilege > 0)
                                   {
+                                    rowElements.$annotate.show(0);
                                   }
                                   break
                               }
@@ -645,6 +652,8 @@ console.debug(img)
                             {
                               $adjustment.hide(0);
                               rowElements.$privileges.hide(0);
+                              rowElements.$annotate.hide(0);
+
                               rowElements.$properties.show(0);
                               rowElements.$name.show(0);
                             }

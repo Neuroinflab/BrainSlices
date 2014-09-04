@@ -94,6 +94,21 @@ div.privilegeChanged
   background: #FFEEEE !important;
 }
 
+div.propertyChanged
+{
+  background: #FFEEEE !important;
+}
+
+li.propertyChanged
+{
+  background: #FFDDDD !important;
+}
+
+li.propertyNew
+{
+  background: #DDFFDD !important;
+}
+
 div.label-column,
 div.visible-column
 {
