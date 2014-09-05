@@ -182,7 +182,7 @@ a.pager
 
 #newFilter .brainslices-property-filter
 {
-  margin-right: 25px;
+  margin-right: 21px; /* 25 - 4 */
 }
 
 #searchPropertySearch
@@ -201,7 +201,7 @@ a.pager
   position: relative;
   font-style: italic;
   overflow: hidden;
-  padding: 5px;
+  padding: 5px 1px 1px 5px; /* 5 - 4 */
 }
 
 summary.filter-property-name
@@ -266,7 +266,7 @@ details[open]>summary.filter-property-name>.fa-angle-double-down
 details.filter-property-info
 {
   position: relative;
-  padding: 5px;
+  padding: 5px 1px 1px 5px; /* 5 - 4 */
 }
 
 details.filter-property-info .brainslices-property-filter
@@ -331,16 +331,43 @@ details.filter-property-info .brainslices-property-filter
 }
 
 
-.brainslices-new-property-filter
+div.brainslices-new-property-filter
 {
   position: relative;
   display: block;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 3px;
+  border: solid 1px #E5E5E5;
+  border-radius: 4px;
   height: 60px;
 
-  background: -webkit-gradient(linear, left top, left 61%, from(white), color-stop(4%, #EEE), to(white));
-  background: -moz-linear-gradient(top, white, #EEE 1px, white 61%);
-  background: linear-gradient(top, #FFFFFF, #EEEEEE, 4%, #FFFFFF, 61%);
+  margin-bottom: 4px;
+  margin-right: 4px;
+
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 3px;
+  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+
+  background: -webkit-gradient(linear, left top, left 61%, from(#EEE), to(white));
+  background: -moz-linear-gradient(top, #EEE, white 61%);
+  background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
+
+}
+
+div.brainslices-new-property-filter:hover,
+div.brainslices-text-property-filter:hover,
+div.brainslices-number-property-filter:hover,
+div.brainslices-enum-property-filter:hover/*,
+input.brainslices-new-property-filter-propertybox:hover,
+input.brainslices-new-property-filter-propertybox:focus,
+div.propertyboxsearch-toggle:hover,
+div.propertyboxsearch-toggle:focus,
+select.brainslices-new-property-filter-type:hover,
+select.brainslices-new-property-filter-type:focus,
+input.brainslices-text-property-filter:focus*/
+{
+  border-color: #C9C9C9;
+  box-shadow: rgba(0,0,0,  0.15) 0px 0px 8px;
+  -moz-box-shadow: rgba(0,0,0, 0.15) 0px 0px 8px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
 }
 
 div.brainslices-new-property-filter-propertybox
@@ -357,11 +384,14 @@ select.brainslices-new-property-filter-type
 {
   box-sizing: border-box;
   box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+
   font-size: 13px;
   line-height: 16px;
   height: 30px;
 
-  border: 1px solid #E5E5E5;
+  border: none;
 }
 
 input.brainslices-new-property-filter-propertybox
@@ -369,7 +399,7 @@ input.brainslices-new-property-filter-propertybox
   width: 100%;
   margin: 0;
   padding 2px;
-  border-bottom: none;
+  border-right: 1px solid #E5E5E5;
   border-top-left-radius: 4px;
   background: transparent;
 }
@@ -385,9 +415,6 @@ div.propertyboxsearch-toggle
   text-align: center;
 
   background: transparent url("/static/gfx/unfold.png") no-repeat center center;
-  border-left: none;
-  /*border-right: none;*/
-  border-bottom: none;
 }
 
 select.brainslices-new-property-filter-type
@@ -396,6 +423,7 @@ select.brainslices-new-property-filter-type
   padding: 2px 20px 2px 2px;
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
+  border-top: 1px solid #E5E5E5;
   margin: 0;
 
   width: 100%;
@@ -409,17 +437,23 @@ select.brainslices-new-property-filter-type
 }
 
 
-.brainslices-number-property-filter,
+div.brainslices-number-property-filter,
 div.brainslices-text-property-filter,
 div.brainslices-enum-property-filter
 {
   position: relative;
   display: block;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 3px;
 
-  background: -webkit-gradient(linear, left top, left 61%, from(white), color-stop(4%, #EEE), to(white));
-  background: -moz-linear-gradient(top, white, #EEE 1px, white 61%);
-  background: linear-gradient(top, #FFFFFF, #EEEEEE, 4%, #FFFFFF, 61%);
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 3px;
+  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+
+  background: -webkit-gradient(linear, left top, left 61%, from(#EEE), to(white));
+  background: -moz-linear-gradient(top, white, #EEEEEE, white 61%);
+  background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
+
+  margin-right: 4px;
+  margin-bottom: 4px;
 }
 
 
@@ -435,11 +469,15 @@ input.brainslices-text-property-filter
 {
   box-sizing: border-box;
   box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+
   font-size: 13px;
   line-height: 16px;
   height: 30px;
 
   border: 1px solid #E5E5E5;
+  margin: 0;
 }
 
 div.brainslices-number-property-filter-select,
@@ -516,6 +554,7 @@ input.brainslices-text-property-filter
 
 div.brainslices-enum-property-filter
 {
+  border: 1px solid #E5E5E5;
   border-radius: 4px;
   overflow-x: auto;
   width: auto;
@@ -649,9 +688,9 @@ div.folder-button
   text-align: center;
   padding: 2px;
 
-  background: -webkit-gradient(linear, left top, left 61%, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
-  background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 61%);
-  background: linear-gradient(top, #FFFFFF, #EEEEEE, 4%, #FFFFFF, 61%);
+  background: -webkit-gradient(linear, left top, left 61%, from(#EEEEEE), to(#FFFFFF));
+  background: -moz-linear-gradient(top, #EEEEEE, #FFFFFF 61%);
+  background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
 }
 
 div.folder-button:before

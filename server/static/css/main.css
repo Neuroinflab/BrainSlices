@@ -78,6 +78,10 @@ textarea
   font: normal 13px/20px Verdana, Tahoma, sans-serif;
   color: #7F7F7F;
 
+  margin-bottom: 4px;
+  margin-right: 4px;
+
+  box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
   -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
   -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
@@ -87,9 +91,9 @@ textarea
 {
   padding: 5px;
 
-  background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
-  background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
-  box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  background: -webkit-gradient(linear, left top, left 61%, from(#EEEEEE), to(#FFFFFF));
+  background: -moz-linear-gradient(top, #EEEEEE, #FFFFFF 61%);
+  background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
 }
 
 select
@@ -102,14 +106,53 @@ select
   background-size: 20px, 8px;
 }
 
+select.selectWrapper
+{
+  border-radius: 4px;
+  margin: 0;
+
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
+div.selectWrapper
+{
+  display: inline-block;
+  margin-bottom: 4px;
+  margin-right: 4px;
+
+  border-radius: 4px;
+  background: -webkit-gradient(linear, left top, left 61%, from(#EEEEEE), to(#FFFFFF));
+  background: -moz-linear-gradient(top, #EEEEEE, #FFFFFF 61%);
+  background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
+  box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+}
+
+
 input:hover,
 textarea:hover,
+select:hover,
+div.selectWrapper:hover,
 input:focus,
-textarea:focus
+textarea:focus,
+select:focus
 {
   border-color: #C9C9C9;
+  box-shadow: rgba(0,0,0,  0.15) 0px 0px 8px;
+  -moz-box-shadow: rgba(0,0,0, 0.15) 0px 0px 8px;
   -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
 }
+
+select.selectWrapper:hover
+{
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
 
 .ui-tooltip
 {
@@ -183,9 +226,9 @@ textarea:focus
   background: #f0f0f0;
 
   outline: none;
+  box-shadow:     0px 0px 2px 0px #388AD4;
   -moz-box-shadow:  0px 0px 2px 0px #388AD4;
   -webkit-box-shadow: 0px 0px 2px 0px #388AD4;
-  box-shadow:     0px 0px 2px 0px #388AD4;
 }
 
 .ui-autocomplete
@@ -308,7 +351,10 @@ textarea:focus
 
 .polaroid-image
 {
-	box-shadow: 0 3px 6px rgba(0,0,0,.25);
+	box-shadow: rgba(0,0,0,.25) 0 3px 6px;
+  -moz-box-shadow: rgba(0,0,0,.25) 0 3px 6px;
+  -webkit-box-shadow: rgba(0,0,0,.25) 0 3px 6px;
+
   border: 5px solid #FFFFFF;
   margin: 10px;
   display: block;
