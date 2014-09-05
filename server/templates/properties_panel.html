@@ -56,7 +56,135 @@ with ({escapeHTML: BrainSlices.gui.escapeHTML,
   {
     this.data = data;
   };
+  CAutoAddTriggers.prototype = {
+    update: function()
+    {
+      if ('$input' in this.data)
+      {
+        this.data.$input.val(this.value);
+      }
+    },
 
+    destroy: function()
+    {
+      this.data.$row.remove();
+    },
+
+    new: function()
+    {
+      if (this.new)
+      {
+        this.data.$row.addClass('propertyNew');
+      }
+      else if (this.data.$row.hasClass('propertyNew'))
+      {
+        this.data.$row.removeClass('propertyNew');
+      }
+    },
+
+    change: function()
+    {
+      if (this.changed)
+      {
+        this.data.$row.addClass('propertyChanged');
+      }
+      else if (this.data.$row.hasClass('propertyChanged'))
+      {
+        this.data.$row.removeClass('propertyChanged');
+      }
+    },
+
+    remove: function()
+    {
+      if (this.removed)
+      {
+        this.data.$row.hide();
+      }
+      else
+      {
+        this.data.$row.show();
+      }
+    }
+  };
+
+  function autoAdd(name, type, value, original, edit, view, extraData)
+  {
+    var thisInstance = this;
+    var $li = $('<li></li>');
+    $li.append(name);
+    var data = {$row: $li};
+    var $input = null;
+    if (type != 't')
+    {
+      $li.append(': ');
+      switch (type)
+      {
+        case 'x':
+          $input = $('<textarea></textarea>');
+          break;
+        case 's':
+        case 'e':
+          $input = $('<input type="text">');
+          break;
+        case 'i':
+          $input = $('<input type="number" step="1">');
+          break;
+        case 'f':
+          $input = $('<input type="number">');
+      }
+
+      $input.val(value); // might be a problem with textarea...
+
+      $input.bind(type != 'e' ? 'change' : 'comboboxchange',
+                  function()
+                  {
+                    var val = $input.val();
+                    thisInstance.change(name, val, true);
+                  });
+      $li.append($input);
+      if (type == 'e')
+      {
+        $input.combobox(
+        {
+          source: function(request, response)
+          {
+            var suggestions = [];
+            if (name in enumeratedProperties)
+            {
+              var filter = new RegExp(
+                $.ui.autocomplete.escapeRegex(request.term), 'i');
+
+              $.each(enumeratedProperties[name], function(i, v)
+              {
+                if (!request.term || filter.test(v))
+                {
+                  suggestions.push(v);
+                }
+              });
+            }
+            response(suggestions);
+          }
+        });
+      }
+      data.$input = $input;
+    }
+
+
+    var $remButton = $('<button>X</button>');
+    $li.append($remButton);
+
+    $remButton.bind('click',
+                    function()
+                    {
+                      thisInstance.remove(name);
+                    });
+
+    this.data.$list.append($li);
+
+    return this.add(name, type, value,
+                    new CAutoAddTriggers(data),
+                    original, edit, view);
+  }
 
   var suggestedProperties = {};
   var enumeratedProperties = {};
