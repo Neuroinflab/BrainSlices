@@ -619,8 +619,6 @@ var CFilterPanel = null;
           }
         }
 
-        //console.debug(options) //XXX
-
         // type/condition validation
         var conditions = options.conditions;
         var cond;
@@ -723,7 +721,6 @@ var CFilterPanel = null;
     _setOptions:
     function(options)
     {
-      console.debug('_setOptions');
       if (options) options = this._fixOptions(options);
       this._super(options);
     },
@@ -731,7 +728,6 @@ var CFilterPanel = null;
     _setOption:
     function(key, value)
     {
-      console.debug(key, value);
       switch (key)
       {
         case 'type':
@@ -851,7 +847,6 @@ var CFilterPanel = null;
       var handlers = {};
       handlers[this.options.autocomplete + 'select'] = function(event, ui) 
       {
-        //console.debug('select - element.val()', this.element.val(), ui)
         this.element
           .val(ui.item.value)
           .blur();
@@ -863,7 +858,6 @@ var CFilterPanel = null;
         {
           handlers[this.options.autocomplete + v] = function(event, ui)
           {
-            //console.debug(v);
             this._trigger(v, event, ui);
           }
         }, this));
@@ -1007,23 +1001,22 @@ var CFilterPanel = null;
           value: '' //this.options.anyLabel
         })
         .tooltip()
-        .addClass('ui-widget-content ui-state-default ui-corner-left brainslices-new-property-filter-propertybox')
+        .addClass('brainslices-new-property-filter-propertybox')
+//        .addClass('ui-widget-content ui-state-default ui-corner-left brainslices-new-property-filter-propertybox')
         .propertyboxsearch(
         {
           source: $.proxy(this._source, this),
           minLength: 0
         })
-        .keypress($.proxy(function(e)
+        .keypress(/*$.proxy(*/function(e)
         {
           if (e.keyCode == 13)
           {
-            this.$input.blur();
+            /*this.*/$input.blur();
             //this._propertyChange();
           }
-        }, this))
+        }/*, this)*/)
         .appendTo($wrapper);
-
-      console.debug(this.options);
 
       this.$input = $input;
       this._on(this.$input,
@@ -1052,10 +1045,6 @@ var CFilterPanel = null;
 
           $input.propertyboxsearch('search', '');
         });
-
-        $('<span>')
-        .appendTo($a);
-        //.addClass('fa fa-caret-down');
     },
 
     _createTypeSelect: function($span)
@@ -1131,7 +1120,6 @@ var CFilterPanel = null;
         var data = ui.item.data;
         this._updateTypeSelect(data != null ? data + 't' : 'fxt');
         this.propertyName = data != null ? ui.item.value : null;
-        console.debug('direct match');
         return;
       }
 
@@ -1145,7 +1133,6 @@ var CFilterPanel = null;
         {
           valid = true;
           thisInstance._updateTypeSelect(type + 't');
-          console.debug('indirect match');
           return false;
         }
       });
@@ -1169,7 +1156,6 @@ var CFilterPanel = null;
     _source:
     function(request, response)
     {
-      console.debug(this.options)
       var anyLabel = this.options.anyLabel;
       this.options.source(request, function(match)
       {
@@ -1301,7 +1287,6 @@ var CFilterPanel = null;
     refresh:
     function()
     {
-//      console.log('refresh');
       if (this.invalid)
       {
         this.forceRefresh();
@@ -1311,9 +1296,7 @@ var CFilterPanel = null;
     forceRefresh:
     function()
     {
-//      console.log('refresh invalid');
       var contentHeight = this.$wrapper.outerHeight(true);
-//      console.debug(contentHeight, this.options.fit, this.$parent.height(), this.options.treshold);
 
       if (this.options.fit)
       {

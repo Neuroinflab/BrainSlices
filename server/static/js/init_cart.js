@@ -126,11 +126,63 @@ var getEnumeratedSuggestionsFunction;
         $options.addClass('suggested-type');
       }
     }
-  
+    var $propertybox = $('<div>')
+      .addClass('brainslices-new-property-filter fake-filter')
+      .appendTo($addPanel);
+
     var $name = $('<input>')
-      .attr('type', 'text')
-      .appendTo($addPanel)
-      .combobox(
+      .attr(
+      {
+        title: '',
+        type: 'text',
+        value: ''
+      })
+      .tooltip()
+      .addClass('brainslices-new-property-filter-propertybox')
+      .autocomplete(
+      {
+        source: getPropertySuggestions,
+        minLength: 0
+      })
+      .keypress(function(e)
+      {
+        if (e.keyCode == 13)
+        {
+          $name.blur();
+        }
+      })
+      .on('autocompletechange', nameChanged)
+      .on('autocompleteselect', function(event, ui)
+      {
+        $name.val(ui.item.value).blur();
+        nameChanged();
+      })
+      .appendTo($('<div>')
+        .addClass('brainslices-new-property-filter-propertybox fake-filter')
+        .appendTo($propertybox))
+
+    $('<div>')
+      .addClass('propertyboxsearch-toggle fake-filter')
+      .attr('title', 'Show hints')
+      .tooltip()
+      .mousedown(function()
+      {
+        wasOpen = $name.autocomplete('widget').is( ":visible" );
+      })
+      .click(function()
+      {
+        $name.focus();
+
+        if (wasOpen)
+        {
+          return;
+        }
+
+        $name.autocomplete('search', '');
+      })
+      .appendTo($propertybox);
+
+/*      .combobox(
       {
         source: getPropertySuggestions
       })
@@ -141,9 +193,10 @@ var getEnumeratedSuggestionsFunction;
         $name.val(ui.item.value).blur();
         //inSelect = false;
         nameChanged();
-      });
+      });*/
  
     var $type = $('<select>')
+      .addClass('brainslices-new-property-filter-type fake-filter')
       .append(TYPES.map(makeTypeOption, typeOptions))
       .change(function()
       {
@@ -153,10 +206,11 @@ var getEnumeratedSuggestionsFunction;
           inputBases[t][t == type ? 'show' : 'hide'](0);
         }
       })
-      .addClass('selectWrapper')
+      .appendTo($propertybox);
+/*      .addClass('selectWrapper')
       .appendTo($('<div>')
         .addClass('selectWrapper')
-        .appendTo($addPanel));
+        .appendTo($addPanel));*/
 
     var inputs =
     {

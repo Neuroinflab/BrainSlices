@@ -225,6 +225,11 @@ div.selectWrapper
 }
 
 
+div.brainslices-new-property-filter.fake-filter
+{
+  display: inline-block;
+  width: 250px;
+}
 
 
 option.suggested-type
