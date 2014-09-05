@@ -8,7 +8,7 @@ function makePropertyList(properties, $ul)
   {
     $ul.empty();
   }
-  $ul.addClass('image-dateils');
+  $ul.addClass('image-details');
 
   var names = [];
   var name;
@@ -536,37 +536,22 @@ function initBrowseFinish()
     }
   });
 
-
-  loginConsole.ajax('/meta/getPropertyList',
-                    function(data)
-                    {
-                      if (data.status)
-                      {
-                        var enumerated = data.data[1];
-
-                        $('#newFilter').newpropertyfilter(
-                        {
-                          source: data.data[0],
-                          enumerated: enumerated,
-                          submit: function(name, type, filter)
-                          {
-                            if (name != null && searchEngine.has(name))
-                            {
-                              alertWindow.error('Property ' + name + ' already selected.');
-                            }
-                            else
-                            {
-                              searchEngine.autoAdd(name, type, filter);
-                            }
-                          }
-                        });
-
-                      }
-                      else
-                      {
-                        alertWindow.error(data.message);
-                      }
-                    });
+  $('#newFilter').newpropertyfilter(
+  {
+    source: getPropertySuggestions,
+    enumerated: getEnumerated,
+    submit: function(name, type, filter)
+    {
+      if (name != null && searchEngine.has(name))
+      {
+        alertWindow.error('Property ' + name + ' already selected.');
+      }
+      else
+      {
+        searchEngine.autoAdd(name, type, filter);
+      }
+    }
+  });
 }
 
 

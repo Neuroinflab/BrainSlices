@@ -1,5 +1,8 @@
 var makeAddPropertyPanel;
 var updatePropertySuggestions;
+var getPropertySuggestions;
+var getEnumerated;
+var getEnumeratedSuggestionsFunction;
 
 (function()
 {
@@ -12,6 +15,60 @@ var updatePropertySuggestions;
                ['s', 'String'],
                ['x', 'Text'],
                ['e', 'Enumerative']];
+
+  getPropertySuggestions =
+  function(request, response)
+  {
+    var f;
+    if (request.term)
+    {
+      var filter = new RegExp($.ui.autocomplete.escapeRegex(request.term),
+                              'i');
+      f = function(val, key)
+      {
+        if (!filter.test(key)) return null;
+
+        return {value: key,
+                label: key,
+                data: val};
+      }
+    }
+    else
+    {
+      f = function(val, key)
+      {
+        return {value: key,
+                label: key,
+                data: val};
+      }
+    }
+    response($.map(suggestedProperties, f));
+  };
+
+  getEnumerated = function(name)
+  {
+    return name in enumeratedProperties ?
+           enumeratedProperties[name] :
+           [];
+  };
+
+  getEnumeratedSuggestionsFunction =
+  function(getEnumerated)
+  {
+    return function(request, response)
+    {
+      var suggestions = getEnumerated();
+      if (request.term)
+      {
+        var filter = new RegExp($.ui.autocomplete.escapeRegex(request.term),
+                                  'i');
+        suggestions = suggestions.filter(filter.test, filter);
+      }
+
+      response(suggestions);
+    }
+  };
+
   
   function makeTypeOption(type, i)
   {
@@ -30,15 +87,17 @@ var updatePropertySuggestions;
   makeAddPropertyPanel = function(onsubmit, onclick)
   {
     var $addPanel = $('<div>');
-    var suggestedEnumerated = [];
+    var name;
     var typeOptions = {};
     //var inSelect = false;
   
     function nameChanged()
     {
       //if (inSelect) return;
-      var name = $name.val().trim().toLowerCase();
+      name = $name.val().trim().toLowerCase();
+
       console.debug(name);
+
       $type.children('option').removeClass('suggested-type');
       if (name in suggestedProperties)
       {
@@ -60,11 +119,6 @@ var updatePropertySuggestions;
               $.merge($options, typeOptions.i);
               break
   
-            case 'e':
-              suggestedEnumerated = name in enumeratedProperties ?
-                                    enumeratedProperties[name] : [];
-              break;
-  
             default:
               break;
           }
@@ -73,44 +127,12 @@ var updatePropertySuggestions;
       }
     }
   
-    function source(request, response)
-    {
-      var suggestions = [];
-      var filter = new RegExp(
-        $.ui.autocomplete.escapeRegex(request.term), 'i');
-  
-      $.each(suggestedEnumerated, function(i, v)
-      {
-        if (!request.term || filter.test(v))
-        {
-          suggestions.push(v);
-        }
-      });
-  
-      response(suggestions);
-    }
-  
     var $name = $('<input>')
       .attr('type', 'text')
       .appendTo($addPanel)
       .combobox(
       {
-        source:
-        function(request, response)
-        {
-          var suggestions = [];
-          var filter = new RegExp(
-            $.ui.autocomplete.escapeRegex(request.term), 'i');
-          for (var name in suggestedProperties)
-          {
-            if (!request.term || filter.test(name))
-            {
-              suggestions.push(name);
-            }
-          }
-
-          response(suggestions);
-        }
+        source: getPropertySuggestions
       })
       .on('comboboxchange', nameChanged)
       .on('comboboxselect', function(event, ui)
@@ -131,7 +153,10 @@ var updatePropertySuggestions;
           inputBases[t][t == type ? 'show' : 'hide'](0);
         }
       })
-      .appendTo($addPanel);
+      .addClass('selectWrapper')
+      .appendTo($('<div>')
+        .addClass('selectWrapper')
+        .appendTo($addPanel));
 
     var inputs =
     {
@@ -165,7 +190,11 @@ var updatePropertySuggestions;
       .append(inputs.e
         .combobox(
         {
-          source: source
+          source:
+          getEnumeratedSuggestionsFunction(function()
+          {
+            return getEnumerated(name);
+          })
         }));
 
     for (var t in inputBases)
@@ -367,25 +396,10 @@ var PImagePropertyTriggers =
         $input
         .combobox(
         {
-          source:
-          function(request, response)
+          source: getEnumeratedSuggestionsFunction(function()
           {
-            var suggestions = [];
-            if (name in enumeratedProperties)
-            {
-              var filter = new RegExp(
-                $.ui.autocomplete.escapeRegex(request.term), 'i');
-
-              $.each(enumeratedProperties[name], function(i, v)
-              {
-                if (!request.term || filter.test(v))
-                {
-                  suggestions.push(v);
-                }
-              });
-            }
-            response(suggestions);
-          }
+            return getEnumerated(name);
+          })
         });
       }
       data.$input = $input;

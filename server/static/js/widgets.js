@@ -326,7 +326,6 @@ var CFilterPanel = null;
     _create:
     function()
     {
-      console.debug('_create');
       this.$wrapper = $('<div>')
                         .addClass('brainslices-propertyfilter')
                         .appendTo(this.element);
@@ -335,7 +334,6 @@ var CFilterPanel = null;
     _init:
     function()
     {
-      console.debug('_init');
       this.options = this._fixOptions(this.options);
 
       this.$wrapper.hide(0).empty();
@@ -930,10 +928,12 @@ var CFilterPanel = null;
    *   typeLabels - An object mapping from one-letter type descriptors
    *                to labels.
    *   anyLabel - A label for a jocker for any property.
-   *   enumerated - A mapping of enumerated property name to Array of its
-   *                enumerated values.
-   *   source - An object mapping from property name to its possible types
-   *            (given as string of one-letter type descriptors excluding 't')
+   *   enumerated - A function mapping name of property to list of possible
+   *                values.
+   *   source - A callback for jQueryUI autocomplete plugin executing its
+   *            response with list of objects of attributes: value - matching
+   *            property name, label - whatever has to be displayed, data -
+   *            a string with property types ('t' excluded).
    *   submit - A callback triggered when submit button is being pressed.
    *            The callback takes the following parameters: propertyName,
    *            propertyType (one-letter descriptor) and a detached
@@ -1010,7 +1010,7 @@ var CFilterPanel = null;
         .addClass('ui-widget-content ui-state-default ui-corner-left brainslices-new-property-filter-propertybox')
         .propertyboxsearch(
         {
-          source: $.proxy(this, '_source'),
+          source: $.proxy(this._source, this),
           minLength: 0
         })
         .keypress($.proxy(function(e)
@@ -1022,6 +1022,8 @@ var CFilterPanel = null;
           }
         }, this))
         .appendTo($wrapper);
+
+      console.debug(this.options);
 
       this.$input = $input;
       this._on(this.$input,
@@ -1098,21 +1100,15 @@ var CFilterPanel = null;
       var t = this.$types.val();
       if (t == 'e')
       {
-        var data = {}; //[];
-        if (this.propertyName in this.options.enumerated)
+        var data = {};
+        $.each(this.options.enumerated(this.propertyName), function(i, v)
         {
-          //data = this.options.enumerated[this.propertyName];
-          $.each(this.options.enumerated[this.propertyName], function(i, v)
-          {
             data[v] = true;
-          });
-        }
+        });
         this.filter.propertyfilter({type: 'e', conditions: data});
-        //this.filter.make(t, data);
       }
       else
       {
-        //this.filter.make(t);
         this.filter.propertyfilter({type: t});
       }
     },
@@ -1173,24 +1169,14 @@ var CFilterPanel = null;
     _source:
     function(request, response)
     {
-      var properties = [{value: this.options.anyLabel,
-                         label: this.options.anyLabel,
-                         data: null}];
-      var filter = new RegExp(
-        $.ui.autocomplete.escapeRegex(request.term),
-        'i');
-
-      var source = this.options.source;
-      for (var name in source)
+      console.debug(this.options)
+      var anyLabel = this.options.anyLabel;
+      this.options.source(request, function(match)
       {
-        if (!request.term || filter.test(name))
-        {
-          properties.push({value: name,
-                           label: name,
-                           data: source[name]});
-        }
-      }
-      response(properties);
+        response([{value: anyLabel,
+                   label: anyLabel,
+                   data: null}].concat(match));
+      })
     },
 
     _onSubmit: function()

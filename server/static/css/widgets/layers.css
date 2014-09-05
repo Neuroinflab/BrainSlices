@@ -145,8 +145,8 @@ div.visible-column
 
 #editMode
 {
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-top: 1px;
+  padding-bottom: 1px;
 }
 
 
@@ -225,6 +225,12 @@ div.selectWrapper
 }
 
 
+
+
+option.suggested-type
+{
+  background: #DDEEFF;
+}
 
 
 
@@ -315,11 +321,11 @@ a.layer-download-button
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
+  top: 40px;
   height: 90px;
 }
 
 #layersConsoleTable.editPanel
 {
-  bottom: 90px;
+  top: 130px; /* 90px + 40px */
 }

@@ -189,39 +189,6 @@ $(function()
 
     loadNextImage();
 
-
-    loginConsole.ajax('/meta/getPropertyList',
-                      function(data)
-                      {
-                        if (data.status)
-                        {
-                          var enumerated = data.data[1];
-
-                          $('#newFilter').newpropertyfilter(
-                          {
-                            source: data.data[0],
-                            enumerated: enumerated,
-                            submit: function(name, type, filter)
-                            {
-                              if (name != null && searchEngine.has(name))
-                              {
-                                alert('Property ' + name + ' already selected.');
-                              }
-                              else
-                              {
-                                searchEngine.autoAdd(name, type, filter);
-                              }
-                            }
-                          });
-
-                        }
-                        else
-                        {
-                          alert(data.message);
-                        }
-                      });
-
-
     scope.set('interfaceMode', state.interface);
     scope.set('filters', state.filters);
   },
