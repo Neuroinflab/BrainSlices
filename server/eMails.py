@@ -38,9 +38,9 @@ BS_EMAIL_FROM = ("%s<%s>" % (BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)).encode(BS_
 #CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
 CONFIRMATION_LINK_TEMPLATE = 'http://%s/?user=confirm&confirm=%%s&login=%%s' % BS_SERVICE_SERVER
 
-REGISTRATION_EMAIL_SUBJECT = '%s account registration' % BS_SERVICE_NAME
+REGISTRATION_EMAIL_SUBJECT = u'%s account registration' % BS_SERVICE_NAME
 
-REGISTRATION_EMAIL_TEMPLATE = '''Dear %%(name)s,
+REGISTRATION_EMAIL_TEMPLATE = u'''Dear %%(name)s,
 please follow the link below to confirm your account registration (%%(login)s)
 in %s:
 %%(link)s
@@ -54,9 +54,9 @@ Sincerely yours,
 #REGENERATION_LINK_TEMPLATE = 'http://%s/user/confirmPasswordRegeneration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
 REGENERATION_LINK_TEMPLATE = 'http://%s/?user=regenerate&confirm=%%s&login=%%s' % BS_SERVICE_SERVER
  
-REGENERATION_EMAIL_SUBJECT = '%s password regeneration' % BS_SERVICE_NAME
+REGENERATION_EMAIL_SUBJECT = u'%s password regeneration' % BS_SERVICE_NAME
 
-REGENERATION_EMAIL_TEMPLATE = '''Dear %%(name)s,
+REGENERATION_EMAIL_TEMPLATE = u'''Dear %%(name)s,
 please follow the link below to regenerate your account password (%%(login)s) in %s:
 %%(link)s
 or enter the following confirmation key manually:
@@ -67,13 +67,13 @@ Sincerely yours,
 
 
 def sendConfirmationEmail(request, confirmId):
-  name = request.name
-  email = request.email
-  login = request.login
+  name = request.name.decode('utf-8')
+  email = request.email.decode('utf-8')
+  login = request.login.decode('utf-8')
   return sendConfirmationEmailAux(name, email, login, confirmId)
 
 def sendConfirmationEmailAux(name, email, login, confirmId):
-  emailAdress = "%s<%s>" % (name, email)
+  emailAdress = u"%s<%s>" % (name, email)
   #now = datetime.now().strftime('%Y.%m.%d %H:%M:%S') #XXX: not used
   confirmationLink = CONFIRMATION_LINK_TEMPLATE % (confirmId, login)
 
@@ -111,8 +111,8 @@ def sendConfirmationEmailAux(name, email, login, confirmId):
 #regeneration scripts
 
 def sendRegenerationEmail(request, name, confirmId):
-  email = request.email
-  login = request.login
+  email = request.email.decode('utf-8')
+  login = request.login.decode('utf-8')
   return sendRegenerationEmailAux(email, name, login, confirmId)
 
 def sendRegenerationEmailAux(email, name, login, confirmId):
