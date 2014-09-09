@@ -1,3 +1,175 @@
+function makeAdjustmentPanel($div, id, image, thisInstance, finish)
+{
+  var $imageLeft = $('<input>')
+  //    .addClass('imageLeft')
+    .attr('type', 'number')
+    .addClass('adjustPanel')
+    .change(function()
+    {
+      image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
+    });
+
+  var $imageTop = $('<input>')
+  //  .addClass('imageTop')
+    .attr('type', 'number')
+    .addClass('adjustPanel')
+    .change(function()
+    {
+      image.updateInfo(null, parseFloat($imageTop.val()), null, null, false);
+    });
+
+  var $dpi = $('<input>')
+    //.addClass('pixelSize')
+    .attr('type', 'number')
+    .css('display', 'none')
+    .addClass('adjustPanelRes')
+    .change(function()
+    {
+      var ps =  25400. / parseFloat($dpi.val());
+      $pixelSize.val(ps);
+      image.updateInfo(null, null, ps, null, false);
+    });
+
+  var $pixelSize = $('<input>')
+    //.addClass('pixelSize')
+    .attr('type', 'number')
+    .addClass('adjustPanelRes')
+    .change(function()
+    {
+      var ps = parseFloat($pixelSize.val());
+      $dpi.val(25400. / ps);
+      image.updateInfo(null, null, ps, null, false);
+    });
+
+  var $res = $('<select>')
+    .addClass('adjustPanelRes')
+    .append($('<option>')
+      .text('resolution [DPI]')
+      .attr('value', 'dpi'))
+    .append($('<option>')
+      .text('pixel size [μm]')
+      .attr(
+      {
+        value: 'ps',
+        selected: 'selected'
+      }))
+    .change(function()
+    {
+      switch ($res.val())
+      {
+        case 'ps':
+          $dpi.hide(0);
+          $pixelSize.show(0);
+          break;
+
+        case 'dpi':
+          $pixelSize.hide(0);
+          $dpi.show(0);
+          break
+      }
+    });
+
+  var $status = $('<select>')
+    .append($('<option>')
+             .text('Processed')
+             .attr('value', '6'))
+    .append($('<option>')
+             .text('Accepted')
+             .attr('value', '7'))
+    //  .attr('name', 'status')
+    .addClass('adjustPanelStatus selectWrapper')
+    .change(function()
+    {
+      image.updateInfo(null, null, null, parseInt($status.val()), false);
+    });
+
+  var $iface = $('<span>')
+    .append($('<button>')
+      .text('Reset')
+      .click(function()
+      {
+        image.reset(true);
+      }))
+    .append('<br>')
+    .append($('<label>')
+      .addClass('adjustPanelLeft')
+      .append($imageLeft))
+    .append($('<label>')
+      .addClass('adjustPanelTop')
+      .append($imageTop))
+    .append('<br>')
+    .append($('<label>')
+      .addClass('adjustPanelRes')
+      .append($('<div>')
+        .addClass('selectWrapper adjustPanelRes')
+        .append($res)
+        .append($dpi)
+        .append($pixelSize)))
+    .append('&nbsp;')
+    .append($('<label>')
+      .addClass('adjustPanelStatus')
+      .append($('<div>')
+        .addClass('selectWrapper')
+        .append($status)))
+    .append('<br>');
+
+  var $adjust = $('<input>')
+    .attr('type', 'checkbox')
+    .change(function()
+    {
+      if (this.checked)
+      {
+        $iface.show(0);
+        thisInstance.images.startAdjustment(id);
+      }
+      else
+      {
+        $iface.hide(0);
+        thisInstance.images.stopAdjustment(id);
+      }
+
+      thisInstance.doLazyRefresh();
+    });
+
+  var $adjustment = $('<div>')
+    .addClass('adjustPanel')
+    .append($('<label>')
+      .addClass('adjustPanelAdjust')
+        .append($adjust))
+    .append($iface)
+    .appendTo($div);
+
+  var onUpdate = function(info)
+  {
+    $imageLeft.val(info.imageLeft);
+    $imageTop.val(info.imageTop);
+    $dpi.val(25400. / info.pixelSize);
+    $pixelSize.val(info.pixelSize);
+    $status.val(info.status);
+  };
+
+  finish(
+  onUpdate,
+  function(adjusted)
+  {
+    $iface.css('display', adjusted ? '': 'none');
+    $adjust.prop('checked', adjusted);
+    //try
+    //{
+       $div.folder('requestUpdate');
+    //}
+    //catch (err)
+    //{
+    //  // throws error on first call
+    //  //console.debug(err);
+    //}
+  });
+
+  onUpdate(image.info);
+
+  return $adjustment;
+}
+
 var makeAddPropertyPanel;
 var updatePropertySuggestions;
 var getPropertySuggestions;
@@ -717,43 +889,17 @@ function initCart()
 
 
       //adjustment
-      var $adjustment = $('<div>');
-      var $iface = $('<span>');
-      var $adjust = $('<input>')
-        .attr('type', 'checkbox');
-      var $imageLeft = $('<input>');
-      var $imageTop = $('<input>');
-      var $pixelSize = $('<input>');
-      var $status = $('<select>')
-        .append($('<option>')
-                 .text('Processed')
-                 .attr('value', '6'))
-        .append($('<option>')
-                 .text('Accepted')
-                 .attr('value', '7'));
 
+      var onAdjustPostponed = null;
+      var onUpdatePostponed = null;
       function onUpdate()
       {
-        var info = this.info;
-        $imageLeft.val(info.imageLeft);
-        $imageTop.val(info.imageTop);
-        $pixelSize.val(25400. / info.pixelSize);
-        $status.val(info.status);
+        if (onUpdatePostponed) onUpdatePostponed(this.info);
       }
 
       function onAdjust(adjusted)
       {
-        $iface.css('display', adjusted ? '': 'none');
-        $adjust.prop('checked', adjusted);
-        try
-        {
-          $drag.folder('requestUpdate');
-        }
-        catch (err)
-        {
-          // throws error on first call
-          //console.debug(err);
-        }
+        if (onAdjustPostponed) onAdjustPostponed(adjusted);
       }
 
 
@@ -789,8 +935,8 @@ function initCart()
                             .attr('type', 'checkbox');
                           var $publicEdit = $('<input>')
                             .attr('type', 'checkbox');
-                          var $publicOutline = $('<input>')
-                            .attr('type', 'checkbox');
+                          //var $publicOutline = $('<input>')
+                          //  .attr('type', 'checkbox');
                           var $publicAnnotate = $('<input>')
                             .attr('type', 'checkbox');
 
@@ -798,8 +944,8 @@ function initCart()
                           {
                             $publicView.prop('checked', privilege.view);
                             $publicEdit.prop('checked', privilege.edit);
-                            $publicOutline.prop('checked', privilege.outline);
                             $publicAnnotate.prop('checked', privilege.annotate);
+                            //$publicOutline.prop('checked', privilege.outline);
                           });
 
                           var $propertiesEdit = $('<ul>');
@@ -830,79 +976,6 @@ function initCart()
 
                           function toPostpone()
                           {
-                            $adjustment
-                              .addClass('adjustPanel')
-                              .append($('<label>')
-                                .addClass('adjustPanelAdjust')
-                                .append($adjust
-                                  .change(function()
-                                  {
-                                    if (this.checked)
-                                    {
-                                      $iface.show(0);
-                                      thisInstance.images.startAdjustment(id);
-                                    }
-                                    else
-                                    {
-                                      $iface.hide(0);
-                                      thisInstance.images.stopAdjustment(id);
-                                    }
-
-                                    thisInstance.doLazyRefresh();
-                                  })))
-                              .append($iface
-                                .append($('<button>')
-                                  .text('Reset')
-                                  .click(function()
-                                  {
-                                    image.reset(true);
-                                  }))
-                                .append('<br>')
-                                .append($('<label>')
-                                  .addClass('adjustPanelLeft')
-                                  .append($imageLeft
-                                //    .addClass('imageLeft')
-                                    .attr('type', 'number')
-                                    .addClass('adjustPanel')
-                                    .change(function()
-                                    {
-                                      image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
-                                    })))
-                                .append($('<label>')
-                                  .addClass('adjustPanelTop')
-                                  .append($imageTop
-                                  //  .addClass('imageTop')
-                                    .attr('type', 'number')
-                                    .addClass('adjustPanel')
-                                    .change(function()
-                                    {
-                                      image.updateInfo(null, parseFloat($imageTop.val()), null, null, false);
-                                    })))
-                                .append('<br>')
-                                .append($('<label>')
-                                  .addClass('adjustPanelRes')
-                                  .append($pixelSize
-                                  //  .addClass('pixelSize')
-                                    .attr('type', 'number')
-                                    .addClass('adjustPanel')
-                                    .change(function()
-                                    {
-                                      image.updateInfo(null, null, 25400. / parseFloat($pixelSize.val()), null, false);
-                                    })))
-                                .append('&nbsp;')
-                                .append($('<label>')
-                                  .addClass('adjustPanelStatus')
-                                  .append($('<div>')
-                                    .addClass('selectWrapper')
-                                    .append($status
-                                    //  .attr('name', 'status')
-                                      .addClass('adjustPanelStatus selectWrapper')
-                                      .change(function()
-                                      {
-                                        image.updateInfo(null, null, null, parseInt($status.val()), false);
-                                      }))))
-                                .append('<br>'));
-
                             makeBasicDetails(img.info, $drag)
                               .append($nameView
                                 .addClass('image-details'))
@@ -966,21 +1039,27 @@ function initCart()
                                     privilegeManager.changePublic(id, null, null, this.checked);
                                   }))
                                 .append('annotate'))
-                              .append($('<label>')
-                                .append($publicOutline
-                                  .change(function()
-                                  {
-                                    privilegeManager.changePublic(id, null, null, null, this.checked);
-                                  }))
-                                .append('outline'))
+                              //.append($('<label>')
+                              //  .append($publicOutline
+                              //    .change(function()
+                              //    {
+                              //      privilegeManager.changePublic(id, null, null, null, this.checked);
+                              //    }))
+                              //  .append('outline'))
                               .appendTo($drag);
 
-                            $drag
-                              .append($adjustment)
-                              .folder({fit: true});
+                            rowElements.$adjustment =
+                              makeAdjustmentPanel(
+                                $drag, id, image, thisInstance,
+                                function(onUpdate, onAdjust)
+                                {
+                                  onUpdatePostponed = onUpdate;
+                                  onAdjustPostponed = onAdjust;
+                                });
 
                             //removal
                             $drag
+                              .folder({fit: true})
                               .append($('<span>')
                                 .addClass('layer-delete-button fa fa-times')
                                 .click(onremove));
@@ -1001,11 +1080,11 @@ function initCart()
                                   rowElements.$annotate.css('display', 'none');
                                   if (image.info.editPrivilege > 0)
                                   {
-                                    $adjustment.css('display', '');
+                                    rowElements.$adjustment.css('display', '');
                                   }
                                   break;
                                 case 'privileges':
-                                  $adjustment.css('display', 'none');
+                                  rowElements.$adjustment.css('display', 'none');
                                   rowElements.$annotate.css('display', 'none');
                                   if (image.info.editPrivilege > 0)
                                   {
@@ -1013,7 +1092,7 @@ function initCart()
                                   }
                                   break;
                                 case 'properties':
-                                  $adjustment.css('display', 'none');
+                                  rowElements.$adjustment.css('display', 'none');
                                   rowElements.$privileges.css('display', 'none');
                                   rowElements.$name.css('display', 'none');
                                   if (image.info.annotatePrivilege > 0)
@@ -1025,7 +1104,7 @@ function initCart()
                             }
                             else
                             {
-                              $adjustment.css('display', 'none');
+                              rowElements.$adjustment.css('display', 'none');
                               rowElements.$privileges.css('display', 'none');
                               rowElements.$annotate.css('display', 'none');
 

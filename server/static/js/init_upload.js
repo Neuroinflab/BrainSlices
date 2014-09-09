@@ -285,18 +285,18 @@ function initUpload()
     });
   });
 
-  $('#publicOutlinePrivilege').click(function()
-  {
-    var checked = this.checked;
-    images.apply(null, function(image, updateIface)
-    {
-      if (image.info.editPrivilege > 0)
-      {
-        privilegeManager.changePublic(image.info.iid,
-          null, null, null, checked, updateIface == false);
-      }
-    });
-  });
+  //$('#publicOutlinePrivilege').click(function()
+  //{
+  //  var checked = this.checked;
+  //  images.apply(null, function(image, updateIface)
+  //  {
+  //    if (image.info.editPrivilege > 0)
+  //    {
+  //      privilegeManager.changePublic(image.info.iid,
+  //        null, null, null, checked, updateIface == false);
+  //    }
+  //  });
+  //});
 
   $('#resetPrivileges').click(function()
   {
