@@ -154,10 +154,12 @@ function initUpload()
 
 // adjustement
 
-  $('#adjustPanelAdjust')
-    .change(function()
+  makeAdjustmentPanel($('#adjustPanel'), null, null, null, null,
+  {
+    adjust:
+    function(adjust)
     {
-      if (this.checked)
+      if (adjust)
       {
         images.apply(null, function(image, updateIface)
         {
@@ -173,76 +175,75 @@ function initUpload()
       }
 
       layerManager.doLazyRefresh();
-    });
+    },
 
-  $('#centerAdjustment')
-    .click(function()
+    left:
+    function(left)
     {
       images.applyAdjusted(function(image, updateIface)
       {
-        var info = image.info;
-        var factor = -0.5 * info.pixelSize;
-        var imageLeft = factor * info.imageWidth;
-        var imageTop = factor * info.imageHeight;
-        image.updateInfo(imageLeft, imageTop, null, null, updateIface);
+        image.updateInfo(left, null, null, null, updateIface);
       });
-    });
+    },
 
-  $('#adjustPanelLeft')
-    .change(function()
+    top:
+    function(top)
     {
-      var val = $(this).val();
       images.applyAdjusted(function(image, updateIface)
       {
-        image.updateInfo(parseFloat(val), null, null, null, updateIface);
+        image.updateInfo(null, top, null, null, updateIface);
       });
-    });
+    },
 
-  $('#adjustPanelTop')
-    .change(function()
+    pixel:
+    function(pixel)
     {
-      var val = $(this).val();
       images.applyAdjusted(function(image, updateIface)
       {
-        image.updateInfo(null, parseFloat(val), null, null, updateIface);
+        image.updateInfo(null, null, pixel, null, updateIface);
       });
-    });
+    },
 
-  $('#adjustPanelRes')
-    .change(function()
+    status:
+    function(status)
     {
-      var val = $(this).val();
       images.applyAdjusted(function(image, updateIface)
       {
-        image.updateInfo(null, null, 25400. / parseFloat(val), null, updateIface);
+        image.updateInfo(null, null, null, status, updateIface);
       });
-    });
+    },
 
-  $('#adjustPanelStatus')
-    .change(function()
+    buttons:
     {
-      var val = $(this).val();
-      images.applyAdjusted(function(image, updateIface)
+      Center:
+      function()
       {
-        image.updateInfo(null, null, null, parseInt(val), updateIface);
-      });
-    });
+        images.applyAdjusted(function(image, updateIface)
+        {
+          var info = image.info;
+          var factor = -0.5 * info.pixelSize;
+          var imageLeft = factor * info.imageWidth;
+          var imageTop = factor * info.imageHeight;
+          image.updateInfo(imageLeft, imageTop, null, null, updateIface);
+        });
+      },
 
-  $('#saveAdjustment')
-    .click(function()
-    {
-      images.saveUpdatedTiled(true);
-    });
-
-
-  $('#resetAdjustment')
-    .click(function()
-    {
-      images.apply(null, function(image, updateIface)
+      Reset:
+      function()
       {
-        image.reset(updateIface);
-      });
-    });
+        images.apply(null, function(image, updateIface)
+        {
+          image.reset(updateIface);
+        });
+      },
+
+      Save:
+      function()
+      {
+        images.saveUpdatedTiled(true);
+      }
+    }
+  }, true);
 
 
 // privileges

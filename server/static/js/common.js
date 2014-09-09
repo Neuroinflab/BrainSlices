@@ -88,10 +88,11 @@ var BrainSlices = {
   aux:
   {
     getTrigger:
-    function(name, triggers)
+    function(name, triggers, defaults)
     {
-      if (!triggers) return null;
-      return name in triggers ? triggers[name] : null;
+      if (!defaults) defaults = null;
+      if (!triggers) return defaults;
+      return name in triggers ? triggers[name] : defaults;
     }
   },
   api: {},

@@ -1,23 +1,39 @@
-function makeAdjustmentPanel($div, id, image, thisInstance, finish)
+function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
+                             adjust)
 {
+  var getTrigger = BrainSlices.aux.getTrigger;
+
+  var updateLeft = getTrigger('left', triggers, function(left)
+  {
+    image.updateInfo(left, null, null, null, false);
+  });
   var $imageLeft = $('<input>')
   //    .addClass('imageLeft')
     .attr('type', 'number')
     .addClass('adjustPanel')
-    .change(function()
+    .change(
+    function()
     {
-      image.updateInfo(parseFloat($imageLeft.val()), null, null, null, false);
+      updateLeft(parseFloat($imageLeft.val()));
     });
 
+  var updateTop = getTrigger('top', triggers, function(top)
+  {
+    image.updateInfo(null, top, null, null, false);
+  });
   var $imageTop = $('<input>')
   //  .addClass('imageTop')
     .attr('type', 'number')
     .addClass('adjustPanel')
     .change(function()
     {
-      image.updateInfo(null, parseFloat($imageTop.val()), null, null, false);
+      updateTop(parseFloat($imageTop.val()));
     });
 
+  var updatePixel = getTrigger('pixel', triggers, function(pixel)
+  {
+    image.updateInfo(null, null, pixel, null, false);
+  });
   var $dpi = $('<input>')
     //.addClass('pixelSize')
     .attr('type', 'number')
@@ -27,7 +43,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish)
     {
       var ps =  25400. / parseFloat($dpi.val());
       $pixelSize.val(ps);
-      image.updateInfo(null, null, ps, null, false);
+      updatePixel(ps);
     });
 
   var $pixelSize = $('<input>')
@@ -38,7 +54,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish)
     {
       var ps = parseFloat($pixelSize.val());
       $dpi.val(25400. / ps);
-      image.updateInfo(null, null, ps, null, false);
+      updatePixel(ps);
     });
 
   var $res = $('<select>')
@@ -69,6 +85,10 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish)
       }
     });
 
+  var updateStatus = getTrigger('status', triggers, function(status)
+  {
+    image.updateInfo(null, null, null, status, false);
+  });
   var $status = $('<select>')
     .append($('<option>')
              .text('Processed')
@@ -80,16 +100,25 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish)
     .addClass('adjustPanelStatus selectWrapper')
     .change(function()
     {
-      image.updateInfo(null, null, null, parseInt($status.val()), false);
+      updateStatus(parseInt($status.val()));
     });
 
+  var buttons = getTrigger('buttons', triggers,
+  {
+    'Reset':
+    function()
+    {
+      image.reset(true);
+    }
+  });
   var $iface = $('<span>')
-    .append($('<button>')
-      .text('Reset')
-      .click(function()
-      {
-        image.reset(true);
-      }))
+    .css('display', adjust ? '' : 'none')
+    .append($.map(buttons, function(value, key)
+    {
+      return $('<button>')
+        .text(key)
+        .click(value);
+    }))
     .append('<br>')
     .append($('<label>')
       .addClass('adjustPanelLeft')
@@ -113,22 +142,25 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish)
         .append($status)))
     .append('<br>');
 
+  var updateAdjust = getTrigger('adjust', triggers, function(adjust)
+  {
+    if (adjust)
+    {
+      $iface.show(0);
+      thisInstance.images.startAdjustment(id);
+    }
+    else
+    {
+      $iface.hide(0);
+      thisInstance.images.stopAdjustment(id);
+    }
+    thisInstance.doLazyRefresh();
+  });
   var $adjust = $('<input>')
     .attr('type', 'checkbox')
     .change(function()
     {
-      if (this.checked)
-      {
-        $iface.show(0);
-        thisInstance.images.startAdjustment(id);
-      }
-      else
-      {
-        $iface.hide(0);
-        thisInstance.images.stopAdjustment(id);
-      }
-
-      thisInstance.doLazyRefresh();
+      updateAdjust(this.checked);
     });
 
   var $adjustment = $('<div>')
@@ -139,33 +171,36 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish)
     .append($iface)
     .appendTo($div);
 
-  var onUpdate = function(info)
+  if (finish)
   {
-    $imageLeft.val(info.imageLeft);
-    $imageTop.val(info.imageTop);
-    $dpi.val(25400. / info.pixelSize);
-    $pixelSize.val(info.pixelSize);
-    $status.val(info.status);
-  };
+    var onUpdate = function(info)
+    {
+      $imageLeft.val(info.imageLeft);
+      $imageTop.val(info.imageTop);
+      $dpi.val(25400. / info.pixelSize);
+      $pixelSize.val(info.pixelSize);
+      $status.val(info.status);
+    };
 
-  finish(
-  onUpdate,
-  function(adjusted)
-  {
-    $iface.css('display', adjusted ? '': 'none');
-    $adjust.prop('checked', adjusted);
-    //try
-    //{
-       $div.folder('requestUpdate');
-    //}
-    //catch (err)
-    //{
-    //  // throws error on first call
-    //  //console.debug(err);
-    //}
-  });
+    finish(
+    onUpdate,
+    function(adjusted)
+    {
+      $iface.css('display', adjusted ? '': 'none');
+      $adjust.prop('checked', adjusted);
+      //try
+      //{
+         $div.folder('requestUpdate');
+      //}
+      //catch (err)
+      //{
+      //  // throws error on first call
+      //  //console.debug(err);
+      //}
+    });
 
-  onUpdate(image.info);
+    onUpdate(image.info);
+  }
 
   return $adjustment;
 }
