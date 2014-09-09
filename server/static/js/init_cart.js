@@ -9,8 +9,12 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
   });
   var $imageLeft = $('<input>')
   //    .addClass('imageLeft')
-    .attr('type', 'number')
-    .addClass('adjustPanel')
+    .attr(
+    {
+      type: 'number',
+      title: 'left offset'
+    })
+    .addClass('adjustPanelLeft')
     .change(
     function()
     {
@@ -23,8 +27,12 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
   });
   var $imageTop = $('<input>')
   //  .addClass('imageTop')
-    .attr('type', 'number')
-    .addClass('adjustPanel')
+    .attr(
+    {
+      type: 'number',
+      title: 'top offset'
+    })
+    .addClass('adjustPanelTop')
     .change(function()
     {
       updateTop(parseFloat($imageTop.val()));
@@ -121,19 +129,19 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     }))
     .append('<br>')
     .append($('<label>')
-      .addClass('adjustPanelLeft')
-      .append($imageLeft))
-    .append($('<label>')
-      .addClass('adjustPanelTop')
-      .append($imageTop))
+      .addClass('adjustPanelOffset')
+    .append($('<div>')
+      .addClass('selectWrapper adjustPanelRes')
+      .text('x')
+      .prepend($imageLeft)
+      .append($imageTop)))
     .append('<br>')
-    .append($('<label>')
-      .addClass('adjustPanelRes')
-      .append($('<div>')
-        .addClass('selectWrapper adjustPanelRes')
-        .append($res)
-        .append($dpi)
-        .append($pixelSize)))
+    .addClass('adjustPanelRes')
+    .append($('<div>')
+      .addClass('selectWrapper adjustPanelRes')
+      .append($res)
+      .append($dpi)
+      .append($pixelSize))
     .append('&nbsp;')
     .append($('<label>')
       .addClass('adjustPanelStatus')
