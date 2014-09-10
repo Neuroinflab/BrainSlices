@@ -1250,6 +1250,7 @@ function initCart()
       return id;
     }
   });
+  layerManager.add(null, null, $('#loadAllPanel'));
 
   $('#imageCart')
     .bind('dragover', function(ev)

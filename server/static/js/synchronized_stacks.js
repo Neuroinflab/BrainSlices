@@ -464,7 +464,14 @@
       unload:
       function(stackId, imageId)
       {
-        this.stacks[stackId].remove(imageId);
+        if (imageId != null)
+        {
+          this.stacks[stackId].remove(imageId);
+        }
+        else
+        {
+          this.unloadAll(stackId);
+        }
       },
 
       /**

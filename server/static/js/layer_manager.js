@@ -127,7 +127,8 @@ with ({gui: BrainSlices.gui,
      *
      * Parameters:
      *   id - An identifier to be assigned to the layer. The identifier
-     *        has to be unique within the manager.
+     *        has to be unique within the manager. If null - load all
+     *        panel would be added. ;-)
      *   $row - An jQuery HTML element representing the layer
      *          (for <CTableManager> object).
      *   $visibility - An jQuery HTML element for visibility panel.
@@ -145,13 +146,15 @@ with ({gui: BrainSlices.gui,
       console.assert(!this.has(id));
       var thisInstance = this;
 
+      this.layers[id] = {loadButtons: [],
+                         $visibility: $visibility};
+
+      if (id == null) return;
+
       if (zIndex == null || zIndex < 0 || zIndex > this.length)
       {
         zIndex = this.length;
       }
-
-      this.layers[id] = {loadButtons: [],
-                         $visibility: $visibility};
       this.length++;
 
       this.tableManager.add($row, id, this.tableManager.length - zIndex,
@@ -370,13 +373,26 @@ with ({gui: BrainSlices.gui,
     function()
     {
       var thisInstance = this;
-      this.$layerList.find('.recyclableElement').detach();
+      //this.$layerList.find('.recyclableElement').detach();
       var nmax = this.stacks.nx * this.stacks.ny;
 
       for (var id in this.layers)
       {
+        if (id == 'null') id = null;
+
         var layer = this.layers[id];
         var loadButtons = layer.loadButtons;
+        loadButtons
+          .splice(nmax)
+          .map(function(item)
+          {
+            item.$cb.unbind('change', item.changeHandler);
+          });
+        loadButtons
+          .map(function(item)
+          {
+            item.$td.detach();
+          });
 
         layer.$visibility.empty();
 
@@ -384,12 +400,7 @@ with ({gui: BrainSlices.gui,
           .addClass('layer-cb-table')
           .appendTo(layer.$visibility);
 
-        loadButtons
-          .splice(nmax)
-          .map(function(item)
-          {
-            item.$cb.unbind('change', item.changeHandler);
-          });
+        loadButtons = [];
 
         while (loadButtons.length < nmax)
         {
@@ -397,13 +408,14 @@ with ({gui: BrainSlices.gui,
           {
             var changeHandler = function()
             {
+              console.log(stackId, id, this.checked)
               if (this.checked)
               {
-                thisInstance.load(stackId, id, true);
+                thisInstance.load(stackId, id, id != null);
               }
               else
               {
-                thisInstance.unload(stackId, id, true);
+                thisInstance.unload(stackId, id, id != null);
               }
             };
 
@@ -448,7 +460,6 @@ with ({gui: BrainSlices.gui,
         // XXX: hardcoded values
         var dt = Math.floor(0.5 * (83 - 20 * this.stacks.ny));
         layer.$visibility.css('padding-top', dt > 0 ? dt + 'px': 0);
-
 
         layer.loadButtons = loadButtons;
       }
@@ -504,7 +515,18 @@ with ({gui: BrainSlices.gui,
       this.stacks.load(stackId, layerId);
       if (doNotUpdateIface != true)
       {
-        this.layers[layerId].loadButtons[stackId].$cb.prop('checked', true);
+        if (layerId != null)
+        {
+          this.layers[layerId].loadButtons[stackId].$cb.prop('checked', true);
+        }
+        else
+        {
+          var layers = this.layers;
+          for (layerId in layers)
+          {
+            layers[layerId].loadButtons[stackId].$cb.prop('checked', true);
+          }
+        }
       }
     },
 
@@ -529,8 +551,19 @@ with ({gui: BrainSlices.gui,
       this.stacks.loadLayerByStack(stack, imageId);
       if (doNotUpdateIface != true)
       {
-        this.layers[imageId].loadButtons[stack.syncId()].$cb.prop('checked',
-                                                                  true);
+        var stackId = stack.syncId();
+        if (layerId != null)
+        {
+          this.layers[layerId].loadButtons[stackId].$cb.prop('checked', true);
+        }
+        else
+        {
+          var layers = this.layers;
+          for (layerId in layers)
+          {
+            layers[layerId].loadButtons[stackId].$cb.prop('checked', true);
+          }
+        }
       }
     },
 
@@ -546,12 +579,23 @@ with ({gui: BrainSlices.gui,
      *                      of the visibility panel. Defaults to false.
      *********************************************************************/
     unload:
-    function(stackId, imageId, doNotUpdateIface)
+    function(stackId, layerId, doNotUpdateIface)
     {
-      this.stacks.unload(stackId, imageId);
+      this.stacks.unload(stackId, layerId);
       if (doNotUpdateIface != true)
       {
-        this.layers[imageId].loadButtons[stackId].$cb.prop('checked', false);
+        if (layerId != null)
+        {
+          this.layers[layerId].loadButtons[stackId].$cb.prop('checked', false);
+        }
+        else
+        {
+          var layers = this.layers;
+          for (layerId in layers)
+          {
+            layers[layerId].loadButtons[stackId].$cb.prop('checked', false);
+          }
+        }
       }
     },
 
