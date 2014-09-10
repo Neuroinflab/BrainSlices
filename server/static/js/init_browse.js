@@ -163,6 +163,7 @@ function initBrowse()
 }
 
 var searchEngine = null;
+var searchResultsMapping = {};
 var perPage = 50;
 
 function initBrowseFinish()
@@ -395,13 +396,30 @@ function initBrowseFinish()
         setTimeout(function()
         {
           var end = slice[1];
+          searchResultsMapping = {};
           $searchPage.empty();
           for (var i = slice[0]; i < end; i++)
           {
             var info = searchResults[i];
+            searchResultsMapping[info.iid] = info;
             var $row = $('<div>')
+              .attr('draggable', 'true')
               .addClass('search-row')
               .appendTo($searchPage);
+
+            (function(info)
+            {
+              $row
+                .bind('dragstart', function(ev)
+                {
+                  ev.originalEvent.dataTransfer.setData('TYPE', 'searchResults');
+                  ev.originalEvent.dataTransfer.setData('IID', info.iid);
+                  var url = document.createElement('a');
+                  url.href = '/?show=' + info.iid + ':' + info.md5;
+                  ev.originalEvent.dataTransfer.setData('text/plain', url)
+                  ev.originalEvent.dataTransfer.setData('text/uri-list', url)
+                });
+            })(info);
 
             var $div = detailsGenerator(info)
               .appendTo($row);

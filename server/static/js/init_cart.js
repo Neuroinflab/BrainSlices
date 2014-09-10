@@ -1250,6 +1250,21 @@ function initCart()
       return id;
     }
   });
+
+  $('#imageCart')
+    .bind('dragover', function(ev)
+    {
+      ev.originalEvent.preventDefault();
+    })
+    .bind('drop', function(ev)
+    {
+      var dataTransfer = ev.originalEvent.dataTransfer;
+      var id = dataTransfer.getData('IID');
+      if (dataTransfer.getData('TYPE') != 'searchResults' ||
+          ! (id in searchResultsMapping)) return;
+
+      layerManager.autoAddTileLayer(id, searchResultsMapping[id]);
+    });
 }
 
 function initCartFinish(state)

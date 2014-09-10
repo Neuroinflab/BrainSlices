@@ -493,7 +493,6 @@
         var rows = this.rows;
         from = from != null ? Math.max(from, 0) : 0;
         to = to != null ? Math.min(to, rows.length) : rows.length;
-        console.log(from, to);
         for (var i = from; i < to; i++)
         {
           var row = rows[i];
@@ -803,51 +802,54 @@
 
         var thisInstance = this;
 
-        $drag.bind('dragstart', function(ev)
-        {
-          ev.originalEvent.dataTransfer.setData('INDEX', row.index);
-          ev.originalEvent.dataTransfer.setData('ARRAY', thisInstance.id);
-          if (dragMIME)
+        $drag
+          .bind('dragstart', function(ev)
           {
-            for (var i = 0; i < dragMIME.length; i++)
+            ev.originalEvent.dataTransfer.setData('TYPE', 'CTableManager');
+            ev.originalEvent.dataTransfer.setData('INDEX', row.index);
+            ev.originalEvent.dataTransfer.setData('ARRAY', thisInstance.id);
+            if (dragMIME)
             {
-              var item = dragMIME[i];
-              ev.originalEvent.dataTransfer.setData(item[0], item[1]);
+              for (var i = 0; i < dragMIME.length; i++)
+              {
+                var item = dragMIME[i];
+                ev.originalEvent.dataTransfer.setData(item[0], item[1]);
+              }
             }
-          }
-        });
+          })
+          .bind('dragover', function(ev)
+          {
+            ev.originalEvent.preventDefault();
+          })
+          .bind('drop', function(ev)
+          {
+            ev.originalEvent.preventDefault();
+            var dataTransfer = ev.originalEvent.dataTransfer;
+            var srcIndex = dataTransfer.getData("INDEX");
+            var id = dataTransfer.getData("ARRAY");
+            var index = row.index;
 
-        $drag.bind('dragover', function(ev)
-        {
-          ev.originalEvent.preventDefault();
-        });
+            if (dataTransfer.getData('TYPE') != 'CTableManager' ||
+                id != thisInstance.id ||
+                srcIndex == undefined) return;
 
-        $drag.bind('drop', function(ev)
-        {
-          ev.originalEvent.preventDefault();
-          var srcIndex = ev.originalEvent.dataTransfer.getData("INDEX");
-          var id = ev.originalEvent.dataTransfer.getData("ARRAY");
-          var index = row.index;
+            thisInstance.move(srcIndex, index);
 
-          if (id != thisInstance.id || srcIndex == undefined) return;
+            //var src = thisInstance.rows.splice(srcIndex, 1)[0];
+            //thisInstance.rows.splice(index, 0, src);
+            //src.$row.detach();
+            //if (srcIndex < index)
+            //{
+            //  row.$row.after(src.$row);
+            //}
+            //else
+            //{
+            //  row.$row.before(src.$row);
+            //}
 
-          thisInstance.move(srcIndex, index);
-
-          //var src = thisInstance.rows.splice(srcIndex, 1)[0];
-          //thisInstance.rows.splice(index, 0, src);
-          //src.$row.detach();
-          //if (srcIndex < index)
-          //{
-          //  row.$row.after(src.$row);
-          //}
-          //else
-          //{
-          //  row.$row.before(src.$row);
-          //}
-
-          //thisInstance.update(Math.min(srcIndex, index),
-          //                    Math.max(srcIndex, index) + 1);
-        });
+            //thisInstance.update(Math.min(srcIndex, index),
+            //                    Math.max(srcIndex, index) + 1);
+          });
 
         this.length++;
         if (update)
