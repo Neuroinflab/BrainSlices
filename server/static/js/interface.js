@@ -724,8 +724,10 @@
        *            indices (if true) or to postpone it for performance gain
        *            (if false). Defaults to true.
        *   data - Any additional data to be associated with the item.
+       *   thumbnail - An URL of image used for dragging.
        **********************************************************************/
-      function($row, id, index, onRemove, onUpdate, dragMIME, update, data)
+      function($row, id, index, onRemove, onUpdate, dragMIME, update, data,
+               thumbnail)
       {
         if ($row.length != this.$table.length)
         {
@@ -805,15 +807,23 @@
         $drag
           .bind('dragstart', function(ev)
           {
-            ev.originalEvent.dataTransfer.setData('TYPE', 'CTableManager');
-            ev.originalEvent.dataTransfer.setData('INDEX', row.index);
-            ev.originalEvent.dataTransfer.setData('ARRAY', thisInstance.id);
+            var dataTransfer = ev.originalEvent.dataTransfer;
+            if (thumbnail)
+            {
+              var img = document.createElement('img');
+              img.src = thumbnail;
+              img.alt = 'thumbnail of image #' + id;
+              dataTransfer.setDragImage(img, 0, 0);
+            }
+            dataTransfer.setData('TYPE', 'CTableManager');
+            dataTransfer.setData('INDEX', row.index);
+            dataTransfer.setData('ARRAY', thisInstance.id);
             if (dragMIME)
             {
               for (var i = 0; i < dragMIME.length; i++)
               {
                 var item = dragMIME[i];
-                ev.originalEvent.dataTransfer.setData(item[0], item[1]);
+                dataTransfer.setData(item[0], item[1]);
               }
             }
           })

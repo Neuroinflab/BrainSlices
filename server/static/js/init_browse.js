@@ -68,7 +68,7 @@ function makeBasicDetails(info, $div)
                                          info.imageWidth,
                                          info.imageHeight,
                                          64, 64)
-      .addClass('image-details')
+      .addClass('image-details thumbnail')
       .attr('draggable', 'true'));
 }
 
@@ -407,19 +407,25 @@ function initBrowseFinish()
               .addClass('search-row')
               .appendTo($searchPage);
 
-            (function(info)
+            (function(info, $row)
             {
               $row
                 .bind('dragstart', function(ev)
                 {
-                  ev.originalEvent.dataTransfer.setData('TYPE', 'searchResults');
-                  ev.originalEvent.dataTransfer.setData('IID', info.iid);
+                  var dataTransfer = ev.originalEvent.dataTransfer;
+                  //var img = $row.find('img.thumbnail')[0]//.cloneNode(true); //document.createElement('img');
+                  var img = document.createElement('img');
+                  img.src = '/images/' + info.iid + '/tiles/0/0/0.jpg';
+                  img.alt = 'thumbnail of image #' + info.iid;
+                  dataTransfer.setDragImage(img, 0, 0);
+                  dataTransfer.setData('TYPE', 'searchResults');
+                  dataTransfer.setData('IID', info.iid);
                   var url = document.createElement('a');
                   url.href = '/?show=' + info.iid + ':' + info.md5;
-                  ev.originalEvent.dataTransfer.setData('text/plain', url)
-                  ev.originalEvent.dataTransfer.setData('text/uri-list', url)
+                  dataTransfer.setData('text/plain', url)
+                  dataTransfer.setData('text/uri-list', url)
                 });
-            })(info);
+            })(info, $row);
 
             var $div = detailsGenerator(info)
               .appendTo($row);

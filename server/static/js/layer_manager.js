@@ -137,9 +137,10 @@ with ({gui: BrainSlices.gui,
      *              its content. Forwarded to <CTableManager.add>.
      *   onremove - A callbeck to be called when layer is being removed from
      *              the manager.
+     *   thumbnail - An URL of image used for dragging.
      ************************************************************************/
     add:
-    function(id, $row, $visibility, zIndex, dragMIME, onremove)
+    function(id, $row, $visibility, zIndex, dragMIME, onremove, thumbnail)
     {
       console.assert(!this.has(id));
       var thisInstance = this;
@@ -179,7 +180,7 @@ with ({gui: BrainSlices.gui,
                                 thisInstance.images.setZ(id, z);
                               }
                             },
-                            dragMIME, false);
+                            dragMIME, false, null, thumbnail);
     },
 
     /**
@@ -239,7 +240,7 @@ with ({gui: BrainSlices.gui,
         if (image.onUpdate) image.onUpdate();
       }
 
-      this.add(id, $row, $visibility, zIndex, dragMIME, onremove);
+      this.add(id, $row, $visibility, zIndex, dragMIME, onremove, path + '/tiles/0/0/0.jpg');
 
       if (info == null)
       {
