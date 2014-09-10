@@ -1,22 +1,74 @@
 <div id="imageCart">
  <div id="imageCartHeader">
-  Image cart
-  <button id="editCart" title="edit images">
-   <span class="fa fa-pencil-square-o"></span>
-  </button>
+  <div id="imageCartHeaderContent">
 
-  <div class="selectWrapper">
-   <select id="editMode" class="selectWrapper">
-    <option value="adjust">Basic</option>
-    <option value="privileges">Privileges</option>
-    <option value="properties">Annotations</option>
-   </select>
+   <button id="cartHeaderToggle">
+    <span class="fa"></span>
+   </button>
+
+   Image cart
+   <button id="editCart" title="edit images">
+    <span class="fa fa-pencil-square-o"></span>
+   </button>
+
+   <div class="selectWrapper">
+    <select id="editMode" class="selectWrapper">
+     <option value="adjust">Basic</option>
+     <option value="privileges">Privileges</option>
+     <option value="properties">Annotations</option>
+    </select>
+   </div>
+
+   <button id="emptyCart" title="empty image cart">
+    <span class="fa fa-trash-o"></span>
+   </button>
+
+   <label>
+    <input type="checkbox" id="foldAllCart">
+    fold all
+   </label>
+
+   <div id="editPanel">
+    <div id="adjustPanel">
+     All images
+    </div>
+
+    <div id="privilegesPanel">
+     <label>
+      <input id="publicViewPrivilege" type="checkbox">
+      view
+     </label>
+     <label>
+      <input id="publicEditPrivilege" type="checkbox">
+      edit
+     </label>
+     <label>
+      <input id="publicAnnotatePrivilege" type="checkbox">
+      annotate
+     </label>
+     <!--
+     <label>
+      <input id="publicOutlinePrivilege" type="checkbox">
+      outline
+     </label>
+     -->
+
+     <button id="resetPrivileges">
+      Reset
+     </button>
+     <button id="savePrivileges">
+      Save
+     </button>
+    </div>
+
+    <div id="propertyPanel">
+    </div>
+   </div>
+
   </div>
-
-  <button id="emptyCart" title="empty image cart">
-   <span class="fa fa-trash-o"></span>
-  </button>
  </div>
+
+
  <div id="layersConsoleTable">
   <div id="layersConsoleTableHeader">
    <div class="label-column">Description</div>
@@ -27,42 +79,5 @@
   </div>
  </div>
 
- <div id="editPanel">
-  <div id="adjustPanel">
-   All images
-  </div>
-
-  <div id="privilegesPanel">
-   <label>
-    <input id="publicViewPrivilege" type="checkbox">
-    view
-   </label>
-   <label>
-    <input id="publicEditPrivilege" type="checkbox">
-    edit
-   </label>
-   <label>
-    <input id="publicAnnotatePrivilege" type="checkbox">
-    annotate
-   </label>
-<!--
-   <label>
-    <input id="publicOutlinePrivilege" type="checkbox">
-    outline
-   </label>
--->
-
-   <button id="resetPrivileges">
-    Reset
-   </button>
-   <button id="savePrivileges">
-    Save
-   </button>
-  </div>
-
-  <div id="propertyPanel">
-  </div>
-
- </div>
 
 </div>

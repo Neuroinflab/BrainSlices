@@ -445,7 +445,11 @@
       function(stack, imageId)
       {
         var quality = BS.scope.get('quality');//this.$quality.val();
-        stack.loadFromCache(this.images, imageId, quality);
+        this.images.apply(imageId, function(image, updateIFace)
+        {
+          stack.loadFromCache(this, image.id, quality);
+        }, false);
+        //stack.loadFromCache(this.images, imageId, quality);
       },
 
       /**

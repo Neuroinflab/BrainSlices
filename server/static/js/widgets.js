@@ -1260,6 +1260,8 @@ var CFilterPanel = null;
     _create:
     function()
     {
+      this.element.addClass('has-folder-widget');
+
       this.invalid = true;
 
       this.$parent = this.element.parent();
@@ -1343,6 +1345,24 @@ var CFilterPanel = null;
       this.invalid = true;
     },
 
+    fold:
+    function()
+    {
+      if (!this.options.folded)
+      {
+        this._updateFolded(this.options.folded = true);
+      }
+    },
+
+    unfold:
+    function()
+    {
+      if (this.options.folded)
+      {
+        this._updateFolded(this.options.folded = false);
+      }
+    },
+
     _setOptions:
     function()
     {
@@ -1366,7 +1386,7 @@ var CFilterPanel = null;
     {
       this.$wrapper.children().unwrap();
       this.$toggle.remove();
-      this.element.removeClass('folded');
+      this.element.removeClass('folded has-folder-widget');
     }
   });
 

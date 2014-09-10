@@ -777,9 +777,42 @@ var PPropertyTriggers =
   }
 };
 
+function animateImageCartHeader(height)
+{
+  if (height == null)
+  {
+    height = BrainSlices.scope.get('cartHeader') ?
+             $('#imageCartHeaderContent').outerHeight(true) :
+             30;
+  }
+
+  $('#imageCartHeader')
+    .animate(
+    {
+      height: height + 'px'
+    },
+    {
+      queue: false
+    });
+
+  $('#layersConsoleTable')
+    .animate(
+    {
+      top: (height + 10) + 'px'
+    },
+    {
+      queue: false,
+      complete:
+      function()
+      {
+        layerManager.doLazyRefresh();
+      }
+    });
+}
 
 function initCart()
 {
+
   var scope = BrainSlices.scope;
   scope
     .registerChange(function(value)
@@ -836,7 +869,8 @@ function initCart()
                   .children('.layer-row')
                     .children('.image-details')
                       .folder('requestUpdate');
-                layerManager.doLazyRefresh();
+                animateImageCartHeader();
+                //layerManager.doLazyRefresh();
               }
             });
         });
@@ -869,7 +903,47 @@ function initCart()
       }
 
       state.cart = value; // XXX obsolete
-    }, 'cart');
+    }, 'cart')
+    .registerChange(function(value)
+    {
+      if (value)
+      {
+        $('#cartHeaderToggle').find('span.fa')
+          .removeClass('fa-angle-double-down')
+          .addClass('fa-angle-double-up');
+
+      }
+      else
+      {
+        $('#cartHeaderToggle').find('span.fa')
+          .removeClass('fa-angle-double-up')
+          .addClass('fa-angle-double-down');
+      }
+
+      animateImageCartHeader();
+
+    }, 'cartHeader')
+    .registerChange(function(value)
+    {
+      if (scope.get('cartHeader') && scope.get('cart'))
+      {
+        animateImageCartHeader();
+      }
+    }, 'grid_dims')
+    .registerChange(function(value)
+    {
+      $('#layerList').find('.has-folder-widget')
+        .folder(value ? 'fold' : 'unfold');
+      layerManager.doLazyRefresh();
+      $('#foldAllCart').prop('checked', value);
+    }, 'allFoldedCart');
+
+  $('#foldAllCart').change(function()
+  {
+    scope.set('allFoldedCart', this.checked);
+  });
+
+  $('#cartHeaderToggle').click(scope.getToggle('cartHeader'));
 
 
   $('#btn_cart').click(scope.getToggle('cart'));
@@ -878,7 +952,6 @@ function initCart()
 
   $layerList.scroll(function()
   {
-    console.log('scroll');
     layerManager.doLazyRefresh();
   });
 
@@ -886,7 +959,7 @@ function initCart()
   {
     if (scope.get('cart'))
     {
-      layerManager.doLazyRefresh();
+      animateImageCartHeader();
     }
   });
 
@@ -1040,7 +1113,6 @@ function initCart()
                                   Add:
                                   function(name, property)
                                   {
-                                    console.log('add');
                                     if (propertiesManager.has(id, name))
                                     {
                                       alertWindow.error('Property already defined.');
@@ -1102,7 +1174,11 @@ function initCart()
 
                             //removal
                             $drag
-                              .folder({fit: true})
+                              .folder(
+                              {
+                                fit: true,
+                                folded: scope.get('allFoldedCart')
+                              })
                               .append($('<span>')
                                 .addClass('layer-delete-button fa fa-times')
                                 .click(onremove));
@@ -1178,7 +1254,10 @@ function initCart()
 
 function initCartFinish(state)
 {
-  BrainSlices.scope.set('cart', state.cart);
+  BrainSlices.scope
+    .set('cart', state.cart)
+    .set('cartHeader', false)
+    .set('allFoldedCart', true);
 
   $('#emptyCart')
     .click(function()

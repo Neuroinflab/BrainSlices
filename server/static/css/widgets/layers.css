@@ -24,6 +24,9 @@
   right: 0;
   height: 30px;
 
+  z-index: 1;
+  overflow: hidden;
+
   text-align: center;
 }
 
@@ -42,6 +45,8 @@
   bottom: 0;
   left: 0;
   right: 0;
+
+  z-index: 0;
 }
 
 #layersConsoleTableHeader
@@ -341,11 +346,11 @@ a.layer-download-button
 
 #editPanel
 {
-  position: absolute;
+ /* position: absolute;
   left: 0;
   right: 0;
   top: 40px;
-  height: 90px;
+  height: 90px;*/
 }
 
 #layersConsoleTable.editPanel

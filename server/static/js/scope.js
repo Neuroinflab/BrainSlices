@@ -99,6 +99,8 @@
 
         locks[variable] = false;
       }
+
+      return this;
     },
 
     get:
