@@ -166,8 +166,13 @@ var CFilterPanel = null;
           {
             thisInstance.set('plain', $input.val());
           };
-          $input = $('<input type="text">')
-            .val('')
+          $input = $('<input>')
+            .attr(
+            {
+              type: 'text',
+              value: '',
+              placeholder: 'phrase'
+            })
             .appendTo(this.$row)
             .change(this.change);
           this.$row.show(0);
@@ -443,8 +448,12 @@ var CFilterPanel = null;
       }
       var $input = $('<input>')
                       .addClass('brainslices-text-property-filter')
-                      .attr({type: 'text',
-                             value: this.options.conditions})
+                      .attr(
+                      {
+                        type: 'text',
+                        value: this.options.conditions,
+                        placeholder: 'phrase'
+                      })
                       .appendTo(this.$wrapper)
                       .change(change);
       this.$wrapper
@@ -998,7 +1007,8 @@ var CFilterPanel = null;
         {
           title: '',
           type: 'text',
-          value: '' //this.options.anyLabel
+          value: '', //this.options.anyLabel
+          placeholder: 'property name'
         })
         .tooltip()
         .addClass('brainslices-new-property-filter-propertybox')

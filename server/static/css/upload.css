@@ -32,3 +32,48 @@
 {
 /*  table-layout: fixed;*/
 }
+
+#batchSelection,
+#fileUpload
+{
+  position: relative;
+}
+
+#newBatch,
+#newBatchName,
+#existingBatch
+{
+  margin: 0;
+
+  padding-top: 0;
+  padding-left: 3px;
+  padding-bottom: 0;
+
+  height: 22px;
+}
+
+#newBatch,
+#newBatchName,
+#existingBatch,
+#newBatch:hover,
+#newBatchName:hover,
+#existingBatch:hover
+{
+  border: none;
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
+
+
+#newBatch,
+#newBatch:hover
+{
+  border-right: solid 1px #E5E5E5;
+}
+
+#newBatchName
+{
+  padding-right: 3px;
+}

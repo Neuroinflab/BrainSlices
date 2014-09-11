@@ -86,7 +86,7 @@ function initUpload()
                       {
                         if (!data.status)
                         {
-                          alert(data.message);
+                          alertWindow.error(data.message);
                           return false;
                         }
   
@@ -365,17 +365,21 @@ function initUpload()
     {
       // fetch list of available batches
       // and update #batchId select
-      var $batchSelect = $('#batchId')
-        .html('<option value="None" selected="selected">None</option>');
+      //
+      //var $batchSelect = $('#batchId')
+      //  .html('<option value="None" selected="selected">None</option>');
+
+      var $batchSelect = $('#existingBatch')
+        .empty();
 
       if (value == null)
       {
         scope.set('edit', false);
-        $('#editCart').hide();
+        $('#editCart').hide(0); // XXX???
         return;
       }
 
-      $('#editCart').show();
+      $('#editCart').show(0); // XXX???
 
       loginConsole.ajax(
         '/upload/batchList',
@@ -387,46 +391,86 @@ function initUpload()
             return;
           }
     
-          var list = response.data;
-          for (var i = 0; i < list.length; i++)
+          if (response.data.length == 0)
           {
-            $batchSelect.append('<option value="' + list[i][0] + '">' +
-                                BrainSlices.gui.escapeHTML(list[i][1]) + '</option>');
+            $('#newBatch')
+              .val('yes')
+              .change()
+              .find('option[value="no"]')
+              .prop('disabled', true);
+
+            //$batchSelect.hide(0);
+            //$('#newBatchName').show(0);
+
           }
+          else
+          {
+            $('#newBatch')
+              .find('option[value="no"]')
+              .prop('disabled', false);
+
+            //$('#newBatchName').hide(0);
+            //$batchSelect.show(0);
+          }
+
+          $batchSelect
+            .append(
+              response.data.map(function(item)
+              {
+                return $('<option>')
+                  .attr('value', item[0] + '')
+                  .text(item[1]);
+                  
+              }));
         },
         null, null, null,
         {cache: false});
     }, 'login');
 
+  $('#newBatch')
+    .change(function()
+    {
+      if ($('#newBatch').val() == 'yes')
+      {
+        $('#existingBatch').hide(0);
+        $('#newBatchName').show(0);
+      }
+      else
+      {
+        $('#newBatchName').hide(0);
+        $('#existingBatch').show(0);
+      }
+    })
+    .change();
   
 
-  $('#newBatch')
-    .click(function()
-    {
-      // create (and select) a new batch
-      fileUploader.reset();
+  //$('#newBatch')
+  //  .click(function()
+  //  {
+  //    // create (and select) a new batch
+  //    fileUploader.reset();
 
-      var comment = $('#newBatchComment').val();
-      var $batchSelect = $('#batchId');
-    
-      loginConsole.ajax(
-        '/upload/newBatch',
-        function(response)
-        {
-          if (!response.status)
-          {
-            alert(response.message);
-            return;
-          }
-          $batchSelect.append('<option value="' + response.data.bid + '">' +
-                         BrainSlices.gui.escapeHTML(response.data.comment) + '</option>');
-          $batchSelect.val(response.data.bid);
-        },
-        {comment: comment},
-        null,
-        null,
-        {cache: false});
-    });
+  //    var comment = $('#newBatchComment').val();
+  //    var $batchSelect = $('#batchId');
+  //  
+  //    loginConsole.ajax(
+  //      '/upload/newBatch',
+  //      function(response)
+  //      {
+  //        if (!response.status)
+  //        {
+  //          alert(response.message);
+  //          return;
+  //        }
+  //        $batchSelect.append('<option value="' + response.data.bid + '">' +
+  //                       BrainSlices.gui.escapeHTML(response.data.comment) + '</option>');
+  //        $batchSelect.val(response.data.bid);
+  //      },
+  //      {comment: comment},
+  //      null,
+  //      null,
+  //      {cache: false});
+  //  });
  
   $('#uploadFiles')
     .click(function()
@@ -460,14 +504,15 @@ function initUploadFinish()
     loginConsole, uploadedFiles, $('#brokenDuplicatePanel'),
     function(callback)
     {
-      var $batchSelect = $('#batchId');
+      var $batchSelect = $('#existingBatch');
   
-      var bid = $batchSelect.val();
-      if (bid != 'None')
+      if ($('#newBatch').val() != 'yes')
       {
-        callback(parseInt(bid));
+        callback(parseInt($batchSelect.val()));
         return;
       }
+
+      var batchDesc = $('#newBatchName').val().trim();
   
       loginConsole.ajax(
         '/upload/newBatch',
@@ -475,18 +520,23 @@ function initUploadFinish()
         {
           if (!response.status)
           {
-            alert(response.message);
+            alertWindow.error(response.message);
             return;
           }
-  
-          $batchSelect.append('<option value="'
-                              + response.data.bid + '">'
-                              + BrainSlices.gui.escapeHTML(response.data.comment)
-                              + '</option>');
-          $batchSelect.val(response.data.bid);
+
+          $batchSelect
+            .append($('<option>')
+              .attr('value', response.data.bid + '')
+              .text(response.data.comment))
+            .val(response.data.bid);
+
+          $('#newBatch')
+            .val('no')
+            .change();
+
           callback(response.data.bid);
         },
-        null, null, null,
+        batchDesc == '' ? null : {comment: batchDesc}, null, null,
         {cache: false});
     });
   
