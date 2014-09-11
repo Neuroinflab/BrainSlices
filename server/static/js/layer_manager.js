@@ -400,8 +400,6 @@ with ({gui: BrainSlices.gui,
           .addClass('layer-cb-table')
           .appendTo(layer.$visibility);
 
-        loadButtons = [];
-
         while (loadButtons.length < nmax)
         {
           (function(stackId, id)
