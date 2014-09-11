@@ -812,8 +812,16 @@ function animateImageCartHeader(height)
 
 function initCart()
 {
-
   var scope = BrainSlices.scope;
+
+  function triggerImageCartHeaderAnimation(value)
+  {
+    if (scope.get('cartHeader') && scope.get('cart'))
+    {
+      animateImageCartHeader();
+    }
+  }
+
   scope
     .registerChange(function(value)
     {
@@ -923,13 +931,9 @@ function initCart()
       animateImageCartHeader();
 
     }, 'cartHeader')
-    .registerChange(function(value)
-    {
-      if (scope.get('cartHeader') && scope.get('cart'))
-      {
-        animateImageCartHeader();
-      }
-    }, 'grid_dims')
+    .registerChange(triggerImageCartHeaderAnimation, 'grid_dims')
+    .registerChange(triggerImageCartHeaderAnimation, 'edit')
+    .registerChange(triggerImageCartHeaderAnimation, 'editMode')
     .registerChange(function(value)
     {
       $('#layerList').find('.has-folder-widget')
