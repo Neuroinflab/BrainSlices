@@ -350,7 +350,8 @@ var getEnumeratedSuggestionsFunction;
       {
         title: '',
         type: 'text',
-        value: ''
+        value: '',
+        placeholder: 'property name'
       })
       .tooltip()
       .addClass('brainslices-new-property-filter-propertybox')
@@ -376,6 +377,8 @@ var getEnumeratedSuggestionsFunction;
         .addClass('brainslices-new-property-filter-propertybox fake-filter')
         .appendTo($propertybox))
 
+    var wasOpen;
+
     $('<div>')
       .addClass('propertyboxsearch-toggle fake-filter')
       .attr('title', 'Show hints')
@@ -388,10 +391,7 @@ var getEnumeratedSuggestionsFunction;
       {
         $name.focus();
 
-        if (wasOpen)
-        {
-          return;
-        }
+        if (wasOpen) return;
 
         $name.autocomplete('search', '');
       })
@@ -445,16 +445,31 @@ var getEnumeratedSuggestionsFunction;
         })
         .css('display', 'none'),
       s: $('<input>')
-        .attr('type', 'text')
+        .attr(
+        {
+          type: 'text',
+          placeholder: 'short text'
+        })
         .css('display', 'none'),
       e: $('<input>')
-        .attr('type', 'text'),
+        .attr(
+        {
+          type: 'text',
+          placeholder: 'keyword'
+        }),
       x: $('<textarea>')
+        .attr('placeholder', 'long text')
         .css('display', 'none')
     };
 
+    for (var t in inputs)
+    {
+      inputs[t].addClass('image-details-edit');
+    }
+
     var inputBases = Object.create(inputs);
     inputBases.e = $('<span>')
+      .addClass('image-details-edit')
       .css('display', 'none')
       .append(inputs.e
         .combobox(
@@ -468,7 +483,8 @@ var getEnumeratedSuggestionsFunction;
 
     for (var t in inputBases)
     {
-      inputBases[t].appendTo($addPanel);
+      inputBases[t]
+        .appendTo($addPanel);
     }
 
     for (var submitText in onsubmit)
@@ -616,6 +632,7 @@ var PImagePropertyTriggers =
     }
 
     var $inRow = $('<li>')
+      .addClass('image-details-edit')
       .text(name)
       .appendTo(this.data.$inList);
     data.$inRow = $inRow;
@@ -626,13 +643,20 @@ var PImagePropertyTriggers =
       switch (type)
       {
         case 'x':
-          $input = $('<textarea>');
+          $input = $('<textarea>')
+            .attr('placeholder', 'long text');
           break;
 
         case 's':
         case 'e':
           $input = $('<input>')
-            .attr('type', 'text');
+            .attr(
+            {
+              type: 'text',
+              placeholder: type == 's' ?
+                           'short text' :
+                           'keyword'
+            });
           break;
 
         case 'i':
@@ -657,30 +681,82 @@ var PImagePropertyTriggers =
               {
                 var val = $input.val();
                 thisInstance.change(name, val, true);
-              })
-        .appendTo($inRow.append(': '));
+              });
 
       if (type == 'e')
       {
+        //$input
+        //.combobox(
+        //{
+        //  source: getEnumeratedSuggestionsFunction(function()
+        //  {
+        //    return getEnumerated(name);
+        //  })
+        //});
+        var wasOpen
+
         $input
-        .combobox(
-        {
-          source: getEnumeratedSuggestionsFunction(function()
+          .addClass('image-details-edit-enum')
+          .tooltip()
+          .autocomplete(
           {
-            return getEnumerated(name);
+            source: getEnumeratedSuggestionsFunction(function()
+            {
+              return getEnumerated(name);
+            }),
+            minLength: 0
           })
-        });
+          .keypress(function(e)
+          {
+            if (e.keyCode == 13)
+            {
+              $input.blur();
+            }
+          })
+          .on('autocompleteselect', function(event, ui)
+          {
+            $input.val(ui.item.value).blur();
+          })
+          .appendTo($('<div>')
+            .addClass('image-details-edit-enum selectWrapper')
+            .append($('<div>')
+              .addClass('image-details-edit-enum-toggle')
+              .attr('title', 'Show hints')
+              .tooltip()
+              .mousedown(function()
+              {
+                wasOpen = $input.autocomplete('widget').is( ":visible" );
+              })
+              .click(function()
+              {
+                 $input.focus();
+
+                 if (wasOpen) return;
+
+                 $input.autocomplete('search', '');
+              })
+            )
+            .appendTo($inRow
+              .append(': ')));
+      }
+      else
+      {
+        $input
+          .addClass('image-details-edit')
+          .appendTo($inRow.append(': '));
       }
       data.$input = $input;
     }
 
-    $('<button>')
-      .text('X')
+    //$('<button>')
+    //  .text('X')
+    $('<span>')
+      .addClass('remove-property-button fa fa-times')
       .appendTo($inRow)
       .click(function()
-         {
-           thisInstance.remove(name);
-         });
+      {
+        thisInstance.remove(name);
+      });
 
     var propertyTriggers = Object.create(PPropertyTriggers);
     propertyTriggers.data = data;

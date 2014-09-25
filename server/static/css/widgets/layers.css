@@ -295,15 +295,21 @@ div.layer-cb-cell
 
 .layer-delete-button,
 .layer-download-button,
-.add-image-to-cart-button
+.add-image-to-cart-button,
+.remove-property-button
 {
   color: #aaaaaa;
   font-size: 20px;
 /*  padding: 5px;
   float: right;*/
 /*  padding: 11px 5px;*/
-  display: block;
+}
 
+.layer-delete-button,
+.layer-download-button,
+.add-image-to-cart-button
+{
+  display: block;
   position: absolute;
   top: 5px;
 }
@@ -326,7 +332,13 @@ div.layer-cb-cell
   float: right;
 }
 
-.layer-delete-button:hover
+.remove-property-button
+{
+  margin: 5px;
+}
+
+.layer-delete-button:hover,
+.remove-property-button:hover
 {
   color: #ff0000;
 }
@@ -356,4 +368,66 @@ a.layer-download-button
 #layersConsoleTable.editPanel
 {
   top: 130px; /* 90px + 40px */
+}
+
+li.image-details-edit
+{
+  list-style-type: none;
+  text-align: left;
+}
+
+input.image-details-edit,
+textarea.image-details-edit
+{
+  border-radius: 4px;
+}
+
+input.image-details-edit,
+input.image-details-edit-enum
+{
+  padding: 0 3px;
+}
+
+div.image-details-edit-enum.selectWrapper
+{
+  vertical-align: middle;
+  position: relative;
+  padding-right: 20px;
+}
+
+input.image-details-edit-enum
+{
+  margin: 0;
+  border-left: none;
+  border-bottom: none;
+  border-top: none;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
+input.image-details-edit-enum:hover,
+input.image-details-edit-enum:focus
+{
+  border-color: #E5E5E5;
+
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
+div.image-details-edit-enum-toggle
+{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background: transparent url("/static/gfx/unfold.png") no-repeat center center;
 }

@@ -120,6 +120,8 @@ select.selectWrapper
 div.selectWrapper
 {
   display: inline-block;
+/*  vertical-align: middle;*/
+
   margin-bottom: 4px;
   margin-right: 4px;
 
