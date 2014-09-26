@@ -15,8 +15,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
       title: 'left offset'
     })
     .addClass('adjustPanelLeft')
-    .change(
-    function()
+    .change(function()
     {
       updateLeft(parseFloat($imageLeft.val()));
     });
@@ -351,7 +350,7 @@ var getEnumeratedSuggestionsFunction;
         value: '',
         placeholder: 'property name'
       })
-      .tooltip()
+      .tooltip(BrainSlices.gui.tooltip)
       .addClass('brainslices-new-property-filter-propertybox')
       .autocomplete(
       {
@@ -380,7 +379,7 @@ var getEnumeratedSuggestionsFunction;
     $('<div>')
       .addClass('propertyboxsearch-toggle fake-filter')
       .attr('title', 'Show hints')
-      .tooltip()
+      .tooltip(BrainSlices.gui.tooltip)
       .mousedown(function()
       {
         wasOpen = $name.autocomplete('widget').is( ":visible" );
@@ -456,7 +455,7 @@ var getEnumeratedSuggestionsFunction;
           placeholder: 'keyword'
         })
         .addClass('image-details-edit-enum')
-        .tooltip()
+        .tooltip(BrainSlices.gui.tooltip)
         .autocomplete(
         {
           source: getEnumeratedSuggestionsFunction(function()
@@ -495,7 +494,7 @@ var getEnumeratedSuggestionsFunction;
       .append($('<div>')
         .addClass('image-details-edit-enum-toggle')
         .attr('title', 'Show hints')
-        .tooltip()
+        .tooltip(BrainSlices.gui.tooltip)
         .mousedown(function()
         {
           wasOpenEnumerated = inputs.e.autocomplete('widget').is( ":visible" );
@@ -731,7 +730,7 @@ var PImagePropertyTriggers =
 
         $input
           .addClass('image-details-edit-enum')
-          .tooltip()
+          .tooltip(BrainSlices.gui.tooltip)
           .autocomplete(
           {
             source: getEnumeratedSuggestionsFunction(function()
@@ -756,7 +755,7 @@ var PImagePropertyTriggers =
             .append($('<div>')
               .addClass('image-details-edit-enum-toggle')
               .attr('title', 'Show hints')
-              .tooltip()
+              .tooltip(BrainSlices.gui.tooltip)
               .mousedown(function()
               {
                 wasOpen = $input.autocomplete('widget').is( ":visible" );
@@ -1069,7 +1068,9 @@ function initCart()
   $('#cartHeaderToggle').click(scope.getToggle('cartHeader'));
 
 
-  $('#btn_cart').click(scope.getToggle('cart'));
+  $('#btn_cart')
+    .tooltip(BrainSlices.gui.tooltip)
+    .click(scope.getToggle('cart'));
 
   var $layerList = $('#layerList');
 

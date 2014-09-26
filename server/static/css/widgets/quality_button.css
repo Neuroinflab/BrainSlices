@@ -1,5 +1,69 @@
-.quality_panel
+#grid_select
 {
-    position: absolute;
-    z-index: 1000;    
+  overflow: hidden;
+  float: left;
+}
+
+.quality_panel,
+.target_select_panel,
+.zoom_select_panel
+{
+  position: absolute;
+  z-index: 1000;
+}
+
+label.target_select:after
+{
+  content: " \00B5m ";
+}
+
+label.target_select
+{
+  padding-right: 4px;
+}
+
+input.target_select_x,
+input.target_select_y
+{
+  margin: 0;
+  padding: 0 3px;
+  width: 80px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
+input.target_select_x
+{
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+input.target_select_y
+{
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.zoom_select
+{
+  position: absolute;
+}
+
+span.zoom_select
+{
+  height: 100px;
+  z-index: 1000;
+  top: 0;
+  left: 11px;
+}
+
+input.zoom_select
+{
+  top: 110px;
+  left: 0;
+  padding: 0 3px;
+  border-radius: 4px;
 }

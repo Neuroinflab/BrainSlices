@@ -98,6 +98,16 @@ var BrainSlices = {
   api: {},
   gui:
   {
+    tooltip:
+    {
+      position:
+      {
+        my: 'left top+5',
+        at: 'left bottom',
+        collision: 'flipfit'
+      }
+    },
+
     /**
      * Constant: STATUS_MAP
      *

@@ -117,7 +117,8 @@ select.selectWrapper
   -webkit-box-shadow: none;
 }
 
-div.selectWrapper
+div.selectWrapper,
+label.selectWrapper
 {
   display: inline-block;
 /*  vertical-align: middle;*/
@@ -140,6 +141,7 @@ input:hover,
 textarea:hover,
 select:hover,
 div.selectWrapper:hover,
+label.selectWrapper:hover,
 input:focus,
 textarea:focus,
 select:focus
@@ -163,12 +165,13 @@ select.selectWrapper:hover
   position: absolute;
 
   border: solid 1px #dddddd;
+  border-radius: 4px;
   background: #ffffff;
 
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 6px;
+  padding-right: 6px;
 
   box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
   -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
@@ -287,10 +290,8 @@ select.selectWrapper:hover
   top: 0;
   left: 0;
   right: 0;
-  bottom: auto;
-  width: auto;
-  height: 45px;
-  padding: 5px;
+  height: 25px;
+  padding: 2px 5px 3px 5px;
   box-model: padding-box;
   z-index: 100;
   margin: 0;
@@ -299,7 +300,7 @@ select.selectWrapper:hover
 #main
 {
   position: fixed;
-  top: 45px;
+  top: 30px;
   left: 0;
   right: 0;
   bottom: 0;

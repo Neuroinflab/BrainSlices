@@ -35,6 +35,7 @@
   <script src="/static/js/widgets/grid_select.js"></script>
   <script src="/static/js/widgets/quality_button.js"></script>
   <script src="/static/js/widgets/target_select.js"></script>
+  <script src="/static/js/widgets/zoom_select.js"></script>
 
   <script src="/static/js/state_parser.js"></script>
 
@@ -50,7 +51,7 @@
   <link rel="stylesheet" type="text/css" href="/static/css/login_forms.css" />
   <link rel="stylesheet" type="text/css" href="/static/css/upload.css" />
   <link rel="stylesheet" type="text/css" href="/static/css/slice_display.css" />
-  <link rel="stylesheet" type="text/css" href="/static/css/libs/jquery-ui-dialog.css" />
+<!--  <link rel="stylesheet" type="text/css" href="/static/css/libs/jquery-ui-dialog.css" /> -->
   <link rel="stylesheet" type="text/css" href="/static/css/font-awesome/css/font-awesome.css" />
   <link rel="stylesheet" type="text/css" href="/static/css/user_panel.css" />
   <link rel="stylesheet" type="text/css" href="/static/css/widgets/search.css" />
@@ -80,7 +81,7 @@
     </div>
 
     <div id="navbarVisualise">
-     <div id="grid_select" title="display matrix dimensions"></div>
+     <div id="grid_select"></div>
      <button id="btn_display" class="icon" title="display mode">
       <span id="btn_display_icon" class="fa fa-film"></span>
      </button>
@@ -95,14 +96,17 @@
       <span class="fa fa-expand"></span>
      </button>
      <div class="spacer"></div>
+     <!--
      <button id="btn_zoom" class="icon" title="zoom">
       <span class="fa fa-search-plus"></span>
      </button>
+     -->
+     <div id="btn_zoom" title="zoom"></div>
      <button id="btn_trans" class="icon" title="transparency">
       <span class="fa fa-eye-slash"></span>
      </button>
-     <div id="target_select" title="focus"></div>
-     <div id="quality_button" title="quality"></div>
+     <div id="target_select"></div>
+     <div id="quality_button"></div>
 
      <!--
      <div class="spacer"></div>
@@ -110,7 +114,7 @@
      <button id="btn_basket_visualise" class="icon"><span class="fa fa-shopping-cart"></span></button>
      -->
 
-     <span id="zoom"></span>
+     <!-- <span id="zoom"></span> -->
      <span id="trans"></span>
 
 

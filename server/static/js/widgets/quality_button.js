@@ -1,4 +1,4 @@
-$.widget( "brain_slices.quality_button",
+$.widget('brain_slices.quality_button',
 {
   options:
   {
@@ -20,21 +20,39 @@ $.widget( "brain_slices.quality_button",
       low: $("<button> Low </button>")
     }
 
-    var $view = $("<div id='panel' class='quality_panel'> </div>")
-      .hide()
+    var $view = $('<div>')
+      .addClass('quality_panel')
+      .css('display', 'none')
       .append(this.buttons.high)
       .append("<br>")
       .append(this.buttons.med)
       .append("<br>")
       .append(this.buttons.low)
     
-    this.button_show = $('<button id="btn_quality" class="icon">Q</button>');
-    var button_show = this.button_show;
-    var hideHandler = function(event)
+    this.$button = $('<button>')
+      .attr('title', 'quality')
+      .tooltip(BrainSlices.gui.tooltip)
+      .addClass('icon')
+      .text('Q')
+      .click(function()
+      {
+        $(document).bind('click', hideHandler);
+        var offset = $button.offset()
+        $view
+          .css(
+          {
+            left: offset.left + "px",
+            top: 46 + offset.top + "px"
+          })
+          .show();
+      });
+
+    var $button = this.$button;
+    function hideHandler(event)
     {
       var $target = $(event.target);
-      if ($target.attr('id') == "btn_quality" ||
-          1 == $target.parents().filter('#btn_quality').length)
+      $target = $.merge($target, $target.parents());
+      if ($target.is($button))
       {
         return;
       }
@@ -43,18 +61,9 @@ $.widget( "brain_slices.quality_button",
       $(document).unbind("click", hideHandler);
     }
     
-    $(this.element).html(this.button_show).append($view)
-    this.button_show.click(function()
-    {
-      $(document).bind('click', hideHandler);
-      $view
-        .css(
-        {
-          left: 21 + button_show.offset().left + "px",
-          top: 46 + button_show.offset().top + "px"
-        })
-        .show();
-    });
+    $(this.element)
+      .append($button)
+      .append($view);
 
     for (var q in this.buttons)
     {

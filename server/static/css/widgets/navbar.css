@@ -1,17 +1,7 @@
-#navbar {
-  height:35px;
-  background-color:#fafafa;
-
+#navbar
+{
+  background-color: #fafafa;
   display: flex;
-  z-index: 100;
-
-  top: 0;
-  left: 0;
-  width: auto;
-  border: 0px;
-
-  margin: 0;
-  padding: 5px;
 }
 
 #navbarLeft,
@@ -68,19 +58,20 @@
 #navbar button.icon,
 #navbar button.texticon
 {
-  height: 35px;
-  margin-left: 5px;
+  height: 25px;
+  margin-left: 3px;
+  padding: 5px;
 }
 
 #navbar button.icon
 {
-  width: 35px;
+  width: 25px;
 }
 
 #navbar button.texticon
 {
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 9px;
+  padding-right: 9px;
 }
 
 #navbar button.texticon.icon
@@ -91,7 +82,7 @@
 
 #navbar button.texticon.icon .fa:before
 {
-  width: 35px;
+  width: 25px;
   display: inline-block;
 }
 
@@ -101,12 +92,12 @@
 
 #navbar .spacer
 {
-  width: 10px;
-  height: 35px; 
+  width: 6px;
+  height: 25px; 
 }
 
 .navbar .grid {
-  font-size: 7pt;
+  font-size: 6px;
   letter-spacing: 1px;
   line-height: 70%;
 }

@@ -24,105 +24,79 @@ function initVisualise()
 
   var scope = BrainSlices.scope;
 
-  $("#grid_select").grid_select(
-  {
-    callback:
-    function(x,y)
+  $("#grid_select")
+    .grid_select(
     {
-      scope.set("grid_dims", {x: x + 1, y: y + 1});
-    }
-  });
-
-  $("#btn_synch").button().click(function()
-  {
-	  var val = scope.get("synch");
-	  if (val)
-    {
-  	  $("#btn_synch").removeClass("selected");
-		  $("#btn_synch_icon").removeClass("fa-lock");
-	    $("#btn_synch_icon").addClass("fa-unlock");
-	    scope.set("synch", false);
-	  }
-    else
-    {
-  	  $("#btn_synch").addClass("selected");
-		  $("#btn_synch_icon").addClass("fa-lock");
-	    $("#btn_synch_icon").removeClass("fa-unlock");
-	    scope.set("synch", true);
-	  }
-	});
-	
-
-  $("#btn_zoom").button().click(function()
-  {
-    $("#zoom").css("left", 21 + $("#btn_zoom").offset().left + "px");
-    $("#zoom").css("top", 46 + $("#btn_zoom").offset().top + "px");
-    $("#zoom").show(0);
-
-    function hideHandler(event)
-    {
-      var isZoomButton = $(event.target).attr('id') === "btn_zoom";
-      var hasZoomButtonAsParent = (1 === $(event.target).parents().filter('#btn_zoom').length);
-      if (isZoomButton || hasZoomButtonAsParent)
+      callback:
+      function(x,y)
       {
-        return;
+        scope.set("grid_dims", {x: x + 1, y: y + 1});
       }
-
-      $("#zoom").hide(0);
-
-      $(document).unbind("click", hideHandler);
-    };
-
-    $(document).click(hideHandler);
-  });
-
-  $("#zoom")
-    .css(
-    {
-      height: '100px',
-      'z-index': '9999'
-    })
-    .hide(0)
-    .slider(
-    {
-      min:0,
-      max:14,
-      value: 3,
-      step: 0.125,
-      orientation: "vertical",
-      range: "min",
-      animate: true,
-      slide: $.proxy(function()
-      {
-        scope.set( "zoom", Math.pow(2,$("#zoom").slider("value")));
-      })
     });
 
-  $("#btn_trans").button().click(function()
-  {
-    $("#trans").css(
+  $("#btn_synch")
+    .button()
+    .tooltip(BrainSlices.gui.tooltip)
+    .click(function()
     {
-      left: 21 + $("#btn_trans").offset().left + "px",
-      top:  46 + $("#btn_trans").offset().top + "px"
-    })
-    .show(0);
-
-    function hideHandler(event)
-    {
-      var isZoomButton = $(event.target).attr('id') === "btn_trans";
-      var hasZoomButtonAsParent = (1 === $(event.target).parents().filter('#btn_trans').length);
-      if (isZoomButton || hasZoomButtonAsParent)
+	    var val = scope.get("synch");
+	    if (val)
       {
-        return;
-      }
+    	  $("#btn_synch").removeClass("selected");
+	  	  $("#btn_synch_icon").removeClass("fa-lock");
+	      $("#btn_synch_icon").addClass("fa-unlock");
+	      scope.set("synch", false);
+	    }
+      else
+      {
+    	  $("#btn_synch").addClass("selected");
+	  	  $("#btn_synch_icon").addClass("fa-lock");
+	      $("#btn_synch_icon").removeClass("fa-unlock");
+	      scope.set("synch", true);
+	    }
+	  });
+	
 
-      $("#trans").hide(0);
+  $("#btn_zoom")
+    //.button()
+    .zoom_select(
+    {
+      callback: function(zoom)
+      {
+        scope.set("zoom", zoom);
+      },
 
-      $(document).unbind("click", hideHandler);
-    };
+      value: 1
+    });
 
-    $(document).click(hideHandler);
-  });
+  $("#btn_trans")
+    .button()
+    .tooltip(BrainSlices.gui.tooltip)
+    .click(function()
+    {
+      $("#trans").css(
+      {
+        left: 11 + $("#btn_trans").offset().left + "px",
+        top:  46 + $("#btn_trans").offset().top + "px"
+      })
+      .show(0);
+
+      function hideHandler(event)
+      {
+        var isZoomButton = $(event.target).attr('id') === "btn_trans";
+        var hasZoomButtonAsParent = (1 === $(event.target).parents().filter('#btn_trans').length);
+        if (isZoomButton || hasZoomButtonAsParent)
+        {
+          return;
+        }
+
+        $("#trans").hide(0);
+
+        $(document).unbind("click", hideHandler);
+      };
+
+      $(document).click(hideHandler);
+    });
 
   $("#trans")
     .css(
@@ -146,45 +120,51 @@ function initVisualise()
       })
     });
 
-  $("#quality_button").quality_button(
-  {
-	  callback:
-    function(q)
+  $("#quality_button")
+    .quality_button(
     {
-		  console.log("quality set to " + q);
-		  scope.set("quality", q);
-	  }
-  });
+	    callback:
+      function(q)
+      {
+	  	  console.log("quality set to " + q);
+	  	  scope.set("quality", q);
+	    }
+    });
 
-  $("#target_select").target_select(
-  {
-	  callback:
-    function(x,y)
+  $("#target_select")
+    .target_select(
     {
-  		stacks.setFocusPoint(x,y);
-			stacks.update();
-	  }
-  });
+	    callback:
+      function(x,y)
+      {
+    		stacks.setFocusPoint(x,y);
+	  		stacks.update();
+	    }
+    });
 
-  $("#btn_display").button().click(function()
-  {
-	  var val = scope.get("display");
-  	if (val == "matrix")
+  $("#btn_display")
+    .button()
+    .tooltip(BrainSlices.gui.tooltip)
+    .click(function()
     {
-  		$("#btn_display_icon").removeClass("fa-film");
-	    $("#btn_display_icon").addClass("fa-th-large");
-  		scope.set("display", "grid");
-	  }
-    else if (val == "grid")
-    {
-  		$("#btn_display_icon").addClass("fa-film");
-	    $("#btn_display_icon").removeClass("fa-th-large");
-  		scope.set("display", "matrix");
-	  }
-	});
+	    var val = scope.get("display");
+    	if (val == "matrix")
+      {
+    		$("#btn_display_icon").removeClass("fa-film");
+	      $("#btn_display_icon").addClass("fa-th-large");
+    		scope.set("display", "grid");
+	    }
+      else if (val == "grid")
+      {
+    		$("#btn_display_icon").addClass("fa-film");
+	      $("#btn_display_icon").removeClass("fa-th-large");
+    		scope.set("display", "matrix");
+	    }
+	  });
 
   $("#btn_compress")
     .button()
+    .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
       var images = layerManager.loadedImagesOrdered();
@@ -201,6 +181,7 @@ function initVisualise()
 
   $("#btn_expand")
     .button()
+    .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
       var images = layerManager.loadedImagesOrdered();
@@ -218,15 +199,21 @@ function initVisualise()
       layerManager.arrangeInterface();
     });
 
-  $('#btn_basket_visualise').click(function()
-  {
-    scope.set('cart', !scope.get('cart'));
-  });
+  $('#btn_basket_visualise')
+    .tooltip(BrainSlices.gui.tooltip)
+    .click(function()
+    {
+      scope.set('cart', !scope.get('cart'));
+    });
 
 
-  $("#btn_help").button();
+  $("#btn_help")
+    .button()
+    .tooltip(BrainSlices.gui.tooltip);
   $("#btn_login").button();
-  $("#btn_logout").button();
+  $("#btn_logout")
+    .button()
+    .tooltip(BrainSlices.gui.tooltip);
 
 	scope
     .registerChange(function(val)
@@ -235,7 +222,7 @@ function initVisualise()
     }, 'quality')
     .registerChange(function(val)
     {
-      $("#zoom").slider("value", Math.log(val) / Math.log(2));
+      $("#btn_zoom").zoom_select("value", val);
       state.zoom = val; // XXX obsoleted
     }, 'zoom')
     .registerChange(function(val)

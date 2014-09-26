@@ -118,7 +118,10 @@ $.widget("brainslices.grid_select",
 
     this.$floatView = $floatView;
 
-    var $button = $('<button id="btn_grid" class="icon"><div class="grid">&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<div></button>')
+    var $button = $('<button id="btn_grid"><div class="grid">&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<br>&#x25a0;&#x25a0;&#x25a0;<div></button>')
+      .addClass('icon')
+      .attr('title', 'display matrix dimensions')
+      .tooltip(BrainSlices.gui.tooltip)
       .button()
       .mousedown(function(evt)
       {
