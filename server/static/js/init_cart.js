@@ -311,8 +311,6 @@ var getEnumeratedSuggestionsFunction;
       //if (inSelect) return;
       name = $name.val().trim().toLowerCase();
 
-      console.debug(name);
-
       $type.children('option').removeClass('suggested-type');
       if (name in suggestedProperties)
       {
@@ -456,6 +454,27 @@ var getEnumeratedSuggestionsFunction;
         {
           type: 'text',
           placeholder: 'keyword'
+        })
+        .addClass('image-details-edit-enum')
+        .tooltip()
+        .autocomplete(
+        {
+          source: getEnumeratedSuggestionsFunction(function()
+          {
+            return getEnumerated(name);
+          }),
+          minLength: 0
+        })
+        //.keypress(function(e) // might be not important - no onchange event XXX
+        //{
+        //  if (e.keyCode == 13)
+        //  {
+        //    inputs.e.blur();
+        //  }
+        //})
+        .on('autocompleteselect', function(event, ui)
+        {
+          inputs.e.val(ui.item.value);//.blur(); // might be not as important - no onchange event??? XXX
         }),
       x: $('<textarea>')
         .attr('placeholder', 'long text')
@@ -468,18 +487,35 @@ var getEnumeratedSuggestionsFunction;
     }
 
     var inputBases = Object.create(inputs);
-    inputBases.e = $('<span>')
-      .addClass('image-details-edit')
+    var wasOpenEnumerated;
+    inputBases.e = $('<div>')
+      .addClass('image-details-edit-enum selectWrapper')
       .css('display', 'none')
-      .append(inputs.e
-        .combobox(
+      .append(inputs.e)
+      .append($('<div>')
+        .addClass('image-details-edit-enum-toggle')
+        .attr('title', 'Show hints')
+        .tooltip()
+        .mousedown(function()
         {
-          source:
-          getEnumeratedSuggestionsFunction(function()
-          {
-            return getEnumerated(name);
-          })
+          wasOpenEnumerated = inputs.e.autocomplete('widget').is( ":visible" );
+        })
+        .click(function()
+        {
+          inputs.e.focus();
+
+          if (wasOpenEnumerated) return;
+
+          inputs.e.autocomplete('search', '');
         }));
+      //  .combobox(
+      //  {
+      //    source:
+      //    getEnumeratedSuggestionsFunction(function()
+      //    {
+      //      return getEnumerated(name);
+      //    })
+      //  }));
 
     for (var t in inputBases)
     {
@@ -505,8 +541,6 @@ var getEnumeratedSuggestionsFunction;
   
             var type = $type.val();
             var property = {type: type}; // no property privileges set
-
-            console.debug(type, inputs);
 
             if (type in inputs)
             {
@@ -606,7 +640,7 @@ var PImagePropertyTriggers =
   function (name, property, original)
   {
     var type = property.type;
-    var data = {};
+    var data = {}; // fixed: name in this.data.fixedOut
 
     var thisInstance = this;
 
@@ -693,7 +727,7 @@ var PImagePropertyTriggers =
         //    return getEnumerated(name);
         //  })
         //});
-        var wasOpen
+        var wasOpen;
 
         $input
           .addClass('image-details-edit-enum')
@@ -795,9 +829,18 @@ var PPropertyTriggers =
 
   destroy: function()
   {
+    console.log('property destroy');
     if (this.data.$inRow) this.data.$inRow.remove();
 
-    if (this.data.$outRow) this.data.$outRow.remove();
+    if (this.data.$outRow)
+    {
+      this.data.$outRow.remove();
+    }
+    else
+    {
+      console.debug(this.data.$out);
+      this.data.$out.empty().hide(0);
+    }
   },
 
   new: function()
@@ -840,7 +883,7 @@ var PPropertyTriggers =
     }
     else
     {
-      if (this.data.$row) this.data.$row.show(0);
+      if (this.data.$inRow) this.data.$inRow.show(0);
       if (this.data.$outRow)
       {
         this.data.$outRow.show(0);
