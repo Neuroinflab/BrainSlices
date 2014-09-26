@@ -32,7 +32,6 @@ $.widget( "brain_slices.quality_button",
     var button_show = this.button_show;
     var hideHandler = function(event)
     {
-      console.debug('qualityHideHandler')
       var $target = $(event.target);
       if ($target.attr('id') == "btn_quality" ||
           1 == $target.parents().filter('#btn_quality').length)
