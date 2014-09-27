@@ -387,9 +387,11 @@ function initUpload()
       {
         scope.set('editMode', 'details');
         $('#editMode').hide(0); // XXX???
+        $('#editModeImageAnnotations').show(0);
         return;
       }
 
+      $('#editModeImageAnnotations').hide(0);
       $('#editMode').show(0); // XXX???
 
       loginConsole.ajax(

@@ -1064,18 +1064,21 @@ function initCart()
     .registerChange(triggerImageCartHeaderAnimation, 'editMode')
     .registerChange(function(value)
     {
+      var todo = value ? 'fold' : 'unfold';
       $('#layerList').find('.has-folder-widget')
-        .folder(value ? 'fold' : 'unfold');
+        .folder(todo);
       layerManager.doLazyRefresh();
-      $('#foldAllCart').prop('checked', value);
+      $('#foldAllCart').val(todo);
     }, 'allFoldedCart');
 
   $('#foldAllCart').change(function()
   {
-    scope.set('allFoldedCart', this.checked);
+    scope.set('allFoldedCart', $(this).val() == 'fold');
   });
 
-  $('#cartHeaderToggle').click(scope.getToggle('cartHeader'));
+  $('#cartHeaderToggle')
+    .tooltip(BrainSlices.gui.tooltip)
+    .click(scope.getToggle('cartHeader'));
 
 
   $('#btn_cart')
@@ -1315,6 +1318,8 @@ function initCart()
                               })
                               .append($('<span>')
                                 .addClass('layer-delete-button fa fa-times')
+                                .attr('title', 'remove from cart')
+                                .tooltip(BrainSlices.gui.tooltip)
                                 .click(onremove));
 
 
@@ -1411,6 +1416,7 @@ function initCartFinish(state)
     .set('allFoldedCart', true);
 
   $('#emptyCart')
+    .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
       layerManager.flush();

@@ -8,8 +8,8 @@
       <span class="fa"></span>
      </button>
 
-     Image cart
      <!--
+     Image cart
      <button id="editCart" title="edit images">
       <span class="fa fa-pencil-square-o"></span>
      </button>
@@ -22,16 +22,27 @@
        <option value="privileges" class="fa fa-pencil-square-o">Privilege editor</option>
        <option value="properties" class="fa fa-pencil-square-o">Annotation editor</option>
       </select>
+      <span id="editModeImageAnnotations">
+       Image annotations
+      </span>
      </div>
 
-     <button id="emptyCart" title="empty image cart">
-      <span class="fa fa-trash-o"></span>
-     </button>
-
+     <!--
      <label>
       <input type="checkbox" id="foldAllCart">
       fold all
      </label>
+     -->
+     <div class="selectWrapper">
+      <select id="foldAllCart" class="selectWrapper">
+       <option selected="selected" value="fold">
+        fold all
+       </option>
+       <option value="unfold">
+        unfold all
+       </option>
+      </select>
+     </div>
 
      <div id="editPanel">
       <div id="adjustPanel">
@@ -69,6 +80,11 @@
       <div id="propertyPanel">
       </div>
      </div>
+
+     <button id="emptyCart" title="empty the image cart">
+      <span class="fa fa-trash-o"></span>
+     </button>
+
     </div>
 
     <div id="loadAllWrapper">

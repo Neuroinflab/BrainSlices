@@ -60,8 +60,10 @@ function makeBasicDetails(info, $div)
       .attr(
       {
         href: '/images/' + info.iid + '/image.png',
-        download: ''
-      }))
+        download: '',
+        title: 'download the image'
+      })
+      .tooltip(BrainSlices.gui.tooltip))
     .append($('<div>')
       .addClass('description-buttons-placeholder'))
     .append(BrainSlices.gui.getThumbnail(info.iid,
@@ -430,8 +432,11 @@ function initBrowseFinish()
             var $div = detailsGenerator(info)
               .appendTo($row);
 
-            var $button = $('<span class="add-image-to-cart-button fa fa-plus"></span>');
-            $div.prepend($button);
+            var $button = $('<span>')
+              .addClass('add-image-to-cart-button fa fa-plus')
+              .attr('title', 'add to the image cart')
+              .tooltip(BrainSlices.gui.tooltip)
+              .prependTo($div);
 
             (function(info)
             {
@@ -531,6 +536,7 @@ function initBrowseFinish()
   }
 
   $('#addResultsToCart')
+    .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
       waitWindow.message('Adding images to the cart.');
@@ -538,6 +544,7 @@ function initBrowseFinish()
     });
 
   $('#moveResultsToCart')
+    .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
       waitWindow.message('Moving images to the cart.');

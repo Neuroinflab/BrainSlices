@@ -30,12 +30,33 @@
   text-align: center;
 }
 
-#emptyCart:hover,
-#emptyCart.selected
+#cartHeaderToggle
+{
+  position: absolute;
+  top: 0;
+  left: 2px;
+  margin: 0;
+}
+
+#emptyCart
+{
+  position: absolute;
+  top: 0;
+  right: 2px;
+  margin: 0;
+}
+
+#emptyCart:hover
 {
   background-color: #FF0000;
   border-color: #FFBBBB;
   color: #FFFFFF;
+}
+
+#foldAllCart
+{
+  padding-top: 1px;
+  padding-bottom: 1px;
 }
 
 #layersConsoleTable
@@ -63,7 +84,7 @@
 #layerList
 {
   position: absolute;
-  top: 5px; /*25*/
+  top: 0; /*25px*/
   left: 0;
   right: 0;
   bottom: 0;
@@ -75,6 +96,11 @@
 #imageCartHeaderWrapper
 {
   overflow-y: scroll;
+}
+
+#imageCartHeaderContent
+{
+  overflow: hidden;
 }
 
 div.layer-row,
@@ -92,6 +118,7 @@ div.layer-row,
 {
   /*display: inline-block;*/
   float: left;
+  position: relative;
 }
 
 #loadAllWrapper
@@ -183,6 +210,10 @@ div.visible-column
   padding-bottom: 1px;
 }
 
+#editModeImageAnnotations
+{
+  padding: 1px 20px 1px 5px;
+}
 
 div.adjustPanel
 {
