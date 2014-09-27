@@ -142,9 +142,6 @@ function initUpload()
   $('#batchId').change(batchDetails);
 
 
-  $('#editCart')
-    .click(scope.getToggle('edit'));
-
   $('#editMode')
     .change(function()
     {
@@ -312,6 +309,7 @@ function initUpload()
 
 
   scope
+    /*
     .registerChange(function(value)
     {
       if (value)
@@ -332,27 +330,40 @@ function initUpload()
         $('#editPanel').hide(0);
         $('#editMode').hide(0);
         $('#layersConsoleTable').removeClass('editPanel');
+        
       }
 
       layerManager.doLazyRefresh();
-    }, 'edit')
+    }, 'edit')*/
     .registerChange(function(value)
     {
       switch (value)
       {
+        case 'details':
+          layerManager.stopAdjustment(); //XXX
+          $('#editPanel').hide(0); //XXX -> hide other things
+          $('#layersConsoleTable').removeClass('editPanel'); //XXX
+          break;
+
         case 'adjust':
+          $('#layersConsoleTable').addClass('editPanel'); //XXX
+          $('#editPanel').show(0); //XXX
           $('#privilegesPanel').hide(0);
           $('#propertyPanel').hide(0);
           $('#adjustPanel').show(0);
           break;
 
         case 'privileges':
+          $('#layersConsoleTable').addClass('editPanel'); //XXX
+          $('#editPanel').show(0); //XXX
           $('#adjustPanel').hide(0);
           $('#propertyPanel').hide(0);
           $('#privilegesPanel').show(0);
           break;
 
         case 'properties':
+          $('#layersConsoleTable').addClass('editPanel'); //XXX
+          $('#editPanel').show(0); //XXX
           $('#privilegesPanel').hide(0);
           $('#adjustPanel').hide(0);
           $('#propertyPanel').show(0);
@@ -374,12 +385,12 @@ function initUpload()
 
       if (value == null)
       {
-        scope.set('edit', false);
-        $('#editCart').hide(0); // XXX???
+        scope.set('editMode', 'details');
+        $('#editMode').hide(0); // XXX???
         return;
       }
 
-      $('#editCart').show(0); // XXX???
+      $('#editMode').show(0); // XXX???
 
       loginConsole.ajax(
         '/upload/batchList',
@@ -621,6 +632,5 @@ function initUploadFinish()
         }));
     });
 
-  BrainSlices.scope.set('edit', false);
-  BrainSlices.scope.set('editMode', 'adjust');
+  BrainSlices.scope.set('editMode', 'details');
 }

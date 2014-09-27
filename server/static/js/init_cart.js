@@ -897,6 +897,8 @@ var PPropertyTriggers =
 
 function animateImageCartHeader(height)
 {
+  var scope = BrainSlices.scope;
+
   if (height == null)
   {
     height = BrainSlices.scope.get('cartHeader') ?
@@ -910,7 +912,16 @@ function animateImageCartHeader(height)
       height: height + 'px'
     },
     {
-      queue: false
+      queue: false,
+      complete:
+      function()
+      {
+        var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
+        $('#loadAllPanel')
+          .width(visWidth);
+        $('#imageCartAllPanel')
+          .width($('#imageCartHeaderContent').width() - visWidth);
+      }
     });
 
   $('#layersConsoleTable')
@@ -1050,7 +1061,6 @@ function initCart()
 
     }, 'cartHeader')
     .registerChange(triggerImageCartHeaderAnimation, 'grid_dims')
-    .registerChange(triggerImageCartHeaderAnimation, 'edit')
     .registerChange(triggerImageCartHeaderAnimation, 'editMode')
     .registerChange(function(value)
     {
@@ -1313,49 +1323,50 @@ function initCart()
                           thisInstance.tableManager.addLazyRefresh(id, toPostpone);
                           thisInstance.tableManager.addLazyRefresh(id, function()
                           {
-                            if (scope.get('edit'))
+                            switch (scope.get('editMode'))
                             {
-                              rowElements.$properties.css('display', 'none');
-                              switch (scope.get('editMode'))
-                              {
-                                case 'adjust':
-                                  rowElements.$privileges.css('display', 'none');
-                                  rowElements.$annotate.css('display', 'none');
-                                  if (image.info.editPrivilege > 0)
-                                  {
-                                    rowElements.$adjustment.css('display', '');
-                                  }
-                                  break;
-                                case 'privileges':
-                                  rowElements.$adjustment.css('display', 'none');
-                                  rowElements.$annotate.css('display', 'none');
-                                  if (image.info.editPrivilege > 0)
-                                  {
-                                    rowElements.$privileges.css('display', '');
-                                  }
-                                  break;
-                                case 'properties':
-                                  rowElements.$adjustment.css('display', 'none');
-                                  rowElements.$privileges.css('display', 'none');
-                                  rowElements.$name.css('display', 'none');
-                                  if (image.info.annotatePrivilege > 0)
-                                  {
-                                    rowElements.$annotate.css('display', '');
-                                  }
-                                  break
-                              }
-                            }
-                            else
-                            {
-                              rowElements.$adjustment.css('display', 'none');
-                              rowElements.$privileges.css('display', 'none');
-                              rowElements.$annotate.css('display', 'none');
+                              case 'details':
+                                rowElements.$adjustment.css('display', 'none');
+                                rowElements.$privileges.css('display', 'none');
+                                rowElements.$annotate.css('display', 'none');
 
-                              rowElements.$properties.css('display', '');
-                              rowElements.$name.css('display', '');
+                                rowElements.$properties.css('display', '');
+                                rowElements.$name.css('display', '');
+                                break;
+
+                              case 'adjust':
+                                rowElements.$properties.css('display', 'none');
+                                rowElements.$privileges.css('display', 'none');
+                                rowElements.$annotate.css('display', 'none');
+                                if (image.info.editPrivilege > 0)
+                                {
+                                  rowElements.$adjustment.css('display', '');
+                                }
+                                break;
+
+                              case 'privileges':
+                                rowElements.$properties.css('display', 'none');
+                                rowElements.$adjustment.css('display', 'none');
+                                rowElements.$annotate.css('display', 'none');
+                                if (image.info.editPrivilege > 0)
+                                {
+                                  rowElements.$privileges.css('display', '');
+                                }
+                                break;
+
+                              case 'properties':
+                                rowElements.$properties.css('display', 'none');
+                                rowElements.$adjustment.css('display', 'none');
+                                rowElements.$privileges.css('display', 'none');
+                                rowElements.$name.css('display', 'none');
+                                if (image.info.annotatePrivilege > 0)
+                                {
+                                  rowElements.$annotate.css('display', '');
+                                }
+                                break;
                             }
 
-                            var visWidth = Math.max(scope.get('grid_dims').x * 20, 65);
+                            var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
                             $visibility.width(visWidth);
                             $drag
                               .width($row.width() - visWidth)

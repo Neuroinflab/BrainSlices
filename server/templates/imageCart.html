@@ -1,82 +1,93 @@
 <div id="imageCart">
  <div id="imageCartHeader">
-  <div id="imageCartHeaderContent">
+  <div id="imageCartHeaderWrapper">
+   <div id="imageCartHeaderContent">
 
-   <button id="cartHeaderToggle" title="toggle global manipulation panel">
-    <span class="fa"></span>
-   </button>
+    <div id="imageCartAllPanel">
+     <button id="cartHeaderToggle" title="toggle global manipulation panel">
+      <span class="fa"></span>
+     </button>
 
-   Image cart
-   <button id="editCart" title="edit images">
-    <span class="fa fa-pencil-square-o"></span>
-   </button>
-
-   <div class="selectWrapper">
-    <select id="editMode" class="selectWrapper">
-     <option value="details" class="fa fa-file-text-o"> Details</option>
-     <option value="adjust" class="fa fa-pencil-square-o"> Basic</option>
-     <option value="privileges" class="fa fa-pencil-square-o"> Privileges</option>
-     <option value="properties" class="fa fa-pencil-square-o"> Annotations</option>
-    </select>
-   </div>
-
-   <button id="emptyCart" title="empty image cart">
-    <span class="fa fa-trash-o"></span>
-   </button>
-
-   <label>
-    <input type="checkbox" id="foldAllCart">
-    fold all
-   </label>
-
-   <div id="loadAllPanel" class="visible-column"></div>
-
-   <div id="editPanel">
-    <div id="adjustPanel">
-     All images
-    </div>
-
-    <div id="privilegesPanel">
-     <label>
-      <input id="publicViewPrivilege" type="checkbox">
-      view
-     </label>
-     <label>
-      <input id="publicEditPrivilege" type="checkbox">
-      edit
-     </label>
-     <label>
-      <input id="publicAnnotatePrivilege" type="checkbox">
-      annotate
-     </label>
+     Image cart
      <!--
-     <label>
-      <input id="publicOutlinePrivilege" type="checkbox">
-      outline
-     </label>
+     <button id="editCart" title="edit images">
+      <span class="fa fa-pencil-square-o"></span>
+     </button>
      -->
 
-     <button id="resetPrivileges">
-      Reset
+     <div class="selectWrapper">
+      <select id="editMode" class="selectWrapper">
+       <option value="details" class="fa fa-file-text-o">Image annotations</option>
+       <option value="adjust" class="fa fa-pencil-square-o">Basic metadata editor</option>
+       <option value="privileges" class="fa fa-pencil-square-o">Privilege editor</option>
+       <option value="properties" class="fa fa-pencil-square-o">Annotation editor</option>
+      </select>
+     </div>
+
+     <button id="emptyCart" title="empty image cart">
+      <span class="fa fa-trash-o"></span>
      </button>
-     <button id="savePrivileges">
-      Save
-     </button>
+
+     <label>
+      <input type="checkbox" id="foldAllCart">
+      fold all
+     </label>
+
+     <div id="editPanel">
+      <div id="adjustPanel">
+       All images
+      </div>
+
+      <div id="privilegesPanel">
+       <label>
+        <input id="publicViewPrivilege" type="checkbox">
+        view
+       </label>
+       <label>
+        <input id="publicEditPrivilege" type="checkbox">
+        edit
+       </label>
+       <label>
+        <input id="publicAnnotatePrivilege" type="checkbox">
+        annotate
+       </label>
+       <!--
+       <label>
+        <input id="publicOutlinePrivilege" type="checkbox">
+        outline
+       </label>
+       -->
+
+       <button id="resetPrivileges">
+        Reset
+       </button>
+       <button id="savePrivileges">
+        Save
+       </button>
+      </div>
+
+      <div id="propertyPanel">
+      </div>
+     </div>
     </div>
 
-    <div id="propertyPanel">
+    <div id="loadAllWrapper">
+     <div id="loadAllPanelHeader"></div>
+     <div id="loadAllPanel" class="visible-column"></div>
     </div>
+
    </div>
-
   </div>
  </div>
 
 
  <div id="layersConsoleTable">
+  <!--
   <div id="layersConsoleTableHeader">
    <div class="label-column">Description</div>
    <div class="visible-column">Visible</div>
   </div>
+  -->
 
   <div id="layerList">
   </div>
