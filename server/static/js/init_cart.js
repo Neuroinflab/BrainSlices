@@ -784,6 +784,8 @@ var PImagePropertyTriggers =
     //$('<button>')
     //  .text('X')
     $('<span>')
+      .attr('title', 'remove property')
+      .tooltip(BrainSlices.gui.tooltip)
       .addClass('remove-property-button fa fa-times')
       .appendTo($inRow)
       .click(function()
@@ -903,7 +905,7 @@ function animateImageCartHeader(height)
   {
     height = BrainSlices.scope.get('cartHeader') ?
              $('#imageCartHeaderContent').outerHeight(true) :
-             26;
+             35;
   }
 
   $('#imageCartHeader')
@@ -919,7 +921,8 @@ function animateImageCartHeader(height)
         var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
         $('#loadAllPanel')
           .width(visWidth);
-        var labelWidth = $('#imageCartHeaderContent').width() - visWidth;
+        $('#imageCartHeaderColumnSeparator').css('right', visWidth + 'px');
+        var labelWidth = $('#imageCartHeaderContent').width() - visWidth - 1;
         $('#imageCartAllPanel')
           .css('width', labelWidth > 0 ? labelWidth + 'px' : '');
       }
@@ -928,7 +931,7 @@ function animateImageCartHeader(height)
   $('#layersConsoleTable')
     .animate(
     {
-      top: (height + 10) + 'px'
+      top: height + 'px'
     },
     {
       queue: false,
