@@ -296,7 +296,7 @@ select.selectWrapper:hover
   z-index: 100;
   margin: 0;
 
-  border-bottom: 1px solid #aaaaaa;
+  border-bottom: 1px solid #CACACA;
   box-sizing: border-box;
 }
 

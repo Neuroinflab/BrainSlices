@@ -555,17 +555,19 @@ function initBrowseFinish()
       }, 50);
     });
 
-  $('#searchPropertySearch').click(function()
-  {
-    waitWindow.message('Querying the server. Please wait. <span class="fa fa-refresh fa-spin"></span>');
-
-    if (!searchEngine.search(searchCallback,
-                             $('#privilegeFilter').val()))
+  $('#searchPropertySearch')
+    .tooltip(BrainSlices.gui.tooltip)
+    .click(function()
     {
-      waitWindow.close();
-      alertWindow.error('Chosen filters can not match any images.');
-    }
-  });
+      waitWindow.message('Querying the server. Please wait. <span class="fa fa-refresh fa-spin"></span>');
+
+      if (!searchEngine.search(searchCallback,
+                               $('#privilegeFilter').val()))
+      {
+        waitWindow.close();
+        alertWindow.error('Chosen filters can not match any images.');
+      }
+    });
 
   $('#newFilter').newpropertyfilter(
   {

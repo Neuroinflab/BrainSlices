@@ -50,10 +50,17 @@
 #searchBasketUnfold
 {
   position: absolute;
-  top: 5px;
-  bottom: 5px;
+  top: 0;
+  bottom: 0;
   width: 20px;
   height: auto;
+
+  border-top: none;
+  border-bottom: none;
+  border-radius: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  margin: 0;
 }
 
 #searchFiltersFold
@@ -63,6 +70,7 @@
 
 #searchFiltersUnfold
 {
+  border-left: none;
   display: block;
   left: 0;
 }
@@ -136,12 +144,14 @@ a.pager
 #searchBasketFold
 {
   display: none;
+  border-right: 0;
 }
 
 #searchBasketUnfold
 {
   display: block;
   right: 0;
+  border-right: 0;
 }
 
 .basket-visible #searchBasketFold
@@ -160,7 +170,7 @@ a.pager
 #loadedFiltersWrapper
 {
   position: absolute;
-  top: 35px;
+  top: 30px;
   bottom: 35px;
   height: auto;
   width: 100%;
@@ -185,6 +195,7 @@ a.pager
   margin-right: 21px; /* 25 - 4 */
 }
 
+/*
 #searchPropertySearch
 {
   position: absolute;
@@ -195,6 +206,7 @@ a.pager
   height: 25px;
   box-sizing: border-box;
 }
+*/
 
 .filter-property-name
 {
@@ -607,10 +619,11 @@ select.brainslices-privilege-filter
 .search-header-label
 {
   position: absolute;
-  top: 5px;
-  left: 5px;
-  right: 5px;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 30px;
+  border-bottom: 1px solid #CACACA;
 
   background: #efefef;
   /*color: #69c6fd;*/
@@ -618,7 +631,7 @@ select.brainslices-privilege-filter
   font-weight: bold;
   font-size: 16px;
 
-  padding-top: 5px;
+  padding-top: 4px;
   padding-bottom: 5px;
   padding-left: 0;
   padding-right: 0;
