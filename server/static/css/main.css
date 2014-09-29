@@ -290,11 +290,14 @@ select.selectWrapper:hover
   top: 0;
   left: 0;
   right: 0;
-  height: 25px;
-  padding: 2px 5px 3px 5px;
+  height: 30px;
+  padding: 2px 5px 3px 4px;
   box-model: padding-box;
   z-index: 100;
   margin: 0;
+
+  border-bottom: 1px solid #aaaaaa;
+  box-sizing: border-box;
 }
 
 #main

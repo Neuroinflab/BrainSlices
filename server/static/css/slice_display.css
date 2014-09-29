@@ -9,13 +9,19 @@ div#visualisePanel
   z-index: 0;
 }
 
-div.topLayer, div.tileLayer, div.outlineLayer
+div.topLayer, div.tileLayer, div.outlineLayer, div.topmostLayer
 {
   position: absolute;
   left: 0px;
   top: 0px;
   right: 0px;
   bottom: 0px;
+}
+
+div.topmostLayer
+{
+  z-index: 1;
+  opacity: 0;
 }
 
 div.tileLayer
@@ -28,11 +34,6 @@ div.outlineLayer
   opacity: 0.5;
 }
 
-div.topLayer
-{
-  border: 1px solid black;
-}
-
 img.crosshair
 {
   position: absolute;
@@ -40,6 +41,10 @@ img.crosshair
   height: 101px;
 }
 
+div.scale, img.crosshair
+{
+  z-index: 0;
+}
 
 div.scale
 {
@@ -66,3 +71,12 @@ img.scale
   border: 1mm solid rgba(192, 192, 192, 0.7);
 }
 
+div.leftTileStack
+{
+  border-left: 1px solid #aaaaaa;
+}
+
+div.topTileStack
+{
+  border-top: 1px solid #aaaaaa;
+}

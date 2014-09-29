@@ -903,7 +903,7 @@ function animateImageCartHeader(height)
   {
     height = BrainSlices.scope.get('cartHeader') ?
              $('#imageCartHeaderContent').outerHeight(true) :
-             30;
+             26;
   }
 
   $('#imageCartHeader')
@@ -919,8 +919,9 @@ function animateImageCartHeader(height)
         var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
         $('#loadAllPanel')
           .width(visWidth);
+        var labelWidth = $('#imageCartHeaderContent').width() - visWidth;
         $('#imageCartAllPanel')
-          .width($('#imageCartHeaderContent').width() - visWidth);
+          .css('width', labelWidth > 0 ? labelWidth + 'px' : '');
       }
     });
 
@@ -945,7 +946,7 @@ function initCart()
 
   function triggerImageCartHeaderAnimation(value)
   {
-    if (scope.get('cartHeader') && scope.get('cart'))
+    if (scope.get('cart'))
     {
       animateImageCartHeader();
     }
@@ -1265,7 +1266,10 @@ function initCart()
                                     propertiesManager.reset(id);
                                   }
                                 }))
-                                .appendTo($drag)
+                                .appendTo($drag),
+                              $separator: $('<div>')
+                                .addClass('column-separator')
+                                .appendTo($row)
                             };
 
                             rowElements.$privileges = $('<div>')
@@ -1372,9 +1376,11 @@ function initCart()
                             }
 
                             var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
+                            rowElements.$separator
+                              .css('right', visWidth + 'px');
                             $visibility.width(visWidth);
                             $drag
-                              .width($row.width() - visWidth)
+                              .width($row.width() - visWidth - 1)
                               .folder('refresh');
                           }, true);
 

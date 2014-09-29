@@ -349,18 +349,36 @@
             {
               // stack already exist
               var stack = this.stacks[id];
-              stack.display.css({'top': t + '%',
-                'bottom': b + '%',
-                'left': l + '%',
-                'right': r + '%'});
+              stack.display
+                .css(
+                {
+                  top: t + '%',
+                  bottom: b + '%',
+                  left: l + '%',
+                  right: r + '%'
+                })
+                [x > 0 ? 'addClass' : 'removeClass']('leftBorder')
+                [y > 0 ? 'addClass' : 'removeClass']('topBorder');
+
               stack.hideCursor();
             }
             else
             {
               // a new stack is necessary
-              var $div = $('<div style="position: absolute; top: ' + t + '%; left: ' +
-                  l + '%; bottom: ' + b + '%; right: ' + r +
-                  '%; width: auto; height: auto; overflow: hidden;"></div>');
+              var $div = $('<div>')
+                .css(
+                {
+                  position: 'absolute',
+                  top: t + '%',
+                  left: l + '%',
+                  bottom: b + '%',
+                  right: r + '%',
+                  overflow: 'hidden',
+                  'box-sizing': 'border-box'
+                })
+                [x > 0 ? 'addClass' : 'removeClass']('leftTileStack')
+                [y > 0 ? 'addClass' : 'removeClass']('topTileStack');
+
               this.$displayContainer.append($div);
               stack = new api.CLayerStack($div, this.zoom, this.focusPointX,
                   this.focusPointY, this.crosshairX,

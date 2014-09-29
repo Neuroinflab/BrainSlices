@@ -66,19 +66,31 @@
         .append($mouseX)
         .append('; ')
         .append($mouseY);
-      var $scaleDiv = $('<div></div>')
+      var $scaleDiv = $('<div>')
                         .addClass('scale')
                         .append($cursorLocation)
                         .append(this.$scaleUnit)
                         .append('<br>')
                         .append(this.$scaleImage);
 
-      this.topLayer = $('<div class="topLayer" style="z-index: 0;" draggable="false">' +
-                        ' <img class="crosshair" src="' + this.gfx + '/crosshair.png" alt="+" style="display: none;">' +
-                        '</div>');
-      this.topLayer.append($scaleDiv);
+      this.topLayer = $('<div>')
+        .attr('draggable', 'false')
+        .addClass('topLayer')
+        .css('z-index', '0')
+        .append($('<img>')
+          .attr(
+          {
+            src: this.gfx + '/crosshair.png',
+            alt: '+'
+          })
+          .addClass('crosshair')
+          .css('display', 'none'))
+        .append($scaleDiv)
+        .append($('<div>')
+          .addClass('topmostLayer'))
+        .appendTo(this.display);
+
       this.maxScaleWidth = 100000.; //10 cm
-      this.display.append(this.topLayer);
       this.getDisplayPixelSize();
       this.setZoom(zoom);
       this.resize(crosshairX, crosshairY);

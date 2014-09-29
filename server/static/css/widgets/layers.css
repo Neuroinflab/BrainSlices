@@ -1,14 +1,15 @@
 #imageCart
 {
   position: absolute;
-  top: 40px;
+  top: 0;
   bottom: 0;
   right: 0;
 /*  left: 50%;*/
 /*  width: 524px;*/
   width: 0;
+  box-sizing: border-box;
 
-  border: 1px solid #aaaaaa;
+  border-left: 1px solid #aaaaaa;
 
   padding: 0;
   margin: 0;
@@ -173,17 +174,13 @@ li.propertyNew
 div.label-column,
 div.visible-column
 {
-  /*float: left;*/
   display: inline-block;
   vertical-align: top;
-  /*display: table-cell;*/
 }
-
 
 div.label-column
 {
-  /*width: 384px;*/
-  text-align: left;
+  width: 384px;
 }
 
 div.visible-column
@@ -191,7 +188,16 @@ div.visible-column
   text-align: center;
 }
 
-
+div.column-separator
+{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  box-sizing: border-box;
+  border-right: 1px solid #aaaaaa;
+  right: 66px;
+}
 
 .thumbnail-only .label-column
 {
