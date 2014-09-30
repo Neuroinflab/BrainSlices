@@ -56,7 +56,7 @@ LOGGED_PRIVILEGE = 2
 GROUP_PRIVILEGE = 3
 OWNER_PRIVILEGE = 4
 
-from config import BS_TILER_THREADS, BS_TILER_MEMORY 
+from config import BS_TILER_THREADS, BS_TILER_MEMORY, BS_STREAM_FILES, BS_STREAM_TIMEOUT 
 
 directory = os.path.abspath(os.path.dirname(__file__))
 tilingCommand = os.path.abspath(os.path.join(directory,
@@ -70,7 +70,9 @@ launchCommand += ['now']
 
 def launchImageTiling(iid):
   launch = subprocess.Popen(launchCommand, stdin=subprocess.PIPE)
-  launch.communicate("python %(command)s %(iid)d --threads %(threads)d --limit %(limit)d > %(log)s/%(iid)d_out.txt 2> %(log)s/%(iid)d_err.txt\n" % {'command': tilingCommand, 'iid': iid, 'log': tilingLogs, 'threads': BS_TILER_THREADS, 'limit': BS_TILER_MEMORY})
+  command = "python %(command)s %(iid)d --threads %(threads)d --limit  %(limit)d --timeout %(timeout)d --files %(files)d > %(log)s/%(iid)d_out.txt 2> %(log)s/%(iid)d_err.txt\n" % {'command': tilingCommand, 'iid': iid, 'log': tilingLogs, 'threads': BS_TILER_THREADS, 'limit': BS_TILER_MEMORY, 'files': BS_STREAM_FILES, 'timeout': BS_STREAM_TIMEOUT}
+  print command
+  launch.communicate(command)
 
 
 class TileBase(dbBase):

@@ -56,3 +56,6 @@ BS_SERVICE_SIGNATURE = config.get('Service', 'signature')
 
 BS_TILER_THREADS = config.getint('Tiler', 'threads')
 BS_TILER_MEMORY = config.getint('Tiler', 'memory')
+
+BS_STREAM_FILES = config.getint('Stream', 'files')
+BS_STREAM_TIMEOUT  = config.getint('Stream', 'timeout')

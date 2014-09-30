@@ -291,7 +291,7 @@ if [ "$BS_TILER_THREADS" -lt "1" ]
     BS_TILER_THREADS=1
   fi
 
-askPrompt "Tiler memory" 536870912 BS_TILER_MEMORY
+askPrompt "Tiler memory [B]" 536870912 BS_TILER_MEMORY
 if [ "$BS_TILER_MEMORY" -lt "0" ]
   then
     BS_TILER_MEMORY=536870912
@@ -301,6 +301,27 @@ echo '[Tiler]' >> "$BS_CONFIG"
 echo "threads: $BS_TILER_THREADS" >> "$BS_CONFIG"
 echo "memory: $BS_TILER_MEMORY" >> "$BS_CONFIG"
 
+
+echo
+echo "The limit of files opened by stream to prevent disk memory mapping has been"
+echo "chosen experimentally and might require manual tuning for the system."
+echo "The limit is enforced with ulimit -n argument."
+askPrompt "Limit of files opened by stream to prevent disk memory mapping" 5 BS_STREAM_FILES
+if [ "$BS_STREAM_FILES" -lt "0" ]
+  then
+    BS_STREAM_FILES=5
+  fi
+
+askPrompt "Timeout for streaming process [s]" 60 BS_STREAM_TIMEOUT
+if [ "$BS_STREAM_TIMEOUT" -lt "0" ]
+  then
+    BS_STREAM_TIMEOUT=60
+  fi
+
+echo  >> "$BS_CONFIG"
+echo '[Stream]' >> "$BS_CONFIG"
+echo "files: $BS_STREAM_FILES" >> "$BS_CONFIG"
+echo "timeout: $BS_STREAM_TIMEOUT" >> "$BS_CONFIG"
 
 cd auxilaryScripts/imageProcessing
 make all

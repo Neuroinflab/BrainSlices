@@ -42,6 +42,8 @@ from tileBase import TileBase, IMAGE_STATUS_RECEIVED, \
                      IMAGE_STATUS_TILED, IMAGE_STATUS_COMPLETED, \
                      IMAGE_STATUS_REMOVED, IMAGE_STATUS_ERROR
 
+BUFFER_SIZE = 128 * 1024
+
 def ensureDirPath(directory):
   if not os.path.exists(directory):
     os.makedirs(directory)
@@ -60,9 +62,13 @@ tb = TileBase(db, dbPool, tileDirectory, sourceDirectory)
 class CorruptedImageError(Exception):
   pass
 
+class StreamingError(Exception):
+  pass
+
 class imageTiler(object):
-  def __init__(self, iid, tileWidth = 256, tileHeight = 256, jpgQuality = None,
-               threads = 1, limit = 512*1024*1024):
+  def __init__(self, iid, tileWidth=256, tileHeight=256, jpgQuality=None,
+               threads=1, limit=512*1024*1024, streamFiles=5,
+               streamTimeout=60):
     self.iid = iid
     self.invalid = None
     self.filename = os.path.join('/tmp', 'SkwarkiTiledImage_%d.raw' % iid)
@@ -72,14 +78,22 @@ class imageTiler(object):
     self.tileHeight = tileHeight
     self.jpgQuality = jpgQuality
 
-    if (threads <= 0):
+    if threads <= 0:
       raise ValueError("Number of threads must be positive.")
 
-    if (limit < 0):
+    if limit < 0:
       raise ValueError("Memory limit must be non negative number.")
+
+    if streamFiles < 0:
+      raise ValueError("File limit must be non negative number.")
+
+    if streamTimeout < 0:
+      raise ValueError("Timeout must be non negative number.")
 
     self.threads = threads
     self.limit = limit
+    self.streamFiles = streamFiles
+    self.streamTimeout = streamTimeout
 
     self.magick = None
     self.meta = None
@@ -112,7 +126,7 @@ class imageTiler(object):
         fixed = False
 
     if not fixed:
-      raise KeyError("Source image #%d not found in processing queue. Image status = %s, source image status = %d." % (self.iid, status, source_status))
+      raise KeyError("Source image #%d not found in processing queue. Image status = %s." % (self.iid, status))
 
   def __identify(self):
     # JPEG2000 walkaround
@@ -125,9 +139,10 @@ class imageTiler(object):
       os.remove(self.source)
       raise NotImplementedError
 
-    identify = ['identify', '-regard-warnings']
-    identify += ['-format', '%w %h %m ---XRES---\n%x\n---YRES---\n%y\n---COLORSPACE---\n%[colorspace]\n---CHANNELS---\n%[channels]\n---LABEL---\n%l\n---COMMENT---\n%c\n---PROPERTIES---\n%[*]']
-    identify += [self.source]
+    identify = ['identify', '-regard-warnings',
+                '-format', '%w %h %m ---XRES---\n%x\n---YRES---\n%y\n---COLORSPACE---\n%[colorspace]\n---CHANNELS---\n%[channels]\n---LABEL---\n%l\n---COMMENT---\n%c\n---PROPERTIES---\n%[*]',
+                '-ping',
+                self.source]
 
     print ' '.join(identify)
 
@@ -167,29 +182,46 @@ class imageTiler(object):
 
     # ...and rip the RGB data
 
-    # suggested ImageMagick 6.6.9-7
-    stream =  ['stream']
-    stream += ['-map', 'rgb']
-    stream += ['-storage-type', 'char']
-    stream += ['-regard-warnings']
-    stream += [self.source, self.filename]
+    stream = ['bash',os.path.join(directoryName, 'streamImage.sh'),
+              self.source, self.filename,
+              str(int(self.limit / 1000)), str(self.threads),
+              str(self.streamFiles), str(self.streamTimeout)]
+
+    ## suggested ImageMagick 6.6.9-7
+    #stream =  ['stream']
+    #stream += ['-map', 'rgb']
+    #stream += ['-storage-type', 'char']
+    #stream += ['-regard-warnings']
+    #stream += [self.source, self.filename]
 
     print ' '.join(stream)
 
     processStream = subprocess.Popen(stream, stderr = subprocess.PIPE)
-
     pStdOut, pStdErr = processStream.communicate()
+
     if processStream.returncode != 0:
       self.invalid = pStdErr
+      if not os.path.exists(self.filename) or\
+         os.path.getsize(self.filename) == 0:
+        os.remove(self.source)
+        if os.path.exists(self.filename):
+          os.remove(self.filename)
+
+        tb.imageInvalid(self.iid, self.invalid)
+
+        raise StreamingError(pStdErr)
 
     fh = open(self.filename, "rb")
     crc32 = 0
     #md5 = hashlib.md5()
-    for line in fh:
+    line = fh.read(BUFFER_SIZE) #readline does not work well with lines 2GiB+
+    while line:
       crc32 = zlib.crc32(line, crc32)
       #md5.update(line)
+      line = fh.read(BUFFER_SIZE)
 
     fh.close()
+
     tb.imageIdentified(self.iid, self.imageWidth, self.imageHeight, crc32,
                        self.invalid, self.meta, self.magick)#, md5.hexdigest())
 
@@ -225,12 +257,12 @@ class imageTiler(object):
   def __complete(self):
     # create image containing the original bitmap
     pngPath = os.path.join(self.directory, 'image.png')
-    raw2png = [os.path.join(directoryName, 'imageProcessing', 'raw2pngMD5')]
-    raw2png += ['-size', str(self.imageWidth), str(self.imageHeight)]
-    raw2png += ['-compression', '9', '-rle']
-    raw2png += ['-limit', str(self.limit / 4)] # just for safety
-    raw2png += ['-src', self.filename]
-    raw2png += ['-dst', pngPath]
+    raw2png = [os.path.join(directoryName, 'imageProcessing', 'raw2pngMD5'),
+               '-size', str(self.imageWidth), str(self.imageHeight),
+               '-compression', '9', '-rle',
+               '-limit', str(self.limit / 4), # just for safety
+               '-src', self.filename,
+               '-dst', pngPath]
 
     print ' '.join(raw2png)
 
@@ -255,15 +287,15 @@ class imageTiler(object):
       columnPath = os.path.join(destDir, '%d' % x)
       ensureDir(columnPath)
 
-    tile =  [os.path.join(directoryName, 'imageProcessing', 'tileStreamedImageJPG')]
-    tile += ['-size', str(self.imageWidth), str(self.imageHeight)]
-    tile += ['-scale', str(levelWidth), str(levelHeight)]
-    tile += ['-lanczos' if scaleFactor != 1 else '-box']
-    tile += ['-limit', str(self.limit)]
-    tile += ['-threads', str(self.threads)]
-    tile += ['-tile', str(tileWidth), str(tileHeight)]
-    tile += ['-pattern', os.path.join(destDir, '%X/%Y.jpg')]
-    tile += ['-src', self.filename]
+    tile =  [os.path.join(directoryName, 'imageProcessing', 'tileStreamedImageJPG'),
+             '-size', str(self.imageWidth), str(self.imageHeight),
+             '-scale', str(levelWidth), str(levelHeight),
+             '-lanczos' if scaleFactor != 1 else '-box',
+             '-limit', str(self.limit),
+             '-threads', str(self.threads),
+             '-tile', str(tileWidth), str(tileHeight),
+             '-pattern', os.path.join(destDir, '%X/%Y.jpg'),
+             '-src', self.filename]
 
     if quality != None:
       tile += ['-quality', str(quality)]
@@ -305,7 +337,11 @@ if __name__ == '__main__':
   parser.add_option('-t', '--threads', action='store', type='int',
                     dest='threads', default=1, help='Number of threads')
   parser.add_option('-l', '--limit', action='store', type='int',
-                    dest='limit', default=512*1024*1024, help='Memory limit')
+                    dest='limit', default=512*1024*1024, help='Memory limit [B]')
+  parser.add_option('--timeout', action='store', type='int',
+                    dest='timeout', default=60, help='Stream timeout [s]')
+  parser.add_option('-f', '--files', action='store', type='int',
+                    dest='files', default=60, help='Stream file limit')
   options, args = parser.parse_args()
 
   iids = set(int(x) for x in args)
@@ -314,6 +350,14 @@ if __name__ == '__main__':
 
   if len(iids) == 0:
     parser.print_help()
+    exit()
+
+  if options.files < 0:
+     sys.stderr.write("Error: file limit mustn't be negative.\n")
+     exit()
+
+  if options.timeout < 0:
+    sys.stderr.write("Error: timeout mustn't be negative.\n")
     exit()
 
   if options.threads <= 0:
