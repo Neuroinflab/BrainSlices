@@ -1,0 +1,70 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          BrainSlices
+# Required-Start:    postgres $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: BrainSlices initscript
+# Description:       
+### END INIT INFO
+
+PROG=BrainSlices
+BS_PATH=/home/jkowalski/coFinal/server/
+BS_USER=jkowalski
+
+SERVICE="$BS_PATH/main.py"
+COMMAND="sudo -u $BS_USER screen -DmS BrainSlices authbind --deep python -i $SERVICE"
+PID_PATH="/var/run"
+
+start() {
+  cd "$BS_PATH"
+
+  echo "Starting $PROG"
+  if [ -e "$PID_PATH/$PROG.pid" ]; then
+    echo "Error! $PROG is currently running!" 1>&2
+
+  else
+    $COMMAND &
+    echo $! > $PID_PATH/$PROG.pid
+    echo "$PROG started."
+  fi
+}
+
+stop() {
+  echo "Stopping $PROG"
+  if [ -e "$PID_PATH/$PROG.pid" ]; then
+    kill `cat "$PID_PATH/$PROG.pid"`
+    rm "$PID_PATH/$PROG.pid"
+    echo "$PROG stopped"
+
+  else
+    echo "Error! $PROG not started!" 1>&2
+
+  fi
+}
+
+case "$1" in
+  start)
+    start
+    exit 0
+  ;;
+  stop)
+    stop
+    exit 0
+  ;;
+  restart)
+    stop
+    start
+    exit 0
+  ;;
+  reload)
+    touch "$SERVICE" # just a hack ;-)
+    exit 0
+  ;;
+  **)
+    echo "Usage: $0 {start|stop|reload}" 1>&2
+    exit 0
+  ;;
+esac
