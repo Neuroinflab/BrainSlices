@@ -1,2 +1,2 @@
 #!/bin/bash
-authbind --deep python main.py
+screen authbind --deep python -i main.py
