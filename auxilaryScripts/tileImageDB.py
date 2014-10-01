@@ -22,6 +22,7 @@
 ###############################################################################
 
 import os
+import stat
 import sys
 
 import math
@@ -46,10 +47,12 @@ BUFFER_SIZE = 128 * 1024
 
 def ensureDirPath(directory):
   if not os.path.exists(directory):
+    os.umask(stat.S_IRWXG | stat.S_IRWXO)
     os.makedirs(directory)
 
 def ensureDir(directory):
   if not os.path.exists(directory):
+    os.umask(stat.S_IRWXG | stat.S_IRWXO)
     os.mkdir(directory)
 
 #TODO change when moved to server directory
@@ -196,6 +199,7 @@ class imageTiler(object):
 
     print ' '.join(stream)
 
+    os.umask(stat.S_IRWXG | stat.S_IRWXO | stat.S_IXUSR | stat.S_IWUSR)
     processStream = subprocess.Popen(stream, stderr = subprocess.PIPE)
     pStdOut, pStdErr = processStream.communicate()
 
@@ -237,9 +241,10 @@ class imageTiler(object):
                                               float(self.imageHeight) / self.tileHeight), 2)))
     jpegSize = 0
 
+    tilePath = os.path.join(self.directory, 'tiles')
     for zoomLevel in xrange(maxZoomLevel + 1):
       print zoomLevel
-      zoomLevelPath = os.path.join(self.directory, "tiles", "%d" % zoomLevel)
+      zoomLevelPath = os.path.join(tilePath, "%d" % zoomLevel)
       scaleFactor = 0.5 ** (maxZoomLevel - zoomLevel)
       jpegSize += self.tile(zoomLevelPath,
                             self.tileWidth,
@@ -247,7 +252,7 @@ class imageTiler(object):
                             scaleFactor,
                             quality = self.jpgQuality)
 
-
+    os.chmod(tilePath, stat.S_IXUSR | stat.S_IRUSR)
     tb.imageTiled(self.iid, self.tileWidth, self.tileHeight,
                   jpegSize = jpegSize)
 
@@ -266,8 +271,10 @@ class imageTiler(object):
 
     print ' '.join(raw2png)
 
+    os.umask(stat.S_IRWXG | stat.S_IRWXO | stat.S_IXUSR | stat.S_IWUSR)
     process2png = subprocess.Popen(raw2png, stdout = subprocess.PIPE)
     pStdOut, pStdErr = process2png.communicate()
+    os.chmod(self.directory, stat.S_IXUSR | stat.S_IRUSR)
     #process2png.wait()
 
     pngSize = os.path.getsize(pngPath)
@@ -276,17 +283,18 @@ class imageTiler(object):
     os.remove(self.filename)
   
   def tile(self, destDir, tileWidth, tileHeight, scaleFactor = 1, quality = None):
-    ensureDirPath(destDir)
 
     levelWidth = int(round(scaleFactor * self.imageWidth))
     levelHeight = int(round(scaleFactor * self.imageHeight))
     xTiles = int(math.ceil(levelWidth / float(tileWidth)))
     yTiles = int(math.ceil(levelHeight / float(tileHeight)))
 
+    ensureDirPath(destDir)
     for x in xrange(xTiles):
       columnPath = os.path.join(destDir, '%d' % x)
       ensureDir(columnPath)
 
+    os.chmod(destDir, stat.S_IXUSR | stat.S_IRUSR)
     tile =  [os.path.join(directoryName, 'imageProcessing', 'tileStreamedImageJPG'),
              '-size', str(self.imageWidth), str(self.imageHeight),
              '-scale', str(levelWidth), str(levelHeight),
@@ -302,12 +310,14 @@ class imageTiler(object):
 
     print ' '.join(tile)
 
+    os.umask(stat.S_IRWXG | stat.S_IRWXO | stat.S_IXUSR | stat.S_IWUSR)
     processTile = subprocess.Popen(tile)
     processTile.wait()
 
     jpegSize = 0
     for x in xrange(xTiles):
       columnPath = os.path.join(destDir, '%d' % x)
+      os.chmod(columnPath, stat.S_IXUSR | stat.S_IRUSR)
       for y in xrange(yTiles):
         jpegSize += os.path.getsize(os.path.join(columnPath, '%d.jpg' % y))
 

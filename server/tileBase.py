@@ -21,6 +21,7 @@
 #                                                                             #
 ###############################################################################
 import os
+import stat
 import shutil
 
 import psycopg2
@@ -412,13 +413,14 @@ class TileBase(dbBase):
     class UploadSlot(object):
       def __init__(self, uid, iid = None, filename = None,
                    declared_size = None, declared_md5 = None, bid = None):
-        if iid == None:
+        if iid is None:
           iid = thisInstance.makeUploadSlot(uid, filename, declared_size,
                                             bid = bid,
                                             declared_md5 = declared_md5)
           crc32 = 0
           size = 0
           todo = declared_size
+          os.umask(stat.S_IRWXG | stat.S_IRWXO | stat.S_IXUSR)
 
         else:
           crc32, size, filename, todo = thisInstance.readUploadSlot(uid, iid)
@@ -430,7 +432,9 @@ class TileBase(dbBase):
         self.filename = filename
         self.name = os.path.join(thisInstance.sourceDir, "%d" % iid)
         self.fh = open(self.name, 'wb' if size == 0 else 'r+b')
-        self.fh.seek(size)
+
+        if size != 0:
+          self.fh.seek(size)
 
       def write(self, data):
         if self.fh.closed:
