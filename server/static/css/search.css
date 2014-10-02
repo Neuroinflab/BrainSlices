@@ -130,7 +130,7 @@
   left: 0;
   top: 0;
   right: 0;
-  height: 40px;
+  height: 435x;
 
   text-align: center;
   border-bottom: 1px solid #CACACA;
@@ -683,13 +683,13 @@ div.image-details
 {
   position: relative;
   overflow: hidden;
-  padding-bottom: 25px;
+/*  padding-bottom: 25px;*/
 }
 
 div.image-details.folded
 {
   height: 83px;
-  padding-bottom: 0;
+/*  padding-bottom: 0;*/
 }
 
 div.folder-wrapper
@@ -704,27 +704,44 @@ div.folder-wrapper
 
 div.folder-button
 {
+  position: relative;
+
+  height: 20px;
+  /*width: 70px;*/
+
+  /*border: solid 1px #e5e5e5;*/
+  /*border-radius: 4px;*/
+
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+div.folder-button.folded,
+div.folder-button:before
+{
   position: absolute;
-  right: 0px;
-  bottom: 0px;
+  right: 0;
+  bottom: 0;
   height: 20px;
   width: 70px;
 
-  border-top: solid 1px #e5e5e5;
-  border-left: solid 1px #e5e5e5;
   border-top-left-radius: 4px;
   border-bottom-right-radius: 4px;
-  text-align: center;
-  padding: 2px;
-
-  background: -webkit-gradient(linear, left top, left 61%, from(#EEEEEE), to(#FFFFFF));
-  background: -moz-linear-gradient(top, #EEEEEE, #FFFFFF 61%);
-  background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 div.folder-button:before
 {
+  padding: 2px;
   content: "fold";
+  border-top: solid 1px #e5e5e5;
+  border-left: solid 1px #e5e5e5;
+  text-align: center;
+
+  background: -webkit-gradient(linear, left top, left 61%, from(#EEEEEE), to(#FFFFFF));
+  background: -moz-linear-gradient(top, #EEEEEE, #FFFFFF 61%);
+  background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
 }
 
 div.folder-button.folded:before

@@ -897,18 +897,31 @@ var PPropertyTriggers =
   }
 };
 
-function animateImageCartHeader(height)
+var animateImageCartHeaderInProgress = false;
+var animateImageCartHeaderRequested = false;
+
+function animateImageCartHeader(hght)
 {
+  if (hght != null)
+  {
+    console.error('height argument passed; WHAT TO DO!?!?!?!?');
+  }
+
   console.log('animate');
+  if (animateImageCartHeaderInProgress)
+  {
+    animateImageCartHeaderRequested = true;
+    return;
+  }
+  console.log('animation fired');
+  animateImageCartHeaderRequested = false;
+  animateImageCartHeaderInProgress = true;
+
   var scope = BrainSlices.scope;
   var space = $('#imageCart').innerHeight();
-
-  if (height == null)
-  {
-    height = BrainSlices.scope.get('cartHeader') ?
-             $('#imageCartHeaderContent').outerHeight(true) :
-             35;
-  }
+  var height = BrainSlices.scope.get('cartHeader') ?
+               $('#imageCartHeaderContent').outerHeight(true) :
+               35;
 
   var spaceLeft = space - height - $('#imageCartFooter').outerHeight();
 
@@ -935,14 +948,26 @@ function animateImageCartHeader(height)
       complete:
       function()
       {
+        animateImageCartHeaderInProgress = false;
+        if (animateImageCartHeaderRequested)
+        {
+          animateImageCartHeader();
+          return;
+        }
+
+        $('#imageCartBody').css('overflow', '');
+
         layerManager.doLazyRefresh();
 
         var oldHeight = $('#layerList').height();
-        var oldWidth = $('#imageCartHeader').width(); // MUAHAHAHA - cached
+        var oldWidth = $('#imageCartHeaderWrapper').outerWidth();
+        // MUAHAHAHA - cached
         var newWidth = $('#layerList').width();
         if (oldWidth != newWidth)
         {
-          $('#imageCartHeader').css('width', newWidth + 'px');
+          $('#imageCartHeader')
+            .css('padding-right',
+                 $('#imageCartHeader').innerWidth() - newWidth + 'px');
           $('#imageCartFooter').css('width', newWidth + 'px');
         }
 
@@ -1147,6 +1172,7 @@ function initCart()
       function onremove()
       {
         thisInstance.tableManager.remove(id);
+        animateImageCartHeader();
       }
 
       var image = null;
@@ -1450,6 +1476,7 @@ function initCart()
           ! (id in searchResultsMapping)) return;
 
       layerManager.autoAddTileLayer(id, searchResultsMapping[id]);
+      animateImageCartHeader();
     });
 }
 
@@ -1465,5 +1492,6 @@ function initCartFinish(state)
     .click(function()
     {
       layerManager.flush();
+      animateImageCartHeader();
     });
 }

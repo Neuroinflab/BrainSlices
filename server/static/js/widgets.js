@@ -1289,7 +1289,7 @@ var CFilterPanel = null;
 
       this.$toggle = $('<div>')
         .addClass('folder-button')
-        .appendTo(this.element);
+        .appendTo(this.$wrapper);
 
       this._on(this.$toggle, {click: '_toggle'});
 
@@ -1407,8 +1407,8 @@ var CFilterPanel = null;
     _destroy:
     function()
     {
-      this.$wrapper.children().unwrap();
       this.$toggle.remove();
+      this.$wrapper.children().unwrap();
       this.element.removeClass('folded has-folder-widget');
     }
   });
