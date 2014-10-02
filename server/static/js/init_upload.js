@@ -317,7 +317,7 @@ function initUpload()
         $('#editCart')
           .addClass('selected');
 
-        $('#layersConsoleTable').addClass('editPanel');
+        $('#imageCartBody').addClass('editPanel');
         $('#editPanel').show(0);
         $('#editMode').show(0);
       }
@@ -329,7 +329,7 @@ function initUpload()
         layerManager.stopAdjustment();
         $('#editPanel').hide(0);
         $('#editMode').hide(0);
-        $('#layersConsoleTable').removeClass('editPanel');
+        $('#imageCartBody').removeClass('editPanel');
         
       }
 
@@ -342,11 +342,11 @@ function initUpload()
         case 'details':
           layerManager.stopAdjustment(); //XXX
           $('#editPanel').hide(0); //XXX -> hide other things
-          $('#layersConsoleTable').removeClass('editPanel'); //XXX
+          //$('#imageCartBody').removeClass('editPanel'); //XXX
           break;
 
         case 'adjust':
-          $('#layersConsoleTable').addClass('editPanel'); //XXX
+          //$('#imageCartBody').addClass('editPanel'); //XXX
           $('#editPanel').show(0); //XXX
           $('#privilegesPanel').hide(0);
           $('#propertyPanel').hide(0);
@@ -354,7 +354,7 @@ function initUpload()
           break;
 
         case 'privileges':
-          $('#layersConsoleTable').addClass('editPanel'); //XXX
+          //$('#imageCartBody').addClass('editPanel'); //XXX
           $('#editPanel').show(0); //XXX
           $('#adjustPanel').hide(0);
           $('#propertyPanel').hide(0);
@@ -362,7 +362,7 @@ function initUpload()
           break;
 
         case 'properties':
-          $('#layersConsoleTable').addClass('editPanel'); //XXX
+          //$('#imageCartBody').addClass('editPanel'); //XXX
           $('#editPanel').show(0); //XXX
           $('#privilegesPanel').hide(0);
           $('#adjustPanel').hide(0);

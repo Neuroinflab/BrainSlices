@@ -55,8 +55,10 @@ with ({gui: BrainSlices.gui,
    *   triggers - An object containing triggers, callbacks, custom methods   *
    *              etc. At the moment a custom method autoAddTileLayer can be *
    *              defined as triggers.addTileLayer.                          *
+   *   $layerListWrapper - An optional wrapper of $layerList (0 padded).     *
   \***************************************************************************/
-  var CLayerManager = function($layerList, stacks, ajaxProvider, triggers)
+  var CLayerManager = function($layerList, stacks, ajaxProvider, triggers,
+                               $layerListWrapper)
   {
     this.stacks = stacks;
     this.images = stacks.images; // just a shortcut
@@ -78,7 +80,9 @@ with ({gui: BrainSlices.gui,
                                                 }
 
                                                 thisInstance.stacks.updateTopZ(thisInstance.tableManager.length);
-                                              });
+                                              },
+                                              null, null,
+                                              $layerListWrapper);
   }
 
   CLayerManager.prototype =
@@ -456,8 +460,17 @@ with ({gui: BrainSlices.gui,
         }
 
         // XXX: hardcoded values
-        var dt = Math.floor(0.5 * (83 - 20 * this.stacks.ny));
-        layer.$visibility.css('padding-top', dt > 0 ? dt + 'px': 0);
+        if (id != null)
+        {
+          var dt = Math.floor(0.5 * (83 - 21 * this.stacks.ny));
+          dt = dt > 0 ? dt + 'px': '0';
+          layer.$visibility
+            .css(
+            {
+              'padding-top': dt,
+              'padding-bottom': dt
+            });
+        }
 
         layer.loadButtons = loadButtons;
       }

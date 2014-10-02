@@ -316,23 +316,23 @@ function initBrowseFinish()
       var $row;
       if (type == 't')
       {
-        $row = $('<div></div>')
+        $row = $('<div>')
           .text(label)
-          .prepend($('<span></span>')
-                       .addClass('fa fa-tag'))
+          .prepend($('<span>')
+            .addClass('fa fa-tag'))
           .addClass("filter-property-name")
           .append($remButton);
       }
       else
       {
-        $row = $('<details></details>');
+        $row = $('<details>');
 
-        var $header = $('<summary></summary>')
+        var $header = $('<summary>')
           .text(label)
-          .prepend($('<span></span>')
-                       .addClass('fa fa-angle-double-down'))
-          .prepend($('<span></span>')
-                       .addClass('fa fa-angle-double-up'))
+          .prepend($('<span>')
+            .addClass('fa fa-angle-double-down'))
+          .prepend($('<span>')
+            .addClass('fa fa-angle-double-up'))
           .addClass("filter-property-name")
           .append($remButton)
           .appendTo($row);
@@ -343,14 +343,19 @@ function initBrowseFinish()
         .addClass('filter-property-info')
 
       this.data.append($row);
-      var triggers = {
+      var triggers =
+      {
         data:
-        {$row: $row},
+        {
+          $row: $row
+        },
+
         destroy:
         function()
         {
           this.data.$row.remove();
         },
+
         valid:
         function(valid)
         {
@@ -362,7 +367,8 @@ function initBrowseFinish()
           {
             this.data.$row.addClass('filter-invalid');
           }
-        }};
+        }
+      };
 
       if (name != null)
       {
@@ -444,6 +450,7 @@ function initBrowseFinish()
               {
                 //global
                 layerManager.autoAddTileLayer(info.iid, info);
+                triggerImageCartHeaderAnimation();
               });
             })(info);
 
@@ -532,6 +539,7 @@ function initBrowseFinish()
     }
 
     layerManager.updateOrder();
+    triggerImageCartHeaderAnimation();
     waitWindow.close();
   }
 

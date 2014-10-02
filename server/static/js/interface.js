@@ -341,6 +341,8 @@
      *   length - Number of items in the sequence.
      *   id2row - A mapping of item ifentifier to the object representanting the
      *            item.
+     *  $display - A jQuery object representing (0-padded) container of the
+     *             table (for lazy refresh purposes).
      ***************************************************************************
      * Constructor: CTableManager
      *
@@ -350,8 +352,10 @@
      *   onMove - A trigger to be executed when item is moved; takes source and
      *            destination indices as parameters.
      *   id - An identifier of the array.
+     *   $display - A jQuery object representing (0-padded) container of the
+     *              table (for lazy refresh purposes).
     \***************************************************************************/
-    BS.gui.CTableManager = function($table, onUpdate, onMove, id)
+    BS.gui.CTableManager = function($table, onUpdate, onMove, id, $display)
     {
       this.rows = [];
       this.length = 0;
@@ -360,6 +364,8 @@
       this.onUpdate = onUpdate;
       this.id = id ? id : 'default';
       $table.empty();
+      this.$display = $display ? $display : this.$table;
+      console.assert(this.$display.length == this.$table.length);
     }
 
     BS.gui.CTableManager.prototype =
@@ -645,7 +651,7 @@
 
         var rows = this.rows;
 
-        this.$table.each(function(idx, table)
+        this.$display.each(function(idx, table)
         {
           var height = $(table).innerHeight();
           if (height == 0) return; // XXX: probably not visible

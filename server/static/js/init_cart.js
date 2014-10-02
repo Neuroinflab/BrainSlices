@@ -899,7 +899,9 @@ var PPropertyTriggers =
 
 function animateImageCartHeader(height)
 {
+  console.log('animate');
   var scope = BrainSlices.scope;
+  var space = $('#imageCart').innerHeight();
 
   if (height == null)
   {
@@ -908,30 +910,25 @@ function animateImageCartHeader(height)
              35;
   }
 
+  var spaceLeft = space - height - $('#imageCartFooter').outerHeight();
+
   $('#imageCartHeader')
     .animate(
     {
       height: height + 'px'
     },
     {
-      queue: false,
+      queue: false/*,
       complete:
       function()
       {
-        var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
-        $('#loadAllPanel')
-          .width(visWidth);
-        $('#imageCartHeaderColumnSeparator').css('right', visWidth + 'px');
-        var labelWidth = $('#imageCartHeaderContent').width() - visWidth - 1;
-        $('#imageCartAllPanel')
-          .css('width', labelWidth > 0 ? labelWidth + 'px' : '');
-      }
+      }*/
     });
 
-  $('#layersConsoleTable')
+  $('#imageCartBody')
     .animate(
     {
-      top: height + 'px'
+      height: Math.min(spaceLeft, $('#layerList').outerHeight()) + 'px'
     },
     {
       queue: false,
@@ -939,16 +936,45 @@ function animateImageCartHeader(height)
       function()
       {
         layerManager.doLazyRefresh();
+
+        var oldHeight = $('#layerList').height();
+        var oldWidth = $('#imageCartHeader').width(); // MUAHAHAHA - cached
+        var newWidth = $('#layerList').width();
+        if (oldWidth != newWidth)
+        {
+          $('#imageCartHeader').css('width', newWidth + 'px');
+          $('#imageCartFooter').css('width', newWidth + 'px');
+        }
+
+        if (oldHeight != $('#layerList').height())
+        {
+          layerManager.doLazyRefresh();
+        }
+
+
+        var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
+        $('#loadAllPanel')
+          .width(visWidth);
+        $('#imageCartHeaderColumnSeparator').css('right', visWidth + 'px');
+        var labelWidth = $('#imageCartHeaderContent').innerWidth() - visWidth - 1;
+        $('#imageCartAllPanel')
+          .css('width', labelWidth > 0 ? labelWidth + 'px' : '');
+
+        $('#foldAllCart').parent()
+          .css('margin-right', visWidth + 1);
       }
     });
 }
+
+var triggerImageCartHeaderAnimation;
 
 function initCart()
 {
   var scope = BrainSlices.scope;
 
-  function triggerImageCartHeaderAnimation(value)
+  triggerImageCartHeaderAnimation = function(value)
   {
+    console.log('triggerImageCartHeaderAnimation');
     if (scope.get('cart'))
     {
       animateImageCartHeader();
@@ -1006,11 +1032,11 @@ function initCart()
               complete:
               function()
               {
+                animateImageCartHeader();
                 $('#layerList')
                   .children('.layer-row')
                     .children('.image-details')
                       .folder('requestUpdate');
-                animateImageCartHeader();
                 //layerManager.doLazyRefresh();
               }
             });
@@ -1071,7 +1097,9 @@ function initCart()
       var todo = value ? 'fold' : 'unfold';
       $('#layerList').find('.has-folder-widget')
         .folder(todo);
-      layerManager.doLazyRefresh();
+
+     triggerImageCartHeaderAnimation();
+
       $('#foldAllCart').val(todo);
     }, 'allFoldedCart');
 
@@ -1089,9 +1117,7 @@ function initCart()
     .tooltip(BrainSlices.gui.tooltip)
     .click(scope.getToggle('cart'));
 
-  var $layerList = $('#layerList');
-
-  $layerList.scroll(function()
+  $('#imageCartBody').scroll(function()
   {
     layerManager.doLazyRefresh();
   });
@@ -1104,7 +1130,7 @@ function initCart()
     }
   });
 
-  layerManager = new CLayerManager($layerList,
+  layerManager = new CLayerManager($('#layerList'),
                                    stacks,
                                    loginConsole,
   {
@@ -1321,7 +1347,8 @@ function initCart()
                               .folder(
                               {
                                 fit: true,
-                                folded: scope.get('allFoldedCart')
+                                folded: scope.get('allFoldedCart'),
+                                onclick: triggerImageCartHeaderAnimation
                               })
                               .append($('<span>')
                                 .addClass('layer-delete-button fa fa-times')
@@ -1382,14 +1409,22 @@ function initCart()
                             rowElements.$separator
                               .css('right', visWidth + 'px');
                             $visibility.width(visWidth);
-                            $drag
-                              .width($row.width() - visWidth - 1)
-                              .folder('refresh');
+                            var labelWidth = $row.width() - visWidth - 1;
+                            if (labelWidth != $drag.width())
+                            {
+                              $drag
+                                .width($row.width() - visWidth - 1)
+                                .folder('forceRefresh');
+                            }
+                            else
+                            {
+                              $drag.folder('refresh');
+                            }
                           }, true);
 
                           if (!postponeUpdate)
                           {
-                            thisInstance.tableManager.doLazyRefresh();
+                            thisInstance.doLazyRefresh();
                           }
                         },
                         onfailure, isvalid, onUpdate, onAdjust,
@@ -1398,7 +1433,8 @@ function initCart()
 
       return id;
     }
-  });
+  },
+  $('#imageCartBody'));
   layerManager.add(null, null, $('#loadAllPanel'));
 
   $('#imageCart')

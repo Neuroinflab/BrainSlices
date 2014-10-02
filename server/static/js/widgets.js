@@ -1232,12 +1232,17 @@ var CFilterPanel = null;
     {
       treshold: 85,
       folded: true,
-      fit: false
+      fit: false,
+      onclick: null,
+      $parent: null
     },
 
     _updateFolded:
     function(value)
     {
+      var $parent = this.options.$parent ?
+                    this.options.$parent :
+                    this.element.parent();
       if (value)
       {
         this.$toggle.addClass('folded');
@@ -1246,7 +1251,7 @@ var CFilterPanel = null;
 
         if (this.options.fit)
         {
-          this.element.height(this.$parent.height() + this.element.height() - this.element.outerHeight());
+          this.element.height($parent.height() + this.element.height() - this.element.outerHeight());
         }
       }
       else
@@ -1265,6 +1270,10 @@ var CFilterPanel = null;
     function()
     {
       this._updateFolded(this.options.folded = !this.options.folded);
+      if (this.options.onclick)
+      {
+        this.options.onclick();
+      }
     },
 
     _create:
@@ -1274,7 +1283,6 @@ var CFilterPanel = null;
 
       this.invalid = true;
 
-      this.$parent = this.element.parent();
       this.$wrapper = this.element
         .wrapInner('<div class="folder-wrapper">')
         .children();
@@ -1308,6 +1316,11 @@ var CFilterPanel = null;
     forceRefresh:
     function()
     {
+      //console.log('forceRefresh');
+      var $parent = this.options.$parent ?
+                    this.options.$parent :
+                    this.element.parent();
+
       var contentHeight = this.$wrapper.outerHeight(true);
 
       if (this.options.fit)
@@ -1318,7 +1331,7 @@ var CFilterPanel = null;
         }
 
         this.element.hide(0);
-        var parentHeight = this.$parent.height();
+        var parentHeight = $parent.height();
         if (contentHeight > parentHeight)
         {
           this.$toggle.show(0);

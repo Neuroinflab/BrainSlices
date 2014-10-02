@@ -15,23 +15,64 @@
   margin: 0;
 
   display: none;
+
+/*  overflow-y: scroll;*/
 }
 
 #imageCartHeader
 {
-  position: absolute;
+  position: relative;
+  /*
   top: 0;
   left: 0;
-  right: 0;
+  right: 0;*/
   height: 35px;
 
-  z-index: 1;
+  /*z-index: 1;*/
   overflow: hidden;
 
   text-align: center;
 
   border-bottom: 1px solid #CACACA;
   box-sizing: border-box;
+
+  background: #FFFFFF;
+}
+
+#imageCartBody
+{
+  position: relative;
+  /*
+  margin-top: 40px;
+  margin-bottom: 30px;
+  */
+  /*top: 40px;
+  bottom: 30px;
+  left: 0;
+  right: 0;*/
+  overflow-y: scroll;
+
+  /*z-index: 0;*/
+}
+
+#imageCartFooter
+{
+  position: relative;
+  height: 30px;
+  /*
+  left: 0;
+  right: 0;
+  bottom: 0;
+  */
+  box-sizing: border-box;
+
+  padding: 3px;
+  text-align: right;
+  /*overflow-y: scroll;*/
+  /*z-index: 1;*/
+
+  background: #FFFFFF;
+  border-top: 1px solid #CACACA;
 }
 
 #cartHeaderToggle
@@ -63,31 +104,22 @@
   padding-bottom: 1px;
 }
 
-#layersConsoleTable
-{
-  position: absolute;
-  top: 40px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  z-index: 0;
-}
-
 #layerList
 {
+  /*
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-
-  overflow-y: scroll;
+  */
+  /*overflow-y: scroll;*/
+  overflow: hidden;
 }
 
 #imageCartHeaderWrapper
 {
-  overflow-y: scroll;
+  /*overflow-y: scroll;*/
   padding: 0 3px;
 }
 
@@ -124,6 +156,11 @@ div.layer-row
 /*  position: relative;*/
   display: inline-block;
   vertical-align: top;
+}
+
+#loadAllPanelHeader
+{
+  height: 37px; /*40 - 3*/
 }
 
 #loadAllPanelHeader:before
@@ -419,11 +456,6 @@ a.layer-download-button
   right: 0;
   top: 40px;
   height: 90px;*/
-}
-
-#layersConsoleTable.editPanel
-{
-  top: 130px; /* 90px + 40px */
 }
 
 li.image-details-edit
