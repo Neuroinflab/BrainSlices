@@ -172,6 +172,7 @@ function initUpload()
       }
 
       layerManager.doLazyRefresh();
+      animateImageCartHeader();
     },
 
     left:
@@ -223,21 +224,6 @@ function initUpload()
           var imageTop = factor * info.imageHeight;
           image.updateInfo(imageLeft, imageTop, null, null, updateIface);
         });
-      },
-
-      Reset:
-      function()
-      {
-        images.apply(null, function(image, updateIface)
-        {
-          image.reset(updateIface);
-        });
-      },
-
-      Save:
-      function()
-      {
-        images.saveUpdatedTiled(true);
       }
     }
   }, true);
@@ -296,15 +282,52 @@ function initUpload()
   //  });
   //});
 
-  $('#resetPrivileges').click(function()
-  {
-    privilegeManager.reset();
-  });
+  $('#editPanelReset')
+    .click(function()
+    {
+      switch (scope.get('editMode'))
+      {
+        case 'privileges':
+          privilegeManager.reset();
+          break;
 
-  $('#savePrivileges').click(function()
-  {
-    privilegeManager.savePublic();
-  });
+        case 'properties':
+          propertiesManager.reset();
+          break;
+
+        case 'adjust':
+          images.apply(null, function(image, updateIface)
+          {
+            image.reset(updateIface);
+          });
+          break;
+
+        default:
+          console.error(scope.get('editMode'));
+      }
+    });
+
+  $('#editPanelSave')
+    .click(function()
+    {
+      switch (scope.get('editMode'))
+      {
+        case 'privileges':
+          privilegeManager.savePublic();
+          break;
+
+        case 'properties':
+          propertiesManager.save();
+          break;
+
+        case 'adjust':
+          images.saveUpdatedTiled(true);
+          break;
+
+        default:
+          console.error(scope.get('editMode'));
+      }
+    });
 
 
 
@@ -342,6 +365,9 @@ function initUpload()
         case 'details':
           layerManager.stopAdjustment(); //XXX
           $('#editPanel').hide(0); //XXX -> hide other things
+          $('#privilegesPanel').hide(0);
+          $('#propertyPanel').hide(0);
+          $('#adjustPanel').hide(0);
           //$('#imageCartBody').removeClass('editPanel'); //XXX
           break;
 
@@ -618,18 +644,6 @@ function initUploadFinish()
                 propertiesManager.autoAdd(info.iid, name, property);
               }
             });
-          }
-        },
-        {
-          Reset:
-          function()
-          {
-            propertiesManager.reset();
-          },
-          Save:
-          function()
-          {
-            propertiesManager.save();
           }
         }));
     });

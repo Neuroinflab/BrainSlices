@@ -161,7 +161,8 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
       $iface.hide(0);
       thisInstance.images.stopAdjustment(id);
     }
-    thisInstance.doLazyRefresh();
+    layerManager.doLazyRefresh();
+    animateImageCartHeader();
   });
   var $adjust = $('<input>')
     .attr('type', 'checkbox')
@@ -1388,7 +1389,14 @@ function initCart()
                           thisInstance.tableManager.addLazyRefresh(id, toPostpone);
                           thisInstance.tableManager.addLazyRefresh(id, function()
                           {
-                            switch (scope.get('editMode'))
+                            var editMode = scope.get('editMode');
+                            if (editMode != rowElements.editMode)
+                            {
+                               $drag.folder('requestUpdate');
+                               rowElements.editMode = editMode;
+                            }
+
+                            switch (editMode)
                             {
                               case 'details':
                                 rowElements.$adjustment.css('display', 'none');

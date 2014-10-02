@@ -28,41 +28,33 @@
      </div>
 
 
-     <div id="editPanel">
-      <div id="adjustPanel">
-       All images
-      </div>
+     <div id="adjustPanel">
+      All images
+     </div>
 
-      <div id="privilegesPanel">
-       <label>
-        <input id="publicViewPrivilege" type="checkbox">
-        view
-       </label>
-       <label>
-        <input id="publicEditPrivilege" type="checkbox">
-        edit
-       </label>
-       <label>
-        <input id="publicAnnotatePrivilege" type="checkbox">
-        annotate
-       </label>
-       <!--
-       <label>
-        <input id="publicOutlinePrivilege" type="checkbox">
-        outline
-       </label>
-       -->
+     <div id="privilegesPanel">
+      <label>
+       <input id="publicViewPrivilege" type="checkbox">
+       view
+      </label>
+      <label>
+       <input id="publicEditPrivilege" type="checkbox">
+       edit
+      </label>
+      <label>
+       <input id="publicAnnotatePrivilege" type="checkbox">
+       annotate
+      </label>
+      <!--
+      <label>
+       <input id="publicOutlinePrivilege" type="checkbox">
+       outline
+      </label>
+      -->
 
-       <button id="resetPrivileges">
-        Reset
-       </button>
-       <button id="savePrivileges">
-        Save
-       </button>
-      </div>
+     </div>
 
-      <div id="propertyPanel">
-      </div>
+     <div id="propertyPanel">
      </div>
 
      <button id="emptyCart" title="empty the image cart">
@@ -88,6 +80,16 @@
  </div>
 
  <div id="imageCartFooter">
+  <span id="editPanel">
+   <button id="editPanelSave">
+    <span class="fa fa-floppy-o"></span>
+    Save
+   </button>
+   <button id="editPanelReset">
+    <span class="fa fa-eraser"></span>
+    Reset
+   </button>
+  </span>
   
   <div class="selectWrapper">
    <select id="foldAllCart" class="selectWrapper">
