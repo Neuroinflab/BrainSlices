@@ -220,6 +220,8 @@ function initUpload()
     }
   }
 
+  var adjustAll = {};
+    
   makeAdjustmentPanel($('#adjustPanel'), null, null, null, null,
   {
     adjust:
@@ -247,54 +249,39 @@ function initUpload()
     left:
     function(left)
     {
-      images.applyAdjusted(function(image, updateIface)
-      {
-        image.updateInfo(left, null, null, null, updateIface);
-      });
+      adjustAll.left = left;
     },
 
     top:
     function(top)
     {
-      images.applyAdjusted(function(image, updateIface)
-      {
-        image.updateInfo(null, top, null, null, updateIface);
-      });
+      adjustAll.top = top;
     },
 
     pixel:
     function(pixel)
     {
-      images.applyAdjusted(function(image, updateIface)
-      {
-        image.updateInfo(null, null, pixel, null, updateIface);
-      });
+      adjustAll.pixel = pixel;
     },
 
     status:
     function(status)
     {
-      images.applyAdjusted(function(image, updateIface)
-      {
-        image.updateInfo(null, null, null, status, updateIface);
-      });
-    }/*,
+      adjustAll.status = status;
+    },
 
     buttons:
     {
-      Center:
+      Set:
       function()
       {
         images.applyAdjusted(function(image, updateIface)
         {
-          var info = image.info;
-          var factor = -0.5 * info.pixelSize;
-          var imageLeft = factor * info.imageWidth;
-          var imageTop = factor * info.imageHeight;
-          image.updateInfo(imageLeft, imageTop, null, null, updateIface);
+          image.updateInfo(adjustAll.left, adjustAll.top,
+                           adjustAll.pixel, adjustAll.status, updateIface);
         });
       }
-    }*/
+    }
   }, true);
 
 

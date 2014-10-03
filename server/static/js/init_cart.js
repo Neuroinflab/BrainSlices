@@ -17,7 +17,8 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     .addClass('adjustPanelLeft')
     .change(function()
     {
-      updateLeft(parseFloat($imageLeft.val()));
+      var left = parseFloat($imageLeft.val());
+      updateLeft(isNaN(left) ? null : left);
     });
 
   var updateTop = getTrigger('top', triggers, function(top)
@@ -34,7 +35,8 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     .addClass('adjustPanelTop')
     .change(function()
     {
-      updateTop(parseFloat($imageTop.val()));
+      var top = parseFloat($imageTop.val());
+      updateTop(isNaN(top) ? null : top);
     });
 
   var updatePixel = getTrigger('pixel', triggers, function(pixel)
@@ -50,7 +52,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     {
       var ps =  25400. / parseFloat($dpi.val());
       $pixelSize.val(ps);
-      updatePixel(ps);
+      updatePixel(isNaN(ps) ? null : ps);
     });
 
   var $pixelSize = $('<input>')
@@ -61,7 +63,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     {
       var ps = parseFloat($pixelSize.val());
       $dpi.val(25400. / ps);
-      updatePixel(ps);
+      updatePixel(isNaN(ps) ? null : ps);
     });
 
   var $res = $('<select>')
