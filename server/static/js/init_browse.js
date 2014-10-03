@@ -53,17 +53,19 @@ function makePropertyList(properties, $ul)
 
 function makeBasicDetails(info, $div)
 {
-  return $div
+  var $download = $('<a>')
+    .addClass('fa fa-arrow-circle-o-down layer-download-button')
+    .attr(
+    {
+      href: '/images/' + info.iid + '/image.png',
+      download: '',
+      title: 'download the image'
+    })
+    .tooltip(BrainSlices.gui.tooltip)
+    .appendTo($div);
+
+  $div
     .addClass('image-details')
-    .append($('<a>')
-      .addClass('fa fa-arrow-circle-o-down layer-download-button')
-      .attr(
-      {
-        href: '/images/' + info.iid + '/image.png',
-        download: '',
-        title: 'download the image'
-      })
-      .tooltip(BrainSlices.gui.tooltip))
     .append($('<div>')
       .addClass('description-buttons-placeholder'))
     .append(BrainSlices.gui.getThumbnail(info.iid,
@@ -72,6 +74,7 @@ function makeBasicDetails(info, $div)
                                          64, 64)
       .addClass('image-details thumbnail')
       .attr('draggable', 'true'));
+  return $download;
 }
 
 function detailsGenerator(info, $div)

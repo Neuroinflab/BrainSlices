@@ -110,14 +110,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
       updateStatus(parseInt($status.val()));
     });
 
-  var buttons = getTrigger('buttons', triggers,
-  {
-    'Reset':
-    function()
-    {
-      image.reset(true);
-    }
-  });
+  var buttons = getTrigger('buttons', triggers, {});
   var $iface = $('<span>')
     .css('display', adjust ? '' : 'none')
     .append($.map(buttons, function(value, key)
@@ -1286,7 +1279,8 @@ function initCart()
 
                           function toPostpone()
                           {
-                            makeBasicDetails(img.info, $drag)
+                            var $download = makeBasicDetails(img.info, $drag);
+                            $drag
                               .append($nameView
                                 .addClass('image-details'))
                               .append($descriptionView
@@ -1296,6 +1290,7 @@ function initCart()
 
                             rowElements =
                             {
+                              $download: $download,
                               $div: $drag,
                               $name: $nameView,
                               $description: $descriptionView,
@@ -1314,18 +1309,38 @@ function initCart()
                                     }
                                     propertiesManager.autoAdd(id, name, property);
                                   }
-                                },
-                                {
-                                  Reset:
-                                  function()
-                                  {
-                                    propertiesManager.reset(id);
-                                  }
                                 }))
                                 .appendTo($drag),
                               $separator: $('<div>')
                                 .addClass('column-separator')
-                                .appendTo($row)
+                                .appendTo($row),
+
+                              $reset: $('<span>')
+                                .addClass('fa fa-reply-all layer-reset-button')
+                                .attr('title', 'reset')
+                                .css('display', 'none')
+                                .tooltip(BrainSlices.gui.tooltip)
+                                .click(function()
+                                {
+                                  switch (scope.get('editMode'))
+                                  {
+                                    case 'adjust':
+                                      image.reset();
+                                      break;
+
+                                    case 'properties':
+                                      propertiesManager.reset(id);
+                                      break;
+
+                                    case 'privileges':
+                                      privilegeManager.reset(id);
+                                      break;
+
+                                    default:
+                                      console.error(scope.get('editMode'));
+                                  }
+                                })
+                                .appendTo($drag)
                             };
 
                             rowElements.$privileges = $('<div>')
@@ -1402,18 +1417,26 @@ function initCart()
                                 rowElements.$adjustment.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
+                                rowElements.$reset.css('display', 'none');
 
                                 rowElements.$properties.css('display', '');
                                 rowElements.$name.css('display', '');
+                                rowElements.$download.css('display', '');
                                 break;
 
                               case 'adjust':
                                 rowElements.$properties.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
+                                rowElements.$download.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$adjustment.css('display', '');
+                                  rowElements.$reset.css('display', '');
+                                }
+                                else
+                                {
+                                  rowElements.$reset.css('display', 'none');
                                 }
                                 break;
 
@@ -1421,9 +1444,15 @@ function initCart()
                                 rowElements.$properties.css('display', 'none');
                                 rowElements.$adjustment.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
+                                rowElements.$download.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$privileges.css('display', '');
+                                  rowElements.$reset.css('display', '');
+                                }
+                                else
+                                {
+                                  rowElements.$reset.css('display', 'none');
                                 }
                                 break;
 
@@ -1432,9 +1461,15 @@ function initCart()
                                 rowElements.$adjustment.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$name.css('display', 'none');
+                                rowElements.$download.css('display', 'none');
                                 if (image.info.annotatePrivilege > 0)
                                 {
                                   rowElements.$annotate.css('display', '');
+                                  rowElements.$reset.css('display', '');
+                                }
+                                else
+                                {
+                                  rowElements.$reset.css('display', 'none');
                                 }
                                 break;
                             }

@@ -389,7 +389,8 @@ div.layer-cb-cell
 .layer-delete-button,
 .layer-download-button,
 .add-image-to-cart-button,
-.remove-property-button
+.remove-property-button,
+.layer-reset-button
 {
   color: #aaaaaa;
   font-size: 20px;
@@ -400,14 +401,16 @@ div.layer-cb-cell
 
 .layer-delete-button,
 .layer-download-button,
-.add-image-to-cart-button
+.add-image-to-cart-button,
+.layer-reset-button
 {
   display: block;
   position: absolute;
   top: 5px;
 }
 
-.layer-download-button
+.layer-download-button,
+.layer-reset-button
 {
   right: 30px;
 }
@@ -441,6 +444,11 @@ div.layer-cb-cell
 {
 /*  color: #2d7dc5;*/
   color: #6ee000;
+}
+
+.layer-reset-button:hover
+{
+  color: #77AADD;
 }
 
 a.layer-download-button
