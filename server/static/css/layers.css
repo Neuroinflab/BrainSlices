@@ -248,6 +248,89 @@ div.column-separator
   padding: 1px 20px 1px 5px;
 }
 
+
+#adjustPanel
+{
+  text-align: left;
+}
+
+#centerPanel
+{
+  position: relative;
+  float: left;
+  width: 74px;
+  height: 74px;
+  margin: 3px 10px 5px 5px;
+  border-radius: 8px;
+}
+
+a.centerPanelButton
+{
+  position: absolute;
+  display: block;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  left: 25px;
+  top: 25px;
+  border-radius: 0;
+  box-sizing: border-box;
+
+  background-image: url("/static/gfx/align.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+}
+
+a.centerPanelButton.left
+{
+  left: 0;
+  background-position: left center;
+}
+
+a.centerPanelButton.right
+{
+  left: 50px;
+  background-position: right center;
+}
+
+a.centerPanelButton.top
+{
+  top: 0;
+  background-position: center top;
+}
+
+a.centerPanelButton.bottom
+{
+  top: 50px;
+  background-position: center bottom;
+}
+
+a.centerPanelButton.top.left
+{
+  border-top-left-radius: 8px;
+  background-position: left top;
+}
+
+a.centerPanelButton.top.right
+{
+  border-top-right-radius: 8px;
+  background-position: right top;
+}
+
+a.centerPanelButton.bottom.left
+{
+  border-bottom-left-radius: 8px;
+  background-position: left bottom;
+}
+
+a.centerPanelButton.bottom.right
+{
+  border-bottom-right-radius: 8px;
+  background-position: right bottom;
+}
+
 div.adjustPanel
 {
   display: inline-block;

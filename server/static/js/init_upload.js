@@ -150,6 +150,75 @@ function initUpload()
 
 
 // adjustement
+  var valign =
+  {
+    top:
+    function()
+    {
+      return 0;
+    },
+
+    '':
+    function(info)
+    {
+      return -0.5 * info.pixelSize * info.imageHeight;
+    },
+
+    bottom:
+    function(info)
+    {
+      return -info.pixelSize * info.imageHeight;
+    }
+  };
+
+  var halign =
+  {
+    left:
+    function()
+    {
+      return 0;
+    },
+
+    '':
+    function(info)
+    {
+      return -0.5 * info.pixelSize * info.imageWidth;
+    },
+
+    right:
+    function(info)
+    {
+      return -info.pixelSize * info.imageWidth;
+    }
+  };
+
+  for (var y in valign)
+  {
+    for (var x in halign)
+    {
+      (function(valign, halign)
+      {
+        $('#centerPanel')
+          .append($('<a>')
+            .attr('title', x && y ?
+                           'align ' + y + ' ' + x + ' corners' :
+                           x || y ? 'align ' + x + y + ' edges' :
+                           'center')
+            .addClass(x + ' centerPanelButton ' + y)
+            .button()
+            .tooltip(BrainSlices.gui.tooltip)
+            .click(function()
+            {
+              console.log(x, y)
+              images.applyAdjusted(function(image, updateIface)
+              {
+                image.updateInfo(halign(image.info), valign(image.info),
+                                 null, null, updateIface);
+              });
+            }));
+      })(valign[y], halign[x]);
+    }
+  }
 
   makeAdjustmentPanel($('#adjustPanel'), null, null, null, null,
   {
@@ -209,7 +278,7 @@ function initUpload()
       {
         image.updateInfo(null, null, null, status, updateIface);
       });
-    },
+    }/*,
 
     buttons:
     {
@@ -225,7 +294,7 @@ function initUpload()
           image.updateInfo(imageLeft, imageTop, null, null, updateIface);
         });
       }
-    }
+    }*/
   }, true);
 
 

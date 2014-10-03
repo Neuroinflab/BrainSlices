@@ -35,7 +35,7 @@ function initVisualise()
     });
 
   $("#btn_synch")
-    .button()
+    //.button()
     .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
@@ -70,7 +70,7 @@ function initVisualise()
     });
 
   $("#btn_trans")
-    .button()
+    //.button()
     .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
@@ -143,7 +143,7 @@ function initVisualise()
     });
 
   $("#btn_display")
-    .button()
+    //.button()
     .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
@@ -163,7 +163,7 @@ function initVisualise()
 	  });
 
   $("#btn_compress")
-    .button()
+    //.button()
     .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
@@ -180,7 +180,7 @@ function initVisualise()
     });
 
   $("#btn_expand")
-    .button()
+    //.button()
     .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
@@ -208,11 +208,11 @@ function initVisualise()
 
 
   $("#btn_help")
-    .button()
+    //.button()
     .tooltip(BrainSlices.gui.tooltip);
-  $("#btn_login").button();
+  //$("#btn_login").button();
   $("#btn_logout")
-    .button()
+    //.button()
     .tooltip(BrainSlices.gui.tooltip);
 
 	scope

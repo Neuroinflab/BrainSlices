@@ -17,7 +17,8 @@ a
   color: #5080FF;
 }
 
-button
+button,
+.ui-button
 {
   display: inline-block;
   padding: 5px;
@@ -54,7 +55,10 @@ button.icon
 }
 
 button:hover,
-button.selected
+button.selected,
+.ui-button:hover,
+.ui-button.ui-state-hover,
+.ui-button.selected
 {
   /*color: #FFFFFF;*/
   border-color: #CCDDEE;
@@ -65,6 +69,7 @@ button.selected
 }
 
 button:active
+.ui-button.ui-state-active
 {
   position: relative;
   top: 2px;
