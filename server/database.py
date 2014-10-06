@@ -29,9 +29,9 @@ import psycopg2.pool
 from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 from psycopg2.extensions import TransactionRollbackError
 
-from config import BS_DB_PASSWORD, BS_DB_NAME, BS_DB_USER, BS_DB_HOST,\
-                   BS_DB_PORT, BS_DB_ISOLATION_LEVEL, BS_DB_ENCODING,\
-                   BS_DB_CONNECTIONS_MAX
+from bsConfig import BS_DB_PASSWORD, BS_DB_NAME, BS_DB_USER, BS_DB_HOST,\
+                     BS_DB_PORT, BS_DB_ISOLATION_LEVEL, BS_DB_ENCODING,\
+                     BS_DB_CONNECTIONS_MAX
 
 db = psycopg2.connect(database=BS_DB_NAME,
                       user=BS_DB_USER,

@@ -111,8 +111,9 @@ askBool ()
 if askBool "Do you want to fetch required packages?
 (Operation requires sudo privileges.)" N #FETCH_PACKAGES
   then
-    sudo apt-get install libmagick++-dev libboost-thread-dev libboost-system-dev python-cherrypy3 postgresql postgresql-client libssl-dev python-psycopg2 at imagemagick
+    sudo apt-get install libmagick++-dev libboost-thread-dev libboost-system-dev python-cherrypy3 postgresql libssl-dev python-psycopg2 at imagemagick
     # python-cherrypy # Ubuntu 13.10
+    # postgresql-contrib postgresql-client
   fi
 
 echo
@@ -164,6 +165,7 @@ getDbMaintenance()
 
 if askBool "Do you want to create a new database user?" N #NEW_DB_USER
   then
+    #XXX might fail if cluster not created on instalation -_-
     getDbUser
     if [ "$BS_DB_HOST" == "localhost" ]
       then
@@ -199,7 +201,8 @@ if askBool "Do you want to create a new database?" N NEW_DB
     getDb
     if [ "$BS_DB_HOST" == "localhost" ]
       then
-        until sudo su postgres -c "createdb -O $BS_DB_USER -E $BS_DB_ENCODING $BS_DB_NAME"
+        #XXX -T template0 because of encoding mismatch -_-
+        until sudo su postgres -c "createdb -O $BS_DB_USER -E $BS_DB_ENCODING -T template0 $BS_DB_NAME"
           do
             echo "An error has occured trying to create database $BS_DB_NAME"
             echo "Please try again."
@@ -207,7 +210,7 @@ if askBool "Do you want to create a new database?" N NEW_DB
           done
       else
         getDbMaintenance
-        until createdb -h "$BS_DB_HOST" -p $BS_DB_PORT -u $DB_USER -O $BS_DB_USER -E $BS_DB_ENCODING $BS_DB_NAME
+        until createdb -h "$BS_DB_HOST" -p $BS_DB_PORT -u $DB_USER -O $BS_DB_USER -E $BS_DB_ENCODING -T template0 $BS_DB_NAME
           do
             echo "An error has occured trying to create database $BS_DB_NAME"
             echo "Please try again."

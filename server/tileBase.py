@@ -57,7 +57,7 @@ LOGGED_PRIVILEGE = 2
 GROUP_PRIVILEGE = 3
 OWNER_PRIVILEGE = 4
 
-from config import BS_TILER_THREADS, BS_TILER_MEMORY, BS_STREAM_FILES, BS_STREAM_TIMEOUT 
+from bsConfig import BS_TILER_THREADS, BS_TILER_MEMORY, BS_STREAM_FILES, BS_STREAM_TIMEOUT 
 
 directory = os.path.abspath(os.path.dirname(__file__))
 tilingCommand = os.path.abspath(os.path.join(directory,

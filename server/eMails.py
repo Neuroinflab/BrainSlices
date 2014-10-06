@@ -27,9 +27,9 @@ import os
 import email.utils as eutils
 from email.mime.text import MIMEText
 from datetime import datetime
-from config import BS_EMAIL_PASSWORD, BS_EMAIL_SERVER, BS_EMAIL_PORT,\
-                   BS_EMAIL_LOGIN, BS_EMAIL_ADDRESS, BS_EMAIL_ENCODING, \
-                   BS_SERVICE_SERVER, BS_SERVICE_NAME, BS_SERVICE_SIGNATURE
+from bsConfig import BS_EMAIL_PASSWORD, BS_EMAIL_SERVER, BS_EMAIL_PORT,\
+                     BS_EMAIL_LOGIN, BS_EMAIL_ADDRESS, BS_EMAIL_ENCODING, \
+                     BS_SERVICE_SERVER, BS_SERVICE_NAME, BS_SERVICE_SIGNATURE
 
 
 BS_EMAIL_FROM = ("%s<%s>" % (BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)).encode(BS_EMAIL_ENCODING)
