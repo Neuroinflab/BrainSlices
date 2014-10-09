@@ -4,7 +4,7 @@
 #                                                                             #
 #    BrainSlices Software                                                     #
 #                                                                             #
-#    Copyright (C) 2012-2013 Jakub M. Kowalski, J. Potworowski, N. Pasumarthy #
+#    Copyright (C) 2012-2014 Jakub M. Kowalski, J. Potworowski, N. Pasumarthy #
 #                                                                             #
 #    This software is free software: you can redistribute it and/or modify    #
 #    it under the terms of the GNU General Public License as published by     #
@@ -22,10 +22,6 @@
 ###############################################################################
 
 import os
-import cherrypy, simplejson
-from cherrypy.lib import static
-import cgi
-import tempfile
 from datetime import datetime
 
 #from tileBase import UploadSlot
