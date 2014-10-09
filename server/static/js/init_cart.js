@@ -1178,8 +1178,12 @@ function initCart()
 
 
       // making the layer-related row
-      var $row =  $('<div>')
-        .addClass('layer-row');
+      var $rowWrapper = $('<div>')
+        .addClass('layer-row-wrapper');
+      var $row = $('<div>')
+        .addClass('layer-row')
+        .appendTo($rowWrapper);
+      var $rowWrapper
       var $drag = $('<div>')
         .attr('draggable', 'true')
         .addClass('label-column')
@@ -1208,7 +1212,7 @@ function initCart()
       }
 
 
-      this.addTileLayer(id, $row, //$.merge($row, $searchRow),
+      this.addTileLayer(id, $rowWrapper, //$.merge($row, $searchRow),
                         $visibility, zIndex, dragMIME,
                         function()
                         {
@@ -1392,7 +1396,8 @@ function initCart()
                               {
                                 fit: true,
                                 folded: scope.get('allFoldedCart'),
-                                onclick: triggerImageCartHeaderAnimation
+                                onclick: triggerImageCartHeaderAnimation//,
+//                                $parent: $row
                               })
                               .append($('<span>')
                                 .addClass('layer-delete-button fa fa-times')

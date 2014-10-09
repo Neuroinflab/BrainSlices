@@ -1251,7 +1251,7 @@ var CFilterPanel = null;
 
         if (this.options.fit)
         {
-          this.element.height($parent.height() + this.element.height() - this.element.outerHeight());
+          this.element.height($parent.innerHeight() + this.element.height() - this.element.outerHeight());
         }
       }
       else
@@ -1331,7 +1331,7 @@ var CFilterPanel = null;
         }
 
         this.element.hide(0);
-        var parentHeight = $parent.height();
+        var parentHeight = $parent.innerHeight();
         if (contentHeight > parentHeight)
         {
           this.$toggle.show(0);

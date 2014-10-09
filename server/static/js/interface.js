@@ -809,6 +809,11 @@
 
 
         var thisInstance = this;
+        function preventDefault(ev)
+        {
+          console.log('preventing...');
+          ev.originalEvent.preventDefault();
+        }
 
         $drag
           .bind('dragstart', function(ev)
@@ -832,11 +837,11 @@
                 dataTransfer.setData(item[0], item[1]);
               }
             }
-          })
-          .bind('dragover', function(ev)
-          {
-            ev.originalEvent.preventDefault();
-          })
+          });
+          //.bind('dragover', preventDefault);
+
+        $row
+          .bind('dragover', preventDefault)
           .bind('drop', function(ev)
           {
             ev.originalEvent.preventDefault();
@@ -865,6 +870,7 @@
 
             //thisInstance.update(Math.min(srcIndex, index),
             //                    Math.max(srcIndex, index) + 1);
+            ev.stopPropagation();
           });
 
         this.length++;
