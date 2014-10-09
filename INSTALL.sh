@@ -123,8 +123,17 @@ echo
 
 CURRENT_DIR=`pwd`
 askPrompt "Installation directory" "$CURRENT_DIR" INSTALL_DIR
-cat app.conf.template | sed -e "s|\${pwd}|$INSTALL_DIR|" > "$INSTALL_DIR/server/app.conf"
+mkdir -p "$INSTALL_DIR"
+if [ "$INSTALL_DIR" != "$CURRENT_DIR" ]
+  then
+    cd "$INSTALL_DIR"
+    INSTALL_DIR=`pwd`
+    cp -r "$CURRENT_DIR/server" "$INSTALL_DIR"
+    cp -r "$CURRENT_DIR/auxilaryScripts" "$INSTALL_DIR"
+    cp -r "$CURRENT_DIR/demo" "$INSTALL_DIR"
+  fi
 
+cat "$CURRENT_DIR/app.conf.template" | sed -e "s|\${pwd}|$INSTALL_DIR|" > "$INSTALL_DIR/server/app.conf"
 mkdir -p "$INSTALL_DIR/sourceImages"
 mkdir -p "$INSTALL_DIR/server/tiles"
 mkdir -p "$INSTALL_DIR/server/testTiles"
@@ -133,10 +142,22 @@ mkdir -p "$INSTALL_DIR/server/uploadSlots"
 mkdir -p "$INSTALL_DIR/server/sourceImages"
 mkdir -p "$INSTALL_DIR/server/tilingLogs"
 
-askPrompt "BrainSlices host" localhost BS_HOST
+
+CURRENT_USER=`whoami`
+askPrompt "Server system user" "$CURRENT_USER" SERVER_USER
+
+askPrompt "BrainSlices host" 0.0.0.0 BS_HOST
 askPrompt "BrainSlices port" 80 BS_PORT
 
-cat site.conf.template | sed -e "s|\${host}|$BS_HOST|; s|\${port}|$BS_PORT| " > "$INSTALL_DIR/server/site.conf"
+if [ "$BS_PORT" -lt 512 ]
+  then
+    sudo touch "/etc/authbind/byaddr/$BS_HOST:$BS_PORT"
+    sudo chmod 100 "/etc/authbind/byaddr/$BS_HOST:$BS_PORT"
+    sudo chown $SERVER_USER "/etc/authbind/byaddr/$BS_HOST:$BS_PORT"
+  fi
+
+cat "$CURRENT_DIR/site.conf.template" | sed -e "s|\${host}|$BS_HOST|; s|\${port}|$BS_PORT| " > "$INSTALL_DIR/server/site.conf"
+
 
 BS_CONFIG="$INSTALL_DIR/server/brainslices.conf"
 
@@ -229,23 +250,25 @@ if [ "$NEW_DB" == "Y" ] || askBool "Reset the database?" N
     SETUP_DB=Y
     if [ "$BS_DB_USER" == "skwarki" ]
       then
-        cp sql/create_database.sql sql/temp.sql
+        cp "$CURRENT_DIR/sql/create_database.sql" "$INSTALL_DIR/create_database.sql"
 
       else
-        cat sql/create_database.sql | sed -e "s|skwarki|$BS_DB_USER|" > sql/temp.sql
+        cat "$CURRENT_DIR/sql/create_database.sql" | sed -e "s|skwarki|$BS_DB_USER|" > "$INSTALL_DIR/create_database.sql"
       fi
 
     if [ "$BS_DB_HOST" == "localhost" ]
       then
-        sudo su postgres -c "psql -f sql/temp.sql $BS_DB_NAME"
+        sudo su postgres -c "psql -f '$INSTALL_DIR/create_database.sql' $BS_DB_NAME"
 
       else
         getDbMaintenance
-        until psql -h $BS_DB_HOST -p $BS_DB_PORT -f sql/temp.sql $BS_DB_NAME
+        until psql -h $BS_DB_HOST -p $BS_DB_PORT -f '$INSTALL_DIR/create_database.sql' $BS_DB_NAME
           do
             getDbMaintenance
           done
       fi
+
+    rm "$INSTALL_DIR/create_database.sql"
   fi
 
 
@@ -391,3 +414,24 @@ cd demo
 ln -s ../server/static .
 
 chmod 600 "$BS_CONFIG"
+
+BS_AUTOSTART="NO"
+if askBool "Do you want the server to automatically start at boot?"
+  then
+    BS_AUTOSTART="YES"
+    cat "$CURRENT_DIR/init.d/BrainSlices" | sed -e "s|\${path}|$INSTALL_DIR/server|; s|\${user}|$SERVER_USER| " > "$INSTALL_DIR/init.d"
+    sudo mv "$INSTALL_DIR/init.d" /etc/init.d/BrainSlices
+    sudo chmod 755 /etc/init.d/BrainSlices
+    sudo chown root:root /etc/init.d/BrainSlices
+    sudo update-rc.d BrainSlices defaults
+  fi
+
+if [ "$SERVER_USER" != "$CURRENT_USER" ]
+  then
+    sudo chown -R "$SERVER_USER" "$INSTALL_DIR"
+  fi
+
+if [ "$BS_AUTOSTART" == "YES" ]
+  then
+    sudo service BrainSlices start
+  fi

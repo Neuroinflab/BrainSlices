@@ -11,8 +11,8 @@
 ### END INIT INFO
 
 PROG=BrainSlices
-BS_PATH=/home/brainslices/production/server
-BS_USER=brainslices
+BS_PATH=${path}
+BS_USER=${user}
 
 SERVICE="$BS_PATH/main.py"
 COMMAND="sudo -u $BS_USER screen -DmS BrainSlices authbind --deep python -i $SERVICE"
