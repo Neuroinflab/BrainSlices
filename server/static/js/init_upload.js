@@ -3,8 +3,21 @@ var fileUploader = null;
 var privilegeManager = null;
 var propertiesManager = null;
 
+function flushBatchFilter()
+{
+  $('#batchFilter')
+    .empty()
+    .append($('<option>')
+      .attr('value', 'none')
+      .text('--- any collection ---'))
+    .val('none');
+}
+
 function initUpload()
 {
+  $('#batchFilter')
+    .tooltip(BrainSlices.gui.tooltip)
+
   var STATUS_MAP = BrainSlices.gui.STATUS_MAP;
   var scope = BrainSlices.scope;
   
@@ -465,16 +478,20 @@ function initUpload()
       var $batchSelect = $('#existingBatch')
         .empty();
 
+      flushBatchFilter();
+
       if (value == null)
       {
         scope.set('editMode', 'details');
         $('#editMode').hide(0); // XXX???
         $('#editModeImageAnnotations').show(0);
+        $('#batchFilterDiv').hide(0);
         return;
       }
 
       $('#editModeImageAnnotations').hide(0);
       $('#editMode').show(0); // XXX???
+      $('#batchFilterDiv').show(0);
 
       loginConsole.ajax(
         '/upload/batchList',
@@ -496,7 +513,6 @@ function initUpload()
 
             //$batchSelect.hide(0);
             //$('#newBatchName').show(0);
-
           }
           else
           {
@@ -508,15 +524,18 @@ function initUpload()
             //$batchSelect.show(0);
           }
 
+          function makeOption(item)
+          {
+            return $('<option>')
+              .attr('value', item[0] + '')
+              .text(item[1]);
+          }
+
           $batchSelect
-            .append(
-              response.data.map(function(item)
-              {
-                return $('<option>')
-                  .attr('value', item[0] + '')
-                  .text(item[1]);
-                  
-              }));
+            .append(response.data.map(makeOption));
+
+          $('#batchFilter')
+            .append(response.data.map(makeOption));
         },
         null, null, null,
         {cache: false});
@@ -619,11 +638,19 @@ function initUploadFinish()
             return;
           }
 
+          function makeOption(data)
+          {
+            return $('<option>')
+              .attr('value', data.bid + '')
+              .text(data.comment);
+          }
+
           $batchSelect
-            .append($('<option>')
-              .attr('value', response.data.bid + '')
-              .text(response.data.comment))
+            .append(makeOption(response.data))
             .val(response.data.bid);
+
+          $('#batchFilter')
+            .append(makeOption(response.data));
 
           $('#newBatch')
             .val('no')

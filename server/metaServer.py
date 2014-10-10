@@ -133,7 +133,8 @@ class MetaServer(Generator, Server):
                  self.selectorClass[prop[0]](None, **prop[1])\
                  for prop in nonames]
     result = self.metaBase.searchImagesPropertiesInfo(selectors, uid=uid,
-                                                      privilege=request.privilege)
+                                                      privilege=request.privilege,
+                                                      bid=request.bid)
     return generateJson(data = result,
                         status = True,
                         message = None,

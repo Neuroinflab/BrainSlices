@@ -614,12 +614,14 @@ span.fa-search.brainslices-text-property-filter
   box-sizing: content-box;
 }
 
-div.brainslices-privilege-filter
+div.brainslices-privilege-filter,
+div.brainslices-batch-filter
 {
   display: block !important;
 }
 
-select.brainslices-privilege-filter
+select.brainslices-privilege-filter,
+select.brainslices-batch-filter
 {
   width: 100%;
   /*height: 30px;*/

@@ -411,7 +411,7 @@ class MetaBase(dbBase):
     return [row[0] for row in cursor]
 
   @provideCursor
-  def searchImagesPropertiesInfo(self, selectors, uid=None, privilege='v', limit=None, cursor=None):
+  def searchImagesPropertiesInfo(self, selectors, uid=None, privilege='v', bid=None, limit=None, cursor=None):
     cond = "img.status >%s %d AND " % ('=' if privilege == 'e' else '',
                                        IMAGE_STATUS_COMPLETED)
 
@@ -483,6 +483,9 @@ class MetaBase(dbBase):
                      PUBLIC_PRIVILEGE, NO_PRIVILEGE)
 
     else:
+      if bid is not None:
+        cond += "img.owner = %d AND img.bid = %d AND " % (uid, bid)
+
       if privilege == 'v': # view 
         cond += """
                 (img.public_image_view OR

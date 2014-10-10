@@ -251,18 +251,28 @@ var CPropertiesSearch = null;
       },
 
       search:
-      function(onsuccess, privilege)
+      function(onsuccess, privilege, bid)
       {
         var query = this.get();
         if (!query) return false;
+        var data =
+        {
+          query: JSON.stringify(query),
+          privilege: privilege ? privilege : 'v'
+        };
+
+        if (bid != null && !isNaN(bid))
+        {
+          data.bid = bid;
+        }
+
         this.ajaxProvider.ajax('/meta/searchImages',
                                function(result)
                                {
                                  // caching etc.
                                  if (onsuccess) onsuccess(result.data);
                                },
-                               {query: JSON.stringify(query),
-                                privilege: privilege ? privilege : 'v'});
+                               data);
         return true;
       },
 

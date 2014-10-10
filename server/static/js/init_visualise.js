@@ -107,16 +107,18 @@ function initVisualise()
     .hide(0)
     .slider(
     {
-      min:0,
-      max:1,
+      min: 0.,
+      max: 1.,
       value: 0.5,
-      step: 0.1,
+      step: 0.0009765625, // 1/1024
       orientation: "vertical",
       range: "min",
       animate: true,
       slide: $.proxy(function()
       {
-        scope.set( "trans", $("#trans").slider("value"));
+        var trans = $("#trans").slider("value");
+        console.log(trans);
+        scope.set( "trans", trans);
       })
     });
 
