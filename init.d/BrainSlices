@@ -15,7 +15,7 @@ BS_PATH=${path}
 BS_USER=${user}
 
 SERVICE="$BS_PATH/main.py"
-COMMAND="sudo -u $BS_USER screen -DmS BrainSlices authbind --deep python -i $SERVICE"
+COMMAND="sudo -u $BS_USER screen -DmS BrainSlices authbind --deep python -i $SERVICE > /var/log/${PROG}.stdout 2> /var/log/${PROG}.stderr"
 PID_PATH="/var/run"
 
 start() {
