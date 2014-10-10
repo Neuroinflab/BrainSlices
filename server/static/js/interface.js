@@ -837,6 +837,7 @@
                 dataTransfer.setData(item[0], item[1]);
               }
             }
+            ev.stopPropagation();
           });
           //.bind('dragover', preventDefault);
 
