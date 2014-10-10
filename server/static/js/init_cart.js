@@ -1418,6 +1418,8 @@ function initCart()
                                rowElements.editMode = editMode;
                             }
 
+                            $drag
+                              .removeClass('adjustmentVisible propertiesVisible privilegesVisible');
                             switch (editMode)
                             {
                               case 'details':
@@ -1429,6 +1431,7 @@ function initCart()
                                 rowElements.$properties.css('display', '');
                                 rowElements.$name.css('display', '');
                                 rowElements.$download.css('display', '');
+                                $drag.addClass('propertiesVisible');
                                 break;
 
                               case 'adjust':
@@ -1445,6 +1448,7 @@ function initCart()
                                 {
                                   rowElements.$reset.css('display', 'none');
                                 }
+                                $drag.addClass('adjustmentVisible');
                                 break;
 
                               case 'privileges':
@@ -1461,6 +1465,7 @@ function initCart()
                                 {
                                   rowElements.$reset.css('display', 'none');
                                 }
+                                $drag.addClass('privilegesVisible');
                                 break;
 
                               case 'properties':
@@ -1478,6 +1483,7 @@ function initCart()
                                 {
                                   rowElements.$reset.css('display', 'none');
                                 }
+                                $drag.addClass('propertiesVisible');
                                 break;
                             }
 

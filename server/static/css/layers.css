@@ -178,20 +178,21 @@ div.layer-row-wrapper
   content: "Loaded";
 }
 
-div.changed
+div.changed.adjustmentVisible,
+div.privilegeChanged.privilegesVisible,
+div.propertyChanged.propertiesVisible
 {
   background: #FFEEEE !important; 
 }
 
-div.privilegeChanged
-{
-  background: #FFEEEE !important;
-}
-
+/*
+div.changed,
+div.privilegeChanged,
 div.propertyChanged
 {
-  background: #FFEEEE !important;
+  border: solid 1px #CA0000 !important;
 }
+*/
 
 li.propertyChanged
 {
