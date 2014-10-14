@@ -62,6 +62,7 @@ class TileServer(Server):
   @serveContent(ImageRequest)
   def __call__(self, request):
     if request.method == 'info.json':
+      data = None
       row = self.tileBase.info(request)
       if row:
         data = dict(zip(['status', 'viewPrivilege', 'editPrivilege',

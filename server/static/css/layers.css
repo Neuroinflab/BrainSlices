@@ -179,7 +179,7 @@ div.layer-row-wrapper
 }
 
 div.changed.adjustmentVisible,
-div.statusChanged.adjustmentVisible,
+div.statusChanged.managementVisible,
 div.privilegeChanged.privilegesVisible,
 div.propertyChanged.propertiesVisible
 {
@@ -417,13 +417,13 @@ label.adjustPanelRes
 {
 }
 
-label.adjustPanelStatus:before
+label.managementPanelStatus:before
 {
   content: "Status: ";
 }
 
 select.adjustPanelRes,
-select.adjustPanelStatus
+select.managementPanelStatus
 {
   padding-top: 0;
   padding-bottom: 0;

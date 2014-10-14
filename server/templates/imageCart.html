@@ -18,6 +18,7 @@
      <div class="selectWrapper">
       <select id="editMode" class="selectWrapper">
        <option value="details" class="fa fa-file-text-o">Image annotations</option>
+       <option value="manage" class="fa fa-pencil-square-o">Image management</option>
        <option value="adjust" class="fa fa-pencil-square-o">Adjust &amp; accept</option>
        <option value="privileges" class="fa fa-pencil-square-o">Set privileges</option>
        <option value="properties" class="fa fa-pencil-square-o">Annotate</option>
@@ -58,6 +59,21 @@
      <div id="propertyPanel">
      </div>
 
+     <div id="managePanel">
+      <label class="managementPanelStatus">
+       <div class="selectWrapper">
+				<select class="managementPanelStatus selectWrapper">
+				 <option value="6">
+					Processed
+         </option>
+				 <option value="7">
+          Accepted
+				 </option>
+				</select>
+			 </div>
+			</label>
+     </div>
+
      <button id="emptyCart" title="empty the image cart">
       <span class="fa fa-trash-o"></span>
      </button>
@@ -82,6 +98,10 @@
 
  <div id="imageCartFooter">
   <span id="editPanel">
+   <button id="deleteImagesButton">
+    <span class="fa fa-trash-o"></span>
+    Delete
+   </button>
    <button id="editPanelSave">
     <span class="fa fa-floppy-o"></span>
     Save

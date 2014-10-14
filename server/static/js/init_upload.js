@@ -371,7 +371,13 @@ function initUpload()
         case 'adjust':
           images.apply(null, function(image, updateIface)
           {
-            image.resetStatus(false);
+            image.resetStatus(updateIface);
+          });
+          break;
+
+        case 'manage':
+          images.apply(null, function(image, updateIface)
+          {
             image.resetImage(updateIface);
           });
           break;
@@ -396,6 +402,9 @@ function initUpload()
 
         case 'adjust':
           images.saveUpdatedTiledImages(true);
+          break;
+
+        case 'manage':
           images.saveUpdatedTiledStatuses(true);
           break;
 
@@ -443,7 +452,18 @@ function initUpload()
           $('#privilegesPanel').hide(0);
           $('#propertyPanel').hide(0);
           $('#adjustPanel').hide(0);
+          $('#managePanel').hide(0);
+          $('#deleteImagesButton').hide(0);
           //$('#imageCartBody').removeClass('editPanel'); //XXX
+          break;
+
+        case 'manage':
+          $('#editPanel').show(0); //XXX
+          $('#privilegesPanel').hide(0);
+          $('#propertyPanel').hide(0);
+          $('#adjustPanel').hide(0);
+          $('#managePanel').show(0);
+          $('#deleteImagesButton').show(0);
           break;
 
         case 'adjust':
@@ -451,6 +471,8 @@ function initUpload()
           $('#editPanel').show(0); //XXX
           $('#privilegesPanel').hide(0);
           $('#propertyPanel').hide(0);
+          $('#managePanel').hide(0);
+          $('#deleteImagesButton').hide(0);
           $('#adjustPanel').show(0);
           break;
 
@@ -459,6 +481,8 @@ function initUpload()
           $('#editPanel').show(0); //XXX
           $('#adjustPanel').hide(0);
           $('#propertyPanel').hide(0);
+          $('#managePanel').hide(0);
+          $('#deleteImagesButton').hide(0);
           $('#privilegesPanel').show(0);
           break;
 
@@ -467,6 +491,8 @@ function initUpload()
           $('#editPanel').show(0); //XXX
           $('#privilegesPanel').hide(0);
           $('#adjustPanel').hide(0);
+          $('#managePanel').hide(0);
+          $('#deleteImagesButton').hide(0);
           $('#propertyPanel').show(0);
           break;
       }

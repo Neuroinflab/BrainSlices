@@ -94,6 +94,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
       }
     });
 
+/*
   var updateStatus = getTrigger('status', triggers, function(status)
   {
     image.updateStatus(status, false);
@@ -111,6 +112,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     {
       updateStatus(parseInt($status.val()));
     });
+    */
 
   var buttons = getTrigger('buttons', triggers, {});
   var $iface = $('<span>')
@@ -136,12 +138,12 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
       .append($res)
       .append($dpi)
       .append($pixelSize))
-    .append('&nbsp;')
+/*    .append('&nbsp;')
     .append($('<label>')
       .addClass('adjustPanelStatus')
       .append($('<div>')
         .addClass('selectWrapper')
-        .append($status)))
+        .append($status)))*/
     .append('<br>');
 
   var updateAdjust = getTrigger('adjust', triggers, function(adjust)
@@ -182,7 +184,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
       $imageTop.val(info.imageTop);
       $dpi.val(25400. / info.pixelSize);
       $pixelSize.val(info.pixelSize);
-      $status.val(info.status);
+      /*$status.val(info.status);*/
     };
 
     finish(
@@ -1281,6 +1283,19 @@ function initCart()
                           //delete img.info.properties;
 
 
+                          var $status =
+                            $('<select>')
+                              .append($('<option>')
+                                  .text('Processed')
+                                  .attr('value', '6'))
+                                .append($('<option>')
+                                  .text('Accepted')
+                                  .attr('value', '7'))
+                              .addClass('managementPanelStatus selectWrapper')
+                              .change(function()
+                              {
+                                image.updateStatus(parseInt($status.val()), false);
+                              })
                           var rowElements;
 
                           function toPostpone()
@@ -1331,8 +1346,12 @@ function initCart()
                                   switch (scope.get('editMode'))
                                   {
                                     case 'adjust':
-                                      image.resetImage(false);
+                                      image.resetImage();
+                                      break;
+
+                                    case 'manage':
                                       image.resetStatus();
+                                      //TODO: delete
                                       break;
 
                                     case 'properties':
@@ -1347,7 +1366,17 @@ function initCart()
                                       console.error(scope.get('editMode'));
                                   }
                                 })
+                                .appendTo($drag),
+
+                              $management: $('<div>')
+                                .addClass('managementPanel')
+                                .append($('<label>')
+                                  .addClass('managementPanelStatus')
+                                  .append($('<div>')
+                                    .addClass('selectWrapper')
+                                    .append($status)))
                                 .appendTo($drag)
+
                             };
 
                             rowElements.$privileges = $('<div>')
@@ -1387,7 +1416,11 @@ function initCart()
                                 $drag, id, image, thisInstance,
                                 function(onUpdate, onAdjust)
                                 {
-                                  onUpdatePostponed = onUpdate;
+                                  onUpdatePostponed = function(info)
+                                  {
+                                    $status.val(info.status);
+                                    onUpdate(info);
+                                  };
                                   onAdjustPostponed = onAdjust;
                                 });
 
@@ -1420,10 +1453,11 @@ function initCart()
                             }
 
                             $drag
-                              .removeClass('adjustmentVisible propertiesVisible privilegesVisible');
+                              .removeClass('adjustmentVisible propertiesVisible privilegesVisible managementVisible');
                             switch (editMode)
                             {
                               case 'details':
+                                rowElements.$management.css('display', 'none');
                                 rowElements.$adjustment.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
@@ -1435,7 +1469,21 @@ function initCart()
                                 $drag.addClass('propertiesVisible');
                                 break;
 
+                              case 'manage':
+                                rowElements.$properties.css('display', 'none');
+                                rowElements.$adjustment.css('display', 'none');
+                                rowElements.$privileges.css('display', 'none');
+                                rowElements.$annotate.css('display', 'none');
+                                rowElements.$reset.css('display', 'none');
+                                if (image.info.editPrivilege > 0)
+                                {
+                                  rowElements.$management.css('display', '');
+                                }
+                                $drag.addClass('managementVisible');
+                                break;
+
                               case 'adjust':
+                                rowElements.$management.css('display', 'none');
                                 rowElements.$properties.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
@@ -1455,6 +1503,7 @@ function initCart()
                               case 'privileges':
                                 rowElements.$properties.css('display', 'none');
                                 rowElements.$adjustment.css('display', 'none');
+                                rowElements.$management.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
                                 rowElements.$download.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
@@ -1471,6 +1520,7 @@ function initCart()
 
                               case 'properties':
                                 rowElements.$properties.css('display', 'none');
+                                rowElements.$management.css('display', 'none');
                                 rowElements.$adjustment.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$name.css('display', 'none');
