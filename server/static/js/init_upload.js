@@ -280,12 +280,6 @@ function initUpload()
       adjustAll.pixel = pixel;
     },
 
-    status:
-    function(status)
-    {
-      adjustAll.status = status;
-    },
-
     buttons:
     {
       Set:
@@ -294,13 +288,21 @@ function initUpload()
         images.applyAdjusted(function(image, updateIface)
         {
           image.updateImage(adjustAll.left, adjustAll.top,
-                            adjustAll.pixel, false);
-          image.updateStatus(adjustAll.status, updateIface);
+                            adjustAll.pixel, updateIface);
         });
       }
     }
   }, true);
 
+//management
+  $('#managementPanelStatus').change(function()
+  {
+    var status = parseInt($('#managementPanelStatus').val()); 
+    images.apply(null, function(image, updateIface)
+    {
+      image.updateStatus(status, updateIface);
+    });
+  });
 
 // privileges
   $('#publicViewPrivilege').click(function()
@@ -371,14 +373,14 @@ function initUpload()
         case 'adjust':
           images.apply(null, function(image, updateIface)
           {
-            image.resetStatus(updateIface);
+            image.resetImage(updateIface);
           });
           break;
 
         case 'manage':
           images.apply(null, function(image, updateIface)
           {
-            image.resetImage(updateIface);
+            image.resetStatus(updateIface);
           });
           break;
 

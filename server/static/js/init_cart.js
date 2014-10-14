@@ -8,7 +8,6 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     image.updateImage(left, null, null, false);
   });
   var $imageLeft = $('<input>')
-  //    .addClass('imageLeft')
     .attr(
     {
       type: 'number',
@@ -26,7 +25,6 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     image.updateImage(null, top, null, false);
   });
   var $imageTop = $('<input>')
-  //  .addClass('imageTop')
     .attr(
     {
       type: 'number',
@@ -44,7 +42,6 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     image.updateImage(null, null, pixel, false);
   });
   var $dpi = $('<input>')
-    //.addClass('pixelSize')
     .attr('type', 'number')
     .css('display', 'none')
     .addClass('adjustPanelRes')
@@ -56,7 +53,6 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     });
 
   var $pixelSize = $('<input>')
-    //.addClass('pixelSize')
     .attr('type', 'number')
     .addClass('adjustPanelRes')
     .change(function()
@@ -94,35 +90,9 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
       }
     });
 
-/*
-  var updateStatus = getTrigger('status', triggers, function(status)
-  {
-    image.updateStatus(status, false);
-  });
-  var $status = $('<select>')
-    .append($('<option>')
-             .text('Processed')
-             .attr('value', '6'))
-    .append($('<option>')
-             .text('Accepted')
-             .attr('value', '7'))
-    //  .attr('name', 'status')
-    .addClass('adjustPanelStatus selectWrapper')
-    .change(function()
-    {
-      updateStatus(parseInt($status.val()));
-    });
-    */
-
   var buttons = getTrigger('buttons', triggers, {});
   var $iface = $('<span>')
     .css('display', adjust ? '' : 'none')
-    .append($.map(buttons, function(value, key)
-    {
-      return $('<button>')
-        .text(key)
-        .click(value);
-    }))
     .append('<br>')
     .append($('<label>')
       .addClass('adjustPanelOffset')
@@ -138,13 +108,13 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
       .append($res)
       .append($dpi)
       .append($pixelSize))
-/*    .append('&nbsp;')
-    .append($('<label>')
-      .addClass('adjustPanelStatus')
-      .append($('<div>')
-        .addClass('selectWrapper')
-        .append($status)))*/
-    .append('<br>');
+    .append(' ')
+    .append($.map(buttons, function(value, key)
+    {
+      return $('<button>')
+        .text(key)
+        .click(value);
+    }));
 
   var updateAdjust = getTrigger('adjust', triggers, function(adjust)
   {
@@ -1292,6 +1262,7 @@ function initCart()
                                   .text('Accepted')
                                   .attr('value', '7'))
                               .addClass('managementPanelStatus selectWrapper')
+                              .val(image.info.status)
                               .change(function()
                               {
                                 image.updateStatus(parseInt($status.val()), false);
