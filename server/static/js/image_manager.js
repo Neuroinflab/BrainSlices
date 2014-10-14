@@ -36,7 +36,6 @@
    *          server-stored metadata just in case a reset is necessary.
    *   changed - A boolean flag indicating whether the basic metadata has
    *             changed.
-   *   statusChanged -
    *   $row - A jQuery object representing HTML element representing 
    *   onUpdate -
    *   references -
@@ -104,7 +103,6 @@
     resetStatus:
     function(updateIFace)
     {
-      this.statusChanged = false;
       if (this.$row != null)
       {
         this.$row.removeClass('statusChanged');
@@ -167,14 +165,22 @@
     updateStatus:
     function(status, updateIFace)
     {
-      if (status == this.info.status) return;
-      this.statusChanged = true;
+      var info = this.info;
+      if (status == info.status) return;
+      info.status = status;
+
       if (this.$row != null)
       {
-        this.$row.addClass('statusChanged');
+        if (status != info._status)
+        {
+          this.$row.addClass('statusChanged');
+        }
+        else
+        {
+          this.$row.removeClass('statusChanged');
+        }
       }
 
-      this.info.status = status;
       if (updateIFace == null || updateIFace)
       {
         this.updateInterface();
@@ -350,7 +356,7 @@
       },
 
       saveUpdatedTiled:
-      function(checkEditPrivilege, getChanges, url, onChange, changedAttr)
+      function(checkEditPrivilege, getChanges, url, onChange, changedTest)
       {
         var changed = [];
         var changedMapping = {};
@@ -359,7 +365,7 @@
           var image = this.images[id];
           if (image.type == 'tiledImage')
           {
-            if (image[changedAttr])
+            if (changedTest(image))
             {
               var info = image.info;
               if (checkEditPrivilege && info.editPrivilege == 0)
@@ -423,7 +429,10 @@
             data._pixelSize = data.pixelSize;
             image.resetImage(false);
           },
-          'changed');
+          function(image)
+          {
+            return image.changed
+          });
       },
 
       saveUpdatedTiledStatuses:
@@ -440,7 +449,10 @@
             image.info._status = image.info.status;
             image.resetStatus(false);
           },
-          'statusChanged');
+          function(image)
+          {
+            return image.info.status != image.info._status;
+          });
       },
 
       // propagate zIndex value update across all managed images
