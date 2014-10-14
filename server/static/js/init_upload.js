@@ -225,9 +225,12 @@ function initUpload()
               console.log(x, y)
               images.applyAdjusted(function(image, updateIface)
               {
-                image.updateInfo(halign(image.info), valign(image.info),
-                                 null, null, updateIface);
-              });
+                console.log(image.info.iid, updateIface);
+                console.debug(halign, valign)
+                console.log(halign(image.info), valign(image.info))
+                image.updateImage(halign(image.info), valign(image.info),
+                                  null, updateIface);
+              }, true);
             }));
       })(valign[y], halign[x]);
     }
@@ -290,8 +293,9 @@ function initUpload()
       {
         images.applyAdjusted(function(image, updateIface)
         {
-          image.updateInfo(adjustAll.left, adjustAll.top,
-                           adjustAll.pixel, adjustAll.status, updateIface);
+          image.updateImage(adjustAll.left, adjustAll.top,
+                            adjustAll.pixel, false);
+          image.updateStatus(adjustAll.status, updateIface);
         });
       }
     }
@@ -367,7 +371,8 @@ function initUpload()
         case 'adjust':
           images.apply(null, function(image, updateIface)
           {
-            image.reset(updateIface);
+            image.resetStatus(false);
+            image.resetImage(updateIface);
           });
           break;
 
@@ -390,7 +395,8 @@ function initUpload()
           break;
 
         case 'adjust':
-          images.saveUpdatedTiled(true);
+          images.saveUpdatedTiledImages(true);
+          images.saveUpdatedTiledStatuses(true);
           break;
 
         default:

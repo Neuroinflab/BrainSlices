@@ -5,7 +5,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
 
   var updateLeft = getTrigger('left', triggers, function(left)
   {
-    image.updateInfo(left, null, null, null, false);
+    image.updateImage(left, null, null, false);
   });
   var $imageLeft = $('<input>')
   //    .addClass('imageLeft')
@@ -23,7 +23,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
 
   var updateTop = getTrigger('top', triggers, function(top)
   {
-    image.updateInfo(null, top, null, null, false);
+    image.updateImage(null, top, null, false);
   });
   var $imageTop = $('<input>')
   //  .addClass('imageTop')
@@ -41,7 +41,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
 
   var updatePixel = getTrigger('pixel', triggers, function(pixel)
   {
-    image.updateInfo(null, null, pixel, null, false);
+    image.updateImage(null, null, pixel, false);
   });
   var $dpi = $('<input>')
     //.addClass('pixelSize')
@@ -96,7 +96,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
 
   var updateStatus = getTrigger('status', triggers, function(status)
   {
-    image.updateInfo(null, null, null, status, false);
+    image.updateStatus(status, false);
   });
   var $status = $('<select>')
     .append($('<option>')
@@ -1331,7 +1331,8 @@ function initCart()
                                   switch (scope.get('editMode'))
                                   {
                                     case 'adjust':
-                                      image.reset();
+                                      image.resetImage(false);
+                                      image.resetStatus();
                                       break;
 
                                     case 'properties':

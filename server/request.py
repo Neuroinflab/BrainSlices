@@ -568,14 +568,25 @@ atoms = {'updated': (lambda x:\
                        all(iid >= 0 and\
                            validFloat(left) and\
                            validFloat(top) and\
-                           pixelSize > 0 and\
-                           status in (6, 7)\
-                           for (iid, left, top, pixelSize, status) in x),
+                           pixelSize > 0\
+                           for (iid, left, top, pixelSize) in x),
                      lambda x, unwrap = lambda x:\
                                           (int(x[0]), float(x[1]),
-                                           float(x[2]), float(x[3]),
-                                           int(x[4])):\
+                                           float(x[2]), float(x[3])):\
                        [unwrap(y.split(',')) for y in x.split(':')])})
+
+UpdateStatusRequest =  Request.extend('UpdateStatusRequest',
+"""
+A class for image status update.
+""",
+required = 'updated',
+atoms = {'updated': (lambda x:\
+                      len(x) > 0 and\
+                      all(iid >= 0 and\
+                          status in (6, 7)\
+                          for (iid, status) in x),
+                      lambda x:\
+                        [tuple(map(int, y.split(','))) for y in x.split(':')])})
 
 ChangePublicPrivilegesRequest = Request.extend('ChangePublicPrivilegesRequest',
 """

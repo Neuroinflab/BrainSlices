@@ -36,6 +36,7 @@
    *          server-stored metadata just in case a reset is necessary.
    *   changed - A boolean flag indicating whether the basic metadata has
    *             changed.
+   *   statusChanged -
    *   $row - A jQuery object representing HTML element representing 
    *   onUpdate -
    *   references -
@@ -48,7 +49,19 @@
    ************************/
   var imagePrototype =
   {
-  	reset: function(updateIFace)
+    reset:
+    function(updateIFace)
+    {
+      this.resetImage(false);
+      this.resetStatus(false);
+      if (updateIFace == null || updateIFace)
+      {
+        this.updateInterface();
+      }
+    },
+
+  	resetImage:
+    function(updateIFace)
   	{
       this.changed = false;
   		var info = this.info;
@@ -72,7 +85,6 @@
         info.pixelSize = 100000 / info.imageWidth;
         this.changed = true;
       }
-      info.status = info._status;
 
       if (this.$row != null)
       {
@@ -89,7 +101,23 @@
       this.update(updateIFace);
   	},
 
-    updateInterface: function()
+    resetStatus:
+    function(updateIFace)
+    {
+      this.statusChanged = false;
+      if (this.$row != null)
+      {
+        this.$row.removeClass('statusChanged');
+      }
+      this.info.status = this.info._status;
+      if (updateIFace == null || updateIFace)
+      {
+        this.updateInterface();
+      }
+    },
+
+    updateInterface:
+    function()
     {
       if (this.onUpdate != null)
       {
@@ -97,7 +125,8 @@
       }
     },
 
-    update: function(updateIFace)
+    update:
+    function(updateIFace)
     {
       var references = this.references;
       var info = this.info;
@@ -116,9 +145,13 @@
       }
     },
 
-    updateInfo: function(imageLeft, imageTop, pixelSize, status, updateIFace)
+    updateImage:
+    function(imageLeft, imageTop, pixelSize, updateIFace)
     {
+      if (imageLeft == null && imageTop == null && pixelSize == null) return;
+
       this.changed = true;
+
       if (this.$row != null)
       {
         this.$row.addClass('changed');
@@ -127,11 +160,29 @@
       if (imageLeft != null) this.info.imageLeft = imageLeft;
       if (imageTop != null) this.info.imageTop = imageTop;
       if (pixelSize != null) this.info.pixelSize = pixelSize;
-      if (status != null) this.info.status = status;
+
       this.update(updateIFace);
     },
 
-    destroy: function()
+    updateStatus:
+    function(status, updateIFace)
+    {
+      if (status == this.info.status) return;
+      this.statusChanged = true;
+      if (this.$row != null)
+      {
+        this.$row.addClass('statusChanged');
+      }
+
+      this.info.status = status;
+      if (updateIFace == null || updateIFace)
+      {
+        this.updateInterface();
+      }
+    },
+
+    destroy:
+    function()
     {
       var references = this.references;
       for (var cacheId in references)
@@ -222,7 +273,7 @@
         }
         else
         {
-          this.images[id].updateInfo(imageLeft, imageTop, pixelSize, null, updateIFace);
+          this.images[id].updateImage(imageLeft, imageTop, pixelSize, updateIFace);
         }
       },
 
@@ -253,7 +304,7 @@
         }
         else
         {
-          this.images[id].updateInfo(null, null, null, status, updateIFace);
+          this.images[id].updateStatus(status, updateIFace);
         }
       },
 
@@ -299,7 +350,7 @@
       },
 
       saveUpdatedTiled:
-      function(checkEditPrivilege)
+      function(checkEditPrivilege, getChanges, url, onChange, changedAttr)
       {
         var changed = [];
         var changedMapping = {};
@@ -308,7 +359,7 @@
           var image = this.images[id];
           if (image.type == 'tiledImage')
           {
-            if (image.changed)
+            if (image[changedAttr])
             {
               var info = image.info;
               if (checkEditPrivilege && info.editPrivilege == 0)
@@ -317,8 +368,7 @@
                 continue;
               }
 
-              changed.push(info.iid + ',' + info.imageLeft + ',' + info.imageTop
-                           + ',' + info.pixelSize + ',' + info.status);
+              changed.push(getChanges(info));
               changedMapping[info.iid] = image;
             }
           }
@@ -326,7 +376,7 @@
 
         if (changed.length > 0)
         {
-          this.ajaxProvider.ajax('/upload/updateMetadata',
+          this.ajaxProvider.ajax(url,
                                  function(response)
                                  {
                                    if (!response.status)
@@ -342,12 +392,7 @@
                                      var image = changedMapping[item[0]];
                                      if (item[1])
                                      {
-                                       var data = image.info;
-                                       data._imageLeft = data.imageLeft;
-                                       data._imageTop = data.imageTop;
-                                       data._pixelSize = data.pixelSize;
-                                       data._status = data.status;
-                                       image.reset(false);
+                                       onChange(image);
                                      }
                                      else
                                      {
@@ -357,6 +402,45 @@
                                  },
                                  {updated: changed.join(':')});
         }
+      },
+
+
+      saveUpdatedTiledImages:
+      function(checkEditPrivilege)
+      {
+        this.saveUpdatedTiled(checkEditPrivilege,
+          function(info)
+          {
+            return info.iid + ',' + info.imageLeft + ',' + info.imageTop
+                   + ',' + info.pixelSize;
+          },
+          '/upload/updateMetadata',
+          function(image)
+          {
+            var data = image.info;
+            data._imageLeft = data.imageLeft;
+            data._imageTop = data.imageTop;
+            data._pixelSize = data.pixelSize;
+            image.resetImage(false);
+          },
+          'changed');
+      },
+
+      saveUpdatedTiledStatuses:
+      function(checkEditPrivilege)
+      {
+        this.saveUpdatedTiled(checkEditPrivilege,
+          function(info)
+          {
+            return info.iid + ',' + info.status;
+          },
+          '/upload/updateStatus',
+          function(image)
+          {
+            image.info._status = image.info.status;
+            image.resetStatus(false);
+          },
+          'statusChanged');
       },
 
       // propagate zIndex value update across all managed images

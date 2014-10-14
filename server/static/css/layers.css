@@ -179,6 +179,7 @@ div.layer-row-wrapper
 }
 
 div.changed.adjustmentVisible,
+div.statusChanged.adjustmentVisible,
 div.privilegeChanged.privilegesVisible,
 div.propertyChanged.propertiesVisible
 {

@@ -30,7 +30,7 @@ from server import jsonStd, generateJson, Server, serveContent, ensureLogged,\
 from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
                     GetBrokenDuplicatesRequest, GetImagesStatusesRequest,\
-                    UpdateMetadataRequest, DeleteImagesRequest,\
+                    UpdateMetadataRequest, UpdateStatusRequest, DeleteImagesRequest,\
                     GetImagesPrivilegesRequest, ChangePublicPrivilegesRequest
 
 from tileBase import NO_PRIVILEGE
@@ -149,7 +149,7 @@ class UploadServer(Generator, Server):
   @ensureLogged
   def updateMetadata(self, uid, request):
     result = []
-    for iid, left, top, ps, status in request.updated:
+    for iid, left, top, ps in request.updated:
       privileges = self.tileBase.getPrivileges(iid, uid)
       if privileges is None:
         continue
@@ -159,11 +159,28 @@ class UploadServer(Generator, Server):
         continue
 
       if self.tileBase.updateMetadata(iid, pixelSize = ps, imageLeft = left,
-                                      imageTop = top, status = status):
+                                      imageTop = top):
         result.append((iid, True))
 
     return generateJson(result, logged = True)
 
+  @serveContent(UpdateStatusRequest)
+  @ensureLogged
+  def updateStatus(self, uid, request):
+    result = []
+    for iid, status in request.updated:
+      privileges = self.tileBase.getPrivileges(iid, uid)
+      if privileges is None:
+        continue
+
+      if privileges[2] == NO_PRIVILEGE:
+        result.append((iid, False))
+        continue
+
+      if self.tileBase.updateMetadata(iid, status = status):
+        result.append((iid, True))
+
+    return generateJson(result, logged = True)
 
   @serveContent(DeleteImagesRequest)
   @ensureLogged
