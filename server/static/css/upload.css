@@ -8,10 +8,8 @@
 #uploadDiv
 {
   position: absolute;
-  width: auto;
   top: 0;
   bottom: 0;
-  height: auto;
   padding: 10px;
 }
 
@@ -34,9 +32,30 @@
 }
 
 #batchSelection,
+#metadataUpload,
 #fileUpload
 {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+#batchSelection
+{
+  top: 0;
+  height: 60px;
+}
+
+#metadataUpload
+{
+  top: 60px;
+  height: 100px;
+}
+
+#fileUpload
+{
+  top: 160px;
+  bottom: 0;
 }
 
 #newBatch,
@@ -76,4 +95,14 @@
 #newBatchName
 {
   padding-right: 3px;
+}
+
+#offsetUpload:before
+{
+  content: "top left corner offset: ";
+}
+
+#offsetUpload:after
+{
+  content: " \00B5m";
 }

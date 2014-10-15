@@ -618,9 +618,12 @@ function initUpload()
   $('#uploadFiles')
     .click(function()
     {
-    
+      var offset = $('#offsetUpload').offsetinput('value');
       fileUploader.submit($('#filesForUpload')[0].files,
-                          $('#filterImageType').prop('checked'));
+                          $('#filterImageType').prop('checked'),
+                          null, //final function
+                          null, //pixelSize
+                          offset.top, offset.left);
     });
   
   function updateFiles()
@@ -632,6 +635,7 @@ function initUpload()
 
   $('#filesForUpload').change(updateFiles);
   $('#filterImageType').change(updateFiles);
+  $('#offsetUpload').offsetinput();
 }
 
 function initUploadFinish()
