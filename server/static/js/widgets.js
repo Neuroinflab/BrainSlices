@@ -1428,18 +1428,27 @@ var CFilterPanel = null;
       top: null,
       left: null,
       onchange: null,
+      unit: 1000
     },
 
     _updateTop:
     function(top)
     {
-      this.$top.val(top != null ? top : '');
+      this.$top.val(top != null ? top / this.options.unit : '');
     },
 
     _updateLeft:
     function(left)
     {
-      this.$left.val(left != null ? left : '');
+      this.$left.val(left != null ? left / this.options.unit : '');
+    },
+
+    _updateUnit:
+    function(unit)
+    {
+      this.$unit.val(unit);
+      this._updateLeft(this.options.left);
+      this._updateTop(this.options.top);
     },
 
     _create:
@@ -1456,6 +1465,11 @@ var CFilterPanel = null;
         .tooltip(BrainSlices.gui.tooltip)
         .addClass('offsetinput-widget-left');
 
+      if (this.options.left != null)
+      {
+        this.$left.val(this.options.left / this.options.unit);
+      }
+
       this.$top = $('<input>')
         .attr(
         {
@@ -1465,6 +1479,51 @@ var CFilterPanel = null;
         .tooltip(BrainSlices.gui.tooltip)
         .addClass('offsetinput-widget-top');
 
+      if (this.options.top != null)
+      {
+        this.$top.val(this.options.top / this.options.unit);
+      }
+
+      this.$unit = $('<select>')
+        .addClass('offsetinput-widget-unit')
+        .append($('<option>')
+          .attr('value', '1000000000')
+          .text('km'))
+        .append($('<option>')
+          .attr('value', '1000000')
+          .text('m'))
+        .append($('<option>')
+          .attr('value', '914400')
+          .text('yd'))
+        .append($('<option>')
+          .attr('value', '304800')
+          .text('ft'))
+        .append($('<option>')
+          .attr('value', '100000')
+          .text('dm'))
+        .append($('<option>')
+          .attr('value', '25400')
+          .text('in'))
+        .append($('<option>')
+          .attr('value', '10000')
+          .text('cm'))
+        .append($('<option>')
+          .attr('value', '1000')
+          .text('mm'))
+        .append($('<option>')
+          .attr('value', '25.4')
+          .text('th'))
+        .append($('<option>')
+          .attr('value', '1')
+          .text('\u03BCm'))
+        .append($('<option>')
+          .attr('value', '0.001')
+          .text('nm'))
+        /*.append($('<option>')
+          .attr('value', '0.000001')
+          .text('pm'))*/
+        .val(this.options.unit);
+
       this._on(this.$left,
         {
           change:
@@ -1472,7 +1531,7 @@ var CFilterPanel = null;
           {
             var options = this.options;
             var left = parseFloat(this.$left.val());
-            left = isNaN(left) ? null : left;
+            left = isNaN(left) ? null : left * this.options.unit;
             options.left = left;
             this._updateLeft(left);
             if (options.onchange)
@@ -1481,6 +1540,7 @@ var CFilterPanel = null;
             }
           }
         });
+
       this._on(this.$top,
         {
           change:
@@ -1488,7 +1548,7 @@ var CFilterPanel = null;
           {
             var options = this.options;
             var top = parseFloat(this.$top.val());
-            top = isNaN(top) ? null : top;
+            top = isNaN(top) ? null : top * this.options.unit;
             options.top = top;
             this._updateTop(top);
             if (options.onchange)
@@ -1498,12 +1558,24 @@ var CFilterPanel = null;
           }
         });
 
+      this._on(this.$unit,
+        {
+          change:
+          function()
+          {
+            var unit = parseFloat(this.$unit.val());
+            this.options.unit = unit;
+            this._updateUnit(unit);
+          }
+        });
+
 
       this.$wrapper = $('<div>')
         .addClass('offsetinput-widget-wrapper')
         .text('x')
         .prepend(this.$left)
         .append(this.$top)
+        .append(this.$unit)
         .appendTo(this.element)
     },
 
@@ -1518,11 +1590,15 @@ var CFilterPanel = null;
     {
       if (key == 'left')
       {
-        this._updateLeft(value, true);
+        this._updateLeft(value);
       }
       else if (key == 'top')
       {
-        this._updateTop(value, true);
+        this._updateTop(value);
+      }
+      else if (key == 'unit')
+      {
+        this._updateUnit(value);
       }
 
       this._super(key, value);

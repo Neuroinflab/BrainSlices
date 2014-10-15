@@ -112,7 +112,8 @@ select
   background-size: 20px, 8px;
 }
 
-select.selectWrapper
+select.selectWrapper,
+select.selectWrapper:hover
 {
   border: none;
   border-radius: 4px;
@@ -157,14 +158,6 @@ select:focus
   -moz-box-shadow: rgba(0,0,0, 0.15) 0px 0px 8px;
   -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
 }
-
-select.selectWrapper:hover
-{
-  box-shadow: none;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
-}
-
 
 .ui-tooltip
 {

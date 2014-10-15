@@ -102,7 +102,7 @@
   content: "top left corner offset: ";
 }
 
-#offsetUpload:after
+/*#offsetUpload:after
 {
   content: " \00B5m";
-}
+}*/
