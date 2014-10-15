@@ -1419,7 +1419,6 @@ var CFilterPanel = null;
    * A widget for folding/unfolding DIVs.
    *
    * Options:
-   *   treshold - a minimum element height when folding occurs.
    **************************************************************************/
   $.widget('brainslices.offsetinput',
   {
@@ -1582,7 +1581,7 @@ var CFilterPanel = null;
     value:
     function()
     {
-      return {top: this.options.top, left: this.options.left}
+      return {top: this.options.top, left: this.options.left};
     },
 
     _setOption:
@@ -1609,6 +1608,145 @@ var CFilterPanel = null;
     {
       this.$wrapper.remove();
       this.element.removeClass('has-offsetinput-widget');
+    }
+  });
+
+  /**
+   * Class: brainslices.resolution
+   *
+   * A widget for folding/unfolding DIVs.
+   *
+   * Options:
+   *   unit - if negative, then dpi or so...
+   **************************************************************************/
+  $.widget('brainslices.resolution',
+  {
+    options:
+    {
+      pixelSize: null,
+      unit: 1000,
+      onchange: null
+    },
+
+    _updatePixelSize:
+    function(ps)
+    {
+      var unit = this.options.unit;
+
+      this.$pixelSize.val(ps != null ?
+                          (unit > 0 ?  ps / unit : -unit / ps) :
+                          '');
+    },
+
+    _updateUnit:
+    function(unit)
+    {
+      this.$unit.val(unit);
+      this._updatePixelSize(this.options.pixelSize);
+    },
+
+    _create:
+    function()
+    {
+      this.element.addClass('has-resolution-widget');
+
+      this.$pixelSize = $('<input>')
+        .attr('type', 'number')
+        .addClass('resolution-widget-ps');
+
+      this._updatePixelSize(this.options.pixelSize);
+
+      this.$unit = $('<select>')
+        .addClass('resolution-widget-unit')
+        .append($('<option>')
+          .attr('value', '-25400')
+          .text('resolution [DPI]'))
+        .append($('<option>')
+          .attr('value', '1000000')
+          .text('pixel size [m]'))
+        .append($('<option>')
+          .attr('value', '304800')
+          .text('pixel size [ft]'))
+        .append($('<option>')
+          .attr('value', '25400')
+          .text('pixel size [in]'))
+        .append($('<option>')
+          .attr('value', '1000')
+          .text('pixel size [mm]'))
+        .append($('<option>')
+          .attr('value', '25.4')
+          .text('pixel size [th]'))
+        .append($('<option>')
+          .attr('value', '1')
+          .text('pixel size [\u03BCm]'))
+        .append($('<option>')
+          .attr('value', '0.001')
+          .text('pixel size [nm]'))
+        .val(this.options.unit);
+
+      this._on(this.$pixelSize,
+        {
+          change:
+          function()
+          {
+            var options = this.options;
+            var ps = parseFloat(this.$pixelSize.val());
+            var unit = options.unit;
+            ps = isNaN(ps) ? null :
+                 (unit > 0 ? ps * unit : -unit / ps);
+            options.pixelSize = ps;
+            this._updatePixelSize(ps);
+            if (options.onchange)
+            {
+              options.onchange(ps);
+            }
+          }
+        });
+
+      this._on(this.$unit,
+        {
+          change:
+          function()
+          {
+            var unit = parseFloat(this.$unit.val());
+            this.options.unit = unit;
+            this._updateUnit(unit);
+          }
+        });
+
+      this.$wrapper = $('<div>')
+        .addClass('resolution-widget-wrapper')
+        .append(this.$unit)
+        .append(this.$pixelSize)
+        .appendTo(this.element)
+    },
+
+    value:
+    function()
+    {
+      return this.options.pixelSize;
+    },
+
+    _setOption:
+    function(key, value)
+    {
+      if (key == 'pixelSize')
+      {
+        this._updatePixelSize(value);
+      }
+      else if (key == 'unit')
+      {
+        this._updateUnit(value);
+      }
+
+      this._super(key, value);
+    },
+
+    _destroy:
+    function()
+    {
+      this.$wrapper.remove();
+      this.element.removeClass('has-resolution-widget');
     }
   });
 

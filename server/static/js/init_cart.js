@@ -12,71 +12,21 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
   {
     image.updateImage(null, null, pixel, false);
   });
-  var $dpi = $('<input>')
-    .attr('type', 'number')
-    .css('display', 'none')
-    .addClass('adjustPanelRes')
-    .change(function()
-    {
-      var ps =  25400. / parseFloat($dpi.val());
-      $pixelSize.val(ps);
-      updatePixel(isNaN(ps) ? null : ps);
-    });
-
-  var $pixelSize = $('<input>')
-    .attr('type', 'number')
-    .addClass('adjustPanelRes')
-    .change(function()
-    {
-      var ps = parseFloat($pixelSize.val());
-      $dpi.val(25400. / ps);
-      updatePixel(isNaN(ps) ? null : ps);
-    });
-
-  var $res = $('<select>')
-    .addClass('adjustPanelRes')
-    .append($('<option>')
-      .text('resolution [DPI]')
-      .attr('value', 'dpi'))
-    .append($('<option>')
-      .text('pixel size [μm]')
-      .attr(
-      {
-        value: 'ps',
-        selected: 'selected'
-      }))
-    .change(function()
-    {
-      switch ($res.val())
-      {
-        case 'ps':
-          $dpi.hide(0);
-          $pixelSize.show(0);
-          break;
-
-        case 'dpi':
-          $pixelSize.hide(0);
-          $dpi.show(0);
-          break
-      }
-    });
 
   var buttons = getTrigger('buttons', triggers, {});
   var $offset = $('<label>')
     .addClass('adjustPanelOffset')
     .offsetinput({onchange: updateOffset});
+  var $pixelSize = $('<span>')
+    .resolution({onchange: updatePixel});
   var $iface = $('<span>')
     .css('display', adjust ? '' : 'none')
     .append('<br>')
     .append($offset)
     .append('<br>')
     .addClass('adjustPanelRes')
-    .append($('<div>')
-      .addClass('selectWrapper adjustPanelRes')
-      .append($res)
-      .append($dpi)
-      .append($pixelSize))
-    .append(' ')
+    .append($pixelSize)
+    .append('&nbsp;')
     .append($.map(buttons, function(value, key)
     {
       return $('<button>')
@@ -119,9 +69,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     var onUpdate = function(info)
     {
       $offset.offsetinput({left: info.imageLeft, top: info.imageTop});
-      $dpi.val(25400. / info.pixelSize);
-      $pixelSize.val(info.pixelSize);
-      /*$status.val(info.status);*/
+      $pixelSize.resolution({pixelSize: info.pixelSize});
     };
 
     finish(

@@ -622,7 +622,7 @@ function initUpload()
       fileUploader.submit($('#filesForUpload')[0].files,
                           $('#filterImageType').prop('checked'),
                           null, //final function
-                          null, //pixelSize
+                          $('#resolutionUpload').resolution('value'),
                           offset.top, offset.left);
     });
   
@@ -636,6 +636,7 @@ function initUpload()
   $('#filesForUpload').change(updateFiles);
   $('#filterImageType').change(updateFiles);
   $('#offsetUpload').offsetinput();
+  $('#resolutionUpload').resolution();
 }
 
 function initUploadFinish()

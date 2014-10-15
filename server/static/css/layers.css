@@ -355,13 +355,15 @@ label.adjustPanelOffset:before
   content: "top left corner offset: ";
 }
 
+/*
 label.adjustPanelOffset:after
 {
   content: " \00B5m";
 }
+*/
 
-select.adjustPanelRes,
-input.adjustPanelRes,
+select.resolution-widget-unit,
+input.resolution-widget-ps,
 input.offsetinput-widget-left,
 input.offsetinput-widget-top,
 select.offsetinput-widget-unit
@@ -375,7 +377,7 @@ select.offsetinput-widget-unit
   -webkit-box-shadow: none;
 }
 
-input.adjustPanelRes,
+input.resolution-widget-ps,
 input.offsetinput-widget-left,
 input.offsetinput-widget-top
 {
@@ -384,24 +386,20 @@ input.offsetinput-widget-top
   padding: 0 3px;
 }
 
-select.adjustPanelRes,
+select.resolution-widget-unit,
 input.offsetinput-widget-left
 {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
 
-select.adjustPanelRes
+select.resolution-widget-unit
 {
   border-right: solid 1px #E5E5E5;
 }
 
-div.adjustPanelRes.selectWrapper
-{
-  border: solid 1px #E5E5E5;
-}
-
-div.offsetinput-widget-wrapper
+div.offsetinput-widget-wrapper,
+div.resolution-widget-wrapper
 {
 	display: inline-block;
 
@@ -418,12 +416,8 @@ div.offsetinput-widget-wrapper
   -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
 
-div.adjustPanelRes.selectWrapper:hover
-{
-  border-color: #C9C9C9;
-}
-
-div.offsetinput-widget-wrapper:hover
+div.offsetinput-widget-wrapper:hover,
+div.resolution-widget-wrapper:hover
 {
   border-color: #C9C9C9;
 	box-shadow: rgba(0,0,0,  0.15) 0px 0px 8px;
@@ -431,7 +425,7 @@ div.offsetinput-widget-wrapper:hover
 	-webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
 }
 
-input.adjustPanelRes,
+input.resolution-widget-ps,
 select.offsetinput-widget-unit
 {
   border-top-right-radius: 4px;
@@ -459,7 +453,7 @@ label.managementPanelStatus:before
   content: "Status: ";
 }
 
-select.adjustPanelRes,
+select.resolution-widget-unit,
 select.managementPanelStatus
 {
   padding-top: 0;
