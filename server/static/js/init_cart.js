@@ -3,39 +3,10 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
 {
   var getTrigger = BrainSlices.aux.getTrigger;
 
-  var updateLeft = getTrigger('left', triggers, function(left)
+  var updateOffset = getTrigger('offset', triggers, function(offset)
   {
-    image.updateImage(left, null, null, false);
+    image.updateImage(offset.left, offset.top, null, false);
   });
-  var $imageLeft = $('<input>')
-    .attr(
-    {
-      type: 'number',
-      title: 'left offset'
-    })
-    .addClass('adjustPanelLeft')
-    .change(function()
-    {
-      var left = parseFloat($imageLeft.val());
-      updateLeft(isNaN(left) ? null : left);
-    });
-
-  var updateTop = getTrigger('top', triggers, function(top)
-  {
-    image.updateImage(null, top, null, false);
-  });
-  var $imageTop = $('<input>')
-    .attr(
-    {
-      type: 'number',
-      title: 'top offset'
-    })
-    .addClass('adjustPanelTop')
-    .change(function()
-    {
-      var top = parseFloat($imageTop.val());
-      updateTop(isNaN(top) ? null : top);
-    });
 
   var updatePixel = getTrigger('pixel', triggers, function(pixel)
   {
@@ -91,16 +62,13 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
     });
 
   var buttons = getTrigger('buttons', triggers, {});
+  var $offset = $('<label>')
+    .addClass('adjustPanelOffset')
+    .offsetinput({onchange: updateOffset});
   var $iface = $('<span>')
     .css('display', adjust ? '' : 'none')
     .append('<br>')
-    .append($('<label>')
-      .addClass('adjustPanelOffset')
-    .append($('<div>')
-      .addClass('selectWrapper adjustPanelRes')
-      .text('x')
-      .prepend($imageLeft)
-      .append($imageTop)))
+    .append($offset)
     .append('<br>')
     .addClass('adjustPanelRes')
     .append($('<div>')
@@ -150,8 +118,7 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
   {
     var onUpdate = function(info)
     {
-      $imageLeft.val(info.imageLeft);
-      $imageTop.val(info.imageTop);
+      $offset.offsetinput({left: info.imageLeft, top: info.imageTop});
       $dpi.val(25400. / info.pixelSize);
       $pixelSize.val(info.pixelSize);
       /*$status.val(info.status);*/

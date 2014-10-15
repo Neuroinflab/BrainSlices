@@ -1413,5 +1413,127 @@ var CFilterPanel = null;
     }
   });
 
+  /**
+   * Class: brainslices.offsetinput
+   *
+   * A widget for folding/unfolding DIVs.
+   *
+   * Options:
+   *   treshold - a minimum element height when folding occurs.
+   **************************************************************************/
+  $.widget('brainslices.offsetinput',
+  {
+    options:
+    {
+      top: null,
+      left: null,
+      onchange: null,
+    },
+
+    _updateTop:
+    function(top)
+    {
+      this.$top.val(top != null ? top : '');
+    },
+
+    _updateLeft:
+    function(left)
+    {
+      this.$left.val(left != null ? left : '');
+    },
+
+    _create:
+    function()
+    {
+      this.element.addClass('has-offsetinput-widget');
+
+      this.$left = $('<input>')
+        .attr(
+        {
+          type: 'number',
+          title: 'left offset'
+        })
+        .tooltip(BrainSlices.gui.tooltip)
+        .addClass('offsetinput-widget-left');
+
+      this.$top = $('<input>')
+        .attr(
+        {
+          type: 'number',
+          title: 'top offset'
+        })
+        .tooltip(BrainSlices.gui.tooltip)
+        .addClass('offsetinput-widget-top');
+
+      this._on(this.$left,
+        {
+          change:
+          function()
+          {
+            var options = this.options;
+            var left = parseFloat(this.$left.val());
+            left = isNaN(left) ? null : left;
+            options.left = left;
+            this._updateLeft(left);
+            if (options.onchange)
+            {
+              options.onchange({top: options.top, left: left});
+            }
+          }
+        });
+      this._on(this.$top,
+        {
+          change:
+          function()
+          {
+            var options = this.options;
+            var top = parseFloat(this.$top.val());
+            top = isNaN(top) ? null : top;
+            options.top = top;
+            this._updateTop(top);
+            if (options.onchange)
+            {
+              options.onchange({top: top, left: options.left});
+            }
+          }
+        });
+
+
+      this.$wrapper = $('<div>')
+        .addClass('offsetinput-widget-wrapper')
+        .text('x')
+        .prepend(this.$left)
+        .append(this.$top)
+        .appendTo(this.element)
+    },
+
+    value:
+    function()
+    {
+      return {top: this.options.top, left: this.options.left}
+    },
+
+    _setOption:
+    function(key, value)
+    {
+      if (key == 'left')
+      {
+        this._updateLeft(value, true);
+      }
+      else if (key == 'top')
+      {
+        this._updateTop(value, true);
+      }
+
+      this._super(key, value);
+    },
+
+    _destroy:
+    function()
+    {
+      this.$wrapper.remove();
+      this.element.removeClass('has-offsetinput-widget');
+    }
+  });
 
 })(jQuery);

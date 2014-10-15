@@ -197,8 +197,12 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
     };
 
     var afterUpload = null;
+    var pixelSize = null;
+    var imageTop = null;
+    var imageLeft = null;
 
-    this.submit = function(fileList, filter, finalFunction)
+    this.submit = function(fileList, filter, finalFunction,
+                           ps, top, left)
     {
     /**
      * Method: submit
@@ -209,8 +213,14 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
      *   fileList - An array of files to be uploaded.
      *   filter - Flag indicating whether to filter out non-image types.
      *   finalFunction - A callback to be called after upload is completed.
+     *   ps - 
+     *   top -
+     *   left -
      ***********************************************************************/
       afterUpload = finalFunction;
+      pixelSize = ps;
+      imageTop = top;
+      imageLeft = left;
       files = this.filterImageFiles(fileList, filter);
       files.sort(imageCMP);
 
@@ -975,10 +985,21 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             {
               form_data.append('bid', bid);
             }
-            //XXX test
-            form_data.append('ps', 1000);
-            form_data.append('top', -100000)
-            form_data.append('left', -100000)
+
+            if (pixelSize != null && !isNaN(pixelSize) && pixelSize > 0)
+            {
+              form_data.append('ps', pixelSize);
+            }
+
+            if (imageTop != null && !isNaN(imageTop))
+            {
+              form_data.append('top', imageTop);
+            }
+
+            if (imageLeft != null && !isNaN(imageLeft))
+            {
+              form_data.append('left', imageLeft);
+            }
 
             var total = file.size;
             ajaxOptions = {

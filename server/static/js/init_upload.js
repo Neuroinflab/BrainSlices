@@ -262,16 +262,11 @@ function initUpload()
       animateImageCartHeader();
     },
 
-    left:
-    function(left)
+    offset:
+    function(offset)
     {
-      adjustAll.left = left;
-    },
-
-    top:
-    function(top)
-    {
-      adjustAll.top = top;
+      adjustAll.left = offset.left;
+      adjustAll.top = offset.top;
     },
 
     pixel:

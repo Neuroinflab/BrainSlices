@@ -362,8 +362,8 @@ label.adjustPanelOffset:after
 
 select.adjustPanelRes,
 input.adjustPanelRes,
-input.adjustPanelLeft,
-input.adjustPanelTop
+input.offsetinput-widget-left,
+input.offsetinput-widget-top
 {
   border: none;
   margin: 0;
@@ -375,8 +375,8 @@ input.adjustPanelTop
 }
 
 input.adjustPanelRes,
-input.adjustPanelLeft,
-input.adjustPanelTop
+input.offsetinput-widget-left,
+input.offsetinput-widget-top
 {
   width: 80px;
   background: none;
@@ -384,7 +384,7 @@ input.adjustPanelTop
 }
 
 select.adjustPanelRes,
-input.adjustPanelLeft
+input.offsetinput-widget-left
 {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
@@ -400,13 +400,38 @@ div.adjustPanelRes.selectWrapper
   border: solid 1px #E5E5E5;
 }
 
+div.offsetinput-widget-wrapper
+{
+	display: inline-block;
+
+	margin-bottom: 4px;
+	margin-right: 4px;
+
+	border: solid 1px #E5E5E5;
+	border-radius: 4px;
+	background: -webkit-gradient(linear, left top, left 61%, from(#EEEEEE), to(#FFFFFF));
+  background: -moz-linear-gradient(top, #EEEEEE, #FFFFFF 61%);
+  background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%); 
+  box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+  -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
+}
+
 div.adjustPanelRes.selectWrapper:hover
 {
   border-color: #C9C9C9;
 }
 
+div.offsetinput-widget-wrapper:hover
+{
+  border-color: #C9C9C9;
+	box-shadow: rgba(0,0,0,  0.15) 0px 0px 8px;
+	-moz-box-shadow: rgba(0,0,0, 0.15) 0px 0px 8px;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;
+}
+
 input.adjustPanelRes,
-input.adjustPanelTop
+input.offsetinput-widget-top
 {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
