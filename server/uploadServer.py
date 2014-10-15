@@ -92,6 +92,9 @@ class UploadServer(Generator, Server):
     slot = self.tileBase.UploadSlot(uid, filename = request.filename,
                                     declared_size = request.size,
                                     declared_md5 = request.key,
+                                    pixel_size = request.ps,
+                                    image_top = request.top,
+                                    image_left = request.left,
                                     bid = request.bid)
     return self.appendSlot(slot, request.data)
 

@@ -975,6 +975,10 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             {
               form_data.append('bid', bid);
             }
+            //XXX test
+            form_data.append('ps', 1000);
+            form_data.append('top', -100000)
+            form_data.append('left', -100000)
 
             var total = file.size;
             ajaxOptions = {

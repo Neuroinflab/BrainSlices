@@ -412,11 +412,15 @@ class TileBase(dbBase):
     thisInstance = self
     class UploadSlot(object):
       def __init__(self, uid, iid = None, filename = None,
-                   declared_size = None, declared_md5 = None, bid = None):
+                   declared_size = None, declared_md5 = None, bid = None,
+                   pixel_size = None, image_top = None, image_left = None):
         if iid is None:
           iid = thisInstance.makeUploadSlot(uid, filename, declared_size,
                                             bid = bid,
-                                            declared_md5 = declared_md5)
+                                            declared_md5 = declared_md5,
+                                            pixel_size = pixel_size,
+                                            image_top = image_top,
+                                            image_left = image_left)
           crc32 = 0
           size = 0
           todo = declared_size
@@ -528,7 +532,9 @@ class TileBase(dbBase):
 
   @provideCursor
   def makeUploadSlot(self, uid, filename, declared_size, bid = None,
-                     declared_md5 = None, cursor = None):
+                     declared_md5 = None, pixel_size = None,
+                     image_top = None, image_left = None,
+                     cursor = None):
     if uid == None:
       return None
 
@@ -547,11 +553,13 @@ class TileBase(dbBase):
 
     cursor.execute("""
                    INSERT INTO images(iid, status, owner, filename,
-                                      declared_size, bid, source_md5)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s);
+                                      declared_size, bid, source_md5,
+                                      pixel_size, image_top, image_left)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                    """, (iid, IMAGE_STATUS_RECEIVING, uid, filename,
                          declared_size, bid,
-                         declared_md5.lower() if declared_md5 is not None else None))
+                         declared_md5.lower() if declared_md5 is not None else None,
+                         pixel_size, image_top, image_left))
     if cursor.rowcount:
       return iid
 
@@ -599,12 +607,25 @@ class TileBase(dbBase):
     return False
 
   @provideCursor
+  def getMetadata(self, iid, cursor = None):
+    cursor.execute("""
+                   SELECT pixel_size, image_top, image_left
+                   FROM images
+                   WHERE iid = %s;
+                   """, (iid,))
+    if cursor.rowcount > 0:
+      return cursor.fetchone()
+
+  @provideCursor
   def updateMetadata(self, iid, pixelSize = None, imageLeft = None,
-                     imageTop = None, status = None, cursor = None):
+                     imageTop = None, status = None,
+                     pixelSizeX = None, pixelSizeY = None, cursor = None):
     toUpdate = [(x, y) for (x, y) in [('pixel_size', pixelSize),
                                       ('image_left', imageLeft),
                                       ('image_top', imageTop),
-                                      ('status', status)]\
+                                      ('status', status),
+                                      ('pixel_size_x', pixelSizeX),
+                                      ('pixel_size_y', pixelSizeY)]\
                 if y is not None]
     if len(toUpdate) == 0:
       return False

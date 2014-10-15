@@ -502,7 +502,10 @@ class ContinueImageUploadRequest(UploadDataRequest):
 class UploadNewImageRequest(UploadDataRequest):
   _required = UploadDataRequest._required | frozenset(['filename', 'size', 'key'])
   _optional = dict(UploadDataRequest._optional)
-  _optional.update({'bid': None})
+  _optional.update({'bid': None,
+                    'top': None,
+                    'left': None,
+                    'ps': None})
 
   def _parse(self):
     if not UploadDataRequest._parse(self):
@@ -513,6 +516,9 @@ class UploadNewImageRequest(UploadDataRequest):
                         lambda x: x >= MIN_FILE_SIZE and x <= MAX_FILE_SIZE,
                         int)
     self._parseArgument('bid', lambda x: x >= 0, int)
+    self._parseArgument('ps', lambda x: x > 0, float)
+    self._parseArgument('top', None, float)
+    self._parseArgument('left', None, float)
     self._parseArgument('key', lambda x: len(x) > 0,
                         lambda x: x.strip().lower())
 
