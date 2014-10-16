@@ -283,6 +283,18 @@ select:focus
   background: #2d7dc5;
 }
 
+.ui-helper-hidden-accessible
+{
+  order: none;
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  position: absolute;
+}
+
 #navbar
 {
   position: fixed;
@@ -358,7 +370,7 @@ select:focus
 
 .polaroid-image
 {
-	box-shadow: rgba(0,0,0,.25) 0 3px 6px;
+  box-shadow: rgba(0,0,0,.25) 0 3px 6px;
   -moz-box-shadow: rgba(0,0,0,.25) 0 3px 6px;
   -webkit-box-shadow: rgba(0,0,0,.25) 0 3px 6px;
 
@@ -372,12 +384,12 @@ select:focus
 /* XXX: upload*/
 .lmargin10
 {
-	margin-left: 10px;
+  margin-left: 10px;
 }
 
 .link
 {
-	color: #3b5998 !important;
+  color: #3b5998 !important;
   cursor: pointer;
   text-decoration: underline;
 }

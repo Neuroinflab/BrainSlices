@@ -154,16 +154,12 @@ class UploadServer(Generator, Server):
     result = []
     for iid, left, top, ps in request.updated:
       privileges = self.tileBase.getPrivileges(iid, uid)
-      if privileges is None:
-        continue
-
-      if privileges[2] == NO_PRIVILEGE:
-        result.append((iid, False))
+      if privileges is None or privileges[2] == NO_PRIVILEGE:
         continue
 
       if self.tileBase.updateMetadata(iid, pixelSize = ps, imageLeft = left,
                                       imageTop = top):
-        result.append((iid, True))
+        result.append(iid)
 
     return generateJson(result, logged = True)
 
@@ -173,34 +169,26 @@ class UploadServer(Generator, Server):
     result = []
     for iid, status in request.updated:
       privileges = self.tileBase.getPrivileges(iid, uid)
-      if privileges is None:
-        continue
-
-      if privileges[2] == NO_PRIVILEGE:
-        result.append((iid, False))
+      if privileges is None or privileges[2] == NO_PRIVILEGE:
         continue
 
       if self.tileBase.updateMetadata(iid, status = status):
-        result.append((iid, True))
+        result.append(iid)
 
     return generateJson(result, logged = True)
 
   @serveContent(DeleteImagesRequest)
   @ensureLogged
   def deleteImages(self, uid, request):
-    # TODO: expand the stub
     result = []
     for iid in request.iids:
       privileges = self.tileBase.getPrivileges(iid, uid)
-      if privileges is None:
-        continue
+      if privileges is None: # image already not in database
+        result.append(iid)
 
-      if privileges[2] == NO_PRIVILEGE:
-        result.append((iid, False))
-        continue
-
-      if self.tileBase.deleteImage(iid):
-        result.append((iid, True))
+      elif privileges[2] > NO_PRIVILEGE: # can delete
+        if self.tileBase.deleteImage(iid): # deleted
+          result.append(iid)
 
     return generateJson(result, logged = True)
 

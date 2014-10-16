@@ -20,10 +20,10 @@ function initUpload()
 
   var STATUS_MAP = BrainSlices.gui.STATUS_MAP;
   var scope = BrainSlices.scope;
-  
-  /*
+
+/*
   var deleteButtons = {};
-  
+
   function deleteImages()
   {
     var toDelete = [];
@@ -407,6 +407,16 @@ function initUpload()
 
         default:
           console.error(scope.get('editMode'));
+      }
+    });
+
+  $('#deleteImagesButton')
+    .tooltip(BrainSlices.gui.tooltip)
+    .click(function()
+    {
+      if (confirm("Do you really want to remove selected images permanently?"))
+      {
+        images.deleteTiled();
       }
     });
 

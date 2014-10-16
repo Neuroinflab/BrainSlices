@@ -44,10 +44,26 @@
    *   path -
    *   id -
    *   z -
+   *   onDelete -
+   *   forDeletion -
    *
    ************************/
   var imagePrototype =
   {
+    forDeletion: false,
+
+    delete:
+    function(value)
+    {
+      value = value == null || value;
+      this.forDeletion = value;
+
+      if (this.$row != null)
+      {
+        this.$row[value ? 'addClass' : 'removeClass']('delete');
+      }
+    },
+
     reset:
     function(updateIFace)
     {
@@ -171,14 +187,9 @@
 
       if (this.$row != null)
       {
-        if (status != info._status)
-        {
-          this.$row.addClass('statusChanged');
-        }
-        else
-        {
-          this.$row.removeClass('statusChanged');
-        }
+        this.$row[status != info._status ?
+                  'addClass' :
+                  'removeClass']('statusChanged');
       }
 
       if (updateIFace == null || updateIFace)
@@ -356,7 +367,7 @@
       },
 
       saveUpdatedTiled:
-      function(checkEditPrivilege, getChanges, url, onChange, changedTest)
+      function(checkEditPrivilege, getChanges, url, onChange, changedTest, queryKey, separator)
       {
         var changed = [];
         var changedMapping = {};
@@ -382,6 +393,8 @@
 
         if (changed.length > 0)
         {
+          var data = {};
+          data[queryKey] = changed.join(separator);
           this.ajaxProvider.ajax(url,
                                  function(response)
                                  {
@@ -394,22 +407,14 @@
 
                                    for (var i = 0; i < changed.length; i++)
                                    {
-                                     var item = changed[i];
-                                     var image = changedMapping[item[0]];
-                                     if (item[1])
-                                     {
-                                       onChange(image);
-                                     }
-                                     else
-                                     {
-                                       console.warn('No privileges to change image #' + item[0]);
-                                     }
+                                     var iid = changed[i];
+                                     var image = changedMapping[iid];
+                                     onChange(image);
                                    }
                                  },
-                                 {updated: changed.join(':')});
+                                 data);
         }
       },
-
 
       saveUpdatedTiledImages:
       function(checkEditPrivilege)
@@ -432,7 +437,8 @@
           function(image)
           {
             return image.changed
-          });
+          },
+          'update', ':');
       },
 
       saveUpdatedTiledStatuses:
@@ -452,7 +458,33 @@
           function(image)
           {
             return image.info.status != image.info._status;
-          });
+          },
+          'update', ':');
+      },
+
+      deleteTiled:
+      function(checkEditPrivilege)
+      {
+        var thisInstance = this;
+        this.saveUpdatedTiled(checkEditPrivilege,
+          function(info)
+          {
+            return info.iid;
+          },
+          '/upload/deleteImages',
+          function(image)
+          {
+            if (image.onDelete)
+            {
+              image.onDelete();
+            }
+            thisInstance.removeCachedImage(image.info.iid);
+          },
+          function(image)
+          {
+            return image.forDeletion;
+          },
+          'iids', ',');
       },
 
       // propagate zIndex value update across all managed images
@@ -469,15 +501,15 @@
         }
       },
 
-      updateCachedTiledImage:
+      /*updateCachedTiledImage:
       function(id, path, onSuccess, onUpdate, $row)
       {
         this.removeCachedImage(id); //XXX: not sure if do what expected
         this.cacheTiledImage(id, path, onSuccess, onUpdate, $row);
-      },
+      },*/// obsoleted
 
       cacheTiledImageOffline:
-      function(id, path, info, onSuccess, onUpdate, $row, zIndex, onAdjust)
+      function(id, path, info, onSuccess, onUpdate, $row, zIndex, onAdjust, onDelete)
       {
         if (!this.has(id))
         {
@@ -495,6 +527,7 @@
           cachedImage.cacheId = 0;
           cachedImage.onUpdate = onUpdate;
           cachedImage.onAdjust = onAdjust;
+          cachedImage.onDelete = onDelete;
           cachedImage.$row = $row;
           cachedImage.id = id;
           cachedImage.z = zIndex != null ? zIndex : 0;
@@ -514,7 +547,8 @@
       },
 
       cacheTiledImage:
-      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid, onAdjust)
+      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid, onAdjust,
+               onDelete)
       {
         var thisInstance = this;
         this.ajaxProvider.ajax(path + '/info.json',
@@ -524,7 +558,7 @@
                                  {
                                    if (isValid == null || isValid(response.data))
                                    {
-                                     thisInstance.cacheTiledImageOffline(id, path, response.data, onSuccess, onUpdate, $row, zIndex, onAdjust);
+                                     thisInstance.cacheTiledImageOffline(id, path, response.data, onSuccess, onUpdate, $row, zIndex, onAdjust, onDelete);
                                    }
                                  }
                                  else

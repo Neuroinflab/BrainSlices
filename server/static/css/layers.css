@@ -183,7 +183,14 @@ div.statusChanged.managementVisible,
 div.privilegeChanged.privilegesVisible,
 div.propertyChanged.propertiesVisible
 {
-  background: #FFEEEE !important; 
+  background-color: #FFEEEE !important; 
+}
+
+div.delete.managementVisible,
+div.statusChanged.delete.managementVisible
+{
+  background-image: url('/static/gfx/remove.png');
+  background-repeat: repeat;
 }
 
 /*
@@ -459,6 +466,16 @@ select.managementPanelStatus
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 3px;
+}
+
+
+.deleteImage:hover,
+.deleteImage.ui-state-active,
+#deleteImagesButton:hover
+{
+  background-color: #FF0000;
+  border-color: #FFBBBB;
+  color: #FFFFFF;
 }
 
 

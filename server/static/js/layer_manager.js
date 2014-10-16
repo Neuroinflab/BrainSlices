@@ -247,6 +247,11 @@ with ({gui: BrainSlices.gui,
         if (image.onUpdate) image.onUpdate();
       }
 
+      function onDelete()
+      {
+        thisInstance.removeLayer(id);
+      }
+
       this.add(id, $row, $visibility, zIndex, dragMIME, onremove, path + '/tiles/0/0/0.jpg');
 
       if (info == null)
@@ -265,7 +270,7 @@ with ({gui: BrainSlices.gui,
                                       }
                                       return true;
                                     },
-                                    onAdjust);
+                                    onAdjust, onDelete);
       }
       else
       {
@@ -276,7 +281,8 @@ with ({gui: BrainSlices.gui,
         else
         {
           this.images.cacheTiledImageOffline(id, path, info, finishCaching,
-                                             onUpdate, $imageRow, null, onAdjust);
+                                             onUpdate, $imageRow, null,
+                                             onAdjust, onDelete);
         }
       }
     },

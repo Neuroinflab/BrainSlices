@@ -1182,6 +1182,17 @@ function initCart()
                               {
                                 image.updateStatus(parseInt($status.val()), false);
                               })
+                          var $delete =
+                            $('<input>')
+                            .attr(
+                            {
+                              type: 'checkbox',
+                              id: 'tiledImageDelete' + id
+                            })
+                            .change(function()
+                            {
+                              image.delete(this.checked);
+                            });
                           var rowElements;
 
                           function toPostpone()
@@ -1261,9 +1272,19 @@ function initCart()
                                   .append($('<div>')
                                     .addClass('selectWrapper')
                                     .append($status)))
+                                .append($delete)
+                                .append($('<label>')
+                                  .attr(
+                                  {
+                                    'for': 'tiledImageDelete' + id,
+                                    'title': 'mark image for permanent removal'
+                                  })
+                                  .addClass('fa fa-trash-o deleteImage'))
                                 .appendTo($drag)
 
                             };
+
+                            $delete.button();
 
                             rowElements.$privileges = $('<div>')
                               .addClass('privilegePanel')
