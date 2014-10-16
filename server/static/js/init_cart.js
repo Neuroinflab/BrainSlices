@@ -1088,6 +1088,8 @@ function initCart()
 
       var onAdjustPostponed = null;
       var onUpdatePostponed = null;
+      var onDeleteMarkPostponed = null;
+
       function onUpdate()
       {
         if (onUpdatePostponed) onUpdatePostponed(this.info);
@@ -1189,6 +1191,7 @@ function initCart()
                               type: 'checkbox',
                               id: 'tiledImageDelete' + id
                             })
+                            .prop('checked', image.forDeletion)
                             .change(function()
                             {
                               image.delete(this.checked);
@@ -1329,6 +1332,12 @@ function initCart()
                                     onUpdate(info);
                                   };
                                   onAdjustPostponed = onAdjust;
+                                  onDeleteMarkPostponed = function(del)
+                                  {
+                                    $delete
+                                      .prop('checked', del)
+                                      .button('refresh');
+                                  };
                                 });
 
                             //removal
@@ -1468,7 +1477,14 @@ function initCart()
                           }
                         },
                         onfailure, isvalid, onUpdate, onAdjust,
-                        $drag);
+                        $drag,
+                        function(del)
+                        {
+                          if (onDeleteMarkPostponed)
+                          {
+                            onDeleteMarkPostponed(del);
+                          }
+                        });
       
 
       return id;

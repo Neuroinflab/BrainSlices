@@ -233,7 +233,8 @@ with ({gui: BrainSlices.gui,
      *************************************************************************/
     addTileLayer:
     function(id, $row, $visibility, zIndex, dragMIME, onremove, path, info,
-             update, onsuccess, onfailure, isvalid, onUpdate, onAdjust, $imageRow)
+             update, onsuccess, onfailure, isvalid, onUpdate, onAdjust, $imageRow,
+             onDeleteMark)
     {
       var thisInstance = this;
 
@@ -270,7 +271,7 @@ with ({gui: BrainSlices.gui,
                                       }
                                       return true;
                                     },
-                                    onAdjust, onDelete);
+                                    onAdjust, onDelete, onDeleteMark);
       }
       else
       {
@@ -282,7 +283,7 @@ with ({gui: BrainSlices.gui,
         {
           this.images.cacheTiledImageOffline(id, path, info, finishCaching,
                                              onUpdate, $imageRow, null,
-                                             onAdjust, onDelete);
+                                             onAdjust, onDelete, onDeleteMark);
         }
       }
     },

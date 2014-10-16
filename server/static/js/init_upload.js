@@ -299,6 +299,19 @@ function initUpload()
     });
   });
 
+  $('#tiledImageDeleteAll')
+    .button()
+    .change(function()
+    {
+      var del = this.checked;
+      images.apply(null, function(image, updateIface)
+      {
+        image.delete(del);
+      });
+    });
+
+  $('#tiledImageDeleteAllLabel').tooltip(BrainSlices.gui.tooltip);
+
 // privileges
   $('#publicViewPrivilege').click(function()
   {

@@ -45,6 +45,7 @@
    *   id -
    *   z -
    *   onDelete -
+   *   onDeleteMark -
    *   forDeletion -
    *
    ************************/
@@ -61,6 +62,11 @@
       if (this.$row != null)
       {
         this.$row[value ? 'addClass' : 'removeClass']('delete');
+      }
+
+      if (this.onDeleteMark)
+      {
+        this.onDeleteMark(value);
       }
     },
 
@@ -509,7 +515,8 @@
       },*/// obsoleted
 
       cacheTiledImageOffline:
-      function(id, path, info, onSuccess, onUpdate, $row, zIndex, onAdjust, onDelete)
+      function(id, path, info, onSuccess, onUpdate, $row, zIndex, onAdjust,
+               onDelete, onDeleteMark)
       {
         if (!this.has(id))
         {
@@ -528,6 +535,7 @@
           cachedImage.onUpdate = onUpdate;
           cachedImage.onAdjust = onAdjust;
           cachedImage.onDelete = onDelete;
+          cachedImage.onDeleteMark = onDeleteMark;
           cachedImage.$row = $row;
           cachedImage.id = id;
           cachedImage.z = zIndex != null ? zIndex : 0;
@@ -547,8 +555,8 @@
       },
 
       cacheTiledImage:
-      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid, onAdjust,
-               onDelete)
+      function(id, path, onSuccess, onUpdate, $row, zIndex, onFailure, isValid,
+               onAdjust, onDelete, onDeleteMark)
       {
         var thisInstance = this;
         this.ajaxProvider.ajax(path + '/info.json',
@@ -558,7 +566,7 @@
                                  {
                                    if (isValid == null || isValid(response.data))
                                    {
-                                     thisInstance.cacheTiledImageOffline(id, path, response.data, onSuccess, onUpdate, $row, zIndex, onAdjust, onDelete);
+                                     thisInstance.cacheTiledImageOffline(id, path, response.data, onSuccess, onUpdate, $row, zIndex, onAdjust, onDelete, onDeleteMark);
                                    }
                                  }
                                  else
