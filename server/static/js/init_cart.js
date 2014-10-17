@@ -1299,6 +1299,7 @@ function initCart()
                                     'title': 'mark image for permanent removal'
                                   })
                                   .addClass('fa fa-trash-o deleteImage'))
+                                .css('display', image.info.editPrivilege > 0 ? '' : 'none')
                                 .appendTo($drag)
 
                             };
