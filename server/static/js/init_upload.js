@@ -293,7 +293,7 @@ function initUpload()
   $('#managementPanelStatus').change(function()
   {
     var status = parseInt($('#managementPanelStatus').val()); 
-    images.apply(null, function(image, updateIface)
+    images.applyEdit(function(image, updateIface)
     {
       image.updateStatus(status, updateIface);
     });
@@ -304,7 +304,7 @@ function initUpload()
     .change(function()
     {
       var del = this.checked;
-      images.apply(null, function(image, updateIface)
+      images.applyEdit(function(image, updateIface)
       {
         image.delete(del);
       });
@@ -429,7 +429,10 @@ function initUpload()
     {
       if (confirm("Do you really want to remove selected images permanently?"))
       {
-        images.deleteTiled();
+        images.deleteTiled(null, function()
+        {
+          animateImageCartHeader();
+        });
       }
     });
 

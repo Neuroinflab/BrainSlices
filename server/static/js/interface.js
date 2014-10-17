@@ -427,7 +427,7 @@
       },
 
       remove:
-      function(id, update)
+      function(id, update, refresh)
       {
       /**
        * Method: remove
@@ -438,10 +438,12 @@
        *   id - An ID of the item to be removed.
        *   update - Indicates whether to perform order update (defaults
        *            to true).
+       *   refresh - Simlar, indicates whether to do "lazy refresh"
+       *             after the update.  Defaults as in <CTableManager.update>.
        *
        * Returns:
        *   detached jQuery object representing the item.
-       **************************************************/
+       ***********************************************************************/
         if (!id in this.id2row)
         {
           return null;
@@ -477,14 +479,14 @@
 
         if (update == null || update)
         {
-          this.update(index)
+          this.update(index, null, refresh)
         }
 
         return row.$row.detach();
       },
 
       update:
-      function(from, to)
+      function(from, to, refresh)
       {
       /**
        * Method: update
@@ -495,6 +497,8 @@
        *   from - The lowest index in the range (defaults to 0).
        *   to - The lowest index ABOVE the range (defaults to the number of
        *        items).
+       *   refresh - Indicates whether to do "lazy refresh" after the update.
+       *            Defaults to true.
        *********************************************************************/
         var rows = this.rows;
         from = from != null ? Math.max(from, 0) : 0;
@@ -514,7 +518,10 @@
           this.onUpdate();
         }
 
-        this.doLazyRefresh();
+        if (refresh == null || refresh)
+        {
+          this.doLazyRefresh();
+        }
       },
 
       move:

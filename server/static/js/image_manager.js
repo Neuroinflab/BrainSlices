@@ -372,8 +372,21 @@
         }
       },
 
+      applyEdit:
+      function(f, updateIFace)
+      {
+        this.apply(null, function(image, updateIFace)
+        {
+          if (image.info.editPrivilege > 0)
+          {
+            f.call(this, image, updateIFace);
+          }
+        }, updateIFace);
+      },
+
       saveUpdatedTiled:
-      function(checkEditPrivilege, getChanges, url, onChange, changedTest, queryKey, separator)
+      function(checkEditPrivilege, getChanges, url, onChange, changedTest,
+               queryKey, separator, finish)
       {
         var changed = [];
         var changedMapping = {};
@@ -406,7 +419,7 @@
                                  {
                                    if (!response.status)
                                    {
-                                     alert(response.message);
+                                     alertWindow.error(response.message);
                                      return;
                                    }
                                    var changed = response.data;
@@ -417,13 +430,18 @@
                                      var image = changedMapping[iid];
                                      onChange(image);
                                    }
+
+                                   if (finish)
+                                   {
+                                     finish(changed, Object.keys(changedMapping));
+                                   }
                                  },
                                  data);
         }
       },
 
       saveUpdatedTiledImages:
-      function(checkEditPrivilege)
+      function(checkEditPrivilege, finish)
       {
         this.saveUpdatedTiled(checkEditPrivilege,
           function(info)
@@ -444,11 +462,11 @@
           {
             return image.changed
           },
-          'update', ':');
+          'updated', ':', finish);
       },
 
       saveUpdatedTiledStatuses:
-      function(checkEditPrivilege)
+      function(checkEditPrivilege, finish)
       {
         this.saveUpdatedTiled(checkEditPrivilege,
           function(info)
@@ -465,11 +483,11 @@
           {
             return image.info.status != image.info._status;
           },
-          'update', ':');
+          'updated', ':', finish);
       },
 
       deleteTiled:
-      function(checkEditPrivilege)
+      function(checkEditPrivilege, finish)
       {
         var thisInstance = this;
         this.saveUpdatedTiled(checkEditPrivilege,
@@ -490,7 +508,7 @@
           {
             return image.forDeletion;
           },
-          'iids', ',');
+          'iids', ',', finish);
       },
 
       // propagate zIndex value update across all managed images

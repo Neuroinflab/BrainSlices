@@ -250,7 +250,7 @@ with ({gui: BrainSlices.gui,
 
       function onDelete()
       {
-        thisInstance.removeLayer(id);
+        thisInstance.removeLayer(id, null, false);
       }
 
       this.add(id, $row, $visibility, zIndex, dragMIME, onremove, path + '/tiles/0/0/0.jpg');
@@ -493,11 +493,13 @@ with ({gui: BrainSlices.gui,
      *   update - A flag indicating whether to update the interface (and
      *            layers immediately (on true) or postpone the update (on
      *            false). Defaults as in <CTableManager.remove>.
-     *********************************************************************/
+     *   refresh - Simlar, indicates whether to do "lazy refresh"
+     *             after the update. Defaults as in <CTableManager.remove>.
+     **********************************************************************/
     removeLayer:
-    function(id, update)
+    function(id, update, refresh)
     {
-      this.tableManager.remove(id, update);
+      this.tableManager.remove(id, update, refresh);
     },
 
     /**
