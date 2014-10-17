@@ -1,31 +1,33 @@
 
    <div id="personalDataDiv">
-    <h1>Personal data</h1>
+    <h1 class="personalDataDiv">Personal data</h1>
 
     <p>Hello <span class="userLogin"></span>, this is your personal data section.</p>
 
     <details>
-     <summary>
+     <summary class="personalDataDiv">
       Change password
       <span class="fa fa-angle-double-up"></span>
       <span class="fa fa-angle-double-down"></span>
      </summary>
 
      <form class="form" id="changePassword">
-      <label for="oldPassword" class="left">Old password:</label>
+      <label for="oldPassword" class="left changePassword">Old password:</label>
       <input id="oldPassword" name="oldPassword" class="personalDataVals" type="password">
       <m id="oldPasswordFieldError" class="formErrorMessages"></m><br>
-      <label for="newPassword" class="left">New password:</label>
+      <label for="newPassword" class="left changePassword">New password:</label>
       <input id="newPassword" name="newPassword" class="personalDataVals" type="password">
       <m id="newPasswordFieldError" class="formErrorMessages"></m><br>
 
-      <!--%passwordStrength%-->
+			<details class="form">
+       <!--%passwordStrength%-->
+      </details>
 
-      <label for="newPasswordRetype" class="left">Retype new password:</label>
+      <label for="newPasswordRetype" class="left changePassword">Retype new password:</label>
       <input id="newPasswordRetype" name="newPasswordRetype" class="personalDataVals" type="password"> 
       <m id="newPasswordRetypeFieldError" class="formErrorMessages"></m><br>
       <br>
-      <input id="changePasswordButton" type="submit" value="Change password"/>
+      <input id="changePasswordButton" type="submit" class="changePassword" value="Change password"/>
      </form>
     </details>
    </div>

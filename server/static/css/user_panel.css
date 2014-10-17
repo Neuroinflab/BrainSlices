@@ -5,75 +5,87 @@
   margin-right: auto;
 }
 
-#personalDataDiv h1,
-#personalDataDiv summary
+h1.personalDataDiv,
+summary.personalDataDiv
 {
   background: #efefef;
   font-weight: bold;
-  padding: 5px 0;
+  padding: 4px 0;
 
   box-sizing: border-box;
   margin-bottom: 5px;
 
   text-align: center;
+
+	border-radius: 4px;
+  border: 1px #efefef solid;
 }
 
-#personalDataDiv h1
+h1.personalDataDiv
 {
   font-size: 20px;
   height: 35px;
 }
 
-#personalDataDiv summary
+summary.personalDataDiv
 {
   font-size: 16px;
   height: 30px;
-  padding-left: 30px;
+  padding-right: 29px;
 
   outline: none;
 }
 
-#personalDataDiv summary::-webkit-details-marker
+
+summary.personalDataDiv::-webkit-details-marker
 {
   display: none;
 }
 
-#personalDataDiv summary .fa-angle-double-up,
-#personalDataDiv summary .fa-angle-double-down
+summary.personalDataDiv>.fa-angle-double-up,
+summary.personalDataDiv>.fa-angle-double-down
 {
   color: #7F7F7F;
-  margin-left: 5px;
-  margin-right: 10px;
-  float: right;
+  margin-left: 10px;
+  margin-right: 5px;
+  margin-top: 3px;
+  float: left;
 }
 
-#personalDataDiv summary .fa-angle-double-up
+summary.personalDataDiv>.fa-angle-double-up
 {
   display: none;
 }
 
-#personalDataDiv summary .fa-angle-double-down
+summary.personalDataDiv>.fa-angle-double-down
 {
   display: inline-block;
 }
 
-#personalDataDiv details[open] summary .fa-angle-double-up
+details[open]>summary.personalDataDiv>.fa-angle-double-up
 {
   display: inline-block;
 }
 
-#personalDataDiv details[open] summary .fa-angle-double-down
+details[open]>summary.personalDataDiv>.fa-angle-double-down
 {
   display: none;
 }
 
-#changePassword label.left
+label.changePassword
 {
   width: 170px;
+  display: inline-block;
   box-sizing: border-box;
 }
 
-#changePassword input[type="submit"]
+input[type="submit"].changePassword
 {
   margin-left: 180px;
+}
+
+input[type="password"].personalDataVals,
+input[type="text"].personalDataVals
+{
+  border-radius: 4px;
 }
