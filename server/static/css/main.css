@@ -18,7 +18,9 @@ a
 }
 
 button,
-.ui-button
+.ui-button,
+input[type=submit],
+input[type=button]
 {
   display: inline-block;
   padding: 5px;
@@ -58,7 +60,9 @@ button:hover,
 button.selected,
 .ui-button:hover,
 .ui-button.ui-state-hover,
-.ui-button.selected
+.ui-button.selected,
+input[type=submit]:hover,
+input[type=button]:hover
 {
   /*color: #FFFFFF;*/
   border-color: #CCDDEE;
@@ -100,6 +104,14 @@ textarea
   background: -webkit-gradient(linear, left top, left 61%, from(#EEEEEE), to(#FFFFFF));
   background: -moz-linear-gradient(top, #EEEEEE, #FFFFFF 61%);
   background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
+}
+
+input[type=password],
+input[type=text],
+input[type=number]
+{
+  height: 22px;
+  padding: 0 3px;
 }
 
 select

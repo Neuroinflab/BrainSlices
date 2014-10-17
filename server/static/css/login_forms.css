@@ -19,8 +19,7 @@ div.modalwin
   color: #5080FF;
 }
 
-.modalwin input[type=submit],
-.modalwin input[type=button]
+input.formButton
 {
   color: #7F7F7F;
 }
@@ -72,22 +71,68 @@ div.overlay
   color: red;
 }
 
-.form
+form.form
 {
   white-space: nowrap;
 }
 
-.form p
+p.form,
+details.form
 {
   white-space: normal;
 }
 
-.form div
+details.form
 {
-  padding: 2px 0;
+  margin-bottom: 5px;
+  margin-left: 5px;
 }
 
-.form label.left
+summary.form
+{
+  outline: none;
+  padding: 0;
+  color: #5080FF;
+}
+
+summary.form::-webkit-details-marker 
+{
+  display: none;
+}
+
+summary.form>.fa-angle-double-up
+{
+  display: none;
+}
+
+summary.form>.fa-angle-double-down
+{
+  display: inline-block;
+  color: #7F7F7F;
+}
+
+details[open]>summary.form
+{
+  color: #7F7F7F;
+}
+
+details[open]>summary.form>.fa-angle-double-up
+{
+  display: inline-block;
+}
+
+details[open]>summary.form>.fa-angle-double-down
+{
+  display: none;
+}
+
+div.form
+{
+  padding: 2px 0;
+  overflow: hidden;
+}
+
+label.left.form
 { 
   float:left;
   text-align:right;
@@ -96,111 +141,113 @@ div.overlay
   margin-right: 10px;
 }
 
-.form .formErrorMessages
+.form.formErrorMessages
 {
   margin-left: 20px;
   max-width: 11.7em;
 }
 
-.form p
+p.form
 {
   margin-top: 1px;
   margin-bottom: 5px;
 }
 
-.form>p:first-of-type
+.form>p.form:first-of-type
 {
   margin-right: 2px;
 }
 
-.form input[type=password],
-.form input[type=text]
+input.formField
 {
-  width: 12.5em;
+  border-radius: 4px;
+  width: 170px;
 }
 
-form[name=loginForm] label
+label.loginForm
 {
   width: 6em;
 }
 
-form[name=loginForm] .formErrorMessages
+.formErrorMessages.loginForm
 {
   padding-left: 6em;
 }
 
 
-form[name=registerForm] label
+label.registerForm
 {
-  width: 9em;
+  width: 10em;
 }
 
-form[name=registerForm] .formErrorMessages
+.formErrorMessages.registerForm
 {
-  padding-left: 9em;
+  padding-left: 10em;
 }
 
-form[name=registerForm] p
+p.registerForm,
+details.registerForm
+{
+  width: 24em;
+}
+
+
+label.regeneratePasswordForm
+{
+  width: 8em;
+}
+
+.formErrorMessages.regeneratePasswordForm
+{
+  padding-left: 8em;
+}
+
+p.regeneratePasswordForm
 {
   width: 22em;
 }
 
 
-form[name=regeneratePasswordForm] label
-{
-  width: 3.5em;
-}
-
-form[name=regeneratePasswordForm] .formErrorMessages
-{
-  padding-left: 3.5em;
-}
-
-form[name=regeneratePasswordForm] p
-{
-  width: 16.5em;
-}
-
-
-form[name=regeneratePasswordFinalForm] label
+label.regeneratePasswordFinalForm
 {
   width: 9em;
 }
 
-form[name=regeneratePasswordFinalForm] .formErrorMessages
+.formErrorMessages.regeneratePasswordFinalForm
 {
   padding-left: 9em;
 }
 
-form[name=regeneratePasswordFinalForm] .success
+.success.regeneratePasswordFinalForm
 {
   text-align: left;
 }
 
-form[name=regeneratePasswordFinalForm] p
+p.regeneratePasswordFinalForm,
+details.regeneratePasswordFinalForm
 {
   width: 23em;
 }
 
 
-form[name=confirmationForm] label
+label.confirmationForm
 {
-  width: 8em;
+  width: 9em;
 }
 
-form[name=confirmationForm] .formErrorMessages
+.formErrorMessages.confirmationForm
 {
-  padding-left: 8em;
+  padding-left: 9em;
 }
 
-form[name=confirmationForm] .success
+.success.confirmationForm
 {
   text-align: left;
 }
 
-form[name=confirmationForm] p
+p.confirmationForm
 {
-  width: 21em;
+  width: 23em;
 }
 
 .success

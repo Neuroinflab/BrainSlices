@@ -377,7 +377,6 @@ select.offsetinput-widget-unit
 {
   border: none;
   margin: 0;
-  height: 22px;
 
   box-shadow: none;
   -moz-box-shadow: none;
@@ -390,7 +389,6 @@ input.offsetinput-widget-top
 {
   width: 80px;
   background: none;
-  padding: 0 3px;
 }
 
 select.resolution-widget-unit,
@@ -449,10 +447,6 @@ select.offsetinput-widget-unit:hover
 	padding-top: 0;
   padding-bottom: 0;
   padding-left: 0;
-}
-
-label.adjustPanelRes
-{
 }
 
 label.managementPanelStatus:before
@@ -614,12 +608,6 @@ input.image-details-edit,
 textarea.image-details-edit
 {
   border-radius: 4px;
-}
-
-input.image-details-edit,
-input.image-details-edit-enum
-{
-  padding: 0 3px;
 }
 
 div.image-details-edit-enum.selectWrapper

@@ -783,11 +783,12 @@ var PPropertyTriggers =
 var animateImageCartHeaderInProgress = false;
 var animateImageCartHeaderRequested = false;
 
-function animateImageCartHeader(hght)
+function animateImageCartHeader(immediately)
 {
-  if (hght != null)
+  if (immediately != null && immediately != true)
   {
     console.error('height argument passed; WHAT TO DO!?!?!?!?');
+    console.debug(immediately);
   }
 
   console.log('animate');
@@ -808,70 +809,84 @@ function animateImageCartHeader(hght)
 
   var spaceLeft = space - height - $('#imageCartFooter').outerHeight();
 
-  $('#imageCartHeader')
-    .animate(
+  var imageCartHeaderCSS =
+  {
+    height: height + 'px'
+  };
+  var imageCartBodyCSS =
+  {
+    height: Math.min(spaceLeft, $('#layerList').outerHeight()) + 'px'
+  };
+  function imageCartBodyComplete()
+  {
+    animateImageCartHeaderInProgress = false;
+    if (animateImageCartHeaderRequested)
     {
-      height: height + 'px'
-    },
-    {
-      queue: false/*,
-      complete:
-      function()
-      {
-      }*/
-    });
+      animateImageCartHeader(immediately);
+      return;
+    }
 
-  $('#imageCartBody')
-    .animate(
+    $('#imageCartBody').css('overflow', '');
+
+    layerManager.doLazyRefresh();
+
+    var oldHeight = $('#layerList').height();
+    var oldWidth = $('#imageCartHeaderWrapper').outerWidth();
+    // MUAHAHAHA - cached
+    var newWidth = $('#layerList').width();
+    if (oldWidth != newWidth)
     {
-      height: Math.min(spaceLeft, $('#layerList').outerHeight()) + 'px'
-    },
+      $('#imageCartHeader')
+        .css('padding-right',
+             $('#imageCartHeader').innerWidth() - newWidth + 'px');
+      $('#imageCartFooter').css('width', newWidth + 'px');
+    }
+
+    if (oldHeight != $('#layerList').height())
     {
-      queue: false,
-      complete:
-      function()
-      {
-        animateImageCartHeaderInProgress = false;
-        if (animateImageCartHeaderRequested)
+      layerManager.doLazyRefresh();
+    }
+
+
+    var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
+    $('#loadAllPanel')
+      .width(visWidth);
+    $('#imageCartHeaderColumnSeparator').css('right', visWidth + 'px');
+    var labelWidth = $('#imageCartHeaderContent').innerWidth() - visWidth - 1;
+    $('#imageCartAllPanel')
+      .css('width', labelWidth > 0 ? labelWidth + 'px' : '');
+
+    $('#foldAllCart').parent()
+      .css('margin-right', visWidth + 1);
+  }
+
+  if (immediately)
+  {
+    $('#imageCartHeader').css(imageCartHeaderCSS);
+    $('#imageCartBody').css(imageCartBodyCSS);
+    imageCartBodyComplete();
+  }
+  else
+  {
+    $('#imageCartHeader')
+      .animate(
+        imageCartHeaderCSS,
         {
-          animateImageCartHeader();
-          return;
-        }
+          queue: false/*,
+          complete:
+          function()
+          {
+          }*/
+        });
 
-        $('#imageCartBody').css('overflow', '');
-
-        layerManager.doLazyRefresh();
-
-        var oldHeight = $('#layerList').height();
-        var oldWidth = $('#imageCartHeaderWrapper').outerWidth();
-        // MUAHAHAHA - cached
-        var newWidth = $('#layerList').width();
-        if (oldWidth != newWidth)
+    $('#imageCartBody')
+      .animate(
+        imageCartBodyCSS,
         {
-          $('#imageCartHeader')
-            .css('padding-right',
-                 $('#imageCartHeader').innerWidth() - newWidth + 'px');
-          $('#imageCartFooter').css('width', newWidth + 'px');
-        }
-
-        if (oldHeight != $('#layerList').height())
-        {
-          layerManager.doLazyRefresh();
-        }
-
-
-        var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
-        $('#loadAllPanel')
-          .width(visWidth);
-        $('#imageCartHeaderColumnSeparator').css('right', visWidth + 'px');
-        var labelWidth = $('#imageCartHeaderContent').innerWidth() - visWidth - 1;
-        $('#imageCartAllPanel')
-          .css('width', labelWidth > 0 ? labelWidth + 'px' : '');
-
-        $('#foldAllCart').parent()
-          .css('margin-right', visWidth + 1);
-      }
-    });
+          queue: false,
+          complete: imageCartBodyComplete
+        });
+  }
 }
 
 var triggerImageCartHeaderAnimation;
@@ -940,7 +955,7 @@ function initCart()
               complete:
               function()
               {
-                animateImageCartHeader();
+                animateImageCartHeader(true);
                 $('#layerList')
                   .children('.layer-row')
                     .children('.image-details')
@@ -1055,6 +1070,7 @@ function initCart()
       function onremove()
       {
         thisInstance.tableManager.remove(id);
+        console.debug('onremove');
         animateImageCartHeader();
       }
 

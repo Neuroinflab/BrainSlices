@@ -4,187 +4,191 @@
     <img align="right" alt="X" src="/static/gfx/close.png" class="clickable_close">
 
     <form name="loginForm" class="form">
-     <p> Please enter your login information.</p>
-     <div>
-      <label for="login" class="left">Login:</label>
+     <p class="form loginForm"> Please enter your login information.</p>
+      <div class="form">
+      <label for="login" class="left form loginForm">Login:</label>
       <input class="formField" type="text" name="login">
      </div>
-     <p class="formErrorMessages loginFieldError" style="display: none;"></p>
-     <div>
-      <label for="password" class="left">Password:</label>
+     <p class="formErrorMessages loginFieldError form loginForm" style="display: none;"></p>
+     <div class="form">
+      <label for="password" class="left form loginForm">Password:</label>
       <input class="formField" type="password" name="password">
      </div>
-     <p class="formErrorMessages passwordFieldError" style="display: none;"></p>
-     <div>
-      <label class="left">&nbsp;</label>
-      <input type="submit" value="Login">
+     <p class="formErrorMessages passwordFieldError form loginForm" style="display: none;"></p>
+     <div class="form">
+      <label class="left form loginForm">&nbsp;</label>
+      <input class="formButton" type="submit" value="Login">
      </div>
-     <p class="formErrorMessages badPass" style="display: none;"></p>
+     <p class="formErrorMessages badPass form loginForm" style="display: none;"></p>
      <br>
-     <p>
+     <p class="form loginForm">
       Do not have an account? Please <a class="showRegisterFormButton" href="javascript:void(0)">register</a>.<br>
       <a class="showRegeneratePasswordFormButton" href="javascript:void(0)">Forgot&nbsp;your&nbsp;password</a>?
      </p>
     </form>
 
     <form name="registerForm" class="form" style="display: none;">
-     <p>
+     <p class="form registerForm">
       Please fill out the form below in order to create your BrainSlices
       account.<br>
       If you have already submitted the form, you can
       <a class="showConfirmationFormButton" href="javascript:void(0)">confirm&nbsp;your&nbsp;request</a>.
      </p>
-     <div>
-      <label for="login" class="left">Login:</label>
+     <div class="form">
+      <label for="login" class="left form registerForm">Login:</label>
       <input class="formField" type="text" name="login">
      </div>
-     <p class="loginFieldError formErrorMessages" style="display: none;"></p>
+     <p class="loginFieldError formErrorMessages form registerForm" style="display: none;"></p>
 
-     <div>
-      <label for="password" class="left">Password:</label>
+     <div class="form">
+      <label for="password" class="left form registerForm">Password:</label>
       <input class="formField" type="password" name="password">
      </div>
-     <p class="passwordFieldError formErrorMessages" style="display: none;"></p>
+     <p class="passwordFieldError formErrorMessages form registerForm" style="display: none;"></p>
 
-     <!--%passwordStrength%-->
+     <details class="form registerForm">
+      <!--%passwordStrength%-->
+     </details>
 
-     <div>
-      <label for="password2" class="left">Confirm password:</label>
+     <div class="form">
+      <label for="password2" class="left form registerForm">Confirm password:</label>
       <input class="formField" type="password" name="password2">
      </div>
-     <p class="password2FieldError formErrorMessages" style="display: none;"></p>
+     <p class="password2FieldError formErrorMessages form registerForm" style="display: none;"></p>
 
-     <div>
-      <label for="name" class="left">Name:</label>
+     <div class="form">
+      <label for="name" class="left form registerForm">Name:</label>
       <input class="formField "type="text" name="name">
      </div>
-     <p class="nameFieldError formErrorMessages" style="display: none;"></p>
+     <p class="nameFieldError formErrorMessages form registerForm" style="display: none;"></p>
 
-     <div>
-      <label for="email" class="left">Email:</label>
+     <div class="form">
+      <label for="email" class="left form registerForm">Email:</label>
       <input class="formField" type="text" name="email">
      </div>
-     <p class="emailFieldError formErrorMessages" style="display: none;"></p>
+     <p class="emailFieldError formErrorMessages form registerForm" style="display: none;"></p>
 
-     <div>
-      <label class="left">&nbsp;</label>
-      <input type="submit" value="Register"/>
+     <div class="form">
+      <label class="left form registerForm">&nbsp;</label>
+      <input class="formButton" type="submit" value="Register"/>
      </div>
-     <p class="submitError formErrorMessages" style="display: none;"></p>
-     <p>
+     <p class="submitError formErrorMessages form registerForm" style="display: none;"></p>
+     <p class="form registerForm">
       Back to the <a class="showLoginFormButton" href="javascript:void(0)">login form</a>.
      </p>
     </form>
 
     <form name="regeneratePasswordForm" class="form" style="display: none;">
-     <p>
+     <p class="form regeneratePasswordForm">
       Please enter your login and email to start the password regeneration
       process.<br>
       If you already have submitted the form, you can <a class="showRegeneratePasswordFinalFormButton" href="javascript:void(0)">complete
       the process</a>.
      </p>
-     <div>
-      <label for="login" class="left">Login:</label>
+     <div class="form">
+      <label for="login" class="left form regeneratePasswordForm">Login:</label>
       <input class="formField" type="text" name="login">
      </div>
-     <p class="loginFieldError formErrorMessages" style="display: none;"></p>
+     <p class="loginFieldError formErrorMessages form regeneratePasswordForm" style="display: none;"></p>
 
-     <div>
-      <label for="email" class="left">Email:</label>
+     <div class="form">
+      <label for="email" class="left form regeneratePasswordForm">Email:</label>
       <input class="formField" type="text" name="email">
      </div>
-     <p class="emailFieldError formErrorMessages" style="display: none;"></p>
+     <p class="emailFieldError formErrorMessages form regeneratePasswordForm" style="display: none;"></p>
 
-     <div>
-      <label class="left">&nbsp;</label>
-      <input type="submit" value="Regenerate password">
+     <div class="form">
+      <label class="left form regeneratePasswordForm">&nbsp;</label>
+      <input class="formButton" type="submit" value="Regenerate password">
      </div>
-     <p class="submitError formErrorMessages" style="display: none;"></p>
-     <p>
+     <p class="submitError formErrorMessages form regeneratePasswordForm" style="display: none;"></p>
+     <p clss="form regeneratePasswordForm">
       Back to the <a class="showLoginFormButton" href="javascript:void(0)">login&nbsp;form</a>.
      </p>
     </form>
 
     <form name="regeneratePasswordFinalForm" class="form" style="display: none;">
-     <p>
+     <p class="form regeneratePasswordFinalForm">
       Please enter your login, confirmation key and a new password to complete
       the password regeneration process.<br>
       The confirmation key is being sent via e&#8209;mail after submission
       of <a class="showRegeneratePasswordFormButton" href="javascript:void(0)">the&nbsp;password&nbsp;regeneration&nbsp;form</a>.
      </p>
-     <p class="success">
+     <p class="success form regeneratePasswordFinalForm">
       Password regeneration e&#8209;mail has been sent to your e&#8209;mail
       address. To complete the regeneration process please check your e&#8209;mail box and follow instructions in the e&#8209;mail.
      </p>
 
-     <div>
-      <label for="login" class="left">Login:</label>
+     <div class="form">
+      <label for="login" class="left form regeneratePasswordFinalForm">Login:</label>
       <input class="formField" type="text" name="login">
      </div>
 
-     <p class="loginFieldError formErrorMessages" style="display: none;"></p>
-     <div>
-      <label for="confirm" class="left">Confirmation key:</label>
+     <p class="loginFieldError formErrorMessages form regeneratePasswordFinalForm" style="display: none;"></p>
+     <div class="form">
+      <label for="confirm" class="left form regeneratePasswordFinalForm">Confirmation key:</label>
       <input class="formField" type="text" name="confirm">
      </div>
-     <p class="confirmFieldError formErrorMessages" style="display: none;"></p>
+     <p class="confirmFieldError formErrorMessages form regeneratePasswordFinalForm" style="display: none;"></p>
 
-     <div>
-      <label for="password" class="left">New password:</label>
+     <div class="form">
+      <label for="password" class="left form regeneratePasswordFinalForm">New password:</label>
       <input class="formField" type="password" name="password">
      </div>
-     <p class="passwordFieldError formErrorMessages" style="display: none;"></p>
+     <p class="passwordFieldError formErrorMessages form regeneratePasswordFinalForm" style="display: none;"></p>
 
-     <!--%passwordStrength%-->
+     <details class="form regeneratePasswordFinalForm">
+      <!--%passwordStrength%-->
+     </details>
 
-     <div>
-      <label for="password2" class="left">Confirm password:</label>
+     <div class="form">
+      <label for="password2" class="left form regeneratePasswordFinalForm">Confirm password:</label>
       <input class="formField" type="password" name="password2">
      </div>
-     <p class="password2FieldError formErrorMessages" style="display: none;"></p>
+     <p class="password2FieldError formErrorMessages form regeneratePasswordFinalForm" style="display: none;"></p>
 
-     <div>
+     <div class="form">
       <!--<input type="hidden" name="login">-->
-      <label class="left">&nbsp;</label>
-      <input type="submit" value="Change password">
+      <label class="left form regeneratePasswordFinalForm">&nbsp;</label>
+      <input class="formButton" type="submit" value="Change password">
      </div>
 
-     <p class="submitError formErrorMessages" style="display: none;"></p>
+     <p class="submitError formErrorMessages form regeneratePasswordFinalForm" style="display: none;"></p>
     </form>
 
     <form name="confirmationForm" class="form" style="display: none;">
-     <p>
+     <p class="form confirmationForm">
       Please enter your login and confirmation key to complete the registration
       process.<br>
       The confirmation key is being sent via e&#8209;mail after submission of
       <a class="showRegisterFormButton" href="javascript:void(0)">the&nbsp;registration&nbsp;form</a>.
      </p>
-     <p class="success">
+     <p class="success form confirmationForm">
       Registration confirmation e-mail has been sent to your e&#8209;mail.
       To complete registration process please check your e&#8209;mail box
       and follow instructions in the e&#8209;mail.
      </p>
-     <p class="error" style="display: none;">
+     <p class="error form confirmationForm" style="display: none;">
      </p>
 
-     <div>
-      <label for="login" class="left">Login:</label>
+     <div class="form">
+      <label for="login" class="left form confirmationForm">Login:</label>
       <input class="formField" type="text" name="login">
      </div>
-     <p class="loginFieldError formErrorMessages" style="display: none;"></p>
+     <p class="loginFieldError formErrorMessages form confirmationForm" style="display: none;"></p>
 
-     <div>
-      <label for="confirm" class="left">Confirmation key:</label>
+     <div class="form">
+      <label for="confirm" class="left form confirmationForm">Confirmation key:</label>
       <input class="formField" type="text" name="confirm">
      </div>
-     <p class="confirmFieldError formErrorMessages" style="display: none;"></p>
+     <p class="confirmFieldError formErrorMessages form confirmationForm" style="display: none;"></p>
 
-     <div>
-      <label class="left">&nbsp;</label><input type="submit" value="Confirm registration">
+     <div class="form">
+      <label class="left form confirmationForm">&nbsp;</label><input class="formButton" type="submit" value="Confirm registration">
      </div>
     </form>
 
-    <p class="success" style="display: none;">
+    <p class="success form confirmationForm" style="display: none;">
      An e-mail has been sent to you. Click the link
      contained in the e-mail to confirm this registration.
     </p>
