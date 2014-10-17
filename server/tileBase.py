@@ -864,7 +864,16 @@ class TileBase(dbBase):
                            SET fid = %s, tile_width = %s, tile_height = %s
                            WHERE fid = %s;
                            """, (fid, tileWidth, tileHeight, investigated[0]))
-            shutil.rmtree(os.path.join(self.tileDir, '%d' % investigated[0]))
+            investigatedPath = os.path.join(self.tileDir, '%d' % investigated[0])
+            os.chmod(investigatedPath, stat.S_IRWXU)
+            for root, dirs, files in os.walk(investigatedPath):
+              for filename in dirs:
+                os.chmod(os.path.join(root, filename), stat.S_IRWXU)
+
+              for filename in files:
+                os.chmod(os.path.join(root, filename), stat.S_IRUSR | stat.S_IWUSR)
+
+            shutil.rmtree(investigatedPath)
 
           else:
             processStream.kill()
@@ -892,6 +901,14 @@ class TileBase(dbBase):
       if newFid is None:
         # all images assigned to the stack are deleted
         print "No images assigned to tile stack of ID %d. Removing." % fid
+        os.chmod(path, stat.S_IRWXU)
+        for root, dirs, files in os.walk(path):
+          for filename in dirs:
+            os.chmod(os.path.join(root, filename), stat.S_IRWXU)
+
+          for filename in files:
+            os.chmod(os.path.join(root, filename), stat.S_IRUSR | stat.S_IWUSR)
+
         shutil.rmtree(path)
 
       else:
