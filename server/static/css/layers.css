@@ -653,3 +653,15 @@ div.image-details-edit-enum-toggle
   border-bottom-right-radius: 4px;
   background: transparent url("/static/gfx/unfold.png") no-repeat center center;
 }
+
+#managePanel,
+#privilegesPanel
+{
+  text-align: left;
+  padding-left: 90px;
+}
+
+#propertyPanel
+{
+  text-align: left;
+}

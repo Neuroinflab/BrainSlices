@@ -1292,6 +1292,7 @@ function initCart()
                                     .addClass('selectWrapper')
                                     .append($status)))
                                 .append($delete)
+                                .append(' ')
                                 .append($('<label>')
                                   .attr(
                                   {
