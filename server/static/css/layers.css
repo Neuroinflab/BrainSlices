@@ -473,18 +473,6 @@ select.managementPanelStatus
 }
 
 
-div.brainslices-new-property-filter.fake-filter
-{
-  display: inline-block;
-  width: 250px;
-}
-
-
-option.suggested-type
-{
-  background: #DDEEFF;
-}
-
 
 
 div.layer-cb-table
@@ -665,3 +653,28 @@ div.image-details-edit-enum-toggle
 {
   text-align: left;
 }
+
+.brainslices-new-property-buttons
+{
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid #F0F;
+}
+
+.brainslices-new-property-value
+{
+  border: 1px solid #FFF;
+}
+
+div.brainslices-new-property-filter.fake-filter
+{
+  display: inline-block;
+  vertical-align: middle;
+  width: 250px;
+}
+
+option.suggested-type
+{
+  background: #DDEEFF;
+}
+

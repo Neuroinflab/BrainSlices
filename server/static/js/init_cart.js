@@ -181,7 +181,7 @@ var getEnumeratedSuggestionsFunction;
     return $option;
   }
   
-  makeAddPropertyPanel = function(onsubmit, onclick)
+  makeAddPropertyPanel = function(onsubmit, onheightchange)
   {
     var $addPanel = $('<div>');
     var name;
@@ -223,6 +223,14 @@ var getEnumeratedSuggestionsFunction;
     }
     var $propertybox = $('<div>')
       .addClass('brainslices-new-property-filter fake-filter')
+      .appendTo($addPanel);
+
+    var $buttonBox = $('<div>')
+      .addClass('brainslices-new-property-buttons')
+      .appendTo($addPanel);
+
+    var $valueBox = $('<div>')
+      .addClass('brainslices-new-property-value')
       .appendTo($addPanel);
 
     var $name = $('<input>')
@@ -299,6 +307,11 @@ var getEnumeratedSuggestionsFunction;
         for (var t in inputBases)
         {
           inputBases[t][t == type ? 'show' : 'hide'](0);
+        }
+
+        if (onheightchange)
+        {
+          onheightchange();
         }
       })
       .appendTo($propertybox);
@@ -402,56 +415,68 @@ var getEnumeratedSuggestionsFunction;
     for (var t in inputBases)
     {
       inputBases[t]
-        .appendTo($addPanel);
+        .appendTo($valueBox);
     }
 
-    for (var submitText in onsubmit)
+    if (!('length' in onsubmit))
     {
-      (function(submitText, onsubmit)
-      {
-        $('<button>')
-          .text(submitText)
-          .appendTo($addPanel)
-          .click(function()
-          {
-            var name = $name.val().trim();
-            if (name == '')
-            {
-              alertWindow.error('Property name must be given.');
-              return;
-            }
-  
-            var type = $type.val();
-            var property = {type: type}; // no property privileges set
+      onsubmit = [onsubmit];
+    }
 
-            if (type in inputs)
+    for (var i = 0; i < onsubmit.length; i++)
+    {
+      $buttonBox
+        .append($.map(onsubmit[i], function(onsubmit, submitText)
+        {
+          var $button;
+
+          if ('$button' in onsubmit)
+          {
+            $button = onsubmit.$button;
+            onsubmit = onsubmit.click;
+          }
+          else
+          {
+            $button = $('<button>')
+              .text(submitText);
+          }
+
+          return $button
+            .click(function()
             {
-              if ((property.value = inputs[type].val().trim()) == '')
+              var name = $name.val().trim();
+              if (name == '')
               {
-                alertWindow.error('Property value must be given.');
+                alertWindow.error('Property name must be given.');
                 return;
               }
-            }
+  
+              var type = $type.val();
+              var property = {type: type}; // no property privileges set
 
-            onsubmit(name, property);
-            updatePropertySuggestions(name, property);
-          });
-      })(submitText, onsubmit[submitText]);
-    }
+              if (type in inputs)
+              {
+                if ((property.value = inputs[type].val().trim()) == '')
+                {
+                  alertWindow.error('Property value must be given.');
+                  return;
+                }
+              }
 
-    if (onclick)
-    {
-      for (var clickText in onclick)
+              if (onsubmit(name, property))
+              {
+                // property added
+                updatePropertySuggestions(name, property);
+              }
+            });
+        }));
+
+      if (i != onsubmit.length - 1)
       {
-        (function(clickText, onclick)
-        {
-          $('<button>')
-            .text(clickText)
-            .appendTo($addPanel)
-            .click(onclick);
-        })(clickText, onclick[clickText]);
+        $buttonBox.append('<br>');
       }
     }
+
     return $addPanel;
   }
 
@@ -713,7 +738,7 @@ var PPropertyTriggers =
 
   destroy: function()
   {
-    console.log('property destroy');
+    //console.log('property destroy');
     if (this.data.$inRow) this.data.$inRow.remove();
 
     if (this.data.$outRow)
@@ -791,13 +816,13 @@ function animateImageCartHeader(immediately)
     console.debug(immediately);
   }
 
-  console.log('animate');
+  //console.log('animate');
   if (animateImageCartHeaderInProgress)
   {
     animateImageCartHeaderRequested = true;
     return;
   }
-  console.log('animation fired');
+  //console.log('animation fired');
   animateImageCartHeaderRequested = false;
   animateImageCartHeaderInProgress = true;
 
@@ -828,6 +853,8 @@ function animateImageCartHeader(immediately)
 
     $('#imageCartBody').css('overflow', '');
 
+    var olderHeight = $('#layerList').height();
+
     layerManager.doLazyRefresh();
 
     var oldHeight = $('#layerList').height();
@@ -842,12 +869,6 @@ function animateImageCartHeader(immediately)
       $('#imageCartFooter').css('width', newWidth + 'px');
     }
 
-    if (oldHeight != $('#layerList').height())
-    {
-      layerManager.doLazyRefresh();
-    }
-
-
     var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
     $('#loadAllPanel')
       .width(visWidth);
@@ -858,6 +879,42 @@ function animateImageCartHeader(immediately)
 
     $('#foldAllCart').parent()
       .css('margin-right', visWidth + 1);
+
+    var newHeight =  $('#layerList').height();
+    if (oldHeight > newHeight || olderHeight != newHeight)
+    {
+      // new items might be visible or height changed
+      if (imageCartBodyCSS.height < spaceLeft || newHeight < spaceLeft)
+      {
+        // height has changed and cart body might require further tuning...
+        newHeight = Math.min(spaceLeft, $('#layerList').outerHeight()) + 'px';
+        if (!immediately)
+        {
+          animateImageCartHeaderInProgress = true;
+          $('#imageCartBody')
+            .animate(
+            {
+              height: newHeight
+            },
+            {
+              queue: false,
+              complete: function()
+              {
+                animateImageCartHeaderInProgress = false;
+                if (animateImageCartHeaderRequested)
+                {
+                  animateImageCartHeader(immediately);
+                  return;
+                }
+                layerManager.doLazyRefresh();
+              }
+            });
+          return;
+        }
+        $('#imageCartBody').css('height', newHeight);
+      }
+      layerManager.doLazyRefresh();
+    }
   }
 
   if (immediately)
@@ -897,7 +954,7 @@ function initCart()
 
   triggerImageCartHeaderAnimation = function(value)
   {
-    console.log('triggerImageCartHeaderAnimation');
+    //console.log('triggerImageCartHeaderAnimation');
     if (scope.get('cart'))
     {
       animateImageCartHeader();
@@ -1235,17 +1292,39 @@ function initCart()
                               $annotate: $('<span>')
                                 .append($propertiesEdit)
                                 .append(makeAddPropertyPanel(
-                                {
-                                  Add:
-                                  function(name, property)
+                                [
                                   {
-                                    if (propertiesManager.has(id, name))
+                                    Add:
+                                    function(name, property)
                                     {
-                                      alertWindow.error('Property already defined.');
-                                      return;
+                                      if (propertiesManager.has(id, name))
+                                      {
+                                        alertWindow.error('Property already defined.');
+                                        return false;
+                                      }
+                                      propertiesManager.autoAdd(id, name, property);
+                                    },
+                                    Set:
+                                    function(name, property)
+                                    {
+                                      propertiesManager.remove(id, name);
+                                      propertiesManager.autoAdd(id, name, property);
+                                      return true;
                                     }
-                                    propertiesManager.autoAdd(id, name, property);
+                                  },
+                                  {
+                                    Remove:
+                                    function(name, property)
+                                    {
+                                      propertiesManager.remove(id, name);
+                                      return false;
+                                    }
                                   }
+                                ],
+                                function()
+                                {
+                                  $drag.folder('requestUpdate');
+                                  triggerImageCartHeaderAnimation();
                                 }))
                                 .appendTo($drag),
                               $separator: $('<div>')

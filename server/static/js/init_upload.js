@@ -220,7 +220,7 @@ function initUpload()
   $('#managementPanelStatus').change(function()
   {
     var status = parseInt($('#managementPanelStatus').val()); 
-    images.applyEdit(function(image, updateIface)
+    images.applyPrivilege('edit', function(image, updateIface)
     {
       image.updateStatus(status, updateIface);
     });
@@ -231,7 +231,7 @@ function initUpload()
     .change(function()
     {
       var del = this.checked;
-      images.applyEdit(function(image, updateIface)
+      images.applyPrivilege('edit', function(image, updateIface)
       {
         image.delete(del);
       });
@@ -587,37 +587,49 @@ function initUploadFinish()
     {
       $('#propertyPanel')
         .append(makeAddPropertyPanel(
-        {
-          Add:
-          function(name, property)
+        [
           {
-            images.apply(null, function(image, updateIface)
+            Add:
+            function(name, property)
             {
-              var info = image.info;
-              if (info.annotatePrivilege > 0 &&
-                  !propertiesManager.has(info.iid, name))
+              images.applyPrivilege('annotate', function(image, updateIface)
               {
-                propertiesManager.autoAdd(info.iid, name, property);
-              }
-            });
-          },
-          Set:
-          function(name, property)
-          {
-            images.apply(null, function(image, updateIface)
-            {
-              var info = image.info;
-              if (info.annotatePrivilege > 0)
-              {
-                if (propertiesManager.has(info.iid, name))
+                var info = image.info;
+                if (!propertiesManager.has(info.iid, name))
                 {
-                  propertiesManager.remove(info.iid, name);
+                  propertiesManager.autoAdd(info.iid, name, property);
                 }
+              });
+
+              triggerImageCartHeaderAnimation();
+              return true;
+            },
+            Set:
+            function(name, property)
+            {
+              images.applyPrivilege('annotate', function(image, updateIface)
+              {
+                var info = image.info;
+                propertiesManager.remove(info.iid, name);
                 propertiesManager.autoAdd(info.iid, name, property);
-              }
-            });
-          }
-        }));
+              });
+
+              triggerImageCartHeaderAnimation();
+              return true;
+            }
+          },
+          {
+            Remove:
+            function(name, property)
+            {
+              images.applyPrivilege('annotate', function(image, updateIface)
+              {
+                propertiesManager.remove(image.info.iid, name);
+              });
+              return false;
+            }
+          }],
+          triggerImageCartHeaderAnimation));
     });
 
   BrainSlices.scope.set('editMode', 'details');

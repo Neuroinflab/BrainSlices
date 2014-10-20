@@ -372,12 +372,13 @@
         }
       },
 
-      applyEdit:
-      function(f, updateIFace)
+      applyPrivilege:
+      function(privilege, f, updateIFace)
       {
+        privilege += 'Privilege';
         this.apply(null, function(image, updateIFace)
         {
-          if (image.info.editPrivilege > 0)
+          if (image.info[privilege] > 0)
           {
             f.call(this, image, updateIFace);
           }
