@@ -444,7 +444,7 @@ var getEnumeratedSuggestionsFunction;
           return $button
             .click(function()
             {
-              var name = $name.val().trim();
+              var name = $name.val().trim().toLowerCase();
               if (name == '')
               {
                 alertWindow.error('Property name must be given.');
@@ -480,6 +480,16 @@ var getEnumeratedSuggestionsFunction;
     return $addPanel;
   }
 
+  var propertySuggestionsMapping =
+  {
+    t: '',
+    s: 'x',
+    x: 'x',
+    e: 'e',
+    i: 'f',
+    f: 'f'
+  }
+
   updatePropertySuggestions = function(name, property)
   {
     if (name == null)
@@ -504,21 +514,20 @@ var getEnumeratedSuggestionsFunction;
           });
     }
 
+    var type = propertySuggestionsMapping[property.type];
     if (!(name in suggestedProperties))
     {
-      suggestedProperties[name] = property.type == 't' ?
-                                  '' :
-                                  property.type;
-      if (property.type == 'e')
+      suggestedProperties[name] = type;
+      if (type == 'e')
       {
         enumeratedProperties[name] = [property.value];
       }
       return; // nothing to do
     }
 
-    switch (property.type)
+    switch (type)
     {
-      case 't':
+      case '':
         return;
 
       case 'e':
@@ -533,9 +542,9 @@ var getEnumeratedSuggestionsFunction;
           values.push(property.value);
         }
       default:
-        if (suggestedProperties[name].indexOf(property.type) < 0)
+        if (suggestedProperties[name].indexOf(type) < 0)
         {
-          suggestedProperties[name] += property.type;
+          suggestedProperties[name] += type;
         }
     }
   }
@@ -1290,7 +1299,8 @@ function initCart()
                               $description: $descriptionView,
                               $properties: $propertiesView,
                               $annotate: $('<span>')
-                                .append($propertiesEdit)
+                                .append($propertiesEdit
+                                  .addClass('image-details-edit'))
                                 .append(makeAddPropertyPanel(
                                 [
                                   {
@@ -1346,7 +1356,7 @@ function initCart()
 
                                     case 'manage':
                                       image.resetStatus();
-                                      //TODO: delete
+                                      image.delete(false);
                                       break;
 
                                     case 'properties':
@@ -1487,10 +1497,16 @@ function initCart()
                                 rowElements.$adjustment.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
-                                rowElements.$reset.css('display', 'none');
+                                rowElements.$download.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$management.css('display', '');
+                                  rowElements.$reset.css('display', '');
+                                }
+                                else
+                                {
+                                  rowElements.$management.css('display', 'none');
+                                  rowElements.$reset.css('display', 'none');
                                 }
                                 $drag.addClass('managementVisible');
                                 break;
@@ -1508,6 +1524,7 @@ function initCart()
                                 }
                                 else
                                 {
+                                  rowElements.$adjustment.css('display', 'none');
                                   rowElements.$reset.css('display', 'none');
                                 }
                                 $drag.addClass('adjustmentVisible');
@@ -1527,6 +1544,7 @@ function initCart()
                                 else
                                 {
                                   rowElements.$reset.css('display', 'none');
+                                  rowElements.$privileges.css('display', 'none');
                                 }
                                 $drag.addClass('privilegesVisible');
                                 break;
@@ -1545,6 +1563,7 @@ function initCart()
                                 }
                                 else
                                 {
+                                  rowElements.$annotate.css('display', 'none');
                                   rowElements.$reset.css('display', 'none');
                                 }
                                 $drag.addClass('propertiesVisible');

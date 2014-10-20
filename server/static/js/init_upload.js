@@ -172,12 +172,9 @@ function initUpload()
     {
       if (adjust)
       {
-        images.apply(null, function(image, updateIface)
+        images.applyPrivilege('edit', function(image, updateIface)
         {
-          if (image.info.editPrivilege > 0)
-          {
-            images.startAdjustment(image.id);
-          }
+          images.startAdjustment(image.id);
         });
       }
       else
@@ -243,52 +240,40 @@ function initUpload()
   $('#publicViewPrivilege').click(function()
   {
     var checked = this.checked;
-    images.apply(null, function(image, updateIface)
+    images.applyPrivilege('edit', function(image, updateIface)
     {
-      if (image.info.editPrivilege > 0)
-      {
-        privilegeManager.changePublic(image.info.iid,
-          checked, null, null, null, updateIface == false);
-      }
+      privilegeManager.changePublic(image.info.iid, checked, null, null, null,
+                                    updateIface == false);
     });
   });
 
   $('#publicEditPrivilege').click(function()
   {
     var checked = this.checked;
-    images.apply(null, function(image, updateIface)
+    images.applyPrivilege('edit', function(image, updateIface)
     {
-      if (image.info.editPrivilege > 0)
-      {
-        privilegeManager.changePublic(image.info.iid,
-          null, checked, null, null, updateIface == false);
-      }
+      privilegeManager.changePublic(image.info.iid, null, checked, null, null,
+                                    updateIface == false);
     });
   });
 
   $('#publicAnnotatePrivilege').click(function()
   {
     var checked = this.checked;
-    images.apply(null, function(image, updateIface)
+    images.applyPrivilege('edit', function(image, updateIface)
     {
-      if (image.info.editPrivilege > 0)
-      {
-        privilegeManager.changePublic(image.info.iid,
-          null, null, checked, null, updateIface == false);
-      }
+      privilegeManager.changePublic(image.info.iid, null, null, checked, null,
+                                    updateIface == false);
     });
   });
 
   //$('#publicOutlinePrivilege').click(function()
   //{
   //  var checked = this.checked;
-  //  images.apply(null, function(image, updateIface)
+  //  images.applyPrivilege('edit', function(image, updateIface)
   //  {
-  //    if (image.info.editPrivilege > 0)
-  //    {
-  //      privilegeManager.changePublic(image.info.iid,
-  //        null, null, null, checked, updateIface == false);
-  //    }
+  //    privilegeManager.changePublic(image.info.iid, null, null, null, checked,
+  //                                  updateIface == false);
   //  });
   //});
 
@@ -305,17 +290,18 @@ function initUpload()
           propertiesManager.reset();
           break;
 
-        case 'adjust':
+        case 'adjust': // if no privilege MUST BE RESET!
           images.apply(null, function(image, updateIface)
           {
             image.resetImage(updateIface);
           });
           break;
 
-        case 'manage':
+        case 'manage': // if no privilege MUST BE RESET!
           images.apply(null, function(image, updateIface)
           {
             image.resetStatus(updateIface);
+            image.delete(false);
           });
           break;
 

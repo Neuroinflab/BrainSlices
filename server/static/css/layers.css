@@ -592,6 +592,12 @@ li.image-details-edit
   text-align: left;
 }
 
+ul.image-details-edit
+{
+  margin: 0 0 0 5px;
+  padding: 0px;
+}
+
 input.image-details-edit,
 textarea.image-details-edit
 {
