@@ -21,70 +21,6 @@ function initUpload()
   var STATUS_MAP = BrainSlices.gui.STATUS_MAP;
   var scope = BrainSlices.scope;
 
-/*
-  var deleteButtons = {};
-
-  function deleteImages()
-  {
-    var toDelete = [];
-    var deleteMapping = {};
-    for (var id in deleteButtons)
-    {
-      var $del = deleteButtons[id];
-      if (!$del) continue;
-      if ($del.filter(':checked').length == 0) continue;
-      var image = images.getCachedImage(id);
-      if (image == null) continue;
-      var iid = image.info.iid;
-      toDelete.push(iid);
-      deleteMapping[iid] = id;
-    }
-  
-    if (toDelete.length > 0 &&
-        confirm("Do you really want to delete " +
-                (toDelete.length == 1 ?
-                 "the image" :
-                 toDelete.length + " images") + " permanently?"))
-    {
-      loginConsole.ajax('/upload/deleteImages',
-                        function(response)
-                        {
-                          if (!response.status)
-                          {
-                            alert(response.message);
-                            return;
-                          }
-                          var data = response.data;
-                          if (data.length != toDelete.length)
-                          {
-                            alert("Some of images not found in the database.");
-                          }
-  
-                          var preserved = false;
-                          for (var i = 0; i < data.length; i++)
-                          {
-                            var item = data[i];
-                            if (item[1])
-                            {
-                              layerManager.removeLayer(deleteMapping[item[0]],
-                                                       false);
-                            }
-                            else
-                            {
-                              preserved = true;
-                            }
-                          }
-                          if (preserved)
-                          {
-                            alert("Not enough privileges to delete some of images.");
-                          }
-                          layerManager.updateOrder();
-                        },
-                        {iids: toDelete.join(',')});
-    }
-  }
-  
-  */
   
   // layerManager operations disabled
   function batchDetails()
@@ -103,7 +39,6 @@ function initUpload()
                           return false;
                         }
   
-                        // layerManager.flush();
                         fileUploader.reset();
                         data.data.sort(function(a, b)
                                        {
@@ -122,12 +57,6 @@ function initUpload()
                     		{
                           var image = data.data[i];
                           var id = image.iid;
-                          if (image.status >= 6)
-                          {
-                            // status: completed
-  
-                            // layerManager.autoAddTileLayer(image);
-                          }
                           fileUploader
                             .append(image.filename,
                                     //+ (image.status == 7 ?
@@ -139,8 +68,6 @@ function initUpload()
                                     image.sourceCRC32,
                                     image.status);
                     		}
-  
-                        // layerManager.updateOrder();
                       },
                       query,
                       null,
@@ -439,32 +366,6 @@ function initUpload()
 
 
   scope
-    /*
-    .registerChange(function(value)
-    {
-      if (value)
-      {
-        $('#editCart')
-          .addClass('selected');
-
-        $('#imageCartBody').addClass('editPanel');
-        $('#editPanel').show(0);
-        $('#editMode').show(0);
-      }
-      else
-      {
-        $('#editCart')
-          .removeClass('selected');
-
-        layerManager.stopAdjustment();
-        $('#editPanel').hide(0);
-        $('#editMode').hide(0);
-        $('#imageCartBody').removeClass('editPanel');
-        
-      }
-
-      layerManager.doLazyRefresh();
-    }, 'edit')*/
     .registerChange(function(value)
     {
       switch (value)
@@ -477,7 +378,6 @@ function initUpload()
           $('#adjustPanel').hide(0);
           $('#managePanel').hide(0);
           $('#deleteImagesButton').hide(0);
-          //$('#imageCartBody').removeClass('editPanel'); //XXX
           break;
 
         case 'manage':
@@ -490,7 +390,6 @@ function initUpload()
           break;
 
         case 'adjust':
-          //$('#imageCartBody').addClass('editPanel'); //XXX
           $('#editPanel').show(0); //XXX
           $('#privilegesPanel').hide(0);
           $('#propertyPanel').hide(0);
@@ -500,7 +399,6 @@ function initUpload()
           break;
 
         case 'privileges':
-          //$('#imageCartBody').addClass('editPanel'); //XXX
           $('#editPanel').show(0); //XXX
           $('#adjustPanel').hide(0);
           $('#propertyPanel').hide(0);
@@ -510,7 +408,6 @@ function initUpload()
           break;
 
         case 'properties':
-          //$('#imageCartBody').addClass('editPanel'); //XXX
           $('#editPanel').show(0); //XXX
           $('#privilegesPanel').hide(0);
           $('#adjustPanel').hide(0);
@@ -524,12 +421,6 @@ function initUpload()
     }, 'editMode')
     .registerChange(function(value)
     {
-      // fetch list of available batches
-      // and update #batchId select
-      //
-      //var $batchSelect = $('#batchId')
-      //  .html('<option value="None" selected="selected">None</option>');
-
       var $batchSelect = $('#existingBatch')
         .empty();
 
@@ -565,18 +456,12 @@ function initUpload()
               .change()
               .find('option[value="no"]')
               .prop('disabled', true);
-
-            //$batchSelect.hide(0);
-            //$('#newBatchName').show(0);
           }
           else
           {
             $('#newBatch')
               .find('option[value="no"]')
               .prop('disabled', false);
-
-            //$('#newBatchName').hide(0);
-            //$batchSelect.show(0);
           }
 
           function makeOption(item)
@@ -612,34 +497,6 @@ function initUpload()
     })
     .change();
   
-
-  //$('#newBatch')
-  //  .click(function()
-  //  {
-  //    // create (and select) a new batch
-  //    fileUploader.reset();
-
-  //    var comment = $('#newBatchComment').val();
-  //    var $batchSelect = $('#batchId');
-  //  
-  //    loginConsole.ajax(
-  //      '/upload/newBatch',
-  //      function(response)
-  //      {
-  //        if (!response.status)
-  //        {
-  //          alert(response.message);
-  //          return;
-  //        }
-  //        $batchSelect.append('<option value="' + response.data.bid + '">' +
-  //                       BrainSlices.gui.escapeHTML(response.data.comment) + '</option>');
-  //        $batchSelect.val(response.data.bid);
-  //      },
-  //      {comment: comment},
-  //      null,
-  //      null,
-  //      {cache: false});
-  //  });
  
   $('#uploadFiles')
     .click(function()
@@ -722,34 +579,6 @@ function initUploadFinish()
         {cache: false});
     });
   
-    // TODO: check if the function is somehow useful
-  
-    /*
-    layerManager = new CLayerManager($('#controlPanel .layerList'), stacks,
-                                     loginConsole,
-    {
-      addTileLayer:
-      function(info)
-      {
-        /// XXX: A LARGE CUT
-        //deletion
-        var $del = $('<input type="checkbox">');
-        deleteButtons[id] = $del;
-        $row.append($('<td></td>').append($del));
-  
-        this.addTileLayer(id, $row, $visibility, null, null,
-                          function()
-                          {
-                            delete deleteButtons[id];
-                          },
-                          path, info, false,
-                          function(img)
-                          {
-                            image = img;
-                          },
-  			null, null,onUpdate);
-    */
-
 
   // properties
 
