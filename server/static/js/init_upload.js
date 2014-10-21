@@ -358,48 +358,48 @@ function initUpload()
       {
         case 'details':
           layerManager.stopAdjustment(); //XXX
-          $('#editPanel').hide(0); //XXX -> hide other things
-          $('#privilegesPanel').hide(0);
-          $('#propertyPanel').hide(0);
-          $('#adjustPanel').hide(0);
-          $('#managePanel').hide(0);
-          $('#deleteImagesButton').hide(0);
+          $('#editPanel').css('display', 'none'); //XXX -> hide other things
+          $('#privilegesPanel').css('display', 'none');
+          $('#propertyPanel').css('display', 'none');
+          $('#adjustPanel').css('display', 'none');
+          $('#managePanel').css('display', 'none');
+          $('#deleteImagesButton').css('display', 'none');
           break;
 
         case 'manage':
-          $('#editPanel').show(0); //XXX
-          $('#privilegesPanel').hide(0);
-          $('#propertyPanel').hide(0);
-          $('#adjustPanel').hide(0);
-          $('#managePanel').show(0);
-          $('#deleteImagesButton').show(0);
+          $('#editPanel').css('display', ''); //XXX
+          $('#privilegesPanel').css('display', 'none');
+          $('#propertyPanel').css('display', 'none');
+          $('#adjustPanel').css('display', 'none');
+          $('#managePanel').css('display', '');
+          $('#deleteImagesButton').css('display', '');
           break;
 
         case 'adjust':
-          $('#editPanel').show(0); //XXX
-          $('#privilegesPanel').hide(0);
-          $('#propertyPanel').hide(0);
-          $('#managePanel').hide(0);
-          $('#deleteImagesButton').hide(0);
-          $('#adjustPanel').show(0);
+          $('#editPanel').css('display', ''); //XXX
+          $('#privilegesPanel').css('display', 'none');
+          $('#propertyPanel').css('display', 'none');
+          $('#managePanel').css('display', 'none');
+          $('#deleteImagesButton').css('display', 'none');
+          $('#adjustPanel').css('display', '');
           break;
 
         case 'privileges':
-          $('#editPanel').show(0); //XXX
-          $('#adjustPanel').hide(0);
-          $('#propertyPanel').hide(0);
-          $('#managePanel').hide(0);
-          $('#deleteImagesButton').hide(0);
-          $('#privilegesPanel').show(0);
+          $('#editPanel').css('display', ''); //XXX
+          $('#adjustPanel').css('display', 'none');
+          $('#propertyPanel').css('display', 'none');
+          $('#managePanel').css('display', 'none');
+          $('#deleteImagesButton').css('display', 'none');
+          $('#privilegesPanel').css('display', '');
           break;
 
         case 'properties':
-          $('#editPanel').show(0); //XXX
-          $('#privilegesPanel').hide(0);
-          $('#adjustPanel').hide(0);
-          $('#managePanel').hide(0);
-          $('#deleteImagesButton').hide(0);
-          $('#propertyPanel').show(0);
+          $('#editPanel').css('display', ''); //XXX
+          $('#privilegesPanel').css('display', 'none');
+          $('#adjustPanel').css('display', 'none');
+          $('#managePanel').css('display', 'none');
+          $('#deleteImagesButton').css('display', 'none');
+          $('#propertyPanel').css('display', '');
           break;
       }
 
@@ -415,15 +415,15 @@ function initUpload()
       if (value == null)
       {
         scope.set('editMode', 'details');
-        $('#editMode').hide(0); // XXX???
-        $('#editModeImageAnnotations').show(0);
-        $('#batchFilterDiv').hide(0);
+        $('#editMode').css('display', 'none'); // XXX???
+        $('#editModeImageAnnotations').css('display', '');
+        $('#batchFilterDiv').css('display', 'none');
         return;
       }
 
-      $('#editModeImageAnnotations').hide(0);
-      $('#editMode').show(0); // XXX???
-      $('#batchFilterDiv').show(0);
+      $('#editModeImageAnnotations').css('display', 'none');
+      $('#editMode').css('display', ''); // XXX???
+      $('#batchFilterDiv').css('display', '');
 
       loginConsole.ajax(
         '/upload/batchList',
@@ -472,13 +472,13 @@ function initUpload()
     {
       if ($('#newBatch').val() == 'yes')
       {
-        $('#existingBatch').hide(0);
-        $('#newBatchName').show(0);
+        $('#existingBatch').css('display', 'none');
+        $('#newBatchName').css('display', '');
       }
       else
       {
-        $('#newBatchName').hide(0);
-        $('#existingBatch').show(0);
+        $('#newBatchName').css('display', 'none');
+        $('#existingBatch').css('display', '');
       }
     })
     .change();
@@ -573,48 +573,73 @@ function initUploadFinish()
     {
       $('#propertyPanel')
         .append(makeAddPropertyPanel(
-        [
-          {
-            Add:
-            function(name, property)
-            {
-              images.applyPrivilege('annotate', function(image, updateIface)
+          [
+            [
               {
-                var info = image.info;
-                if (!propertiesManager.has(info.iid, name))
+                $button:
+                $('<button>')
+                  .text(' Add')
+                  .prepend($('<span>')
+                    .addClass('fa fa-plus')),
+
+                click:
+                function(name, property)
                 {
-                  propertiesManager.autoAdd(info.iid, name, property);
+                  images.applyPrivilege('annotate', function(image, updateIface)
+                  {
+                    var info = image.info;
+                    if (!propertiesManager.has(info.iid, name))
+                    {
+                      propertiesManager.autoAdd(info.iid, name, property);
+                    }
+                  });
+
+                  triggerImageCartHeaderAnimation();
+                  return true;
                 }
-              });
-
-              triggerImageCartHeaderAnimation();
-              return true;
-            },
-            Set:
-            function(name, property)
-            {
-              images.applyPrivilege('annotate', function(image, updateIface)
+              },
               {
-                var info = image.info;
-                propertiesManager.remove(info.iid, name);
-                propertiesManager.autoAdd(info.iid, name, property);
-              });
+                $button:
+                $('<button>')
+                  .text(' Set')
+                  .prepend($('<span>')
+                    .addClass('fa fa-trash-o')),
 
-              triggerImageCartHeaderAnimation();
-              return true;
-            }
-          },
-          {
-            Remove:
-            function(name, property)
-            {
-              images.applyPrivilege('annotate', function(image, updateIface)
+                click:
+                function(name, property)
+                {
+                  images.applyPrivilege('annotate', function(image, updateIface)
+                  {
+                    var info = image.info;
+                    propertiesManager.remove(info.iid, name);
+                    propertiesManager.autoAdd(info.iid, name, property);
+                  });
+
+                  triggerImageCartHeaderAnimation();
+                  return true;
+                }
+              }
+            ],
+            [
               {
-                propertiesManager.remove(image.info.iid, name);
-              });
-              return false;
-            }
-          }],
+                $button:
+                $('<button>')
+                  .text(' Remove')
+                  .prepend($('<span>')
+                    .addClass('fa fa-arrow-right')),
+
+                click:
+                function(name, property)
+                {
+                  images.applyPrivilege('annotate', function(image, updateIface)
+                  {
+                    propertiesManager.remove(image.info.iid, name);
+                  });
+                  return false;
+                }
+              }
+            ],
+          ],
           triggerImageCartHeaderAnimation));
     });
 

@@ -38,12 +38,12 @@ function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
   {
     if (adjust)
     {
-      $iface.show(0);
+      $iface.css('display', '');
       thisInstance.images.startAdjustment(id);
     }
     else
     {
-      $iface.hide(0);
+      $iface.css('display', 'none');
       thisInstance.images.stopAdjustment(id);
     }
     layerManager.doLazyRefresh();
@@ -183,7 +183,8 @@ var getEnumeratedSuggestionsFunction;
   
   makeAddPropertyPanel = function(onsubmit, onheightchange)
   {
-    var $addPanel = $('<div>');
+    var $addPanel = $('<div>')
+      .addClass('add-property-panel');
     var name;
     var typeOptions = {};
     //var inSelect = false;
@@ -562,7 +563,7 @@ var PImagePropertyTriggers =
 
     if (name in this.data.fixedOut)
     {
-      data.$out = this.data.fixedOut[name].show(0);
+      data.$out = this.data.fixedOut[name].css('display', '');
     }
     else
     {
@@ -757,7 +758,7 @@ var PPropertyTriggers =
     else
     {
       console.debug(this.data.$out);
-      this.data.$out.empty().hide(0);
+      this.data.$out.empty().css('display', 'none');
     }
   },
 
@@ -789,26 +790,26 @@ var PPropertyTriggers =
   {
     if (this.removed)
     {
-      if (this.data.$inRow) this.data.$inRow.hide(0);
+      if (this.data.$inRow) this.data.$inRow.css('display', 'none');
       if (this.data.$outRow)
       {
-        this.data.$outRow.hide(0);
+        this.data.$outRow.css('display', 'none');
       }
       else
       {
-        this.data.$out.hide(0);
+        this.data.$out.css('display', 'none');
       }
     }
     else
     {
-      if (this.data.$inRow) this.data.$inRow.show(0);
+      if (this.data.$inRow) this.data.$inRow.css('display', '');
       if (this.data.$outRow)
       {
-        this.data.$outRow.show(0);
+        this.data.$outRow.css('display', '');
       }
       else
       {
-        this.data.$out.show(0);
+        this.data.$out.css('display', '');
       }
     }
   }
@@ -1044,7 +1045,7 @@ function initCart()
             complete:
             function()
             {
-              $cart.hide(0);
+              $cart.css('display', 'none');
             }
           });
         $panels
@@ -1285,7 +1286,7 @@ function initCart()
                             var $download = makeBasicDetails(img.info, $drag);
                             $drag
                               .append($nameView
-                                .addClass('image-details'))
+                                .addClass('image-details image-name'))
                               .append($descriptionView
                                 .addClass('image-description image-details'))
                               .append($propertiesView
@@ -1303,33 +1304,57 @@ function initCart()
                                   .addClass('image-details-edit'))
                                 .append(makeAddPropertyPanel(
                                 [
-                                  {
-                                    Add:
-                                    function(name, property)
+                                  [
                                     {
-                                      if (propertiesManager.has(id, name))
+                                      $button:
+                                      $('<button>')
+                                        .text(' Add')
+                                        .prepend($('<span>')
+                                          .addClass('fa fa-plus')),
+
+                                      click:
+                                      function(name, property)
                                       {
-                                        alertWindow.error('Property already defined.');
+                                        if (propertiesManager.has(id, name))
+                                        {
+                                          alertWindow.error('Property already defined.');
+                                          return false;
+                                        }
+                                        propertiesManager.autoAdd(id, name, property);
+                                      }
+                                    },
+                                    {
+                                      $button:
+                                      $('<button>')
+                                        .text(' Set')
+                                        .prepend($('<span>')
+                                          .addClass('fa fa-trash-o')),
+
+                                      click:
+                                      function(name, property)
+                                      {
+                                        propertiesManager.remove(id, name);
+                                        propertiesManager.autoAdd(id, name, property);
+                                        return true;
+                                      }
+                                    }
+                                  ],
+                                  [
+                                    {
+                                      $button:
+                                      $('<button>')
+                                        .text(' Remove')
+                                        .prepend($('<span>')
+                                          .addClass('fa fa-arrow-right')),
+
+                                      click:
+                                      function(name, property)
+                                      {
+                                        propertiesManager.remove(id, name);
                                         return false;
                                       }
-                                      propertiesManager.autoAdd(id, name, property);
-                                    },
-                                    Set:
-                                    function(name, property)
-                                    {
-                                      propertiesManager.remove(id, name);
-                                      propertiesManager.autoAdd(id, name, property);
-                                      return true;
                                     }
-                                  },
-                                  {
-                                    Remove:
-                                    function(name, property)
-                                    {
-                                      propertiesManager.remove(id, name);
-                                      return false;
-                                    }
-                                  }
+                                  ]
                                 ],
                                 function()
                                 {
@@ -1487,7 +1512,8 @@ function initCart()
                                 rowElements.$reset.css('display', 'none');
 
                                 rowElements.$properties.css('display', '');
-                                rowElements.$name.css('display', '');
+                                rowElements.$name.removeClass('hidden');
+                                rowElements.$description.removeClass('hidden');
                                 rowElements.$download.css('display', '');
                                 $drag.addClass('propertiesVisible');
                                 break;
@@ -1497,6 +1523,8 @@ function initCart()
                                 rowElements.$adjustment.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
+                                rowElements.$name.addClass('hidden');
+                                rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
@@ -1516,6 +1544,8 @@ function initCart()
                                 rowElements.$properties.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
+                                rowElements.$name.addClass('hidden');
+                                rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
@@ -1533,6 +1563,8 @@ function initCart()
                               case 'privileges':
                                 rowElements.$properties.css('display', 'none');
                                 rowElements.$adjustment.css('display', 'none');
+                                rowElements.$name.addClass('hidden');
+                                rowElements.$description.addClass('hidden');
                                 rowElements.$management.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
                                 rowElements.$download.css('display', 'none');
@@ -1554,7 +1586,8 @@ function initCart()
                                 rowElements.$management.css('display', 'none');
                                 rowElements.$adjustment.css('display', 'none');
                                 rowElements.$privileges.css('display', 'none');
-                                rowElements.$name.css('display', 'none');
+                                rowElements.$name.addClass('hidden');
+                                rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
                                 if (image.info.annotatePrivilege > 0)
                                 {

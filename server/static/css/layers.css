@@ -594,7 +594,7 @@ li.image-details-edit
 
 ul.image-details-edit
 {
-  margin: 0 0 0 5px;
+  margin: 0 5px;
   padding: 0px;
 }
 
@@ -669,7 +669,7 @@ div.image-details-edit-enum-toggle
 
 .brainslices-new-property-value
 {
-  border: 1px solid #FFF;
+  border: 1px solid #F00;
 }
 
 div.brainslices-new-property-filter.fake-filter
@@ -684,3 +684,12 @@ option.suggested-type
   background: #DDEEFF;
 }
 
+div.add-property-panel
+{
+  margin: 5px;
+}
+
+.hidden
+{
+  display: none;
+}

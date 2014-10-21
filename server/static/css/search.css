@@ -784,12 +784,12 @@ h1.image-details
 p.image-description.image-details
 {
   text-align: left;
-  margin: 0 0 5px 5px;
+  margin: 0 5px 5px 5px;
 }
 
 ul.image-details
 {
-  margin: 0 0 0 5px;
+  margin: 0 5px;
   padding: 0px;
 }
 
@@ -805,38 +805,3 @@ li.image-details
   margin: 3px 10px 5px 5px;
 }
 
-
-
-/*
-.thumbnail-only .image-details.unfolded>div.folding-button,
-.thumbnail-only .image-details.folded>div.unfolding-button,
-.thumbnail-only .image-details>h1,
-.thumbnail-only .image-details>p.image-description,
-.thumbnail-only .image-details>ul
-{
-  display: none;
-}
-
-.thumbnail-only .image-details>.polaroid-image
-{
-  margin: 3px 5px;
-}
-*/
-
-/*
-#searchImageBasket .search-header-label
-{
-  left: 25px;
-}
-
-#searchImageBasketList
-{
-  position: absolute;
-  top: 40px;
-  bottom: 5px;
-  height: auto;
-  left: 25px;
-  right: 5px;
-  width: auto;
-}
-*/
