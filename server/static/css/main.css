@@ -406,3 +406,7 @@ select:focus
   text-decoration: underline;
 }
 
+.hidden
+{
+  display: none;
+}

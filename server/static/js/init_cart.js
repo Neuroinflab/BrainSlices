@@ -890,11 +890,14 @@ function animateImageCartHeader(immediately)
     $('#foldAllCart').parent()
       .css('margin-right', visWidth + 1);
 
-    var newHeight =  $('#layerList').height();
+    var newHeight = $('#layerList').height();
+
+    console.log(olderHeight, oldHeight, newHeight);
     if (oldHeight > newHeight || olderHeight != newHeight)
     {
       // new items might be visible or height changed
-      if (imageCartBodyCSS.height < spaceLeft || newHeight < spaceLeft)
+      console.log(imageCartBodyCSS.height, spaceLeft)
+      if (olderHeight < spaceLeft || newHeight < spaceLeft)
       {
         // height has changed and cart body might require further tuning...
         newHeight = Math.min(spaceLeft, $('#layerList').outerHeight()) + 'px';
@@ -1308,7 +1311,7 @@ function initCart()
                                     {
                                       $button:
                                       $('<button>')
-                                        .text(' Add')
+                                        .addClass('brainslices-new-property-add-button')
                                         .prepend($('<span>')
                                           .addClass('fa fa-plus')),
 
@@ -1321,14 +1324,15 @@ function initCart()
                                           return false;
                                         }
                                         propertiesManager.autoAdd(id, name, property);
+                                        return true;
                                       }
                                     },
                                     {
                                       $button:
                                       $('<button>')
-                                        .text(' Set')
+                                        .addClass('brainslices-new-property-set-button')
                                         .prepend($('<span>')
-                                          .addClass('fa fa-trash-o')),
+                                          .addClass('fa fa-arrow-right')),
 
                                       click:
                                       function(name, property)
@@ -1343,9 +1347,9 @@ function initCart()
                                     {
                                       $button:
                                       $('<button>')
-                                        .text(' Remove')
+                                        .addClass('brainslices-new-property-del-button')
                                         .prepend($('<span>')
-                                          .addClass('fa fa-arrow-right')),
+                                          .addClass('fa fa-trash-o')),
 
                                       click:
                                       function(name, property)

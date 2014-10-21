@@ -784,6 +784,7 @@ h1.image-details
 p.image-description.image-details
 {
   text-align: left;
+  white-space: pre-wrap;
   margin: 0 5px 5px 5px;
 }
 
@@ -797,6 +798,7 @@ li.image-details
 {
   list-style-type: none;
   text-align: left;
+  white-space: pre-wrap;
 }
 
 .polaroid-image.image-details

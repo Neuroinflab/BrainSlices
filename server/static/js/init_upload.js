@@ -578,7 +578,7 @@ function initUploadFinish()
               {
                 $button:
                 $('<button>')
-                  .text(' Add')
+                  .addClass('brainslices-new-property-add-button')
                   .prepend($('<span>')
                     .addClass('fa fa-plus')),
 
@@ -601,9 +601,9 @@ function initUploadFinish()
               {
                 $button:
                 $('<button>')
-                  .text(' Set')
+                  .addClass('brainslices-new-property-set-button')
                   .prepend($('<span>')
-                    .addClass('fa fa-trash-o')),
+                    .addClass('fa fa-arrow-right')),
 
                 click:
                 function(name, property)
@@ -624,9 +624,9 @@ function initUploadFinish()
               {
                 $button:
                 $('<button>')
-                  .text(' Remove')
+                  .addClass('brainslices-new-property-del-button')
                   .prepend($('<span>')
-                    .addClass('fa fa-arrow-right')),
+                    .addClass('fa fa-trash-o')),
 
                 click:
                 function(name, property)

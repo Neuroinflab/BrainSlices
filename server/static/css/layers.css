@@ -602,6 +602,20 @@ input.image-details-edit,
 textarea.image-details-edit
 {
   border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input.image-details-edit
+{
+  height: 24px; /*+2px for border*/
+  width: 252px; /*+2px for border*/
+}
+
+textarea.image-details-edit
+{
+  width: 100%;
+  height: 20ex;
+  resize: vertical;
 }
 
 div.image-details-edit-enum.selectWrapper
@@ -613,6 +627,8 @@ div.image-details-edit-enum.selectWrapper
 
 input.image-details-edit-enum
 {
+  width: 230px;
+
   margin: 0;
   border-left: none;
   border-bottom: none;
@@ -664,12 +680,13 @@ div.image-details-edit-enum-toggle
 {
   display: inline-block;
   vertical-align: middle;
-  border: 1px solid #F0F;
+  margin: 0 4px 4px 4px;
+  /*border: 1px solid #F0F;*/
 }
 
 .brainslices-new-property-value
 {
-  border: 1px solid #F00;
+  /*border: 1px solid #F00;*/
 }
 
 div.brainslices-new-property-filter.fake-filter
@@ -689,7 +706,55 @@ div.add-property-panel
   margin: 5px;
 }
 
-.hidden
+button.brainslices-new-property-add-button,
+button.brainslices-new-property-set-button,
+button.brainslices-new-property-del-button
 {
-  display: none;
+  border-radius: 4px;
+}
+
+button.brainslices-new-property-add-button
+{
+  margin: 0 4px 4px 0;
+}
+
+button.brainslices-new-property-add-button:after
+{
+  content: " Add";
+}
+
+button.brainslices-new-property-add-button:hover
+{
+  background-color: #309F30;
+  border-color: #60B060;
+  color: #FFFFFF;
+}
+
+button.brainslices-new-property-set-button
+{
+  margin: 0 0 4px 0;
+}
+
+button.brainslices-new-property-set-button:after
+{
+  content: " Set";
+}
+
+button.brainslices-new-property-del-button
+{
+  margin: 0;
+  width: 100%;
+}
+
+button.brainslices-new-property-del-button:after
+{
+  content: " Remove";
+}
+
+button.brainslices-new-property-set-button:hover,
+button.brainslices-new-property-del-button:hover
+{
+  background-color: #FF0000;
+  border-color: #FF6060;
+  color: #FFFFFF;
 }
