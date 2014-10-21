@@ -550,7 +550,8 @@ div.layer-cb-cell
 
 .remove-property-button
 {
-  margin: 5px;
+  margin: 0 5px 4px 5px;
+  vertical-align: middle;
 }
 
 .layer-delete-button:hover,
@@ -590,6 +591,7 @@ li.image-details-edit
 {
   list-style-type: none;
   text-align: left;
+  margin-bottom: 2px;
 }
 
 ul.image-details-edit

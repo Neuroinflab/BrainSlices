@@ -582,6 +582,14 @@ var PImagePropertyTriggers =
       }
     }
 
+    var $remove = $('<span>')
+      .attr('title', 'remove property')
+      .tooltip(BrainSlices.gui.tooltip)
+      .addClass('remove-property-button fa fa-times')
+      .click(function()
+      {
+        thisInstance.remove(name);
+      });
     var $inRow = $('<li>')
       .addClass('image-details-edit')
       .text(name)
@@ -590,10 +598,12 @@ var PImagePropertyTriggers =
 
     if (type != 't')
     {
+      $inRow.append(': ');
       var $input;
       switch (type)
       {
         case 'x':
+          $inRow.append($remove);
           $input = $('<textarea>')
             .attr('placeholder', 'long text');
           break;
@@ -687,29 +697,21 @@ var PImagePropertyTriggers =
                  $input.autocomplete('search', '');
               })
             )
-            .appendTo($inRow
-              .append(': ')));
+            .appendTo($inRow));
       }
       else
       {
         $input
           .addClass('image-details-edit')
-          .appendTo($inRow.append(': '));
+          .appendTo($inRow);
       }
       data.$input = $input;
     }
 
-    //$('<button>')
-    //  .text('X')
-    $('<span>')
-      .attr('title', 'remove property')
-      .tooltip(BrainSlices.gui.tooltip)
-      .addClass('remove-property-button fa fa-times')
-      .appendTo($inRow)
-      .click(function()
-      {
-        thisInstance.remove(name);
-      });
+    if (type != 'x')
+    {
+      $inRow.append($remove);
+    }
 
     var propertyTriggers = Object.create(PPropertyTriggers);
     propertyTriggers.data = data;
