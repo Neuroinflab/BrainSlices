@@ -132,8 +132,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
     this.uploaded = uploadedFiles;
 
     var files = [];
-    var ids = {}; // files selected for upload but not uploaded yet
-    // was a good idea when the object was listening to file list changes 
     var iid2id = {};
 
     var thisInstance = this;
@@ -146,7 +144,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
      * Remove from uploaded table all files.
      ***************************************************************/
       this.uploaded.reset();
-      ids = {};
       iid2id = {};
     };
 
@@ -239,12 +236,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
 
       var id, i, file;
 
-      for (id in ids)
-      {
-        uploadedFiles.remove(id);
-      }
-      ids = {};
-
       if (fileList)
       {
         files = this.filterImageFiles(fileList, filter);
@@ -264,10 +255,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
       }
 
       files = uploadedFiles.getFiles().concat(files);
-      for (i = 0; i < files.length; i++)
-      {
-        ids[files[i].id] = true;
-      }
 
       if (files.length == 0)
       {
@@ -731,7 +718,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
           if (val == 'cancel')
           {
             uploadedFiles.remove(file.id);
-            delete ids[file.id];
             continue;
           }
           if (val != 'new')
@@ -744,7 +730,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             {
               var id = iid2id[file.iid];
               uploadedFiles.remove(id);
-              delete ids[id];
               iid2id[file.iid] = file.id;
             }
           }
@@ -1015,8 +1000,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
 
           // the first chunk of data will be sent
           var total = file.size;
-
-          delete ids[file.id];
 
           if (file.iid != null)
           {

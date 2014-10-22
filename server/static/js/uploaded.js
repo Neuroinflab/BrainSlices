@@ -366,8 +366,6 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
 
       var image = this.table.get(id);
 
-      delete image.file;
-
       image.uploaded = uploaded;
       var size = hSize(image.size);
       var hUploaded = hSize(uploaded);
@@ -397,6 +395,9 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
         }
         else
         {
+          // file successfully uploaded so there is no need to reupload
+          delete image.file;
+
           image.$size.text('Upload completed (' + size + ').');
           image.status = 0;
           if (this.incomplete == null)
