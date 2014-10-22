@@ -1,6 +1,6 @@
 body
 {
-  font: 13px/21px Verdana, Tahoma, sans-serif;
+  font: 13px/20px Verdana, Tahoma, sans-serif;
   color: #7F7F7F;
   background: #FFFFFF;
 }
@@ -23,7 +23,7 @@ input[type=submit],
 input[type=button]
 {
   display: inline-block;
-  padding: 5px;
+  padding: 1px 5px;
   font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
   font-size: 13px;
   color: #3C3C3D;
@@ -40,18 +40,20 @@ input[type=button]
   outline: none;
   position: relative;
   zoom: 1;
-  line-height: 1.11;
+  line-height: 20px;
 
   -moz-user-select: none;
   -webkit-tap-highlight-color: rgba(0,0,0,0);
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+
+  height: 24px;
+  box-sizing: border-box;
 }
 
 button.icon 
 {
-  height: 50px;
-  width: 50px;
+  width: 25px;
 
   text-align: center;
 }
@@ -96,14 +98,22 @@ textarea
   -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 3px;
 }
 
-input,
 textarea
 {
   padding: 5px;
+}
 
+input,
+textarea
+{
   background: -webkit-gradient(linear, left top, left 61%, from(#EEEEEE), to(#FFFFFF));
   background: -moz-linear-gradient(top, #EEEEEE, #FFFFFF 61%);
   background: linear-gradient(top, #EEEEEE, #FFFFFF, 61%);
+}
+
+input
+{
+  padding: 0 3px;
 }
 
 input[type=password],
@@ -111,7 +121,6 @@ input[type=text],
 input[type=number]
 {
   height: 22px;
-  padding: 0 3px;
 }
 
 select
@@ -119,7 +128,7 @@ select
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  padding: 5px 20px 5px 5px;
+  padding: 0 20px 0 5px;
   background: transparent url("/static/gfx/unfold.png") no-repeat right center;
   background-size: 20px, 8px;
 }
@@ -313,8 +322,8 @@ select:focus
   top: 0;
   left: 0;
   right: 0;
-  height: 30px;
-  padding: 2px 5px 3px 4px;
+  height: 29px;
+  padding: 2px 5px; /* 3px 4px;*/
   box-model: padding-box;
   z-index: 100;
   margin: 0;
@@ -326,7 +335,7 @@ select:focus
 #main
 {
   position: fixed;
-  top: 30px;
+  top: 29px;
   left: 0;
   right: 0;
   bottom: 0;

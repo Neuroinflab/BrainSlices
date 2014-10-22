@@ -842,7 +842,7 @@ function animateImageCartHeader(immediately)
   var space = $('#imageCart').innerHeight();
   var height = BrainSlices.scope.get('cartHeader') ?
                $('#imageCartHeaderContent').outerHeight(true) :
-               35;
+               31;
 
   var spaceLeft = space - height - $('#imageCartFooter').outerHeight();
 

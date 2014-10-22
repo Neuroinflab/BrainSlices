@@ -4,8 +4,6 @@
   top: 0;
   bottom: 0;
   right: 0;
-/*  left: 50%;*/
-/*  width: 524px;*/
   width: 0;
   box-sizing: border-box;
 
@@ -15,20 +13,13 @@
   margin: 0;
 
   display: none;
-
-/*  overflow-y: scroll;*/
 }
 
 #imageCartHeader
 {
   position: relative;
-  /*
-  top: 0;
-  left: 0;
-  right: 0;*/
-  height: 35px;
+  height: 31px;
 
-  /*z-index: 1;*/
   overflow: hidden;
 
   text-align: center;
@@ -42,31 +33,16 @@
 #imageCartBody
 {
   position: relative;
-  /*
-  margin-top: 40px;
-  margin-bottom: 30px;
-  */
-  /*top: 40px;
-  bottom: 30px;
-  left: 0;
-  right: 0;*/
   overflow-y: scroll;
-
-  /*z-index: 0;*/
 }
 
 #imageCartFooter
 {
   position: relative;
-  height: 33px;
-  /*
-  left: 0;
-  right: 0;
-  bottom: 0;
-  */
+  height: 31px;
   box-sizing: border-box;
 
-  padding: 3px;
+  padding: 2px 3px 4px 3px;
   text-align: right;
   /*overflow-y: scroll;*/
   /*z-index: 1;*/
@@ -81,6 +57,7 @@
   top: 0;
   left: 0;
   margin: 0;
+  height: 22px;
 }
 
 #emptyCart
@@ -89,6 +66,7 @@
   top: 0;
   right: 3px;
   margin: 0;
+  height: 22px;
 }
 
 #emptyCart:hover
@@ -100,26 +78,15 @@
 
 #foldAllCart
 {
-  padding-top: 1px;
-  padding-bottom: 1px;
 }
 
 #layerList
 {
-  /*
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  */
-  /*overflow-y: scroll;*/
   overflow: hidden;
 }
 
 #imageCartHeaderWrapper
 {
-  /*overflow-y: scroll;*/
   padding: 0 3px;
 }
 
@@ -127,14 +94,12 @@
 {
   overflow: hidden;
   position: relative;
-  padding-top: 5px;
+  padding-top: 3px;
 }
 
 div.layer-row
 {
-  border/*-bottom*/: 1px solid #CACACA;
-  /*border-top: 1px solid #aaaaaa;*/
-  /*margin: 2px;*/
+  border: 1px solid #CACACA;
   border-radius: 4px;
 
   overflow: hidden;
@@ -253,13 +218,13 @@ div.column-separator
 
 #editMode
 {
-  padding-top: 1px;
-  padding-bottom: 1px;
 }
 
 #editModeImageAnnotations
 {
-  padding: 1px 20px 1px 5px;
+  padding: 0 20px 0 5px;
+  display: inline-block;
+  height: 22px;
 }
 
 
@@ -449,6 +414,11 @@ select.offsetinput-widget-unit:hover
   padding-left: 0;
 }
 
+label.managementPanelStatus
+{
+  vertical-align: middle;
+}
+
 label.managementPanelStatus:before
 {
   content: "Status: ";
@@ -462,6 +432,11 @@ select.managementPanelStatus
   padding-left: 3px;
 }
 
+.deleteImage.fa
+{
+  line-height: 20px;
+  vertical-align: middle;
+}
 
 .deleteImage:hover,
 .deleteImage.ui-state-active,
@@ -472,6 +447,12 @@ select.managementPanelStatus
   color: #FFFFFF;
 }
 
+.managementPanel,
+.adjustPanel,
+.privilegePanel
+{
+  margin-top: 5px;
+}
 
 
 
@@ -526,7 +507,18 @@ div.layer-cb-cell
 {
   display: block;
   position: absolute;
+}
+
+.layer-download-button,
+.add-image-to-cart-button,
+.layer-reset-button
+{
   top: 5px;
+}
+
+.layer-delete-button
+{
+  top: 3px;
 }
 
 .layer-download-button,
@@ -596,7 +588,7 @@ li.image-details-edit
 
 ul.image-details-edit
 {
-  margin: 0 5px;
+  margin: 5px 5px 0 5px;
   padding: 0px;
 }
 
@@ -713,11 +705,13 @@ button.brainslices-new-property-set-button,
 button.brainslices-new-property-del-button
 {
   border-radius: 4px;
+  height: 22px;
+  line-height: 19px;
 }
 
 button.brainslices-new-property-add-button
 {
-  margin: 0 4px 4px 0;
+  margin: 0 2px 2px 0;
 }
 
 button.brainslices-new-property-add-button:after
@@ -734,7 +728,7 @@ button.brainslices-new-property-add-button:hover
 
 button.brainslices-new-property-set-button
 {
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
 }
 
 button.brainslices-new-property-set-button:after

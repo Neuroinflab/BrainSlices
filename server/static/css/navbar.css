@@ -58,14 +58,12 @@
 #navbar button.icon,
 #navbar button.texticon
 {
-  height: 25px;
-  margin-left: 3px;
-  padding: 5px;
+  margin: 0 0 0 3px;
 }
 
 #navbar button.icon
 {
-  width: 25px;
+/*  width: 25px;*/
 }
 
 #navbar button.texticon
