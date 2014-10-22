@@ -1,61 +1,32 @@
-#upload ul.uploads
-{
-  max-height: 10ex;
-  overflow-y: auto;
-}
-
-#upload,
-#uploadDiv
+#czarownik,
+#fileListDiv
 {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  padding: 10px;
-}
-
-#uploadDiv
-{
-  left: 50%;
-  right: 0;
-  overflow-y: auto;
-}
-
-#upload
-{
   left: 0;
-  right: 50%;
+  right: 0;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid red;
 }
 
-#upload table.uploaded
+#czarownik
 {
-/*  table-layout: fixed;*/
+  top: 0;
+  height: 200px;
 }
+
+#fileListDiv
+{
+  top: 200px;
+  bottom: 0;
+}
+
 
 #batchSelection,
 #metadataUpload,
-#fileUpload
+#fileSelection
 {
-  position: absolute;
-  left: 0;
-  right: 0;
-}
-
-#batchSelection
-{
-  top: 0;
-  height: 60px;
-}
-
-#metadataUpload
-{
-  top: 60px;
-  height: 100px;
-}
-
-#fileUpload
-{
-  top: 160px;
-  bottom: 0;
+  border: 1px solid green;
 }
 
 #newBatch,

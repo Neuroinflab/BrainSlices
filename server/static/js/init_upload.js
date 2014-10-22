@@ -513,7 +513,7 @@ function initUploadFinish()
   privilegeManager = new CImagePrivilegesManager(loginConsole);
   propertiesManager = new CPropertiesManager(loginConsole);
 
-  uploadedFiles = new CUploadedImages($('#uploadDiv table.uploaded>tbody'),
+  uploadedFiles = new CUploadedImages($('#fileList'),
                                       null,
                                       $('#upload_status_message'),
                                       loginConsole);

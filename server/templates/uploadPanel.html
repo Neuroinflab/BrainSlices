@@ -1,70 +1,54 @@
-    <div id="batchSelection">
-     Select a collection uploaded images will be added to.
+    <div id="czarownik">
+     <div id="batchSelection">
+      Select a collection uploaded images will be added to.
 
-     <div class="selectWrapper">
-      <select id="newBatch">
-       <option value="yes">New collection:</option>
-       <option value="no">Existing collection:</option>
-      </select>
-      <input id="newBatchName" type="text" value="" placeholder="collection name">
-      <select id="existingBatch">
-      </select>
-     </div>
-    </div>
-
-		<div id="metadataUpload">
-     Provide basic information about the images. If not provided default values will be used. <br>
-     <label id="offsetUpload"></label><br>
-     <label id="resolutionUpload"></label>
-    </div>
-
-    <div id="fileUpload">
-     <form action="upload" method="post" enctype="multipart/form-data" id="upload" onsubmit="return false;">
- 
-<!--
-      <div class="batch">
-       Batch:
-       <select name="bid" id="batchId">
-        <option selected="selected">None</option>
+      <div class="selectWrapper">
+       <select id="newBatch">
+        <option value="yes">New collection:</option>
+        <option value="no">Existing collection:</option>
        </select>
-		   <a id="batchDetails" href="javascript:void(0)">Refresh</a>
-		 	<br/>
-   
-       <input id="newBatchComment" type="text" value="Batch comment..."><input id="newBatch" type="button" value="Create a new batch" />
+       <input id="newBatchName" type="text" value="" placeholder="collection name">
+       <select id="existingBatch">
+       </select>
       </div>
--->
-  
-      File: <input id="filesForUpload" type="file" multiple="multiple"/> <br/>
-      <input type="checkbox" checked="checked" id="filterImageType"/> Filter image type <br/>
-  
-      <div class="uploadNew">
-       <input id="uploadFiles" type="button" value="Upload" />
-       <p class="ui-state-highlight" style="display: none;" id="upload_status_message"></p>
-      </div>
-     </form>
- 
-     <div id="uploadDiv">
-      <table border class="uploaded">
-       <thead>
-        <tr>
-         <th>
-          Filename
-         </th>
-         <th>
-          Size
-         </th>
-         <th>
-          IID
-         </th>
-         <th>
-          crc32
-         </th>
-        </tr>
-       </thead>
-       <tfoot>
-       </tfoot>
-       <tbody>
-       </tbody>
-      </table>
      </div>
+
+		 <div id="metadataUpload">
+      Provide basic information about the images. If not provided default values will be used. <br>
+      <label id="offsetUpload"></label><br>
+      <label id="resolutionUpload"></label>
+     </div>
+
+     <div id="fileSelection"> 
+      File: <input id="filesForUpload" type="file" multiple="multiple"/> <br>
+      <input type="checkbox" checked="checked" id="filterImageType"/> Filter image type <br>
+  
+      <button id="uploadFiles">Upload</button>
+     </div>
+
+    </div>
+
+    <div id="fileListDiv">
+     <table border class="uploaded">
+      <thead>
+       <tr>
+        <th>
+         Filename
+        </th>
+        <th>
+         Size
+        </th>
+        <th>
+         IID
+        </th>
+        <th>
+         crc32
+        </th>
+       </tr>
+      </thead>
+      <tfoot>
+      </tfoot>
+      <tbody id="fileList">
+      </tbody>
+     </table>
     </div>
