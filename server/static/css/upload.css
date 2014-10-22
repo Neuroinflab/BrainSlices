@@ -19,6 +19,7 @@
 {
   top: 200px;
   bottom: 0;
+  overflow-y: auto;
 }
 
 
@@ -77,3 +78,14 @@
 {
   content: " \00B5m";
 }*/
+
+#notAllFilesIncluded
+{
+  color: #AA0000;
+  white-space: pre-wrap;
+}
+
+#czarownikOverlay.overlay
+{
+  position: absolute;
+}

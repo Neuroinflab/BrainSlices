@@ -488,18 +488,42 @@ function initUpload()
     .click(function()
     {
       var offset = $('#offsetUpload').offsetinput('value');
-      fileUploader.submit($('#filesForUpload')[0].files,
-                          $('#filterImageType').prop('checked'),
-                          null, //final function
-                          $('#resolutionUpload').resolution('value'),
-                          offset.top, offset.left);
+      $('#czarownikOverlay').fadeIn();
+      setTimeout(function()
+      {
+        fileUploader.submit(null,
+                            $('#filterImageType').prop('checked'),
+                            function(status, msg)
+                            {
+                              $('#czarownikOverlay').fadeOut();
+                              if (msg)
+                              {
+                                alert(msg);
+                              }
+                            },
+                            $('#resolutionUpload').resolution('value'),
+                            offset.top, offset.left);
+      }, 50);
     });
   
   function updateFiles()
   {
-    // a dummy call just to see if an error message is being displayed // XXX ???
-    fileUploader.filterImageFiles($('#filesForUpload')[0].files,
-                                  $('#filterImageType').prop('checked'));
+    var files = fileUploader.filterImageFiles($('#filesForUpload')[0].files,
+                                              $('#filterImageType').prop('checked'),
+                                              function(msg)
+                                              {
+                                                if (msg)
+                                                {
+                                                  $('#notAllFilesIncluded')
+                                                    .text(msg)
+                                                    .show();
+                                                }
+                                                else
+                                                {
+                                                  $('#notAllFilesIncluded').hide();
+                                                }
+                                              });
+    uploadedFiles.reset(files);
   }
 
   $('#filesForUpload').change(updateFiles);

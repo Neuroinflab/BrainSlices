@@ -201,6 +201,21 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
     var imageTop = null;
     var imageLeft = null;
 
+    function exitUpload(status, msg)
+    {
+      if (afterUpload)
+      {
+        afterUpload(status, msg);
+      }
+      else
+      {
+        if (msg)
+        {
+          alert(msg);
+        }
+      }
+    }
+
     this.submit = function(fileList, filter, finalFunction,
                            ps, top, left)
     {
@@ -221,10 +236,8 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
       pixelSize = ps;
       imageTop = top;
       imageLeft = left;
-      files = this.filterImageFiles(fileList, filter);
-      files.sort(imageCMP);
 
-      var id;
+      var id, i, file;
 
       for (id in ids)
       {
@@ -232,18 +245,33 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
       }
       ids = {};
 
-      for (var i = 0; i < files.length; i++)
+      if (fileList)
       {
-        var file = files[i];
-        id = uploadedFiles.append(file);
-        files[i] = {file: file,
-                    id: id};
-        ids[id] = true;
+        files = this.filterImageFiles(fileList, filter);
+        files.sort(imageCMP);
+
+        for (i = 0; i < files.length; i++)
+        {
+          file = files[i];
+          id = uploadedFiles.append(file);
+          files[i] = {file: file,
+                      id: id};
+        }
+      }
+      else
+      {
+        files = [];
+      }
+
+      files = uploadedFiles.getFiles().concat(files);
+      for (i = 0; i < files.length; i++)
+      {
+        ids[files[i].id] = true;
       }
 
       if (files.length == 0)
       {
-        alert('No files to upload.');
+        exitUpload(false, 'No files to upload.');
         return;
       }
 
@@ -336,7 +364,7 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
      * Todo:
      *   more sophisticated file type filtering
      ********************************************************/
-    this.filterImageFiles = function(files, filterImages)
+    this.filterImageFiles = function(files, filterImages, onerror)
     {
       var proper = [];
       var tooBig = [], tooSmall = [], nonImage = [];
@@ -400,8 +428,13 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
           msg += 'Files of unsupported (sorry) JPEG 2000 type: ' + jp2.join(', ') + '.\n';
         }
 
-        alert(msg);
+        (onerror ?  onerror : alert)(msg);
       }
+      else if (onerror)
+      {
+        onerror(false);
+      }
+
       return proper;
     }
 
@@ -427,13 +460,13 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
           }
           else
           {
-            alert(response.message);
+            exitUpload(false, response.message);
           }
         },
         {files_details: details.join(':')},
         function (data)
         {
-          alert("Checking File Uploaded Amount: Something went wrong\nRetry upload");
+          exitUpload(false, "Checking File Uploaded Amount: Something went wrong\nRetry upload");
           console.error('Checking File Uploaded Amount: Error!');
           throw 'Error while checking already uploaded amount. Upload cannot continue.'; // Discontinue the process of upload
         },
@@ -445,16 +478,23 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
     var $dialogContent = $dialog.find('.content');
     var refreshTimer = null;
     var refreshInProgress = 0;
+    var continueUpload = true;
 
     var dialog = new CCloseableDiv($dialog,
                                    function()
                                    {
+                                     continueUpload = false;
                                      $dialogContent.css('max-height',
                                      Math.round($dialog.height() * 0.8) + 'px');
                                      //do some fancy content scaling
                                    },
                                    function()
                                    {
+                                     if (!continueUpload)
+                                     {
+                                       exitUpload(false);
+                                     }
+
                                      $dialogContent.empty();
                                      toRefresh = {};
                                      if (refreshTimer != null)
@@ -673,6 +713,7 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
      */
     function addUploadFileProperties()
     {
+      continueUpload = true;
       dialog.close();
 
       var cFiles = files.length;
@@ -726,6 +767,7 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
       if (files.length == 0)
       {
         uploadedFiles.message("Nothing to upload.");
+        exitUpload(false);
         return;
       }
 
@@ -756,15 +798,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
       }
     }
 
-    /*
-     * Final function called after all uploads are completesd
-     */
-    function do_upload_complete()
-    {
-      uploadedFiles.message("Upload completed!");
-      alert('All images uploaded');
-      if (afterUpload) afterUpload(true);
-    }
 
     /**
      * Function: uploadChunkedFiles
@@ -838,14 +871,19 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
          **********************************************************************/
         function sendNextChunk(response)
         {
-          if (response == null)
+          if (response == null || !response.status)
           {
-            alert('Upload failed.');
-            return;
-          }
-          if (!response.status)
-          {
-            alert(response.message);
+            inProgress--;
+            var msg = response == null ? 'Upload failed.' : response.message;
+
+            if (inProgress != 0)
+            {
+              alert(msg);
+            }
+            else
+            {
+              exitUpload(false, msg)
+            }
             return;
           }
 
@@ -870,15 +908,30 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
                               form_data,
                               function(data)
                               {
+                                inProgress--;
                                 if (data.status == 0 && data.state() == 'rejected')
                                 {
-                                  alert("File Upload: Something went wrong. Possibly no network connection.")
+                                  if (inProgress != 0)
+                                  {
+                                    alert("File Upload: Something went wrong. Possibly no network connection.")
+                                  }
+                                  else
+                                  {
+                                    exitUpload(false, "File Upload: Something went wrong. Possibly no network connection.");
+                                  }
                                 }
                                 else
                                 {
-                                  alert('File Upload: Something went wrong.\nRetry');
                                   console.error('File Upload: Error!');
-                                  throw 'File Upload: Something went wrong.\nRetry';
+                                  if (inProgress != 0)
+                                  {
+                                    alert('File Upload: Something went wrong.\nRetry');
+                                  }
+                                  else
+                                  {
+                                    exitUpload(false, 'File Upload: Something went wrong.\nRetry');
+                                    throw 'File Upload: Something went wrong.\nRetry';
+                                  }
                                 }
                               },
                               null,
@@ -906,7 +959,8 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             {
               if (uploaded >= files.length)
               {
-                do_upload_complete();
+                uploadedFiles.message("Upload completed!");
+                exitUpload(true, 'All images uploaded');
                 return;
               }
             }

@@ -174,8 +174,10 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
       {
         for (var i = 0; i < images.length; i++)
         {
-          ids.push(this.append(images[i]));
+          ids.push(this.append(images[i], false));
         }
+
+        this.updateTable();
       }
 
       return ids;
@@ -209,8 +211,14 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
       return this.table.getOrder();
     },
 
+    updateTable:
+    function()
+    {
+      this.table.update();
+    },
+
     append:
-    function(image)
+    function(image, update)
     {
     /**
      * Method: append
@@ -238,7 +246,6 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
     \************************************************************************/
       var id = this.nextId++;
 
-      var data = {size: image.size};
       var $progress = $('<progress></progress>')
                         .attr('max', image.size);
       var $size = $('<span></span>');
@@ -269,7 +276,12 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
                   name: image.name,
                   status: image.status};
 
-      this.table.add($row, id, null, null, null, null, null, data);
+      if (!('status' in image))
+      {
+        data.file = image;
+      }
+
+      this.table.add($row, id, null, null, null, null, update, data);
 
       if (!('uploaded' in image))
       {
@@ -289,6 +301,25 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
       }
 
       return id;
+    },
+
+    getFiles:
+    function()
+    {
+      var ids = this.table.getOrder();
+      var result = [];
+      var data, id;
+      for (var i = 0; i < ids.length; i++)
+      {
+        id = ids[i];
+        data = this.table.get(id);
+        if ('file' in data)
+        {
+          result.push({id: id, file: data.file});
+        }
+      }
+
+      return result;
     },
 
     /**
@@ -334,6 +365,9 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
       console.assert(id >= this.lowId, 'Obsoleted ID: ' + id);
 
       var image = this.table.get(id);
+
+      delete image.file;
+
       image.uploaded = uploaded;
       var size = hSize(image.size);
       var hUploaded = hSize(uploaded);
