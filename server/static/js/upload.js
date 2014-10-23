@@ -425,17 +425,32 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
       return proper;
     }
 
+
+    var keysToFiles, details;
     /*
      * Query server for duplicates
      */
     function checkDuplicates()
     {
-      var details = [];
+      details = [];
+      keysToFiles = {};
+
+      var file, key;
 
       for (var i = 0; i < files.length; i++)
       {
-        var file = files[i]
-        details.push(file.key + ',' + file.size)
+        file = files[i]
+        file.$action = $([]);
+        key = file.key + ',' + file.size;
+        if (key in keysToFiles)
+        {
+          keysToFiles[key].push(file);
+        }
+        else
+        {
+          keysToFiles[key] = [file];
+          details.push(key)
+        }
       }
       ajaxOptions = {async: false};
       ajaxProvider.ajax(
@@ -451,7 +466,9 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             exitUpload(false, response.message);
           }
         },
-        {files_details: details.join(':')},
+        {
+          files_details: details.join(':')
+        },
         function (data)
         {
           exitUpload(false, "Checking File Uploaded Amount: Something went wrong\nRetry upload");
@@ -498,32 +515,38 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
     function form_dialog(data)
     {
       var show_dialog = false;
-  //    var $dialog_content = $("<form />"); // Very imp for "cancel" functionality of dialog to work
       var duplicate_iids = [];
       toRefresh = {}; //XXX: almost global
 
-      for (var i = 0; i < files.length; i++)
+      var file_data, broken, duplicates, $div;
+      var key, filesOfKey;
+      for (var i = 0; i < details.length; i++)
       {
-        var file_data = data[i];
-        var broken = file_data[0];
-        var duplicates = file_data[1];
+        key = details[i];
+        filesOfKey = keysToFiles[key];
 
-        if (broken.length > 0 || duplicates.length > 0)
+        file_data = data[i];
+        broken = file_data[0];
+        duplicates = file_data[1];
+
+        if (broken.length > 0 || duplicates.length > 0 || filesOfKey.length != 1)
         {
           show_dialog = true;
-          var $div = $('<div>')
-            .append(
-              $("<h3>")
-                .text(files[i].name + ":"));
+          $div = $('<div>')
+            .append(filesOfKey.map(function(file)
+              {
+                return $('<h3>')
+                  .text(file.name);
+              }));
 
           if (broken.length > 0)
           {
             $div
-              .append($("<h4>")
-                .text("Broken upload"
-                      + (broken.length > 1 ? "s:" : ":")));
-            var $radio_buttons_div = $("<div>")
-              .css("margin-botton", "10px");
+              .append($('<h4>')
+                .text('Broken upload'
+                      + (broken.length > 1 ? 's:' : ':')));
+            var $radio_buttons_div = $('<div>');
+//              .css("margin-botton", "10px");
             for (var j = 0; j < broken.length; j++)
             {
               var slot = broken[j];
@@ -531,16 +554,21 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
               var slot_size = slot[1];
               var percent_uploaded = Math.round(slot_size / files[i].file.size * 100);
               $radio_buttons_div
-                .append($("<input>")
-                .attr(
+                .append(filesOfKey.map(function(file, idx, arr)
                 {
-                  type: "radio",
-                  name: 'upload_radio_' + i,
-                  value: slot_iid + ',' + slot_size + ',' + slot[3]
-                }));
-              $radio_buttons_div
-                .append($("<label>")
-                  .text(slot[2] + " #" + slot_iid + " (" + percent_uploaded + "%)"));
+                  var $input = $('<input>')
+                   .attr(
+                      {
+                        type: 'radio',
+                        name: 'upload_radio_' + i + '_' + idx,
+                        value: slot_iid + ',' + slot_size + ',' + slot[3]
+                      });
+                  $.merge(file.$action, $input);
+                  return $('<label>')
+                    .text((arr.length == 1 ? '' : 'upload ' + file.name + ' as ') +
+                      slot[2] + " #" + slot_iid + " (" + percent_uploaded + "%)")
+                    .prepend($input);
+                }))
             }
             $div.append($radio_buttons_div);
           }
@@ -548,10 +576,10 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
           if (duplicates.length > 0)
           {
             $div
-              .append($("<h4>")
-                .text("Duplicate upload"
-                      + (duplicates.length > 1 ? "s:" : ":")));
-            var $ul = $("<ul>");
+              .append($('<h4>')
+                .text('Duplicate upload'
+                      + (duplicates.length > 1 ? 's:' : ':')));
+            var $ul = $('<ul>');
             var $li, duplicate, duplicate_iid, $status, $refresh;
             for (var j = 0; j < duplicates.length; j++)
             {
@@ -559,18 +587,18 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
               duplicate_iid = duplicate[0];
               duplicate_iids.push(duplicate_iid);
 
-              $status = $("<span>")
+              $status = $('<span>')
                 .text('UNKNOWN');
               $li = $("<li>")
-                .text("#" + duplicate_iid + " " + duplicate[1] + ". Status: ")
+                .text('#' + duplicate_iid + ' ' + duplicate[1] + '. Status: ')
                 .append($status);
 
               (function(iid)
               {
-                $refresh = $("<a>")
+                $refresh = $('<a>')
                   .attr('title', 'Refresh status')
                   .addClass('refreshStatus lmargin10 link')
-                  .text("Refresh")
+                  .text('Refresh')
                   .appendTo($li)
                   .click(function()
                   {
@@ -580,46 +608,50 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
 
               $ul.append($li);
               toRefresh[duplicate_iid] = {$status: $status,
-                                           $row: $li,
-                                           $refresh: $refresh};
+                                          $row: $li,
+                                          $refresh: $refresh};
             }
 
-            $div.append($("<div>").append($ul));
+            $div.append($('<div>').append($ul));
           }
 
-          var $upload_again = $("<div>")
-            .append($("<input>")
-              .attr(
-              {
-                type: "radio",
-                name: 'upload_radio_' + i,
-                value: 'new'
-              }))
-            .append($("<span>")
-              .text(" upload again"))
+          var $upload_again = $('<div>')
+            .append(filesOfKey.map(function(file, idx, arr)
+            {
+              var $input = $('<input>')
+                .attr(
+                {
+                  type: "radio",
+                  name: 'upload_radio_' + i + '_' + idx,
+                  value: 'new'
+                });
+              $.merge(file.$action, $input);
+              return $('<label>')
+                .text(' upload file ' + file.name + ' as a new one')
+                .prepend($input);
+            }))
             .appendTo($div);
 
-          var $take_no_action = $("<div>")
-            .append($("<input>")
-              .attr(
-              {
-                type: "radio",
-                name: 'upload_radio_' + i,
-                value: 'cancel',
-                checked: true
-              }))
-            .append($("<span>")
-              .text(" take no action"))
+          var $take_no_action = $('<div>')
+            .append(filesOfKey.map(function(file, idx, arr)
+            {
+              var $input = $('<input>')
+                .attr(
+                {
+                  type: 'radio',
+                  name: 'upload_radio_' + i + '_' + idx,
+                  value: 'cancel',
+                  checked: true
+                });
+              $.merge(file.$action, $input);
+              return $('<label>')
+                .text(' take no action for file ' + file.name)
+                .prepend($input);
+            }))
             .appendTo($div);
+
           $dialogContent.append($div);
-          files[i].$div = $div;
         }
-        else
-        {
-          files[i].$div = null;
-        }
-
-        // $dialog_content.append($("<hr />").css("margin", "10px"));
       }
 
       if (show_dialog)
@@ -726,16 +758,15 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
 
       var cFiles = files.length;
       // XXX
-      //var $selected_radios = $("#dialog form").find("input:checked");
       var to_upload = [];
       for (var i = 0; i < cFiles; i++)
       {
         var file = files[i];
-        var $radio_ref = file.$div;
+        var $radio_ref = file.$action.filter(':checked');
 
-        if ($radio_ref)
+        if ($radio_ref.length > 0)
         {
-          var val = $radio_ref.find("input:checked").val();
+          var val = $radio_ref.val();
           if (val == 'cancel')
           {
             uploadedFiles.remove(file.id);
@@ -747,6 +778,7 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             file.iid = parseInt(row[0]);
             file.uploaded = parseInt(row[1]);
             file.crc32 = parseInt(row[2]);
+
             if (file.iid in iid2id)
             {
               var id = iid2id[file.iid];
