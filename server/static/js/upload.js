@@ -533,8 +533,11 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
         {
           show_dialog = true;
           $div = $('<ul>')
+            .addClass('broken-duplicate')
             .appendTo($('<li>')
+              .addClass('broken-duplicate')
               .append($('<h3>')
+                .addClass('broken-duplicate')
                 .text(filesOfKey.map(function(file)
                   {
                     return file.name;
@@ -555,7 +558,9 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             $.merge(filesOfKey[0].$action, $input);
 
             return $('<li>')
+              .addClass('broken-duplicate')
               .append($('<label>')
+                .addClass('broken-duplicate')
                 .text(arr.length == 1 ? text : file.name)
                 .prepend($input));
           }
@@ -563,9 +568,12 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
           if (broken.length > 0)
           {
             $('<li>')
+              .addClass('broken-duplicate')
               .append($('<h4>')
+                .addClass('broken-duplicate')
                 .text('Broken upload' + (broken.length > 1 ? 's:' : ':')))
               .append($('<ul>')
+                .addClass('broken-duplicate')
                 .append(broken.map(function(slot, j)
                   {
                     var slot_iid = slot[0];
@@ -580,8 +588,10 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
                       return filesOfKey.map(makeBrokenUploadButtons)[0];
                     }
                     return $('<li>')
+                      .addClass('broken-duplicate')
                       .text(text + ' with:')
                       .append($('<ul>')
+                        .addClass('broken-duplicate')
                         .append(filesOfKey.map(makeBrokenUploadButtons)));
                   })))
               .appendTo($div);
@@ -589,10 +599,13 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
 
           if (duplicates.length > 0)
           {
-            var $ul = $('<ul>');
+            var $ul = $('<ul>')
+              .addClass('broken-duplicate');
             $div
               .append($('<li>')
+                .addClass('broken-duplicate')
                 .append($('<h4>')
+                  .addClass('broken-duplicate')
                   .text('Duplicate upload'
                         + (duplicates.length > 1 ? 's:' : ':')))
                 .append($ul));
@@ -605,7 +618,8 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
 
               $status = $('<span>')
                 .text('UNKNOWN');
-              $li = $("<li>")
+              $li = $('<li>')
+                .addClass('broken-duplicate')
                 .text('#' + duplicate_iid + ' ' + duplicate[1] + '. Status: ')
                 .append($status);
 
@@ -627,8 +641,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
                                           $row: $li,
                                           $refresh: $refresh};
             }
-
-            $div.append($('<div>').append($ul));
           }
 
           function makeUploadButtons(file, idx, arr)
@@ -651,11 +663,15 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
 
             $.merge($.merge(file.$action, $inputNew), $inputCancel);
             var $liNew = $('<li>')
+              .addClass('broken-duplicate')
               .append($('<label>')
+                .addClass('broken-duplicate')
                 .text(' upload as new')
                 .prepend($inputNew));
             var $liCancel = $('<li>')
+              .addClass('broken-duplicate')
               .append($('<label>')
+                .addClass('broken-duplicate')
                 .text(' take no action')
                 .prepend($inputCancel));
             if (arr.length == 1)
@@ -664,8 +680,10 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             }   
 
             return $('<li>')
+              .addClass('broken-duplicate')
               .text(file.name)
               .append($('<ul>')
+                .addClass('broken-duplicate')
                 .append($liNew, $liCancel));
           }
 
@@ -732,9 +750,17 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
                 {
                   if ($iface.find("img").length == 0)
                   {
-                    $iface.append(getThumbnail(iid,
-                                               row.imageWidth,
-                                               row.imageHeight));
+                    $iface
+                      .append($('<a>')
+                        .attr(
+                        {
+                          href: '/?show=' + iid + ':' + row.md5,
+                          target: '_blank'
+                        })
+                        .append(
+                          getThumbnail(iid,
+                                       row.imageWidth,
+                                       row.imageHeight)));
                   }
                 }
 

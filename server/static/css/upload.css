@@ -89,3 +89,16 @@
 {
   position: absolute;
 }
+
+li.broken-duplicate
+{
+  list-style-type: none;
+  text-align: left;
+  padding: 0;
+}
+
+ul.broken-duplicate
+{
+  margin: 0 0 5px 5px;
+  padding: 0;
+}
