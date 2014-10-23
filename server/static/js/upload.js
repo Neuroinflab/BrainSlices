@@ -532,54 +532,70 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
         if (broken.length > 0 || duplicates.length > 0 || filesOfKey.length != 1)
         {
           show_dialog = true;
-          $div = $('<div>')
-            .append(filesOfKey.map(function(file)
+          $div = $('<ul>')
+            .appendTo($('<li>')
+              .append($('<h3>')
+                .text(filesOfKey.map(function(file)
+                  {
+                    return file.name;
+                  })
+                  .join(', ')))
+              .appendTo($dialogContent));
+
+          var text, value;
+          function makeBrokenUploadButtons(file, idx, arr)
+          {
+            var $input = $('<input>')
+              .attr(
               {
-                return $('<h3>')
-                  .text(file.name);
-              }));
+                type: 'radio',
+                name: 'upload_radio_' + i + '_' + idx,
+                value: value
+              });
+            $.merge(filesOfKey[0].$action, $input);
+
+            return $('<li>')
+              .append($('<label>')
+                .text(arr.length == 1 ? text : file.name)
+                .prepend($input));
+          }
 
           if (broken.length > 0)
           {
-            $div
+            $('<li>')
               .append($('<h4>')
-                .text('Broken upload'
-                      + (broken.length > 1 ? 's:' : ':')));
-            var $radio_buttons_div = $('<div>');
-//              .css("margin-botton", "10px");
-            for (var j = 0; j < broken.length; j++)
-            {
-              var slot = broken[j];
-              var slot_iid = slot[0];
-              var slot_size = slot[1];
-              var percent_uploaded = Math.round(slot_size / files[i].file.size * 100);
-              $radio_buttons_div
-                .append(filesOfKey.map(function(file, idx, arr)
-                {
-                  var $input = $('<input>')
-                   .attr(
-                      {
-                        type: 'radio',
-                        name: 'upload_radio_' + i + '_' + idx,
-                        value: slot_iid + ',' + slot_size + ',' + slot[3]
-                      });
-                  $.merge(file.$action, $input);
-                  return $('<label>')
-                    .text((arr.length == 1 ? '' : 'upload ' + file.name + ' as ') +
-                      slot[2] + " #" + slot_iid + " (" + percent_uploaded + "%)")
-                    .prepend($input);
-                }))
-            }
-            $div.append($radio_buttons_div);
+                .text('Broken upload' + (broken.length > 1 ? 's:' : ':')))
+              .append($('<ul>')
+                .append(broken.map(function(slot, j)
+                  {
+                    var slot_iid = slot[0];
+                    var slot_size = slot[1];
+                    var percent_uploaded = Math.round(slot_size / filesOfKey[0].file.size * 100);
+                    text = 'resume upload of ' + slot[2] + ' #' + slot_iid +
+                           ' (' + percent_uploaded + '%)';
+                    value = slot_iid + ',' + slot_size + ',' + slot[3];
+
+                    if (filesOfKey.length == 1)
+                    {
+                      return filesOfKey.map(makeBrokenUploadButtons)[0];
+                    }
+                    return $('<li>')
+                      .text(text + ' with:')
+                      .append($('<ul>')
+                        .append(filesOfKey.map(makeBrokenUploadButtons)));
+                  })))
+              .appendTo($div);
           }
 
           if (duplicates.length > 0)
           {
-            $div
-              .append($('<h4>')
-                .text('Duplicate upload'
-                      + (duplicates.length > 1 ? 's:' : ':')));
             var $ul = $('<ul>');
+            $div
+              .append($('<li>')
+                .append($('<h4>')
+                  .text('Duplicate upload'
+                        + (duplicates.length > 1 ? 's:' : ':')))
+                .append($ul));
             var $li, duplicate, duplicate_iid, $status, $refresh;
             for (var j = 0; j < duplicates.length; j++)
             {
@@ -615,42 +631,46 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
             $div.append($('<div>').append($ul));
           }
 
-          var $upload_again = $('<div>')
-            .append(filesOfKey.map(function(file, idx, arr)
-            {
-              var $input = $('<input>')
-                .attr(
-                {
-                  type: "radio",
-                  name: 'upload_radio_' + i + '_' + idx,
-                  value: 'new'
-                });
-              $.merge(file.$action, $input);
-              return $('<label>')
-                .text(' upload file ' + file.name + ' as a new one')
-                .prepend($input);
-            }))
-            .appendTo($div);
+          function makeUploadButtons(file, idx, arr)
+          {
+            var $inputNew = $('<input>')
+              .attr(
+              {
+                type: 'radio',
+                name: 'upload_radio_' + i + '_' + idx,
+                value: 'new'
+              });
+            var $inputCancel = $('<input>')
+              .attr(
+              {
+                type: 'radio',
+                name: 'upload_radio_' + i + '_' + idx,
+                value: 'cancel',
+                checked: true
+              });
 
-          var $take_no_action = $('<div>')
-            .append(filesOfKey.map(function(file, idx, arr)
+            $.merge($.merge(file.$action, $inputNew), $inputCancel);
+            var $liNew = $('<li>')
+              .append($('<label>')
+                .text(' upload as new')
+                .prepend($inputNew));
+            var $liCancel = $('<li>')
+              .append($('<label>')
+                .text(' take no action')
+                .prepend($inputCancel));
+            if (arr.length == 1)
             {
-              var $input = $('<input>')
-                .attr(
-                {
-                  type: 'radio',
-                  name: 'upload_radio_' + i + '_' + idx,
-                  value: 'cancel',
-                  checked: true
-                });
-              $.merge(file.$action, $input);
-              return $('<label>')
-                .text(' take no action for file ' + file.name)
-                .prepend($input);
-            }))
-            .appendTo($div);
+              return $.merge($liNew, $liCancel);
+            }   
 
-          $dialogContent.append($div);
+            return $('<li>')
+              .text(file.name)
+              .append($('<ul>')
+                .append($liNew, $liCancel));
+          }
+
+          $div
+            .append(filesOfKey.map(makeUploadButtons));
         }
       }
 
