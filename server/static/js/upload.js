@@ -555,7 +555,7 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
                 name: 'upload_radio_' + i + '_' + idx,
                 value: value
               });
-            $.merge(filesOfKey[0].$action, $input);
+            $.merge(file.$action, $input);
 
             return $('<li>')
               .addClass('broken-duplicate')
@@ -579,7 +579,7 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
                     var slot_iid = slot[0];
                     var slot_size = slot[1];
                     var percent_uploaded = Math.round(slot_size / filesOfKey[0].file.size * 100);
-                    text = 'resume upload of ' + slot[2] + ' #' + slot_iid +
+                    text = 'resume upload of ' + slot[2] + //' #' + slot_iid +
                            ' (' + percent_uploaded + '%)';
                     value = slot_iid + ',' + slot_size + ',' + slot[3];
 
@@ -620,7 +620,8 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
                 .text('UNKNOWN');
               $li = $('<li>')
                 .addClass('broken-duplicate')
-                .text('#' + duplicate_iid + ' ' + duplicate[1] + '. Status: ')
+                .text(//'#' + duplicate_iid + ' ' + 
+                      duplicate[1] + ' Status: ')
                 .append($status);
 
               (function(iid)
@@ -809,6 +810,7 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
       {
         var file = files[i];
         var $radio_ref = file.$action.filter(':checked');
+        console.debug(file, $radio_ref.length)
 
         if ($radio_ref.length > 0)
         {
@@ -831,6 +833,8 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
               uploadedFiles.remove(id);
               iid2id[file.iid] = file.id;
             }
+
+            console.debug(file, val)
           }
         }
         to_upload.push(file);
