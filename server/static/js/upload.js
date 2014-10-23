@@ -548,13 +548,29 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
           var text, value;
           function makeBrokenUploadButtons(file, idx, arr)
           {
+            var $buttons = this.$buttons;
             var $input = $('<input>')
               .attr(
               {
                 type: 'radio',
                 name: 'upload_radio_' + i + '_' + idx,
                 value: value
+              })
+              .change(function()
+              {
+                if (this.checked)
+                {
+                  $buttons.not(':checked').prop('disabled', true);
+                }
+                else
+                {
+                  if ($buttons.filter(':checked').length == 0)
+                  {
+                    $buttons.prop('disabled', false);
+                  }
+                }
               });
+            $.merge($buttons, $input);
             $.merge(file.$action, $input);
 
             return $('<li>')
@@ -576,6 +592,8 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
                 .addClass('broken-duplicate')
                 .append(broken.map(function(slot, j)
                   {
+                    var $buttons = $([]);
+
                     var slot_iid = slot[0];
                     var slot_size = slot[1];
                     var percent_uploaded = Math.round(slot_size / filesOfKey[0].file.size * 100);
@@ -585,14 +603,14 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
 
                     if (filesOfKey.length == 1)
                     {
-                      return filesOfKey.map(makeBrokenUploadButtons)[0];
+                      return filesOfKey.map(makeBrokenUploadButtons, {$buttons: $buttons})[0];
                     }
                     return $('<li>')
                       .addClass('broken-duplicate')
                       .text(text + ' with:')
                       .append($('<ul>')
                         .addClass('broken-duplicate')
-                        .append(filesOfKey.map(makeBrokenUploadButtons)));
+                        .append(filesOfKey.map(makeBrokenUploadButtons, {$buttons: $buttons})));
                   })))
               .appendTo($div);
           }
@@ -663,6 +681,15 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
               });
 
             $.merge($.merge(file.$action, $inputNew), $inputCancel);
+
+            file.$action
+              .change(function()
+              {
+                if (this.checked) // fire only one time
+                {
+                  file.$action.not(':checked').change();
+                }
+              })
             var $liNew = $('<li>')
               .addClass('broken-duplicate')
               .append($('<label>')
@@ -810,7 +837,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
       {
         var file = files[i];
         var $radio_ref = file.$action.filter(':checked');
-        console.debug(file, $radio_ref.length)
 
         if ($radio_ref.length > 0)
         {
@@ -833,8 +859,6 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
               uploadedFiles.remove(id);
               iid2id[file.iid] = file.id;
             }
-
-            console.debug(file, val)
           }
         }
         to_upload.push(file);
