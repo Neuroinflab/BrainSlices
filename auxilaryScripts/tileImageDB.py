@@ -143,7 +143,8 @@ class imageTiler(object):
       raise NotImplementedError
 
     identify = ['identify', '-regard-warnings',
-                '-format', '%w %h %m ---XRES---\n%x\n---YRES---\n%y\n---COLORSPACE---\n%[colorspace]\n---CHANNELS---\n%[channels]\n---LABEL---\n%l\n---COMMENT---\n%c\n---PROPERTIES---\n%[*]',
+                '-units', 'PixelsPerInch',
+                '-format', '%w %h %m %x %y ---COLORSPACE---\n%[colorspace]\n---CHANNELS---\n%[channels]\n---LABEL---\n%l\n---COMMENT---\n%c\n---PROPERTIES---\n%[*]',
                 '-ping',
                 self.source]
 
@@ -158,10 +159,12 @@ class imageTiler(object):
 #     raise CorruptedImageError, pStdErr  
 
     try:
-      parts = pStdOut.split(' ', 3)
+      parts = pStdOut.split(' ', 7)
       # all bytes preserved as they are - bushes if not ASCII encoded ;-)
       self.magick = parts[2].decode('iso_8859_1').encode('utf-8')
-      self.meta = parts[3].decode('iso_8859_1').encode('utf-8')
+      xps = 25400. / float(parts[3])
+      yps = 25400. / float(parts[5])
+      self.meta = parts[7].decode('iso_8859_1').encode('utf-8')
       self.imageWidth, self.imageHeight = map(int, parts[:2])
 
     except (ValueError, IndexError):
@@ -227,7 +230,23 @@ class imageTiler(object):
     fh.close()
 
     tb.imageIdentified(self.iid, self.imageWidth, self.imageHeight, crc32,
-                       self.invalid, self.meta, self.magick)#, md5.hexdigest())
+                       self.invalid, self.meta, self.magick) #, md5 = md5.hexdigest())
+
+    # setting default metadata
+    pixelSize, imageTop, imageLeft = tb.getMetadata(self.iid)
+    toUpdate = {'pixelSizeX' : xps, 'pixelSizeY': yps}
+    if pixelSize is None:
+      pixelSize = xps #math.sqrt(xps * yps)
+      toUpdate['pixelSize'] = pixelSize
+
+    if imageTop is None:
+      toUpdate['imageTop'] = -0.5 * pixelSize * self.imageHeight
+
+    if imageLeft is None:
+      toUpdate['imageLeft'] = -0.5 * pixelSize * self.imageWidth
+
+    tb.updateMetadata(self.iid, **toUpdate)
+
 
     # remove source file
     if os.path.exists(self.source):
