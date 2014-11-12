@@ -34,6 +34,8 @@ from request import LoginRequest, LogoutRequest, LoggedRequest,\
 
 from server import generateJson, Server, serveContent, ensureLogged
 
+from bsConfig import BS_USER_DEFAULT_PIXEL_LIMIT 
+
 smtpErrors = {450: "Requested mail action not taken: mailbox unavailable",
               550: "Requested action not taken: mailbox unavailable", 
               552: "Requested mail action aborted: exceeded storage allocation",
@@ -105,7 +107,8 @@ class UserServer(Server):
     name = request.name
     email = request.email
     status = False
-    success = self.userBase.registerUser(login, password, email, name)
+    success = self.userBase.registerUser(login, password, email, name,
+                                         pixelLimit = BS_USER_DEFAULT_PIXEL_LIMIT)
     if success == True:
       message = "Account created however there was a problem with sending the confirmation e&#8209;mail, please contact admin."
       confirmID = self.userBase.newConfirmationID(login)

@@ -167,6 +167,13 @@ class imageTiler(object):
       self.meta = parts[7].decode('iso_8859_1').encode('utf-8')
       self.imageWidth, self.imageHeight = map(int, parts[:2])
 
+      if not tb.setSize(self.iid, self.imageWidth, self.imageHeight):
+        # remove source file
+        if os.path.exists(self.source): # XXX: rethink that - might be wise to
+          os.remove(self.source)        # keep the file for further processing
+
+        return
+
     except (ValueError, IndexError):
       self.invalid = pStdErr
       if processIdentify.returncode != 0:
@@ -229,7 +236,7 @@ class imageTiler(object):
 
     fh.close()
 
-    tb.imageIdentified(self.iid, self.imageWidth, self.imageHeight, crc32,
+    tb.imageIdentified(self.iid, crc32,
                        self.invalid, self.meta, self.magick) #, md5 = md5.hexdigest())
 
     # setting default metadata

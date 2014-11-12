@@ -107,13 +107,16 @@ class UserBase(dbBase):
     return cursor.rowcount == 1
 
   @provideCursor
-  def registerUser(self, login, password, email, name, registrationValid =  7, cursor = None):
+  def registerUser(self, login, password, email, name, registrationValid = 7,
+                   pixelLimit = None, cursor = None):
     '''Stores a user in DB'''
     salt = random.randint(0, 2**31)
     row = {'login': login,
            'salt': salt,
            'email': email,
-           'name': name}
+           'name': name,
+           'pixel_limit': pixelLimit,
+           }
 
     for alg, device in HashAlgorithms.iteritems():
       row[alg] = device.generateHash(login, password, salt)
@@ -157,6 +160,16 @@ class UserBase(dbBase):
             WHERE login = %%s;
             """ % (', '.join("%s = %%s" % alg for alg in algs))
     cursor.execute(query, hashes + (salt, login))
+    return cursor.rowcount == 1
+
+  @provideCursor
+  def changePixelLimit(self, login, newPixelLimit, cursor=None): 
+    query = """
+            UPDATE users
+            SET pixel_limit = %s
+            WHERE login = %s;
+            """
+    cursor.execute(query, (newPixelLimit, login))
     return cursor.rowcount == 1
 
   @provideCursor

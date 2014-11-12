@@ -31,14 +31,14 @@ import psycopg2.extras
 configFile = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                           'brainslices.conf')
 
-config = ConfigParser.SafeConfigParser()
+config = ConfigParser.RawConfigParser()
 config.read(configFile)
 
 BS_DB_NAME = config.get('SQL Database', 'name')
 BS_DB_USER = config.get('SQL Database', 'user')
 BS_DB_HOST = config.get('SQL Database', 'host')
 BS_DB_PORT = config.getint('SQL Database', 'port')
-BS_DB_PASSWORD = config.get('SQL Database', 'password', raw = True)
+BS_DB_PASSWORD = config.get('SQL Database', 'password')
 BS_DB_ENCODING = config.get('SQL Database', 'encoding')
 BS_DB_ISOLATION_LEVEL = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
 BS_DB_CONNECTIONS_MAX = 30
@@ -46,7 +46,7 @@ BS_DB_CONNECTIONS_MAX = 30
 BS_EMAIL_SERVER = config.get('Email', 'host')
 BS_EMAIL_PORT = config.getint('Email', 'port')
 BS_EMAIL_LOGIN = config.get('Email', 'user')
-BS_EMAIL_PASSWORD = config.get('Email', 'password', raw = True)
+BS_EMAIL_PASSWORD = config.get('Email', 'password')
 BS_EMAIL_ADDRESS = config.get('Email', 'address')
 BS_EMAIL_ENCODING = config.get('Email', 'encoding')
 
@@ -59,3 +59,7 @@ BS_TILER_MEMORY = config.getint('Tiler', 'memory')
 
 BS_STREAM_FILES = config.getint('Stream', 'files')
 BS_STREAM_TIMEOUT  = config.getint('Stream', 'timeout')
+
+BS_USER_DEFAULT_PIXEL_LIMIT = None
+if config.has_section('User') and config.has_option('User', 'defaultPixelLimit'):
+  BS_USER_DEFAULT_PIXEL_LIMIT = config.getint('User', 'defaultPixelLimit')

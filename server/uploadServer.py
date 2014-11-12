@@ -89,13 +89,18 @@ class UploadServer(Generator, Server):
   @serveContent(UploadNewImageRequest)
   @ensureLogged
   def uploadNewImage(self, uid, request):
-    slot = self.tileBase.UploadSlot(uid, filename = request.filename,
-                                    declared_size = request.size,
-                                    declared_md5 = request.key,
-                                    pixel_size = request.ps,
-                                    image_top = request.top,
-                                    image_left = request.left,
-                                    bid = request.bid)
+    try:
+      slot = self.tileBase.UploadSlot(uid, filename = request.filename,
+                                      declared_size = request.size,
+                                      declared_md5 = request.key,
+                                      pixel_size = request.ps,
+                                      image_top = request.top,
+                                      image_left = request.left,
+                                      bid = request.bid)
+    except ValueError: # no pixel limit left
+      return generateJson(status = False,
+                          logged = True,
+                          message = "No pixel limit left (raw data upload assumed).")
     return self.appendSlot(slot, request.data)
 
   @serveContent(ContinueImageUploadRequest)

@@ -83,6 +83,45 @@ class TileBase(dbBase):
     self.sourceDir = sourceDir
     self.UploadSlot = self.getUploadSlotClass()
 
+  def getPixelLimit(self, uid, cursor=None):
+    return self._getOneValue("""
+                             SELECT pixel_limit
+                             FROM users
+                             WHERE uid = %s;
+                             """, (uid,),
+                             cursor = cursor)
+
+  @manageConnection()
+  def getPixelUsed(self, uid, cursor=None, db = None):
+    return self._getOneValue("""
+                             SELECT COALESCE(SUM(image_width * image_height), 0)
+                             FROM images
+                             WHERE owner = %s AND status >= %s;
+                             """, (uid, IMAGE_STATUS_IDENTIFIED),
+                             cursor = cursor)
+
+  @manageConnection()
+  def setSize(self, iid, width, height, cursor = None, db = None):
+    uid = self._getOneValue("SELECT owner FROM images WHERE iid = %s;", (iid,))
+    limit = self.getPixelLimit(uid, cursor = cursor)
+    if limit is not None:
+      used = self.getPixelUsed(uid, cursor = cursor, db = db)
+      if width * height + used > limit:
+        # XXX: rethink that - might be wise to keep previous status or have "hold"
+        #      status???
+        tb.imageInvalid(self.iid, "Pixel limit exceeded.", cursor = cursor)
+        return False
+
+    cursor.execute("""
+                   UPDATE images
+                   SET image_width = %s, image_height = %s
+                   WHERE iid = %s;
+                   """, (width, height, iid))
+    if cursor.rowcount != 1:
+      raise KeyError("Unable to set size of image #%d." % iid)
+
+    return True
+
   @provideCursor
   def setPublicPrivileges(self, uid, iids, view = None, edit = None,
                           annotate = None, outline = None, cursor = None):
@@ -530,15 +569,22 @@ class TileBase(dbBase):
 
     return statuses
 
-  @provideCursor
+  @manageConnection()
   def makeUploadSlot(self, uid, filename, declared_size, bid = None,
                      declared_md5 = None, pixel_size = None,
                      image_top = None, image_left = None,
-                     cursor = None):
-    if uid == None:
+                     cursor = None, db = None):
+    if uid is None:
       return None
 
-    if bid != None:
+    limit = self.getPixelLimit(uid, cursor = cursor)
+    if limit is not None:
+      used = self.getPixelUsed(uid, cursor = cursor, db = db)
+      if declared_size / 3 + used > limit:
+        print declared_size / 3 + used, limit
+        raise ValueError # limit exceeding assumed
+
+    if bid is not None:
       cursor.execute("""
                      SELECT EXISTS (SELECT *
                                     FROM batches
@@ -723,16 +769,15 @@ class TileBase(dbBase):
                    WHERE iid = %s;
                    """, (IMAGE_STATUS_ERROR, invalid, iid))
 
-  @provideCursor
-  def imageIdentified(self, iid, width, height, crc32, invalid,
-                      meta, magick, md5 = None, cursor = None):
+  @manageConnection()
+  def imageIdentified(self, iid, crc32, invalid, meta, magick, md5 = None,
+                      cursor = None, db = None):
     cursor.execute("""
                    UPDATE images
-                   SET status = %s, invalid = %s, image_width = %s,
-                       image_height = %s, image_crc32 = %s, source_meta = %s,
-                       source_magick = %s, image_md5 = %s
+                   SET status = %s, invalid = %s, image_crc32 = %s,
+                       source_meta = %s, source_magick = %s, image_md5 = %s
                    WHERE iid = %s;
-                   """, (IMAGE_STATUS_IDENTIFIED, invalid, width, height,
+                   """, (IMAGE_STATUS_IDENTIFIED, invalid,
                          ctypes.c_int32(crc32).value, meta, magick,
                          md5.lower() if md5 is not None else md5, iid))
     if cursor.rowcount != 1:
