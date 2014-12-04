@@ -42,6 +42,7 @@ IMAGE_STATUS_RECEIVING = 1
 IMAGE_STATUS_RECEIVED = 2
 IMAGE_STATUS_PROCESSING = 3
 IMAGE_STATUS_IDENTIFIED = 4
+#IMAGE_STATUS_STREAMED =
 IMAGE_STATUS_TILED = 5
 IMAGE_STATUS_COMPLETED = 6
 IMAGE_STATUS_ACCEPTED = 7
@@ -76,12 +77,53 @@ def launchImageTiling(iid):
   launch.communicate(command)
 
 
+class LimitException(Exception):
+  def __init__(self, *args, **kwargs):
+    limit = kwargs.pop('limit')
+    used = kwargs.pop('used')
+    value = kwargs.pop('value')
+    Exception.__init__(self, *args, **kwargs)
+    self.limit = limit
+    self.used = used
+    self.value = value
+
+
+class PixelLimitException(LimitException):
+  pass
+
+
+class DiskLimitException(LimitException):
+  pass
+
+
 class TileBase(dbBase):
   def __init__(self, db, dbPool, tileDir, sourceDir):
     dbBase.__init__(self, db, dbPool)
     self.tileDir = tileDir
     self.sourceDir = sourceDir
     self.UploadSlot = self.getUploadSlotClass()
+
+  def getDiskLimit(self, uid, cursor=None):
+    return self._getOneValue("""
+                             SELECT disk_limit
+                             FROM users
+                             WHERE uid = %s;
+                             """, (uid,),
+                             cursor = cursor)
+
+  @manageConnection()
+  def getDiskUsed(self, uid, cursor=None, db=None):
+    return self._getOneValue("""
+                             SELECT COALESCE(SUM(CASE
+                               WHEN status < %s THEN declared_size
+                               WHEN status < %s THEN image_width * image_height
+                               WHEN status < %s THEN jpeg_size + image_width * image_height
+                               ELSE png_size + jpeg_size END), 0)
+                             FROM images
+                             WHERE owner = %s AND status >= 0;
+                             """, (IMAGE_STATUS_IDENTIFIED, IMAGE_STATUS_TILED,
+                                   IMAGE_STATUS_COMPLETED, uid),
+                             cursor = cursor)
 
   def getPixelLimit(self, uid, cursor=None):
     return self._getOneValue("""
@@ -99,6 +141,28 @@ class TileBase(dbBase):
                              WHERE owner = %s AND status >= %s;
                              """, (uid, IMAGE_STATUS_IDENTIFIED),
                              cursor = cursor)
+
+
+  @manageConnection()
+  def checkLimits(self, uid, size=None, pixels=None, cursor=None, db=None):
+    if size is not None:
+      diskLimit = self.getDiskLimit(uid, cursor=cursor)
+      if diskLimit is not None:
+        diskUsed = self.getDiskUsed(uid, cursor=cursor, db=db)
+        if diskUsed + size > diskLimit:
+          raise DiskLimitException(limit = diskLimit,
+                                   used = diskUsed,
+                                   value = size)
+
+    if pixels is not None:
+      pixelLimit = self.getPixelLimit(uid, cursor=cursor)
+      if pixelLimit is not None:
+        pixelUsed = self.getPixelUsed(uid, cursor=cursor, db=db)
+        if pixelUsed + pixels > pixelLimit:
+          raise PixelLimitException(limit = pixelLimit,
+                                    used = pixelUsed,
+                                    value = pixels)
+      
 
   @manageConnection()
   def setSize(self, iid, width, height, cursor = None, db = None):
@@ -576,13 +640,6 @@ class TileBase(dbBase):
                      cursor = None, db = None):
     if uid is None:
       return None
-
-    limit = self.getPixelLimit(uid, cursor = cursor)
-    if limit is not None:
-      used = self.getPixelUsed(uid, cursor = cursor, db = db)
-      if declared_size / 3 + used > limit:
-        print declared_size / 3 + used, limit
-        raise ValueError # limit exceeding assumed
 
     if bid is not None:
       cursor.execute("""

@@ -33,7 +33,8 @@ from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UpdateMetadataRequest, UpdateStatusRequest, DeleteImagesRequest,\
                     GetImagesPrivilegesRequest, ChangePublicPrivilegesRequest
 
-from tileBase import NO_PRIVILEGE
+from tileBase import NO_PRIVILEGE, PixelLimitException, DiskLimitException
+from serviceTools import hSize, hSI
 
 
 class UploadServer(Generator, Server):
@@ -58,6 +59,27 @@ class UploadServer(Generator, Server):
     Generator.__init__(self, os.path.join(servicePath, 'templates'))
     self.tileBase = tileBase
 
+  def checkUploadLimits(self, uid, size, pixels):
+    try:
+      self.tileBase.checkLimits(uid, size, pixels)
+
+    except DiskLimitException as e:
+      return generateJson(status=False,
+                          logged = uid != None,
+                          message = 'Disk limit (%s of %s left) exceeded by %s.'\
+                          % (hSize(e.limit - e.used),
+                             hSize(e.limit),
+                             hSize(e.used + e.value - e.limit)))
+
+    except PixelLimitException as e:
+      return generateJson(status=False,
+                          logged = uid != None,
+                          message = 'Pixel limit (%spx of %spx left) exceeded by %spx (%spx of raw data upload assumed; try to upload images in format of better compression if mistaken).'\
+                          % (hSI(e.limit - e.used),
+                             hSI(e.limit),
+                             hSI(e.used + e.value - e.limit),
+                             hSI(e.value)))
+
   @serveContent(GetBrokenDuplicatesRequest)
   @ensureLogged
   def getBrokenDuplicates(self, uid, request):
@@ -66,12 +88,22 @@ class UploadServer(Generator, Server):
     Creates a new slot by inserting a new row in DB facilitating new uploads 
     '''
     images_path = self.tileBase.sourceDir
+
+    size = sum(x for _, x in request.files_details)
+    pixels = size / 3
+
+    fail = self.checkUploadLimits(uid, size, pixels)
+    if fail is not None:
+      return fail
+
     data = []
+    cursor = self.tileBase._getCursor()
     for key, size in request.files_details:
-      broken = self.tileBase.getBrokenImages(uid, key, size)
-      duplicates = self.tileBase.getDuplicateImages(uid, key, size)
+      broken = self.tileBase.getBrokenImages(uid, key, size, cursor=cursor)
+      duplicates = self.tileBase.getDuplicateImages(uid, key, size, cursor=cursor)
       data.append((broken, duplicates))
 
+    cursor.close()
     return generateJson(data = data, status = True, logged = uid != None)
 
   @serveContent(GetImagesStatusesRequest)
@@ -89,18 +121,18 @@ class UploadServer(Generator, Server):
   @serveContent(UploadNewImageRequest)
   @ensureLogged
   def uploadNewImage(self, uid, request):
-    try:
-      slot = self.tileBase.UploadSlot(uid, filename = request.filename,
-                                      declared_size = request.size,
-                                      declared_md5 = request.key,
-                                      pixel_size = request.ps,
-                                      image_top = request.top,
-                                      image_left = request.left,
-                                      bid = request.bid)
-    except ValueError: # no pixel limit left
-      return generateJson(status = False,
-                          logged = True,
-                          message = "No pixel limit left (raw data upload assumed).")
+    fail = self.checkUploadLimits(uid, request.size, request.size / 3)
+    if fail is not None:
+      return fail
+
+    slot = self.tileBase.UploadSlot(uid, filename = request.filename,
+                                    declared_size = request.size,
+                                    declared_md5 = request.key,
+                                    pixel_size = request.ps,
+                                    image_top = request.top,
+                                    image_left = request.left,
+                                    bid = request.bid)
+
     return self.appendSlot(slot, request.data)
 
   @serveContent(ContinueImageUploadRequest)

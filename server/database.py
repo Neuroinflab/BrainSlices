@@ -138,7 +138,6 @@ pg_exceptions_dict = {
   }
 
 #TODO: integrate with provideConnection???
-# - discard _db attribute, use db global variable instead???
 def provideCursor(function):
   """
   Provide function with cursor if not given.
@@ -152,7 +151,7 @@ def provideCursor(function):
   def toBeExecuted(self, *args, **kwargs):
     newCursor = kwargs.get('cursor') == None
     if newCursor:
-      kwargs['cursor'] = self._db.cursor()
+      kwargs['cursor'] = self._getCursor()
 
     try:
       result = function(self, *args, **kwargs)
@@ -196,10 +195,14 @@ def handlePgException(e):
   raise Exception('unidentified database error: '+e.pgerror)
 
 
+#TODO - discard _db attribute, use db global variable instead???
 class dbBase(object):
   def __init__(self, db = db, dbPool = dbPool):
     self._db = db
     self._dbPool = dbPool
+
+  def _getCursor(self):
+    return self._db.cursor()
 
   @provideCursor #epydoc warning because of the decorator
   def _getOneRow(self, query, data = (), value = None, cursor = None, unwrap = False):

@@ -61,5 +61,10 @@ BS_STREAM_FILES = config.getint('Stream', 'files')
 BS_STREAM_TIMEOUT  = config.getint('Stream', 'timeout')
 
 BS_USER_DEFAULT_PIXEL_LIMIT = None
-if config.has_section('User') and config.has_option('User', 'defaultPixelLimit'):
-  BS_USER_DEFAULT_PIXEL_LIMIT = config.getint('User', 'defaultPixelLimit')
+BS_USER_DEFAULT_DISK_LIMIT = None
+if config.has_section('User'):
+  if config.has_option('User', 'defaultPixelLimit'):
+    BS_USER_DEFAULT_PIXEL_LIMIT = config.getint('User', 'defaultPixelLimit')
+
+  if config.has_option('User', 'defaultDiskLimit'):
+    BS_USER_DEFAULT_DISK_LIMIT = config.getint('User', 'defaultDiskLimit')

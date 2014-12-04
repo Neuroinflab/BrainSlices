@@ -108,7 +108,7 @@ class UserBase(dbBase):
 
   @provideCursor
   def registerUser(self, login, password, email, name, registrationValid = 7,
-                   pixelLimit = None, cursor = None):
+                   pixelLimit = None, diskLimit = None, cursor = None):
     '''Stores a user in DB'''
     salt = random.randint(0, 2**31)
     row = {'login': login,
@@ -116,6 +116,7 @@ class UserBase(dbBase):
            'email': email,
            'name': name,
            'pixel_limit': pixelLimit,
+           'disk_limit': diskLimit,
            }
 
     for alg, device in HashAlgorithms.iteritems():
@@ -170,6 +171,16 @@ class UserBase(dbBase):
             WHERE login = %s;
             """
     cursor.execute(query, (newPixelLimit, login))
+    return cursor.rowcount == 1
+
+  @provideCursor
+  def changeDiskLimit(self, login, newDiskLimit, cursor=None): 
+    query = """
+            UPDATE users
+            SET disk_limit = %s
+            WHERE login = %s;
+            """
+    cursor.execute(query, (newDiskLimit, login))
     return cursor.rowcount == 1
 
   @provideCursor
