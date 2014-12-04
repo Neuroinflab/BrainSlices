@@ -31,7 +31,8 @@ from request import NewBatchRequest, ContinueImageUploadRequest,\
                     UploadNewImageRequest, BatchListRequest, BatchDetailsRequest,\
                     GetBrokenDuplicatesRequest, GetImagesStatusesRequest,\
                     UpdateMetadataRequest, UpdateStatusRequest, DeleteImagesRequest,\
-                    GetImagesPrivilegesRequest, ChangePublicPrivilegesRequest
+                    GetImagesPrivilegesRequest, ChangePublicPrivilegesRequest,\
+                    Request
 
 from tileBase import NO_PRIVILEGE, PixelLimitException, DiskLimitException
 from serviceTools import hSize, hSI
@@ -58,6 +59,13 @@ class UploadServer(Generator, Server):
     """
     Generator.__init__(self, os.path.join(servicePath, 'templates'))
     self.tileBase = tileBase
+
+  @serveContent(Request)
+  @ensureLogged
+  def getUserStats(self, uid, Request):
+    return generateJson(status=True,
+                        logged = uid != None,
+                        data = self.tileBase.getUserStats(uid))
 
   def checkUploadLimits(self, uid, size, pixels):
     try:

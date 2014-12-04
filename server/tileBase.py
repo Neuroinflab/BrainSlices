@@ -142,6 +142,37 @@ class TileBase(dbBase):
                              """, (uid, IMAGE_STATUS_IDENTIFIED),
                              cursor = cursor)
 
+  @manageConnection()
+  def getUserStats(self, uid, cursor=None, db = None):
+    row = self._getOneRow("""
+                          SELECT COUNT(*),
+                            COALESCE(SUM(CASE
+                            WHEN status < %s THEN declared_size
+                            WHEN status < %s THEN image_width * image_height
+                            WHEN status < %s THEN jpeg_size + image_width * image_height
+                            ELSE png_size + jpeg_size END), 0),
+                            COALESCE(SUM(CASE
+                              WHEN status  < %s THEN declared_size / 3
+                              ELSE image_width * image_height END), 0)
+                          FROM images
+                          WHERE owner = %s AND status >= 0;
+                          """, (IMAGE_STATUS_IDENTIFIED, IMAGE_STATUS_TILED,
+                                IMAGE_STATUS_COMPLETED, IMAGE_STATUS_IDENTIFIED,
+                                uid),
+                          cursor = cursor)
+    images, diskUsed, pixelUsed = row
+    row = self._getOneRow("""
+                          SELECT disk_limit, pixel_limit
+                          FROM users
+                          WHERE uid = %s;
+                          """, (uid,),
+                          cursor = cursor)
+    diskLimit, pixelLimit = row
+    return {'diskLimit': diskLimit, 'diskUsed': diskUsed,
+            'pixelLimit': pixelLimit, 'pixelUsed': pixelUsed,
+            'images': images}
+    
+
 
   @manageConnection()
   def checkLimits(self, uid, size=None, pixels=None, cursor=None, db=None):
