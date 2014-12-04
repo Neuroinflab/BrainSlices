@@ -1,25 +1,30 @@
+#uploadPanel
+{
+}
+
 #czarownik,
 #fileListDiv
 {
-  position: absolute;
+/*  position: absolute;
   left: 0;
-  right: 0;
+  right: 0;*/
+  float: left;
   padding: 10px;
-  box-sizing: border-box;
-  border: 1px solid red;
+/*  box-sizing: border-box;
+  border: 1px solid red;*/
 }
 
 #czarownik
 {
-  top: 0;
-  height: 200px;
+/*  top: 0;
+  height: 200px;*/
 }
 
 #fileListDiv
 {
-  top: 200px;
+/*  top: 200px;
   bottom: 0;
-  overflow-y: auto;
+  overflow-y: auto;*/
 }
 
 
@@ -27,7 +32,9 @@
 #metadataUpload,
 #fileSelection
 {
-  border: 1px solid green;
+/*  border: 1px solid green;*/
+  margin-top: 10px;
+  text-align: right;
 }
 
 #newBatch,
