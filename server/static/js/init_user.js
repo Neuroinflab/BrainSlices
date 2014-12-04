@@ -24,6 +24,68 @@
 function initUser()
 {
   var scope = BrainSlices.scope;
+  var gui = BrainSlices.gui;
+
+  function setUserStats(stats)
+  {
+    if (stats)
+    {
+      $('#userImageNumber')
+        .text(stats.images);
+      $('#userDiskUsed')
+        .text(gui.hSize(stats.diskUsed))
+        [stats.diskLimit != null && stats.diskUsed > stats.diskLimit ?
+         'addClass' :
+         'removeClass']('limit-exceeded');
+      $('#userDiskLimit')
+        .text(stats.diskLimit == null ?
+              'unlimited' :
+              gui.hSize(stats.diskLimit));
+      $('#userPixelUsed')
+        .text(gui.hSI(stats.pixelUsed) + 'px')
+        [stats.pixelLimit != null && stats.pixelUsed > stats.pixelLimit ?
+         'addClass' :
+         'removeClass']('limit-exceeded');
+      $('#userPixelLimit')
+        .text(stats.pixelLimit == null ?
+              'unlimited' :
+              (gui.hSI(stats.pixelLimit)+'px'));
+    }
+    else
+    {
+      $('#userImageNumber')
+        .empty();
+      $('#userDiskUsed')
+        .empty()
+        .removeClass('limit-exceeded');
+      $('#userDiskLimit')
+        .empty();
+      $('#userPixelUsed')
+        .empty()
+        .removeClass('limit-exceeded');
+      $('#userPixelLimit')
+        .empty();
+    }
+  }
+
+  function refreshUserStats()
+  {
+    loginConsole.ajax('/upload/getUserStats',
+                      function(data)
+                      {
+                        if (data.status)
+                        {
+                          setUserStats(data.data);
+                        }
+                        else
+                        {
+                          console.error(data.message);
+                          setUserStats();
+                        }
+                      });
+  }
+
+  $('#userStatsRefresh').click(refreshUserStats);
 
   scope
     .registerChange(function(value)
@@ -33,7 +95,18 @@ function initUser()
         $('#changePassword .personalDataVals').val('');
         $('#changePassword .formErrorMessages').empty();
       }
-    }, 'interfaceMode');
+    }, 'interfaceMode')
+    .registerChange(function(login)
+    {
+      if (login == null)
+      {
+        setUserStats();
+      }
+      else
+      {
+        refreshUserStats();
+      }
+    }, 'login');
 
 
   $('#changePassword').bind('submit', function()

@@ -258,6 +258,41 @@ var BrainSlices = {
       return val + unit;
     },
 
+    hSI: 
+    function(size, space)
+    {
+    /**
+     * Function: hSI
+     *
+     * Parameters:
+     *   size - A natural number of SI units.
+     *   space - string to be used as separator between number and units.
+     *
+     * Returns:
+     *   Human-readible string representing given amount of data.
+     *************************************************************/
+      if (!space) space = '\xa0'; //'&nbsp;'
+
+      if (size < 1000)
+      {
+        return size + space;
+      }
+
+      if (size < 1000000)
+      {
+        return (size / 1000.).toFixed(1) + space + 'k';
+      }
+      if (size < 1000000000)
+      {
+        return (size / (1000000.)).toFixed(1) + space + 'M';
+      }
+      if (size < 1000000000000)
+      {
+        return (size / 1000000000.).toFixed(1) + space + 'G';
+      }
+      return (size / (1000000000000)).toFixed(1) + space + 'T';
+    },
+
     hSize: 
     function(size, space)
     {
