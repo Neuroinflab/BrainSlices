@@ -1,30 +1,31 @@
 #uploadPanel
 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  text-align: center;
 }
 
 #czarownik,
 #fileListDiv
 {
-/*  position: absolute;
-  left: 0;
-  right: 0;*/
-  float: left;
+/*  float: left;*/
   padding: 10px;
+  display: inline-block;
+  vertical-align: top;
 /*  box-sizing: border-box;
   border: 1px solid red;*/
 }
 
 #czarownik
 {
-/*  top: 0;
-  height: 200px;*/
 }
 
 #fileListDiv
 {
-/*  top: 200px;
-  bottom: 0;
-  overflow-y: auto;*/
+  overflow-y: auto;
 }
 
 
