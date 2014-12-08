@@ -3,6 +3,20 @@ var fileUploader = null;
 var privilegeManager = null;
 var propertiesManager = null;
 
+function showFileList()
+{
+  $('#czarownik').css('display', 'none');
+  $('#fileListClose').css('display', 'none');
+  $('#fileListDiv').css('display', 'inline-block');
+}
+
+function endFileList()
+{
+  $('#fileListClose').css('display', '');
+}
+
+
+
 function flushBatchFilter()
 {
   $('#batchFilter')
@@ -16,7 +30,14 @@ function flushBatchFilter()
 function initUpload()
 {
   $('#batchFilter')
-    .tooltip(BrainSlices.gui.tooltip)
+    .tooltip(BrainSlices.gui.tooltip);
+
+  $('#fileListClose')
+    .click(function()
+    {
+      $('#fileListDiv').css('display', 'none');
+      $('#czarownik').css('display', 'inline-block');
+    });
 
   var STATUS_MAP = BrainSlices.gui.STATUS_MAP;
   var scope = BrainSlices.scope;
@@ -488,17 +509,20 @@ function initUpload()
     .click(function()
     {
       var offset = $('#offsetUpload').offsetinput('value');
-      $('#czarownikOverlay').fadeIn();
+      //$('#czarownikOverlay').fadeIn();
+      showFileList();
       setTimeout(function()
       {
         fileUploader.submit(null,
                             $('#filterImageType').prop('checked'),
                             function(status, msg)
                             {
-                              $('#czarownikOverlay').fadeOut();
+                              //$('#czarownikOverlay').fadeOut();
+                              endFileList();
+
                               if (msg)
                               {
-                                alert(msg);
+                                alertWindow[status ? 'message' : 'error'](msg);
                               }
                             },
                             $('#resolutionUpload').resolution('value'),
