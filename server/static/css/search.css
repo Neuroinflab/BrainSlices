@@ -233,6 +233,7 @@ summary.filter-property-name
   outline: none;
   padding: 0;
   color: #5080FF;
+  cursor: pointer;
 }
 
 summary.filter-property-name::-webkit-details-marker
@@ -337,6 +338,7 @@ details.filter-property-info .brainslices-property-filter
   display: inline-block;
   text-decoration: none;
   margin-right: 4px;
+  cursor: pointer;
 }
 
 
@@ -727,6 +729,7 @@ div.folder-button
   position: relative;
 
   height: 20px;
+  cursor: pointer;
   /*width: 70px;*/
 
   /*border: solid 1px #e5e5e5;*/
