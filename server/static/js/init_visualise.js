@@ -149,20 +149,16 @@ function initVisualise()
     .tooltip(BrainSlices.gui.tooltip)
     .click(function()
     {
-	    var val = scope.get("display");
-    	if (val == "matrix")
+      var val = scope.get("display");
+      if (val == "matrix")
       {
-    		$("#btn_display_icon").removeClass("fa-film");
-	      $("#btn_display_icon").addClass("fa-th-large");
-    		scope.set("display", "grid");
-	    }
-      else if (val == "grid")
+        scope.set("display", "film");
+      }
+      else if (val == "film")
       {
-    		$("#btn_display_icon").addClass("fa-film");
-	      $("#btn_display_icon").removeClass("fa-th-large");
-    		scope.set("display", "matrix");
-	    }
-	  });
+        scope.set("display", "matrix");
+      }
+    });
 
   $("#btn_compress")
     //.button()
@@ -234,6 +230,24 @@ function initVisualise()
     .registerChange(function(val)
     {
       state.display = val; // XXX obsoleted
+      console.log(val)
+      if (val == "matrix")
+      {
+        $("#btn_display_icon")
+          .removeClass("fa-film")
+          .addClass("fa-th-large");
+      }
+      else if (val == "film")
+      {
+    	$("#btn_display_icon")
+          .removeClass("fa-th-large")
+          .addClass("fa-film");
+      }
+      else
+      {
+        console.error('scope: unknown display: ' + val);
+      }
+      
       rearrangeInterface();
     }, 'display')
     .registerChange(function(val)
@@ -262,6 +276,7 @@ function initVisualiseFinish(state)
                           y: state.shape[1]});
 
   scope.set("display", state.display);
+  scope.set("zoom", state.zoom);
 
   stacks.setFocusPoint(state.focus[0][0], state.focus[0][1]);
   var nx = state.shape[0];
@@ -269,7 +284,6 @@ function initVisualiseFinish(state)
   $('#x').val(state.focus[0][0]);
   $('#y').val(state.focus[0][1]);
 
-  stacks.updateZoomPanel(); // XXX
   if (state.display == 'serial') // != 'matrix'
   {
     stacks.rearrange(nx, ny, parseInt(Math.max(100, 66 * nx / ny)) + '%');

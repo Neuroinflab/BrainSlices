@@ -700,19 +700,7 @@
         }
 
         this.zoom = zoom;
-        
-        this.updateZoomPanel();
-      },
-
-      /**
-       * Method: updateZoomPanel
-       *
-       * Update zoom value displayed in the control panel.
-       ****************************************************/
-      updateZoomPanel:
-      function()
-      {
-        BS.scope.set("zoom", this.zoom);
+        BS.scope.set("zoom", zoom);
       },
 
       /**
@@ -749,21 +737,14 @@
             stack.setPixelSize(stack.pixelSize / factor, x, y);
             stack.update();
           }
-
-          this.zoom *= factor;
-          this.updateZoomPanel();
+          //this.zoom *= factor;
+          //BS.scope.set("zoom", this.zoom);
         }
         else
         {
           var stack = this.stacks[id];
           stack.setPixelSize(stack.pixelSize / factor, x, y);
           stack.update();
-          if (id == 0)
-          {
-            // follow the main stack
-            this.zoom *= factor;
-            this.updateZoomPanel();
-          }
         }
 
         if ((this.synchronize || id == null || id == 0) && x != null && y != null)
