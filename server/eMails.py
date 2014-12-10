@@ -26,13 +26,14 @@ import hashlib
 import os
 import email.utils as eutils
 from email.mime.text import MIMEText
+from email.header import Header
 from datetime import datetime
 from bsConfig import BS_EMAIL_PASSWORD, BS_EMAIL_SERVER, BS_EMAIL_PORT,\
                      BS_EMAIL_LOGIN, BS_EMAIL_ADDRESS, BS_EMAIL_ENCODING, \
                      BS_SERVICE_SERVER, BS_SERVICE_NAME, BS_SERVICE_SIGNATURE
 
 
-BS_EMAIL_FROM = ("%s<%s>" % (BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)).encode(BS_EMAIL_ENCODING)
+BS_EMAIL_FROM = ("%s <%s>" % (BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)).encode(BS_EMAIL_ENCODING)
 
 #registration templates
 #CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
@@ -73,7 +74,7 @@ def sendConfirmationEmail(request, confirmId):
   return sendConfirmationEmailAux(name, email, login, confirmId)
 
 def sendConfirmationEmailAux(name, email, login, confirmId):
-  emailAdress = u"%s<%s>" % (name, email)
+  emailAdress = u"%s <%s>" % (name, email)
   #now = datetime.now().strftime('%Y.%m.%d %H:%M:%S') #XXX: not used
   confirmationLink = CONFIRMATION_LINK_TEMPLATE % (confirmId, login)
 
@@ -87,9 +88,9 @@ def sendConfirmationEmailAux(name, email, login, confirmId):
   customerMsg = MIMEText(content.encode(BS_EMAIL_ENCODING),
                          'plain',
                          BS_EMAIL_ENCODING)
-  customerMsg['Subject'] = REGISTRATION_EMAIL_SUBJECT
-  customerMsg['From'] = BS_EMAIL_FROM
-  customerMsg['To'] = emailAdress.encode(BS_EMAIL_ENCODING)
+  customerMsg['Subject'] = Header(REGISTRATION_EMAIL_SUBJECT.encode(BS_EMAIL_ENCODING), BS_EMAIL_ENCODING)
+  customerMsg['From'] = Header(BS_EMAIL_FROM.encode(BS_EMAIL_ENCODING), BS_EMAIL_ENCODING)
+  customerMsg['To'] = Header(emailAdress.encode(BS_EMAIL_ENCODING), BS_EMAIL_ENCODING)
   customerMsg['Date'] = eutils.formatdate()
   
   smtp = smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
@@ -117,7 +118,7 @@ def sendRegenerationEmail(request, name, confirmId):
   return sendRegenerationEmailAux(email, name, login, confirmId)
 
 def sendRegenerationEmailAux(email, name, login, confirmId):
-  emailAdress = "%s<%s>" % (name, email)
+  emailAdress = "%s <%s>" % (name, email)
   regenerationLink = REGENERATION_LINK_TEMPLATE % (confirmId, login)
 
   #prepare email
@@ -130,9 +131,9 @@ def sendRegenerationEmailAux(email, name, login, confirmId):
   customerMsg = MIMEText(content.encode(BS_EMAIL_ENCODING),
                          'plain',
                          BS_EMAIL_ENCODING)
-  customerMsg['Subject'] = REGENERATION_EMAIL_SUBJECT
-  customerMsg['From'] = BS_EMAIL_FROM
-  customerMsg['To'] = emailAdress.encode(BS_EMAIL_ENCODING)
+  customerMsg['Subject'] = Header(REGENERATION_EMAIL_SUBJECT.encode(BS_EMAIL_ENCODING), BS_EMAIL_ENCODING)
+  customerMsg['From'] = Header(BS_EMAIL_FROM.encode(BS_EMAIL_ENCODING), BS_EMAIL_ENCODING)
+  customerMsg['To'] = Header(emailAdress.encode(BS_EMAIL_ENCODING), BS_EMAIL_ENCODING)
   customerMsg['Date'] = eutils.formatdate()
   
   smtp = smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
