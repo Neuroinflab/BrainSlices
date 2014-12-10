@@ -93,6 +93,7 @@ def sendConfirmationEmailAux(name, email, login, confirmId):
   customerMsg['Date'] = eutils.formatdate()
   
   smtp = smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
+  smtp.ehlo(BS_SERVICE_SERVER)
   smtp.starttls()
   smtp.login(BS_EMAIL_LOGIN, BS_EMAIL_PASSWORD)
   try:
@@ -135,6 +136,7 @@ def sendRegenerationEmailAux(email, name, login, confirmId):
   customerMsg['Date'] = eutils.formatdate()
   
   smtp = smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
+  smtp.ehlo(BS_SERVICE_SERVER)
   smtp.starttls()
   smtp.login(BS_EMAIL_LOGIN, BS_EMAIL_PASSWORD)
   try:
