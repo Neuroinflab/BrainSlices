@@ -49,6 +49,9 @@ BS_EMAIL_LOGIN = config.get('Email', 'user')
 BS_EMAIL_PASSWORD = config.get('Email', 'password')
 BS_EMAIL_ADDRESS = config.get('Email', 'address')
 BS_EMAIL_ENCODING = config.get('Email', 'encoding')
+BS_EMAIL_EHLO = None
+if config.has_option('Email', 'ehlo'):
+  BS_EMAIL_EHLO = config.get('Email', 'ehlo')
 
 BS_SERVICE_SERVER = config.get('Service', 'server')
 BS_SERVICE_NAME = config.get('Service', 'name')

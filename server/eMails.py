@@ -29,8 +29,9 @@ from email.mime.text import MIMEText
 from email.header import Header
 from datetime import datetime
 from bsConfig import BS_EMAIL_PASSWORD, BS_EMAIL_SERVER, BS_EMAIL_PORT,\
-                     BS_EMAIL_LOGIN, BS_EMAIL_ADDRESS, BS_EMAIL_ENCODING, \
-                     BS_SERVICE_SERVER, BS_SERVICE_NAME, BS_SERVICE_SIGNATURE
+                     BS_EMAIL_LOGIN, BS_EMAIL_ADDRESS, BS_EMAIL_ENCODING,\
+                     BS_SERVICE_SERVER, BS_SERVICE_NAME, BS_SERVICE_SIGNATURE,\
+                     BS_EMAIL_EHLO
 
 
 BS_EMAIL_FROM = ("%s <%s>" % (BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)).encode(BS_EMAIL_ENCODING)
@@ -94,7 +95,9 @@ def sendConfirmationEmailAux(name, email, login, confirmId):
   customerMsg['Date'] = eutils.formatdate()
   
   smtp = smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
-  smtp.ehlo(BS_SERVICE_SERVER)
+  if BS_EMAIL_EHLO is not None:
+    smtp.ehlo(BS_EMAIL_EHLO)
+
   smtp.starttls()
   smtp.login(BS_EMAIL_LOGIN, BS_EMAIL_PASSWORD)
   try:
@@ -137,7 +140,9 @@ def sendRegenerationEmailAux(email, name, login, confirmId):
   customerMsg['Date'] = eutils.formatdate()
   
   smtp = smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
-  smtp.ehlo(BS_SERVICE_SERVER)
+  if BS_EMAIL_EHLO is not None:
+    smtp.ehlo(BS_EMAIL_EHLO)
+
   smtp.starttls()
   smtp.login(BS_EMAIL_LOGIN, BS_EMAIL_PASSWORD)
   try:
