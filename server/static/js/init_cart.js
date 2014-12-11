@@ -1665,7 +1665,13 @@ function initCart()
   $('#imageCartBody'));
   layerManager.add(null, null, $('#loadAllPanel'));
 
-  $('#imageCart')
+  dropLoadImageReceiver($('#imageCart'));
+  dropLoadImageReceiver($('#btn_cart'));
+}
+
+function dropLoadImageReceiver($div)
+{
+  return $div
     .bind('dragover', function(ev)
     {
       ev.originalEvent.preventDefault();
@@ -1673,6 +1679,7 @@ function initCart()
     .bind('drop', function(ev)
     {
       var dataTransfer = ev.originalEvent.dataTransfer;
+      console.debug(dataTransfer);
       var id = dataTransfer.getData('IID');
       if (dataTransfer.getData('TYPE') != 'searchResults' ||
           ! (id in searchResultsMapping)) return;

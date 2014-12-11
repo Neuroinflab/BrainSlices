@@ -602,6 +602,9 @@ function initBrowseFinish()
       }
     }
   });
+
+  dropLoadImageReceiver($('#searchBasketFold'));
+  dropLoadImageReceiver($('#searchBasketUnfold'));
 }
 
 
