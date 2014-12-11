@@ -17,7 +17,7 @@ $.widget('brain_slices.zoom_select',
     var thisInstance = this;
 
     this.$button = $('<button>')
-      .attr('title', 'zoom')
+      .attr('title', 'global zoom')
       .tooltip(BrainSlices.gui.tooltip)
       .addClass('icon')
       .append($('<span>')
