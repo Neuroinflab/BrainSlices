@@ -435,6 +435,11 @@ function initBrowseFinish()
                   url.href = '/?show=' + info.iid + ':' + info.md5;
                   dataTransfer.setData('text/plain', url)
                   dataTransfer.setData('text/uri-list', url)
+                })
+                .bind('dblclick', function()
+                {
+                  layerManager.autoAddTileLayer(info.iid, info);
+                  animateImageCartHeader();
                 });
             })(info, $row);
 
