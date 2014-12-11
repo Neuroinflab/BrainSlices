@@ -571,6 +571,11 @@ a.layer-download-button
 }
 
 
+label.image-url
+{
+  margin: 5px;
+}
+
 #editPanel
 {
  /* position: absolute;

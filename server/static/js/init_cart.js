@@ -1204,6 +1204,7 @@ function initCart()
                           var url = document.createElement('a');
                           url.href = '/?show=' + img.info.iid + ':'
                                      + img.info.md5;
+                          url += '';
                           dragMIME.push(['text/plain', url]);
                           dragMIME.push(['text/uri-list', url]);
 
@@ -1299,6 +1300,17 @@ function initCart()
 
                             rowElements =
                             {
+                              $url: $('<label>')
+                                .addClass('image-url')
+                                .text('image permanent URL: ')
+                                .append($('<a>')
+                                  .attr(
+                                  {
+                                    href: url,
+                                    target: '_blank'
+                                  })
+                                  .text(url))
+                                .appendTo($drag),
                               $download: $download,
                               $div: $drag,
                               $name: $nameView,
@@ -1521,6 +1533,7 @@ function initCart()
                                 rowElements.$name.removeClass('hidden');
                                 rowElements.$description.removeClass('hidden');
                                 rowElements.$download.css('display', '');
+                                rowElements.$url.css('display', '');
                                 $drag.addClass('propertiesVisible');
                                 break;
 
@@ -1532,6 +1545,7 @@ function initCart()
                                 rowElements.$name.addClass('hidden');
                                 rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
+                                rowElements.$url.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$management.css('display', '');
@@ -1553,6 +1567,7 @@ function initCart()
                                 rowElements.$name.addClass('hidden');
                                 rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
+                                rowElements.$url.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$adjustment.css('display', '');
@@ -1574,6 +1589,7 @@ function initCart()
                                 rowElements.$management.css('display', 'none');
                                 rowElements.$annotate.css('display', 'none');
                                 rowElements.$download.css('display', 'none');
+                                rowElements.$url.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$privileges.css('display', '');
@@ -1595,6 +1611,7 @@ function initCart()
                                 rowElements.$name.addClass('hidden');
                                 rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
+                                rowElements.$url.css('display', 'none');
                                 if (image.info.annotatePrivilege > 0)
                                 {
                                   rowElements.$annotate.css('display', '');

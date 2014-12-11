@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 12/11/2014 14:07:48
+-- Created on: 12/11/2014 17:50:55
 -- Diagram Version: 
 -- =============================================================================
 
@@ -112,6 +112,7 @@ CREATE TABLE "users" (
 	"confirm_sha384" text,
 	"confirm_sha512" text,
 	"pixel_limit" int8,
+	"disk_limit" int8,
 	CONSTRAINT "users_pkey" PRIMARY KEY("uid"),
 	CONSTRAINT "user_login" UNIQUE("login"),
 	CONSTRAINT "user_email" UNIQUE("email")
