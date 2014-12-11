@@ -93,6 +93,7 @@ summary.form
   outline: none;
   padding: 0;
   color: #5080FF;
+  cursor: pointer;
 }
 
 summary.form::-webkit-details-marker 
