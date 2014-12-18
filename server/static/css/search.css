@@ -181,7 +181,7 @@ a.pager
 #loadedFiltersWrapper
 {
   position: absolute;
-  top: 30px;
+  top: 0; /*30px;*/
   bottom: 35px;
   height: auto;
   width: 100%;
@@ -646,7 +646,7 @@ select.brainslices-batch-filter
   padding-top: 0;
   padding-bottom: 0;
 }
-
+/*
 .search-header-label
 {
   position: absolute;
@@ -657,8 +657,9 @@ select.brainslices-batch-filter
   border-bottom: 1px solid #CACACA;
 
   background: #efefef;
+*/
   /*color: #69c6fd;*/
-
+/*
   font-weight: bold;
   font-size: 16px;
 
@@ -666,15 +667,18 @@ select.brainslices-batch-filter
   padding-bottom: 5px;
   padding-left: 0;
   padding-right: 0;
-/*  margin-top: 5px;
+*/
+  /*margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 0;
   margin-right: 0;*/
+/*
   margin: 0px;
 
   text-align: center;
   box-sizing: border-box;
 }
+*/
 
 #searchResults 
 {

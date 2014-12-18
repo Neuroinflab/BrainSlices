@@ -139,7 +139,12 @@ var getEnumeratedSuggestionsFunction;
                 data: val};
       }
     }
-    response($.map(suggestedProperties, f));
+
+    response($.map(suggestedProperties, f)
+      .sort(function(a, b)
+      {
+        return a.value < b.value ? -1 : a.value == b.value ? 0 : 1;
+      }));
   };
 
   getEnumerated = function(name)
