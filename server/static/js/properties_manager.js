@@ -39,7 +39,7 @@ var CPropertiesManager = null;
         return parseInt(v);
 
       case 'f':
-        return parseFloat(v);
+        return parseFloat(typeof v == 'string' ? v.replace(',' , '.') : v);
 
       default:
         console.warn('an attempt to cast value of an unknown type property');

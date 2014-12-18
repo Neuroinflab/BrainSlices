@@ -108,12 +108,12 @@ var CFilterPanel = null;
 
             if (op != 'eq' && op2 != '---')
             {
-              thisInstance.set(op2, parseFloat($input2.val()));
+              thisInstance.set(op2, parseFloat($input2.val().replace(',' , '.')));
             }
 
             if (op != '---')
             {
-              thisInstance.set(op, parseFloat($input.val()));
+              thisInstance.set(op, parseFloat($input.val().replace(',' , '.')));
             }
           };
 
@@ -529,7 +529,7 @@ var CFilterPanel = null;
           if (op2 != '---')
           {
             $input2.prop('disabled', false);
-            conditions[op2] = parseFloat($input2.val());
+            conditions[op2] = parseFloat($input2.val().replace(',' , '.'));
           }
           else
           {
@@ -544,7 +544,7 @@ var CFilterPanel = null;
         if (op1 != '---')
         {
           $input1.prop('disabled', false);
-          conditions[op1] = parseFloat($input1.val());
+          conditions[op1] = parseFloat($input1.val().replace(',' , '.'));
         }
         else
         {
@@ -1535,7 +1535,7 @@ var CFilterPanel = null;
           function()
           {
             var options = this.options;
-            var left = parseFloat(this.$left.val());
+            var left = parseFloat(this.$left.val().replace(',' , '.'));
             left = isNaN(left) ? null : left * this.options.unit;
             options.left = left;
             this._updateLeft(left);
@@ -1552,7 +1552,7 @@ var CFilterPanel = null;
           function()
           {
             var options = this.options;
-            var top = parseFloat(this.$top.val());
+            var top = parseFloat(this.$top.val().replace(',' , '.'));
             top = isNaN(top) ? null : top * this.options.unit;
             options.top = top;
             this._updateTop(top);
@@ -1696,7 +1696,7 @@ var CFilterPanel = null;
           function()
           {
             var options = this.options;
-            var ps = parseFloat(this.$pixelSize.val());
+            var ps = parseFloat(this.$pixelSize.val().replace(',' , '.'));
             var unit = options.unit;
             ps = isNaN(ps) ? null :
                  (unit > 0 ? ps * unit : -unit / ps);
