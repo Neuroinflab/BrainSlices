@@ -167,7 +167,7 @@ var getEnumeratedSuggestionsFunction;
         suggestions = suggestions.filter(filter.test, filter);
       }
 
-      response(suggestions);
+      response(suggestions.sort());
     }
   };
 
