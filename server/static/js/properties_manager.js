@@ -192,9 +192,10 @@ var CPropertiesManager = null;
   }
 
 
-  function CImageProperties(triggers, properties)
+  function CImageProperties(triggers, properties, propertiesCounter)
   {
     this.properties = {};
+    this.propertiesCounter = propertiesCounter;
     this.removed = {};
     this.ondestroy = getTrigger('destroy', triggers);
     this.onchange = getTrigger('change', triggers);
@@ -235,6 +236,7 @@ var CPropertiesManager = null;
       this.properties[name] = new CProperty(property.type, property.value,
                                             triggers, original,
                                             property.edit, property.view);
+      this.pcInc(name);
       return true;
     },
 
@@ -252,10 +254,38 @@ var CPropertiesManager = null;
       }
     },
 
+    pcInc:
+    function(name)
+    {
+      if (name in this.propertiesCounter)
+      {
+        this.propertiesCounter[name]++;
+      }
+      else
+      {
+        this.propertiesCounter[name] = 1;
+      }
+    },
+
+    pcDec:
+    function(name)
+    {
+      if (this.propertiesCounter[name] == 1)
+      {
+        delete this.propertiesCounter[name];
+      }
+      else
+      {
+        this.propertiesCounter[name]--;
+      }
+    },
+
     remove:
     function(name)
     {
       if (!this.has(name)) return;
+
+      this.pcDec(name);
 
       var property = this.properties[name];
       delete this.properties[name];
@@ -282,6 +312,7 @@ var CPropertiesManager = null;
         var property = this.properties[name];
         if (property.new)
         {
+          this.pcDec(name);
           property.destroy();
           delete this.properties[name];
         }
@@ -293,6 +324,7 @@ var CPropertiesManager = null;
 
       for (var name in this.removed)
       {
+        this.pcInc(name);
         var property = this.removed[name];
         delete this.removed[name];
         this.properties[name] = property.reset();
@@ -390,6 +422,7 @@ var CPropertiesManager = null;
       for (var name in this.properties)
       {
         this.properties[name].destroy();
+        this.pcDec(name);
       }
 
       if (this.ondestroy)
@@ -437,6 +470,7 @@ var CPropertiesManager = null;
   CPropertiesManager = function(ajaxProvider)
   {
     this.images = {};
+    this.propertiesCounter = {};
     this.ajaxProvider = ajaxProvider;
   }
 
@@ -459,7 +493,7 @@ var CPropertiesManager = null;
     {
       if (this.hasImage(iid)) return false;
 
-      this.images[iid] = new CImageProperties(triggers, properties);
+      this.images[iid] = new CImageProperties(triggers, properties, this.propertiesCounter);
       return true;
     },
 
