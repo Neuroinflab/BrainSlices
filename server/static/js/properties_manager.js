@@ -161,7 +161,7 @@ var CPropertiesManager = null;
     },
 
     accept:
-    function()
+    function(update)
     {
       this.changed = false;
       this.new = false;
@@ -180,8 +180,14 @@ var CPropertiesManager = null;
       {
         this._value = this.value;
       }
+
       this._edit = this.edit;
       this._view = this.view;
+
+      if (update && this.onupdate)
+      {
+        this.onupdate();
+      }
     }
   }
 
@@ -324,7 +330,7 @@ var CPropertiesManager = null;
     },
 
     accept:
-    function(name, removed)
+    function(name, removed, update)
     {
       if (name != null)
       {
@@ -344,7 +350,7 @@ var CPropertiesManager = null;
         {
           if (name in this.properties)
           {
-            this.properties[name].accept();
+            this.properties[name].accept(update);
           }
           else
           {
@@ -362,7 +368,7 @@ var CPropertiesManager = null;
 
         for (name in this.properties)
         {
-          this.properties[name].accept();
+          this.properties[name].accept(update);
         }
 
         this.changed = false;
@@ -552,7 +558,7 @@ var CPropertiesManager = null;
     },
 
     save:
-    function()
+    function(update)
     {
       var changes = this.getChanges();
       if (changes.length == 0) return;
@@ -570,7 +576,7 @@ var CPropertiesManager = null;
               var result = data[iid];
               if (result == true)
               {
-                image.accept();
+                image.accept(null, null, update);
               }
               else
               {
@@ -580,7 +586,7 @@ var CPropertiesManager = null;
                   var success = result[j];
                   for (var i = 0; i < success.length; i++)
                   {
-                    image.accept(success[i], j == 0);
+                    image.accept(success[i], j == 0, update);
                   }
                 }
               }

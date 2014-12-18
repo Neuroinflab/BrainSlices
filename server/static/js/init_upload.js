@@ -341,7 +341,7 @@ function initUpload()
           break;
 
         case 'properties':
-          propertiesManager.save();
+          propertiesManager.save(true);
           break;
 
         case 'adjust':
