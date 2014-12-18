@@ -206,7 +206,7 @@ function initVisualise()
 
 
   $("#btn_help")
-    //.button()
+    .button()
     .tooltip(BrainSlices.gui.tooltip);
   //$("#btn_login").button();
   $("#btn_logout")
