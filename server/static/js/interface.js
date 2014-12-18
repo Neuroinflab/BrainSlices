@@ -903,12 +903,24 @@
        *                     value if a < b, apositive if a > b and 0
        *                     otherwise.
        **********************************************************************/
-        console.error('update rows order not implemented yet!!!'); // TODO
-        this.rows.sort(function(a, b)
+        var rows = this.rows;
+        rows = rows.sort(function(a, b)
         {
           return compareFunction('data' in a ? a.data : a.id,
                                  'data' in b ? b.data : b.id);
-        })
+        });
+        this.rows = rows;
+        var $table;
+        for (var j = 0; j < this.$table.length; j++)
+        {
+          $table =  this.$table.eq(j);
+          for (var i = 0; i < rows.length; i++)
+          {
+            rows[i].$row.eq(j)
+              .detach()
+              .appendTo($table);
+          }
+        }
         this.update();
       }
     }
