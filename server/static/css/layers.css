@@ -357,7 +357,8 @@ input.offsetinput-widget-top
 }
 
 select.resolution-widget-unit,
-input.offsetinput-widget-left
+input.offsetinput-widget-left,
+select.orderby-widget-field
 {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
@@ -369,7 +370,8 @@ select.resolution-widget-unit
 }
 
 div.offsetinput-widget-wrapper,
-div.resolution-widget-wrapper
+div.resolution-widget-wrapper,
+div.orderby-widget-wrapper
 {
 	display: inline-block;
 
@@ -387,7 +389,8 @@ div.resolution-widget-wrapper
 }
 
 div.offsetinput-widget-wrapper:hover,
-div.resolution-widget-wrapper:hover
+div.resolution-widget-wrapper:hover,
+div.orderby-widget-wrapper:hover
 {
   border-color: #C9C9C9;
 	box-shadow: rgba(0,0,0,  0.15) 0px 0px 8px;
@@ -396,14 +399,19 @@ div.resolution-widget-wrapper:hover
 }
 
 input.resolution-widget-ps,
-select.offsetinput-widget-unit
+select.offsetinput-widget-unit,
+select.orderby-widget-asc
 {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
 
 select.offsetinput-widget-unit,
-select.offsetinput-widget-unit:hover
+select.offsetinput-widget-unit:hover,
+select.orderby-widget-field,
+select.orderby-widget-field:hover,
+select.orderby-widget-asc,
+select.orderby-widget-asc:hover
 {
   box-shadow: none;
   -moz-box-shadow: none;
@@ -412,6 +420,32 @@ select.offsetinput-widget-unit:hover
 	padding-top: 0;
   padding-bottom: 0;
   padding-left: 0;
+}
+
+select.orderby-widget-asc,
+select.orderby-widget-field
+{
+  margin: 0;
+}
+
+select.orderby-widget-field,
+select.orderby-widget-field:hover
+{
+  border: none;
+}
+
+select.orderby-widget-asc,
+select.orderby-widget-asc:hover
+{
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  border-left: solid 1px #E5E5E5;
+}
+
+#orderPanel:before
+{
+  content: "Order by: ";
 }
 
 label.managementPanelStatus
