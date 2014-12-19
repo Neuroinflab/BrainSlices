@@ -1732,10 +1732,24 @@ function initCartFinish(state)
   $('#orderPanel')
     .orderby(
     {
-      fields: {a: 1, b: 2},
+      fields: {a: 1, b: 2, z: 'kokot', page: ''},
       onchange: function(field, asc)
       {
-        console.log(field, asc);
+        asc = asc ? 1 : -1;
+        layerManager.sort(function(a, b)
+        {
+          a = propertiesManager.get(a)[field];
+          b = propertiesManager.get(b)[field];
+
+          if (a == undefined) return b == undefined ? 0 : 1;
+          if (b == undefined) return -1;
+
+          if (a.type == 't') return b.type == 't' ? 0 : '1';
+          if (b.type == 't') return -1;
+          a = a.value;
+          b = b.value;
+          return a < b ? -asc : a == b ? 0 : asc;
+        });
       }
     })
 }

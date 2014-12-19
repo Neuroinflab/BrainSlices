@@ -683,6 +683,18 @@ with ({gui: BrainSlices.gui,
       }
     },
 
+
+    /**
+     * Method: sort
+     *
+     * An alias for .tableManager.sort()
+     ************************************************************************/
+    sort:
+    function()
+    {
+      this.tableManager.sort.apply(this.tableManager, arguments);
+    },
+
     /**
      * Destructor: destroy
      *
