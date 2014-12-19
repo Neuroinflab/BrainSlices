@@ -1690,6 +1690,11 @@ function initCart()
       
 
       return id;
+    },
+    onMove:
+    function(srcIdx, dstIdx)
+    {
+      $('#orderPanel').orderby({orderby: ''});
     }
   },
   $('#imageCartBody'));
@@ -1745,6 +1750,8 @@ function initOrderBy()
     {
       onchange: function(field, asc)
       {
+        if (!field) return;
+
         asc = asc ? 1 : -1;
         layerManager.sort(function(a, b)
         {

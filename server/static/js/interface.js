@@ -362,6 +362,7 @@
       this.id2row = {};
       this.$table = $table;
       this.onUpdate = onUpdate;
+      this.onMove = onMove;
       this.id = id ? id : 'default';
       $table.empty();
       this.$display = $display ? $display : this.$table;
@@ -559,6 +560,11 @@
 
         this.update(Math.min(srcIndex, dstIndex),
                     Math.max(srcIndex, dstIndex) + 1);
+
+        if (this.onMove)
+        {
+          this.onMove(srcIndex, dstIndex);
+        }
       },
 
       getOrder:

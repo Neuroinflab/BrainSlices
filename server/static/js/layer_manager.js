@@ -81,7 +81,8 @@ with ({gui: BrainSlices.gui,
 
                                                 thisInstance.stacks.updateTopZ(thisInstance.tableManager.length);
                                               },
-                                              null, null,
+                                              getTrigger('onMove', triggers),
+                                              null,
                                               $layerListWrapper);
   }
 
