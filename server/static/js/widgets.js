@@ -1756,4 +1756,132 @@ var CFilterPanel = null;
     }
   });
 
+
+  /**
+   * Class: brainslices.orderby
+   *
+   * A widget for folding/unfolding DIVs.
+   *
+   * Options:
+   *   unit - if negative, then dpi or so...
+   **************************************************************************/
+  $.widget('brainslices.orderby',
+  {
+    options:
+    {
+      fields: {},
+      ascending: true,
+      orderby: '',
+      onchange: null
+    },
+
+    _createFieldList:
+    function(fields, orderby)
+    {
+      if (fields == null) fields = this.options.fields;
+      if (orderby == null) orderby = this.options.orderby;
+      if (!(orderby in fields)) orderby = '';
+
+      this.$field
+        .empty()
+        .append($('<option>')
+          .attr('value', '')
+          .text('--- not ordered ---'))
+        .append($.map(fields, function(comment, field)
+        {
+          if (field == '') return null;
+          return $('<option>')
+            .attr('value', field)
+            .text(comment ? (field + ' (' + comment + ')') : field);
+        }))
+        .val(orderby);
+    },
+
+    _create:
+    function()
+    {
+      this.element.addClass('has-orderby-widget');
+
+      this.$field = $('<select>')
+        .addClass('orderby-widget-field');
+
+      this._createFieldList();
+
+      this._on(this.$field,
+        {
+          change:
+          function()
+          {
+            var options = this.options;
+            options.orderby = this.$field.val();
+            if (options.onchange)
+            {
+              options.onchange(options.orderby, options.ascending);
+            }
+          }
+        });
+
+      this.$asc = $('<select>')
+        .addClass('orderby-widget-asc')
+        .append($('<option>')
+          .attr('value', 'asc')
+          .text('asc'))
+        .append($('<option>')
+          .attr('value', 'desc')
+          .text('desc'))
+        .val(this.options.ascending ? 'asc' : 'desc');
+
+      this._on(this.$asc,
+        {
+          change:
+          function()
+          {
+            var options = this.options;
+            options.ascending = this.$asc.val() == 'asc';
+            if (options.onchange)
+            {
+              options.onchange(options.orderby, options.ascending);
+            }
+          }
+        });
+
+      this.$wrapper = $('<div>')
+        .addClass('orderby-widget-wrapper')
+        .append(this.$field)
+        .append(this.$asc)
+        .appendTo(this.element)
+    },
+
+    _setOption:
+    function(key, value)
+    {
+      this._super(key, value);
+
+      if (key == 'fields')
+      {
+        this._createFieldList();
+        this.$field.change();
+      }
+      else if (key == 'ascending')
+      {
+        this.$asc
+          .val(value ? 'asc' : 'desc')
+          .change();
+      }
+      else if (key == 'orderby')
+      {
+        this.$field
+          .val(value)
+          .change();
+      }
+    },
+
+    _destroy:
+    function()
+    {
+      this.$wrapper.remove();
+      this.element.removeClass('has-orderby-widget');
+    }
+  });
+
 })(jQuery);

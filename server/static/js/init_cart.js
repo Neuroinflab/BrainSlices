@@ -1728,4 +1728,14 @@ function initCartFinish(state)
       layerManager.flush();
       animateImageCartHeader();
     });
+
+  $('#orderPanel')
+    .orderby(
+    {
+      fields: {a: 1, b: 2},
+      onchange: function(field, asc)
+      {
+        console.log(field, asc);
+      }
+    })
 }
