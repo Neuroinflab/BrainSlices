@@ -910,17 +910,17 @@
                                  'data' in b ? b.data : b.id);
         });
         this.rows = rows;
-        var $table;
-        for (var j = 0; j < this.$table.length; j++)
+        this.$table.each(function(i, table)
         {
-          $table =  this.$table.eq(j);
-          for (var i = 0; i < rows.length; i++)
+          var $table = $(table);
+          $.each(rows, function(j, row)
           {
-            rows[i].$row.eq(j)
+            row.$row.eq(i)
               .detach()
               .appendTo($table);
-          }
-        }
+          });
+        });
+
         this.update();
       }
     }
