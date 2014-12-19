@@ -370,18 +370,20 @@ var getEnumeratedSuggestionsFunction;
             return getEnumerated(name);
           }),
           minLength: 0
-        })
+        }),
         //.keypress(function(e) // might be not important - no onchange event XXX
         //{
         //  if (e.keyCode == 13)
         //  {
+        //    console.log(inputs);
         //    inputs.e.blur();
         //  }
         //})
-        .on('autocompleteselect', function(event, ui)
-        {
-          inputs.e.val(ui.item.value);//.blur(); // might be not as important - no onchange event??? XXX
-        }),
+        //.on('autocompleteselect', function(event, ui)
+        //{
+        //  console.log(inputs);
+        //  inputs.e.val(ui.item.value).blur(); // might be not as important - no onchange event??? XXX
+        //}),
       x: $('<textarea>')
         .attr('placeholder', 'long text')
         .css('display', 'none')
@@ -647,7 +649,7 @@ var PImagePropertyTriggers =
       $input
         .val(property.value) // might be a problem with textarea...
 
-        .bind(type != 'e' ? 'change' : 'comboboxchange',
+        .bind(type == 'e' ? 'autocompletechange' : 'change', // 'e' -> 'comboboxchange' ?
               function()
               {
                 var val = $input.val();
