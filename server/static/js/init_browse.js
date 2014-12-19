@@ -439,6 +439,7 @@ function initBrowseFinish()
                 .bind('dblclick', function()
                 {
                   layerManager.autoAddTileLayer(info.iid, info);
+                  updateOrderBy();
                   animateImageCartHeader();
                 });
             })(info, $row);
@@ -458,6 +459,7 @@ function initBrowseFinish()
               {
                 //global
                 layerManager.autoAddTileLayer(info.iid, info);
+                updateOrderBy();
                 triggerImageCartHeaderAnimation();
               });
             })(info);
@@ -546,7 +548,8 @@ function initBrowseFinish()
       layerManager.autoAddTileLayer(info.iid, info, true);
     }
 
-    layerManager.updateOrder();
+    layerManager.updateOrder(); // XXX: is this call necessary???
+    updateOrderBy();
     triggerImageCartHeaderAnimation();
     waitWindow.close();
   }

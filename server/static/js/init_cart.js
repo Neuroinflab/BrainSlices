@@ -1,3 +1,8 @@
+function updateOrderBy()
+{
+  $('#orderPanel').orderby({fields: propertiesManager.propertiesCounter});
+}
+
 function makeAdjustmentPanel($div, id, image, thisInstance, finish, triggers,
                              adjust)
 {
@@ -1710,6 +1715,7 @@ function dropLoadImageReceiver($div)
           ! (id in searchResultsMapping)) return;
 
       layerManager.autoAddTileLayer(id, searchResultsMapping[id]);
+      updateOrderBy();
       animateImageCartHeader();
     });
 }
@@ -1726,13 +1732,13 @@ function initCartFinish(state)
     .click(function()
     {
       layerManager.flush();
+      updateOrderBy();
       animateImageCartHeader();
     });
 
   $('#orderPanel')
     .orderby(
     {
-      fields: {a: 1, b: 2, z: 'kokot', page: ''},
       onchange: function(field, asc)
       {
         asc = asc ? 1 : -1;
