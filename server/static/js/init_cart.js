@@ -756,6 +756,10 @@ var PPropertyTriggers =
     {
       this.data.$out.text(this.value);
     }
+    else
+    {
+      this.data.$outRow.text(this.value);
+    }
   },
 
   destroy: function()
@@ -781,11 +785,13 @@ var PPropertyTriggers =
       this.data.$inRow.addClass('propertyNew');
       if (this.data.$outRow)
       {
-        this.data.$outRow.css('display', 'none');
+        //this.data.$outRow.css('display', 'none');
+        this.data.$outRow.addClass('propertyNew');
       }
       else
       {
-        this.data.$out.css('display', 'none');
+        //this.data.$out.css('display', 'none');
+        this.data.$out.addClass('propertyNew');
       }
     }
     else
@@ -797,11 +803,19 @@ var PPropertyTriggers =
 
       if (this.data.$outRow)
       {
-        this.data.$outRow.css('display', '');
+        if (this.data.$outRow.hasClass('propertyNew'))
+        {
+          this.data.$outRow.removeClass('propertyNew');
+        }
+        //this.data.$outRow.css('display', '');
       }
       else
       {
-        this.data.$out.css('display', '');
+        if (this.data.$out.hasClass('propertyNew'))
+        {
+          this.data.$out.removeClass('propertyNew');
+          //this.data.$out.css('display', '');
+        }
       }
     }
   },
@@ -811,10 +825,39 @@ var PPropertyTriggers =
     if (this.changed)
     {
       this.data.$inRow.addClass('propertyChanged');
+
+      if (this.data.$outRow)
+      {
+        //this.data.$outRow.css('display', 'none');
+        this.data.$outRow.addClass('propertyChanged');
+      }
+      else
+      {
+        //this.data.$out.css('display', 'none');
+        this.data.$out.addClass('propertyChanged');
+      }
     }
-    else if (this.data.$inRow.hasClass('propertyChanged'))
+    else
     {
-      this.data.$inRow.removeClass('propertyChanged');
+      if (this.data.$inRow.hasClass('propertyChanged'))
+      {
+        this.data.$inRow.removeClass('propertyChanged');
+      }
+
+      if (this.data.$outRow)
+      {
+        if (this.data.$outRow.hasClass('propertyChanged'))
+        {
+          this.data.$outRow.removeClass('propertyChanged');
+        }
+      }
+      else
+      {
+        if (this.data.$out.hasClass('propertyChanged'))
+        {
+          this.data.$out.removeClass('propertyChanged');
+        }
+      }
     }
   },
 
@@ -822,27 +865,35 @@ var PPropertyTriggers =
   {
     if (this.removed)
     {
-      if (this.data.$inRow) this.data.$inRow.css('display', 'none');
-      //if (this.data.$outRow)
-      //{
-      //  this.data.$outRow.css('display', 'none');
-      //}
-      //else
-      //{
-      //  this.data.$out.css('display', 'none');
-      //}
+      if (this.data.$inRow)
+      {
+        this.data.$inRow.css('display', 'none');
+      }
+
+      if (this.data.$outRow)
+      {
+        this.data.$outRow.css('display', 'none');
+      }
+      else
+      {
+        this.data.$out.css('display', 'none');
+      }
     }
     else
     {
-      if (this.data.$inRow) this.data.$inRow.css('display', '');
-      //if (this.data.$outRow)
-      //{
-      //  this.data.$outRow.css('display', '');
-      //}
-      //else
-      //{
-      //  this.data.$out.css('display', '');
-      //}
+      if (this.data.$inRow)
+      {
+        this.data.$inRow.css('display', '');
+      }
+
+      if (this.data.$outRow)
+      {
+        this.data.$outRow.css('display', '');
+      }
+      else
+      {
+        this.data.$out.css('display', '');
+      }
     }
   }
 };
@@ -1744,7 +1795,6 @@ function initCartFinish(state)
 
 function initOrderBy()
 {
-  console.log(propertiesManager.propertiesCounter)
   $('#orderPanel')
     .orderby(
     {
