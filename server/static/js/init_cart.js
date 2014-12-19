@@ -727,11 +727,16 @@ var PImagePropertyTriggers =
 
     var propertyTriggers = Object.create(PPropertyTriggers);
     propertyTriggers.data = data;
-    return this.add(name, property, propertyTriggers, original);
+    var result = this.add(name, property, propertyTriggers, original);
+    if (name == BrainSlices.scope.get('orderby')
+    {
+      sortLoadedImages();
+    }
+    return result;
   },
 
   change: //onChange or so...
-  function()
+  function(name)
   {
     if (this.changed)
     {
@@ -740,6 +745,11 @@ var PImagePropertyTriggers =
     else if (this.data.$row.hasClass('propertyChanged'))
     {
       this.data.$row.removeClass('propertyChanged');
+    }
+
+    if (name == BrainSlices.scope.get('orderby')
+    {
+      sortLoadedImages();
     }
   }
 };
@@ -1795,6 +1805,30 @@ function initCartFinish(state)
     });
 }
 
+function sortLoadedImages()
+{
+  var orderby = BrainSlices.scope.get('orderby');
+  if (!orderby) return;
+  var order = BrainSlices.scope.get('order');
+
+  layerManager.sort(function(a, b)
+  {
+    a = propertiesManager.get(a)[orderby];
+    b = propertiesManager.get(b)[orderby];
+
+    if (a == undefined) return b == undefined ? 0 : 1;
+    if (b == undefined) return -1;
+
+    if (a.type == 't') return b.type == 't' ? 0 : '1';
+    if (b.type == 't') return -1;
+    a = a.value;
+    b = b.value;
+    if (typeof a == 'string') a = a.toLowerCase();
+    if (typeof b == 'string') b = b.toLowerCase();
+    return a < b ? -order : a == b ? 0 : order;
+  });
+}
+
 function initOrderBy()
 {
   $('#orderPanel')
@@ -1802,25 +1836,40 @@ function initOrderBy()
     {
       onchange: function(field, asc)
       {
+        if (field != BrainSlices.scope.get('orderby'))
+        {
+          BrainSlices.scope
+            .set('orderby', field)
+        }
+
+        if (asc != (BrainSlices.scope.get('order') == 1))
+        {
+          BrainSlices.scope.set('order', asc ? 1 : -1);
+        }
+
         if (!field) return;
 
         asc = asc ? 1 : -1;
-        layerManager.sort(function(a, b)
-        {
-          a = propertiesManager.get(a)[field];
-          b = propertiesManager.get(b)[field];
-
-          if (a == undefined) return b == undefined ? 0 : 1;
-          if (b == undefined) return -1;
-
-          if (a.type == 't') return b.type == 't' ? 0 : '1';
-          if (b.type == 't') return -1;
-          a = a.value;
-          b = b.value;
-          return a < b ? -asc : a == b ? 0 : asc;
-        });
       },
 
       fields: propertiesManager.propertiesCounter
     });
+
+  BrainSlices.scope
+   .registerChange(function(value)
+   {
+     $('#orderPanel').orderby({orderby: value});
+     if (value)
+     {
+       sortLoadedImages();
+     }
+   }
+   , 'orderby')
+   .registerChange(function(value)
+   {
+     $('#orderPanel').orderby({order: value == 1});
+     sortLoadedImages();
+   }, 'order')
+   .set('orderby', '')
+   .set('order', 1);
 }

@@ -1787,9 +1787,10 @@ var CFilterPanel = null;
         .append($('<option>')
           .attr('value', '')
           .text('--- not ordered ---'))
-        .append($.map(fields, function(comment, field)
+        .append($.map(Object.keys(fields).sort(), function(field)
         {
           if (field == '') return null;
+          var comment = fields[field];
           return $('<option>')
             .attr('value', field)
             .text(comment ? (field + ' (' + comment + ')') : field);

@@ -83,6 +83,7 @@ var CPropertiesManager = null;
     reset:
     function()
     {
+      var changed = false; 
       this.changed = false;
       if (this.onchange)
       {
@@ -91,6 +92,7 @@ var CPropertiesManager = null;
 
       if (this.type != 't')
       {
+        changed = this._value != this.value;
         this.value = this._value;
       }
       this.edit = this._edit;
@@ -109,7 +111,7 @@ var CPropertiesManager = null;
           this.onremove();
         }
       }
-      return this;
+      return changed;
     },
 
     remove:
@@ -199,6 +201,7 @@ var CPropertiesManager = null;
     this.removed = {};
     this.ondestroy = getTrigger('destroy', triggers);
     this.onchange = getTrigger('change', triggers);
+    this.onupdate = getTrigger('update', triggers);
     this.autoAdd = getTrigger('add', triggers);
     this.data = getTrigger('data', triggers);
     this.changed = false;
@@ -237,6 +240,10 @@ var CPropertiesManager = null;
                                             triggers, original,
                                             property.edit, property.view);
       this.pcInc(name);
+      if (this.onupdate)
+      {
+        this.onupdate(name);
+      }
       return true;
     },
 
@@ -250,6 +257,11 @@ var CPropertiesManager = null;
         if (this.onchange)
         {
           this.onchange();
+        }
+
+        if (this.onupdate)
+        {
+          this.onupdate(name);
         }
       }
     },
@@ -302,6 +314,11 @@ var CPropertiesManager = null;
           this.onchange();
         }
       }
+
+      if (this.onupdate)
+      {
+        this.onupdate(name);
+      }
     },
 
     reset:
@@ -315,10 +332,20 @@ var CPropertiesManager = null;
           this.pcDec(name);
           property.destroy();
           delete this.properties[name];
+          if (this.onupdate)
+          {
+            this.onupdate(name);
+          }
         }
         else
         {
-          property.reset();
+          if (property.reset())
+          {
+            if (this.onupdate)
+            {
+              this.onupdate(name);
+            }
+          }
         }
       }
 
@@ -328,6 +355,10 @@ var CPropertiesManager = null;
         var property = this.removed[name];
         delete this.removed[name];
         this.properties[name] = property.reset();
+        if (this.onupdate)
+        {
+          this.onupdate(name);
+        }
       }
 
       this.changed = false;
