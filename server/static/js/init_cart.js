@@ -1238,8 +1238,6 @@ function initCart()
                           dragMIME.push(['text/plain', url]);
                           dragMIME.push(['text/uri-list', url]);
 
-                          if (onsuccess) onsuccess();
-
                           var privileges = img.info.privileges;
                           var privilegeItem = [img.info.iid,
                                                [privileges.publicView,
@@ -1677,6 +1675,8 @@ function initCart()
                           {
                             thisInstance.doLazyRefresh();
                           }
+
+                          if (onsuccess) onsuccess();
                         },
                         onfailure, isvalid, onUpdate, onAdjust,
                         $drag,
@@ -1735,7 +1735,11 @@ function initCartFinish(state)
       updateOrderBy();
       animateImageCartHeader();
     });
+}
 
+function initOrderBy()
+{
+  console.log(propertiesManager.propertiesCounter)
   $('#orderPanel')
     .orderby(
     {
@@ -1756,6 +1760,8 @@ function initCartFinish(state)
           b = b.value;
           return a < b ? -asc : a == b ? 0 : asc;
         });
-      }
-    })
+      },
+
+      fields: propertiesManager.propertiesCounter
+    });
 }
