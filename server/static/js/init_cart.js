@@ -754,7 +754,7 @@ var PImagePropertyTriggers =
   {
     if (!postpone && name == BrainSlices.scope.get('orderby'))
     {
-      sortLoadedImages();
+      BrainSlices.scope.set('orderby', '');
     }
   }
 };

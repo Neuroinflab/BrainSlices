@@ -305,7 +305,7 @@ function initUpload()
       {
         case 'privileges':
           privilegeManager.reset(null, true);
-          sortLoadedImages();
+          BrainSlices.scope.set('orderby', '');
           updateOrderBy();
           break;
 
@@ -647,7 +647,7 @@ function initUploadFinish()
 
                   if (name == BrainSlices.scope.get('orderby'))
                   {
-                    sortLoadedImages();
+                    BrainSlices.scope.set('orderby', '');
                   }
 
                   updateOrderBy();
@@ -673,6 +673,11 @@ function initUploadFinish()
                                               null, null, true);
                   });
 
+                  if (name == BrainSlices.scope.get('orderby'))
+                  {
+                    BrainSlices.scope.set('orderby', '');
+                  }
+
                   updateOrderBy();
                   triggerImageCartHeaderAnimation();
                   return true;
@@ -694,6 +699,12 @@ function initUploadFinish()
                   {
                     propertiesManager.remove(image.info.iid, name, true);
                   });
+
+                  if (name == BrainSlices.scope.get('orderby'))
+                  {
+                    BrainSlices.scope.set('orderby', '');
+                  }
+
                   updateOrderBy();
                   //triggerImageCartHeaderAnimation(); //description can shrink
                   return false;

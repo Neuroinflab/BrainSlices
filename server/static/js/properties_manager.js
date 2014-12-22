@@ -354,7 +354,8 @@ var CPropertiesManager = null;
         this.pcInc(name);
         var property = this.removed[name];
         delete this.removed[name];
-        this.properties[name] = property.reset();
+        property.reset();
+        this.properties[name] = property;
         if (this.onupdate)
         {
           this.onupdate(name, postponeupdate);
