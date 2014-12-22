@@ -171,6 +171,8 @@ var searchEngine = null;
 var searchResultsMapping = {};
 var perPage = 50;
 
+var loadButtons = {};
+
 function initBrowseFinish()
 {
   searchEngine = new CPropertiesSearch(loginConsole,
@@ -406,6 +408,8 @@ function initBrowseFinish()
 
         setTimeout(function()
         {
+          loadButtons = {};
+
           var end = slice[1];
           searchResultsMapping = {};
           $searchPage.empty();
@@ -448,10 +452,12 @@ function initBrowseFinish()
               .appendTo($row);
 
             var $button = $('<span>')
-              .addClass('add-image-to-cart-button fa fa-plus')
+              .addClass('add-image-to-cart-button fa fa-plus' + (layerManager.has(info.iid) ? ' add-image-to-cart-button-loaded' : ''))
               .attr('title', 'add to the image cart')
               .tooltip(BrainSlices.gui.tooltip)
               .prependTo($div);
+
+            loadButtons[info.iid] = $button;
 
             (function(info)
             {

@@ -829,3 +829,8 @@ li.image-details
   margin: 3px 10px 5px 5px;
 }
 
+
+.add-image-to-cart-button.add-image-to-cart-button-loaded
+{
+  opacity: 0.3;
+}

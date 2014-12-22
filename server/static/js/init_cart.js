@@ -1293,10 +1293,19 @@ function initCart()
                         {
                           privilegeManager.remove(id);
                           propertiesManager.removeImage(id);
+                          if (image && image.info.iid in loadButtons)
+                          {
+                            loadButtons[image.info.iid].removeClass('add-image-to-cart-button-loaded');
+                          }
                         },
                         path, info, !postponeUpdate,
                         function(img)
                         {
+                          if (img.info.iid in loadButtons)
+                          {
+                            loadButtons[img.info.iid].addClass('add-image-to-cart-button-loaded');
+                          }
+
                           image = img;
 
                           var url = document.createElement('a');
