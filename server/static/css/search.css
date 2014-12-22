@@ -313,7 +313,7 @@ details.filter-property-info .brainslices-property-filter
 
 #newFilterPanel
 {
-  margin-top: 0;
+/* margin-top: 0; */
 }
 
 .new-property-name-input

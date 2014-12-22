@@ -1002,6 +1002,7 @@ var CFilterPanel = null;
       var $wrapper = $('<div>')
         .addClass('brainslices-new-property-filter-propertybox')
         .appendTo($span);
+      var hintOnFocus = true;
       var $input = $('<input>')
         .attr(
         {
@@ -1026,6 +1027,13 @@ var CFilterPanel = null;
             //this._propertyChange();
           }
         }/*, this)*/)
+        .on('focus', function()
+        {//XXX
+          if (hintOnFocus)
+          {
+            $input.propertyboxsearch('search', $input.val());
+          }
+        })
         .appendTo($wrapper);
 
       this.$input = $input;
@@ -1047,9 +1055,12 @@ var CFilterPanel = null;
         })
         .click(function()
         {
+          hintOnFocus = false;
           $input.focus();
+          hintOnFocus = true;
 
-          if (wasOpen) {
+          if (wasOpen && $input.val() == '')
+          {
             return;
           }
 
