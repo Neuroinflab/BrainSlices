@@ -728,7 +728,7 @@ var PImagePropertyTriggers =
     var propertyTriggers = Object.create(PPropertyTriggers);
     propertyTriggers.data = data;
     var result = this.add(name, property, propertyTriggers, original);
-    if (name == BrainSlices.scope.get('orderby')
+    if (name == BrainSlices.scope.get('orderby'))
     {
       sortLoadedImages();
     }
