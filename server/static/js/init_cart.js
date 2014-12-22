@@ -747,7 +747,7 @@ var PImagePropertyTriggers =
       this.data.$row.removeClass('propertyChanged');
     }
 
-    if (name == BrainSlices.scope.get('orderby')
+    if (name == BrainSlices.scope.get('orderby'))
     {
       sortLoadedImages();
     }
