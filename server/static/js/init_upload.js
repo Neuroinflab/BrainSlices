@@ -304,7 +304,9 @@ function initUpload()
       switch (scope.get('editMode'))
       {
         case 'privileges':
-          privilegeManager.reset();
+          privilegeManager.reset(null, true);
+          sortLoadedImages();
+          updateOrderBy();
           break;
 
         case 'properties':
@@ -638,10 +640,17 @@ function initUploadFinish()
                     var info = image.info;
                     if (!propertiesManager.has(info.iid, name))
                     {
-                      propertiesManager.autoAdd(info.iid, name, property);
+                      propertiesManager.autoAdd(info.iid, name, property,
+                                                null, null, true);
                     }
                   });
 
+                  if (name == BrainSlices.scope.get('orderby'))
+                  {
+                    sortLoadedImages();
+                  }
+
+                  updateOrderBy();
                   triggerImageCartHeaderAnimation();
                   return true;
                 }
@@ -659,10 +668,12 @@ function initUploadFinish()
                   images.applyPrivilege('annotate', function(image, updateIface)
                   {
                     var info = image.info;
-                    propertiesManager.remove(info.iid, name);
-                    propertiesManager.autoAdd(info.iid, name, property);
+                    propertiesManager.remove(info.iid, name, true);
+                    propertiesManager.autoAdd(info.iid, name, property,
+                                              null, null, true);
                   });
 
+                  updateOrderBy();
                   triggerImageCartHeaderAnimation();
                   return true;
                 }
@@ -681,8 +692,10 @@ function initUploadFinish()
                 {
                   images.applyPrivilege('annotate', function(image, updateIface)
                   {
-                    propertiesManager.remove(image.info.iid, name);
+                    propertiesManager.remove(image.info.iid, name, true);
                   });
+                  updateOrderBy();
+                  //triggerImageCartHeaderAnimation(); //description can shrink
                   return false;
                 }
               }

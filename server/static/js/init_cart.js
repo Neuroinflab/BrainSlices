@@ -566,7 +566,7 @@ var getEnumeratedSuggestionsFunction;
 var PImagePropertyTriggers =
 {
   add: //autoAdd
-  function (name, property, original)
+  function (name, property, original, dummy, postponeupdate)
   {
     var type = property.type;
     var data = {}; // fixed: name in this.data.fixedOut
@@ -727,7 +727,7 @@ var PImagePropertyTriggers =
 
     var propertyTriggers = Object.create(PPropertyTriggers);
     propertyTriggers.data = data;
-    var result = this.add(name, property, propertyTriggers, original);
+    var result = this.add(name, property, propertyTriggers, original, postponeupdate);
     if (name == BrainSlices.scope.get('orderby'))
     {
       sortLoadedImages();
@@ -736,7 +736,7 @@ var PImagePropertyTriggers =
   },
 
   change: //onChange or so...
-  function(name)
+  function()
   {
     if (this.changed)
     {
@@ -747,7 +747,12 @@ var PImagePropertyTriggers =
       this.data.$row.removeClass('propertyChanged');
     }
 
-    if (name == BrainSlices.scope.get('orderby'))
+  },
+
+  update:
+  function(name, postpone)
+  {
+    if (!postpone && name == BrainSlices.scope.get('orderby'))
     {
       sortLoadedImages();
     }

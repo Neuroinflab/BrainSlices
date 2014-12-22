@@ -194,7 +194,7 @@ var CPropertiesManager = null;
   }
 
 
-  function CImageProperties(triggers, properties, propertiesCounter)
+  function CImageProperties(triggers, properties, propertiesCounter, postponeupdate)
   {
     this.properties = {};
     this.propertiesCounter = propertiesCounter;
@@ -209,7 +209,7 @@ var CPropertiesManager = null;
     {
       for (var name in properties)
       {
-        this.autoAdd(name, properties[name], true);
+        this.autoAdd(name, properties[name], true, postponeupdate);
       }
     }
   }
@@ -223,7 +223,7 @@ var CPropertiesManager = null;
     },
   
     add:
-    function(name, property, triggers, original)
+    function(name, property, triggers, original, postponeupdate)
     {
       if (this.has(name)) return false;
 
@@ -242,13 +242,13 @@ var CPropertiesManager = null;
       this.pcInc(name);
       if (this.onupdate)
       {
-        this.onupdate(name);
+        this.onupdate(name, postponeupdate);
       }
       return true;
     },
 
     change:
-    function(name, value, donotupdate)
+    function(name, value, donotupdate, postponeupdate)
     {
       if (this.has(name))
       {
@@ -261,7 +261,7 @@ var CPropertiesManager = null;
 
         if (this.onupdate)
         {
-          this.onupdate(name);
+          this.onupdate(name, postponeupdate);
         }
       }
     },
@@ -293,7 +293,7 @@ var CPropertiesManager = null;
     },
 
     remove:
-    function(name)
+    function(name, postponeupdate)
     {
       if (!this.has(name)) return;
 
@@ -317,12 +317,12 @@ var CPropertiesManager = null;
 
       if (this.onupdate)
       {
-        this.onupdate(name);
+        this.onupdate(name, postponeupdate);
       }
     },
 
     reset:
-    function()
+    function(postponeupdate)
     {
       for (var name in this.properties)
       {
@@ -334,7 +334,7 @@ var CPropertiesManager = null;
           delete this.properties[name];
           if (this.onupdate)
           {
-            this.onupdate(name);
+            this.onupdate(name, postponeupdate);
           }
         }
         else
@@ -343,7 +343,7 @@ var CPropertiesManager = null;
           {
             if (this.onupdate)
             {
-              this.onupdate(name);
+              this.onupdate(name, postponeupdate);
             }
           }
         }
@@ -357,7 +357,7 @@ var CPropertiesManager = null;
         this.properties[name] = property.reset();
         if (this.onupdate)
         {
-          this.onupdate(name);
+          this.onupdate(name, postponeupdate);
         }
       }
 
@@ -442,7 +442,7 @@ var CPropertiesManager = null;
       }
     },
 
-    destroy:
+    destroy: //XXX: order update not required
     function()
     {
       for (var name in this.removed)
@@ -520,11 +520,13 @@ var CPropertiesManager = null;
     },
 
     addImage:
-    function(iid, triggers, properties)
+    function(iid, triggers, properties, postponeupdate)
     {
       if (this.hasImage(iid)) return false;
 
-      this.images[iid] = new CImageProperties(triggers, properties, this.propertiesCounter);
+      this.images[iid] = new CImageProperties(triggers, properties,
+                                              this.propertiesCounter,
+                                              postponeupdate);
       return true;
     },
 
@@ -557,44 +559,44 @@ var CPropertiesManager = null;
     },
 
     change:
-    function(iid, name, value, donotupdate)
+    function(iid, name, value, donotupdate, postponeupdate)
     {
       this.apply(function()
                  {
                    if (this.has(name))
                    {
-                     this.change(name, value, donotupdate);
+                     this.change(name, value, donotupdate, postponeupdate);
                    }
                  }, null, iid);
     },
 
     add:
-    function(iid, name, property, triggers, original)
+    function(iid, name, property, triggers, original, postponeupdate)
     {
       if (!this.hasImage(iid)) return false;
-      return this.images[iid].add(name, property, triggers, original);
+      return this.images[iid].add(name, property, triggers, original, postponeupdate);
     },
 
     autoAdd:
-    function(iid, name, property, original, extraData)
+    function(iid, name, property, original, extraData, postponeupdate)
     {
       if (!this.hasImage(iid)) return false;
-      return this.images[iid].autoAdd(name, property, original, extraData);
+      return this.images[iid].autoAdd(name, property, original, extraData, postponeupdate);
     },
 
     remove:
-    function(iid, name)
+    function(iid, name, postponeupdate)
     {
       if (!this.hasImage(iid)) return;
-      this.images[iid].remove(name);
+      this.images[iid].remove(name, postponeupdate);
     },
 
     reset:
-    function(iid)
+    function(iid, postponeupdate)
     {
       this.apply(function()
                  {
-                   this.reset();
+                   this.reset(postponeupdate);
                  },
                  null,
                  iid);
