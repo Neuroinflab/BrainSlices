@@ -790,7 +790,6 @@ var PPropertyTriggers =
     }
     else
     {
-      console.debug(this.data.$out);
       this.data.$out.empty().css('display', 'none');
     }
   },
@@ -992,7 +991,6 @@ function animateImageCartHeader(immediately)
 
     var newHeight = $('#layerList').height();
 
-    console.log(olderHeight, oldHeight, newHeight);
     if (oldHeight > newHeight || olderHeight != newHeight)
     {
       // new items might be visible or height changed

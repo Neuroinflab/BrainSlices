@@ -695,7 +695,7 @@
             $row = row.$row.eq(idx);
             if ($row.position().top > height)
             {
-              console.log('break-of-height', $row.position(), height);
+              //console.log('break-of-height', $row.position(), height);
               break;
             }
 

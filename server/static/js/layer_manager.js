@@ -418,7 +418,6 @@ with ({gui: BrainSlices.gui,
           {
             var changeHandler = function()
             {
-              console.log(stackId, id, this.checked)
               if (this.checked)
               {
                 thisInstance.load(stackId, id, id != null);

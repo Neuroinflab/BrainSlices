@@ -230,7 +230,6 @@ function initVisualise()
     .registerChange(function(val)
     {
       state.display = val; // XXX obsoleted
-      console.log(val)
       if (val == "matrix")
       {
         $("#btn_display_icon")
