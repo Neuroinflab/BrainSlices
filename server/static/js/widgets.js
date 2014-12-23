@@ -802,6 +802,7 @@ var CFilterPanel = null;
   });
 
 
+//XXX: seems not to be used
   /**
    * Class: brainslices.combobox
    *
@@ -883,7 +884,7 @@ var CFilterPanel = null;
         })
         .removeClass('ui-corner-all')
         .addClass('combobox-toggle ui-corner-right')
-        .attr('title', 'Show all possible fields')
+        .attr('title', 'Show all possible property names')
         .tooltip()
         .mousedown(function()
         {
@@ -1047,7 +1048,7 @@ var CFilterPanel = null;
       var $a = $('<div>')
         .appendTo($span)
         .addClass('propertyboxsearch-toggle')
-        .attr('title', 'Show all possible fields')
+        .attr('title', 'Show all possible property names.')
         .tooltip()
         .mousedown(function()
         {
@@ -1191,7 +1192,7 @@ var CFilterPanel = null;
       if (this.propertyName == '')
       {
         this.$input
-          .attr('title', 'An empty property name provided.')
+          .attr('title', 'Property name must be given to create a filter.')
           .tooltip('open');
         this._delay(function()
         {
