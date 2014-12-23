@@ -824,7 +824,7 @@
         var thisInstance = this;
         function preventDefault(ev)
         {
-          console.log('preventing...');
+          //console.log('preventing...');
           ev.originalEvent.preventDefault();
         }
 

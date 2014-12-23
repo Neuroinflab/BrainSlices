@@ -215,7 +215,16 @@ $(function()
   images = new BrainSlices.api.CImageManager(loginConsole);
   stacks = new BrainSlices.api.CSynchronizedStacksDisplay($('#visualisePanel'), 1, 1,
                                           null, null, null, null, null, null, null,
-                                          '/static/gfx', images);
+                                          '/static/gfx', images,
+                                          function(ev, stackId)
+                                          {
+                                            var dataTransfer = ev.originalEvent.dataTransfer;
+                                            var imageId = dataTransfer.getData("IMAGEID");
+                                            if (imageId != null)
+                                            {
+                                              layerManager.load(stackId, imageId);
+                                            }
+                                          });
   initCart();
   initBrowseFinish();
 });

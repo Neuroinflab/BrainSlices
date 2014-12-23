@@ -73,6 +73,7 @@
      *   crosshairY - The x coordinate of the crosshair location of every
      *                stack.
      *   resizeHandler - A handler of resize event of the window object.
+     *   ondrop - function(ev, stackId)
      *
      * Interface-oriented attributes:
      *   zoomUpdateEnabled - An internal flag for zoom change handlers
@@ -93,11 +94,12 @@
      *   $controlPanel - A dummy parameter.
      *   gfx - A value of the gfx attribute. Defaults to '/static/gfx'.
      *   images - A value of the images attribute.
+     *   ondrop -
      \************************************************************************/
     api.CSynchronizedStacksDisplay = function($display, nx, ny, synchronize,
         zoom, focusPointX, focusPointY,
         crosshairX, crosshairY,
-        $controlPanel, gfx, images)
+        $controlPanel, gfx, images, ondrop)
     {
       var thisInstance = this;
 
@@ -106,6 +108,7 @@
       this.stacks = [];
 
       this.images = images;
+      this.ondrop = ondrop;
 
       this.gfx = gfx != null ? gfx : '/static/gfx';
       BS.scope.register(
@@ -365,6 +368,7 @@
             else
             {
               // a new stack is necessary
+              var thisInstance = this;
               var $div = $('<div>')
                 .css(
                 {
@@ -377,15 +381,32 @@
                   'box-sizing': 'border-box'
                 })
                 [x > 0 ? 'addClass' : 'removeClass']('leftTileStack')
-                [y > 0 ? 'addClass' : 'removeClass']('topTileStack');
+                [y > 0 ? 'addClass' : 'removeClass']('topTileStack')
+                .bind('dragover', function(ev)
+                {
+                  ev.originalEvent.preventDefault();
+                });
 
               this.$displayContainer.append($div);
               stack = new api.CLayerStack($div, this.zoom, this.focusPointX,
                   this.focusPointY, this.crosshairX,
                   this.crosshairY, false, this.gfx);
+              (function(stackId)
+              {
+                $div
+                  .bind('drop', function(ev)
+                  {
+                    ev.originalEvent.preventDefault();
+                    if (thisInstance.ondrop)
+                    {
+                      thisInstance.ondrop(ev, stackId);
+                    }
+                    ev.stopPropagation();
+                  });
+              })(this.stacks.length); //XXX: stackId
 
               stack.synchronize(this);
-              stack.syncId(this.stacks.length);
+              stack.syncId(this.stacks.length); //XXX: stackId
               this.stacks.push(stack);
 
               stack.setTransparency(this.transparency);

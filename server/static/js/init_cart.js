@@ -1314,6 +1314,7 @@ function initCart()
                           url += '';
                           dragMIME.push(['text/plain', url]);
                           dragMIME.push(['text/uri-list', url]);
+                          dragMIME.push(['IMAGEID', id]);
 
                           var privileges = img.info.privileges;
                           var privilegeItem = [img.info.iid,
