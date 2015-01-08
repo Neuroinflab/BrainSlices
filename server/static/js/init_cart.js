@@ -579,8 +579,11 @@ var PImagePropertyTriggers =
     }
     else
     {
+      var $propertyName = $('<span>')
+        .addClass('image-details-property-name')
+        .text(name);
       var $outRow = $('<li>')
-        .text(name)
+        .append($propertyName)
         .addClass('image-details')
         .appendTo(this.data.$outList);
 
@@ -588,9 +591,10 @@ var PImagePropertyTriggers =
 
       if (type != 't')
       {
+        $propertyName.append(':');
         data.$out = $('<span>')
           .text(property.value)
-          .appendTo($outRow.append(': '));
+          .appendTo($outRow.append(' '));
       }
     }
 

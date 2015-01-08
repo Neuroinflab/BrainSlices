@@ -22,13 +22,16 @@ function makePropertyList(properties, $ul)
   {
     names.sort();
 
-    var $li, property;
+    var $li, property, $propertyName;
     for (var j = 0; j < names.length; j++)
     {
       name = names[j];
+      $propertyName = $('<span>')
+        .addClass('image-details-property-name')
+        .text(name);
       $li = $('<li>')
         .addClass('image-details')
-        .text(name)
+        .append($propertyName)
         .appendTo($ul);
 
       property = properties[name];
@@ -39,7 +42,8 @@ function makePropertyList(properties, $ul)
         case 'e':
         case 'f':
         case 'i':
-          $li.append(document.createTextNode(': ' + property.value));
+          $propertyName.append(':');
+          $li.append(document.createTextNode(' ' + property.value));
           break;
 
         case 't':

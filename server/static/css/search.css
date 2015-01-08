@@ -823,6 +823,11 @@ li.image-details
   white-space: pre-wrap;
 }
 
+span.image-details-property-name
+{
+  font-weight: bold;
+}
+
 .polaroid-image.image-details
 {
   float: left;
