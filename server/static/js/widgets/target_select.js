@@ -44,10 +44,11 @@ $.widget('brain_slices.target_select',
 
     function callback()
     {
-      var x = parseFloat($x.val());
-      var y = parseFloat($y.val());
-      if (isNaN(x) || isNaN(y)) return;
-      thisInstance.options.callback(x, y);
+      //var x = parseFloat($x.val());
+      //var y = parseFloat($y.val());
+      //if (isNaN(x) || isNaN(y)) return;
+      var focus = $input.offsetinput('value');
+      thisInstance.options.callback(focus.left, focus.top);
     }
 
     function hideHandler(event)
@@ -63,7 +64,17 @@ $.widget('brain_slices.target_select',
       hide();
     }
 
-    var $x = $('<input>')
+    var $input = $('<label>')
+      .offsetinput(
+      {
+        top: 0,
+        left: 0,
+        tooltipX: 'X coordinate',
+        tooltipY: 'Y coordinate',
+        onchange: callback
+      })
+
+/*    var $x = $('<input>')
       .attr(
       {
         type: 'number',
@@ -89,7 +100,7 @@ $.widget('brain_slices.target_select',
       .addClass('selectWrapper target_select')
       .text('x')
       .prepend($x)
-      .append($y);
+      .append($y);*/
 
     var $doNotClose = $.merge($.merge([], $input), $button);
 

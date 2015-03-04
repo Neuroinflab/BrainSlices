@@ -1439,7 +1439,9 @@ var CFilterPanel = null;
       top: null,
       left: null,
       onchange: null,
-      unit: 1000
+      unit: 1000,
+      tooltipX: 'left offset',
+      tooltipY: 'top offset'
     },
 
     _updateTop:
@@ -1471,7 +1473,7 @@ var CFilterPanel = null;
         .attr(
         {
           type: 'number',
-          title: 'left offset'
+          title: this.options.tooltipX
         })
         .tooltip(BrainSlices.gui.tooltip)
         .addClass('offsetinput-widget-left');
@@ -1485,7 +1487,7 @@ var CFilterPanel = null;
         .attr(
         {
           type: 'number',
-          title: 'top offset'
+          title: this.options.tooltipY
         })
         .tooltip(BrainSlices.gui.tooltip)
         .addClass('offsetinput-widget-top');
