@@ -1277,17 +1277,22 @@ function initCart()
       var onAdjustPostponed = null;
       var onUpdatePostponed = null;
       var onDeleteMarkPostponed = null;
+      var rowElements = null;
 
       function onUpdate()
       {
         if (onUpdatePostponed) onUpdatePostponed(this.info);
+        if (rowElements)
+        {
+          rowElements.$basicInfo
+            .text(basicMetadataText(this.info));
+        }
       }
 
       function onAdjust(adjusted)
       {
         if (onAdjustPostponed) onAdjustPostponed(adjusted);
       }
-
 
       this.addTileLayer(id, $rowWrapper, //$.merge($row, $searchRow),
                         $visibility, zIndex, dragMIME,
@@ -1393,11 +1398,12 @@ function initCart()
                             {
                               image.delete(this.checked);
                             });
-                          var rowElements;
+                          //var rowElements;
 
                           function toPostpone()
                           {
-                            var $download = makeBasicDetails(img.info, $drag);
+                            var info = img.info;
+                            var $download = makeBasicDetails(info, $drag);
                             $drag
                               .append($nameView
                                 .addClass('image-details image-name'))
@@ -1406,9 +1412,16 @@ function initCart()
                               .append($propertiesView
                                 .addClass('image-details'));
 
+                            //var $basicInfo = $('<label>')
+                            //  .addClass('image-basic')
+                            //  .appendTo($drag);
+                            var $basicDetails = $('<ul>')
+                              .addClass('basic-details')
+                              .appendTo($drag);
+
                             rowElements =
                             {
-                              $url: $('<label>')
+                              $url: $('<li>')
                                 .addClass('image-url')
                                 .text('image permanent URL: ')
                                 .append($('<a>')
@@ -1418,7 +1431,11 @@ function initCart()
                                     target: '_blank'
                                   })
                                   .text(url))
-                                .appendTo($drag),
+                                .appendTo($basicDetails),
+                              $basicInfo: $('<li>')
+                                .addClass('image-basic')
+                                .text(basicMetadataText(info))
+                                .appendTo($basicDetails),
                               $download: $download,
                               $div: $drag,
                               $name: $nameView,
@@ -1540,7 +1557,7 @@ function initCart()
                                     'title': 'mark image for permanent removal'
                                   })
                                   .addClass('fa fa-trash-o deleteImage'))
-                                .css('display', image.info.editPrivilege > 0 ? '' : 'none')
+                                .css('display', image.info.editPrivilege > 0 ? '' : 'none')// XXX: might be suitable to remove image.
                                 .appendTo($drag)
 
                             };
@@ -1596,6 +1613,22 @@ function initCart()
                                       .prop('checked', del)
                                       .button('refresh');
                                   };
+                                },
+                                {
+                                  offset:
+                                  function(offset)
+                                  {
+                                    image.updateImage(offset.left, offset.top, null, false);
+                                    rowElements.$basicInfo
+                                      .text(basicMetadataText(info));
+                                  },
+                                  pixel:
+                                  function(pixel)
+                                  {
+                                    image.updateImage(null, null, pixel, false);
+                                    rowElements.$basicInfo
+                                      .text(basicMetadataText(info));
+                                  }
                                 });
 
                             //removal

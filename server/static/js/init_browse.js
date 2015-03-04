@@ -55,6 +55,19 @@ function makePropertyList(properties, $ul)
   return $ul;
 }
 
+function basicMetadataText(info)
+{
+  var hDistance = BrainSlices.gui.hDistance;
+  var width = info.imageWidth * info.pixelSize;
+  var height = info.imageHeight * info.pixelSize;
+  return 'image size: ' + hDistance(width) +
+         '\u00a0x\u00a0' + hDistance(height) +
+         ' (' + info.imageWidth + '\u00a0x\u00a0' +  info.imageHeight +
+         '\u00a0px), image center (x,\u00a0y\u00a0coordinates): ' +
+         hDistance(info.imageLeft + 0.5 * width) + ',\u00a0'
+         + hDistance(info.imageTop + 0.5 * height);
+}
+
 function makeBasicDetails(info, $div)
 {
   var $download = $('<a>')
