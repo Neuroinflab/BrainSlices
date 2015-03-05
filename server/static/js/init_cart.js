@@ -331,6 +331,7 @@ var getEnumeratedSuggestionsFunction;
         .addClass('selectWrapper')
         .appendTo($addPanel));*/
 
+    var numericChange = false;
     var inputs =
     {
       i: $('<input>')
@@ -340,21 +341,42 @@ var getEnumeratedSuggestionsFunction;
           step: '1',
           value: '0'
         })
-        .css('display', 'none'),
+        .css('display', 'none')
+        .change(function()
+        {
+          var val = $(this).val();
+
+          inputs.f.val(parseFloat(val));
+          numericChange = true;
+          inputs.s.val(val).change();
+          numericChange = false;
+        }),
       f: $('<input>')
         .attr(
         {
           type: 'number',
           value: '0'
         })
-        .css('display', 'none'),
+        .css('display', 'none')
+        .change(function()
+        {
+          var val = $(this).val();
+          inputs.i.val(parseInt(val));
+          numericChange = true;
+          inputs.s.val(val).change();
+          numericChange = false;
+        }),
       s: $('<input>')
         .attr(
         {
           type: 'text',
           placeholder: 'short text'
         })
-        .css('display', 'none'),
+        .css('display', 'none')
+        .change(function()
+        {
+          inputs.x.val($(this).val()).change();
+        }),
       e: $('<input>')
         .attr(
         {
@@ -370,23 +392,36 @@ var getEnumeratedSuggestionsFunction;
             return getEnumerated(name);
           }),
           minLength: 0
+        })
+        .change(function()
+        {
+          inputs.s.val($(this).val()).change();
+        })
+        .keypress(function(e) // XXX: might not be working
+        {
+          if (e.keyCode == 13)
+          {
+            //console.log(inputs);
+            inputs.e.blur();
+          }
+        })
+        .on('autocompleteselect', function(event, ui)
+        {
+          //console.log(inputs);
+          inputs.e.val(ui.item.value).blur().change(); 
         }),
-        //.keypress(function(e) // might be not important - no onchange event XXX
-        //{
-        //  if (e.keyCode == 13)
-        //  {
-        //    console.log(inputs);
-        //    inputs.e.blur();
-        //  }
-        //})
-        //.on('autocompleteselect', function(event, ui)
-        //{
-        //  console.log(inputs);
-        //  inputs.e.val(ui.item.value).blur(); // might be not as important - no onchange event??? XXX
-        //}),
       x: $('<textarea>')
         .attr('placeholder', 'long text')
         .css('display', 'none')
+        .change(function()
+        {
+          var val = $(this).val();
+          var floatVal = parseFloat(val);
+          if (!isNaN(floatVal) && !numericChange)
+          {
+            inputs.f.val(floatVal).change();
+          }
+        })
     };
 
     for (var t in inputs)
@@ -474,6 +509,29 @@ var getEnumeratedSuggestionsFunction;
                   alertWindow.error('Property value must be given.');
                   return;
                 }
+              }
+
+              switch (type)
+              {
+                case 'i':
+                case 'f':
+                  if (type == 'f')
+                  {
+                    inputs.i.val(parseInt(property.value));
+                  }
+                  else
+                  {
+                    inputs.f.val(parseFloat(property.value));
+                  }
+
+                case 'e':
+                  inputs.s.val(property.value);
+
+                case 's':
+                  inputs.x.val(property.value);
+
+                default:
+                  break;
               }
 
               if ('tif'.indexOf(type) < 0 && !isNaN(parseFloat(property.value))
