@@ -112,10 +112,10 @@ var getEnumeratedSuggestionsFunction;
   var enumeratedProperties = {};
   
   var TYPES = [['t', 'Tag'],
-               ['i', 'Integer'],
-               ['f', 'Float'],
-               ['s', 'String'],
-               ['x', 'Text'],
+               ['i', 'Integer (number)'],
+               ['f', 'Real number'],
+               ['s', 'Short text'],
+               ['x', 'Multiline text'],
                ['e', 'Enumerative']];
 
   getPropertySuggestions =
@@ -475,6 +475,16 @@ var getEnumeratedSuggestionsFunction;
                   return;
                 }
               }
+
+              if ('tif'.indexOf(type) < 0 && !isNaN(parseFloat(property.value))
+                  && confirm('The entered value seems to be a number, but the property type chosen is not numeric.\nDo you want to change the property type?'))
+              {
+                inputs.i.val(parseInt(property.value));
+                inputs.f.val(parseFloat(property.value));
+                console.log('ok');
+                return;
+              }
+              console.log('cancel')
 
               if (onsubmit(name, property))
               {
