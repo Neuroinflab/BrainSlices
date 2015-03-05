@@ -377,6 +377,11 @@ select:focus
   border-top: 1px solid #7F7F7F;
 }
 
+a.no_underline
+{
+  text-decoration: none;
+}
+
 /*
 ::-webkit-scrollbar
 {
