@@ -441,6 +441,10 @@ function initUpload()
         $('#editMode').css('display', 'none'); // XXX???
         $('#editModeImageAnnotations').css('display', '');
         $('#batchFilterDiv').css('display', 'none');
+        $('#privilegeFilter').val('v');
+        $('#privilegeFilterAccept')
+          .prop('disabled', true)
+          .css('display', 'none');
         return;
       }
 

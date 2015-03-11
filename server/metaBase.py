@@ -412,8 +412,8 @@ class MetaBase(dbBase):
 
   @provideCursor
   def searchImagesPropertiesInfo(self, selectors, uid=None, privilege='v', bid=None, limit=None, cursor=None):
-    cond = "img.status >%s %d AND " % ('=' if privilege == 'e' else '',
-                                       IMAGE_STATUS_COMPLETED)
+    cond = "img.status %s %d AND " % ('=' if privilege == 'c' else '>',
+                                      IMAGE_STATUS_COMPLETED)
 
     if uid is None:
       if privilege == 'v': # view
@@ -447,6 +447,8 @@ class MetaBase(dbBase):
                  (img.public_image_outline AND
                   img.public_image_annotate))
                 """
+      else: #elif privilege == 'c': # accept
+        return []
 
       tables = 'images AS img'
       query = """
@@ -548,6 +550,8 @@ class MetaBase(dbBase):
                    img.image_edit) AND
                  img.uid = %d)
                 """ % (uid, uid)
+      else: #elif privilege == 'c': # aCcept Completed
+        cond += " img.owner = %d " % uid
 
       tables = """
                (images LEFT JOIN image_privileges_cache USING (iid)) AS img

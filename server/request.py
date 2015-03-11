@@ -854,7 +854,7 @@ A class for image searching.
 """,
 required = ['query', 'privilege'],
 atoms = {'query': (_ValidSearchImages, json.loads),
-         'privilege': (lambda x: x in frozenset('vaeom'), None),
+         'privilege': (lambda x: x in frozenset('vaeomc'), None),
          'bid': (lambda x: x >= 0, int),
          'limit': (lambda x: x >= 0, int),},
 optional = {'bid': None,
