@@ -251,7 +251,7 @@ var CPropertiesSearch = null;
       },
 
       search:
-      function(onsuccess, privilege, bid)
+      function(onsuccess, privilege, bid, limit)
       {
         var query = this.get();
         if (!query) return false;
@@ -264,6 +264,11 @@ var CPropertiesSearch = null;
         if (bid != null && !isNaN(bid))
         {
           data.bid = bid;
+        }
+
+        if (limit && !isNaN(limit))
+        {
+          data.limit = limit;
         }
 
         this.ajaxProvider.ajax('/meta/searchImages',

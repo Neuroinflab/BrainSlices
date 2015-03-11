@@ -448,7 +448,7 @@ class MetaBase(dbBase):
                   img.public_image_annotate))
                 """
 
-      tables = '(images AS img LEFT JOIN properties AS prop USING (iid))'
+      tables = 'images AS img'
       query = """
               SELECT prop.property_name, prop.property_type,
                      prop.property_number, prop.property_string,
@@ -474,8 +474,20 @@ class MetaBase(dbBase):
 
                      img.status
 
-              FROM %%s
-              WHERE %%s
+              FROM
+              (
+                SELECT img.iid,
+                       img.public_image_view, img.public_image_annotate,
+                       img.public_image_edit, img.public_image_outline,
+                       img.image_top, img.image_left,
+                       img.image_width, img.image_height,
+                       img.tile_width, img.tile_height,
+                       img.pixel_size, img.image_crc32, img.image_md5,
+                       img.status
+                FROM %%s
+                WHERE %%s
+                LIMIT %%s
+              ) AS img LEFT JOIN properties AS prop USING (iid)
               ORDER BY img.iid;
               """ % (PUBLIC_PRIVILEGE, NO_PRIVILEGE,
                      PUBLIC_PRIVILEGE, NO_PRIVILEGE,
@@ -538,8 +550,7 @@ class MetaBase(dbBase):
                 """ % (uid, uid)
 
       tables = """
-               ((images LEFT JOIN image_privileges_cache USING (iid)) AS img
-               LEFT JOIN properties AS prop USING (iid))
+               (images LEFT JOIN image_privileges_cache USING (iid)) AS img
                """
       query = """
               SELECT prop.property_name, prop.property_type,
@@ -548,7 +559,7 @@ class MetaBase(dbBase):
 
                      img.iid,
                      CASE WHEN img.owner = %d THEN %d
-                          WHEN COUNT(img.gid) > 0 THEN %d
+                          WHEN img.gid > 0 THEN %d
                           WHEN img.public_image_view THEN %d
                           ELSE %d END,
                      CASE WHEN img.owner = %d THEN %d
@@ -573,23 +584,31 @@ class MetaBase(dbBase):
                      img.pixel_size, img.image_crc32, img.image_md5,
                      img.status
 
-              FROM %%s
-              WHERE %%s
-              GROUP BY prop.property_name, prop.property_type,
-                       prop.property_number, prop.property_string,
-                       prop.property_visible, prop.property_editable,
-
-                       img.iid,
-                       img.image_width, img.image_height,
-
-                       img.public_image_view, img.public_image_edit,
-                       img.public_image_annotate, img.public_image_outline,
-
+              FROM 
+              (
+                SELECT img.iid,
+                       img.owner, COUNT(img.gid) AS gid,
+                       img.public_image_view, img.public_image_annotate,
+                       img.public_image_edit, img.public_image_outline,
                        img.image_top, img.image_left,
+                       img.image_width, img.image_height,
                        img.tile_width, img.tile_height,
                        img.pixel_size, img.image_crc32, img.image_md5,
                        img.status
-
+                FROM %%s
+                WHERE %%s
+                GROUP BY img.iid,
+                         img.owner,
+                         img.public_image_view, img.public_image_annotate,
+                         img.public_image_edit, img.public_image_outline,
+                         img.image_top, img.image_left,
+                         img.image_width, img.image_height,
+                         img.image_top, img.image_left,
+                         img.tile_width, img.tile_height,
+                         img.pixel_size, img.image_crc32, img.image_md5,
+                         img.status
+                LIMIT %%s
+              ) AS img LEFT JOIN properties AS prop USING (iid)
               ORDER BY img.iid;
               """ % (uid, OWNER_PRIVILEGE, GROUP_PRIVILEGE, PUBLIC_PRIVILEGE, NO_PRIVILEGE,
                      uid, OWNER_PRIVILEGE, GROUP_PRIVILEGE, PUBLIC_PRIVILEGE, NO_PRIVILEGE,
@@ -600,7 +619,8 @@ class MetaBase(dbBase):
                                    (0, [tables], [cond], []))
 
 
-    query = query % (' JOIN '.join(tables), ' AND '.join(cond))
+    query = query % (' JOIN '.join(tables), ' AND '.join(cond),
+                     'ALL' if limit is None else '%d' % limit)
 
     print query
     cursor.execute(query, data)

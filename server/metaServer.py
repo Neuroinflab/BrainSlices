@@ -32,6 +32,7 @@ from server import generateJson, Generator, Server, serveContent, useTemplate
 
 from tileBase import NO_PRIVILEGE
 from metaBase import MetaBase
+from bsConfig import BS_SERVICE_QUERY_LIMIT
 
 
 # privileges: o - owner, g - group, a - all # e - 'every logged' ;-)
@@ -124,6 +125,11 @@ class MetaServer(Generator, Server):
   def searchImages(self, request):
     uid = request.session.get('userID')
     properties, nonames = request.query
+    limit = request.limit
+    if limit is None or BS_SERVICE_QUERY_LIMIT is not None and \
+      BS_SERVICE_QUERY_LIMIT < limit:
+      limit = BS_SERVICE_QUERY_LIMIT
+
     selectors = [self.selectorClass[prop[1]](prop[0], *prop[2:])\
                  if prop[1] in 'tex' else\
                  self.selectorClass[prop[1]](prop[0], **prop[2])\
@@ -134,8 +140,10 @@ class MetaServer(Generator, Server):
                  for prop in nonames]
     result = self.metaBase.searchImagesPropertiesInfo(selectors, uid=uid,
                                                       privilege=request.privilege,
-                                                      bid=request.bid)
-    return generateJson(data = result,
+                                                      bid=request.bid,
+                                                      limit=limit)
+    return generateJson(data = {'images': result,
+                                'limited': limit is not None and len(result) == limit},
                         status = True,
                         message = None,
                         logged = uid != None)

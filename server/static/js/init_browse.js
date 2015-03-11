@@ -134,7 +134,6 @@ function initBrowse()
 {
   var scope = BrainSlices.scope;
 
-
   scope
     .registerChange(function(value)
     {
@@ -192,6 +191,25 @@ var loadButtons = {};
 
 function initBrowseFinish()
 {
+  function browseSearch()
+  {
+    waitWindow.message('Looking for example images. Please wait. <span class="fa fa-refresh fa-spin"></span>');
+    if (!searchEngine.search(searchCallback,
+                             $('#privilegeFilter').val(),
+                             parseInt($('#batchFilter').val()),
+                             50))
+    {
+      waitWindow.close();
+      alertWindow.error('Chosen filters can not match any images.');
+    }
+
+    $(this).unbind('click', browseSearch);
+  }
+
+  $('#browsePanelButton')
+    .bind('click', browseSearch);
+
+
   searchEngine = new CPropertiesSearch(loginConsole,
   {
     data:
@@ -410,6 +428,7 @@ function initBrowseFinish()
 
   var searchResults = [];
   var $searchPage = $('#searchResults');
+  var searchResultsLimited = false;
   searchPaginator = $('#searchResultsPaginator')
     .paging(0,
     {
@@ -531,12 +550,14 @@ function initBrowseFinish()
             return '';
 
           case 'fill':
-            var result = (this.number ? this.number : 'No') + ' specimen';
+            var result = (this.number ?
+                          this.number + (searchResultsLimited ? '+' : ''):
+                          'No') + ' specimen';
             if (this.number != 1)
             {
               result += 's';
             }
-            result += ' found.'
+            result += ' found.';
 
             if (this.active && this.pages > 1)
             {
@@ -556,8 +577,9 @@ function initBrowseFinish()
 
   function searchCallback(result)
   {
-    searchResults = result;
-    searchPaginator.setNumber(result.length);
+    searchResults = result.images;
+    searchPaginator.setNumber(result.images.length);
+    searchResultsLimited = result.limited;
     searchPaginator.setPage();
   }
 

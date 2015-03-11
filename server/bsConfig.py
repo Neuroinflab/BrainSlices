@@ -56,6 +56,9 @@ if config.has_option('Email', 'ehlo'):
 BS_SERVICE_SERVER = config.get('Service', 'server')
 BS_SERVICE_NAME = config.get('Service', 'name')
 BS_SERVICE_SIGNATURE = config.get('Service', 'signature')
+BS_SERVICE_QUERY_LIMIT = None
+if config.has_option('Service', 'queryLimit'):
+  BS_SERVICE_QUERY_LIMIT = config.getint('Service', 'queryLimit')
 
 BS_TILER_THREADS = config.getint('Tiler', 'threads')
 BS_TILER_MEMORY = config.getint('Tiler', 'memory')
