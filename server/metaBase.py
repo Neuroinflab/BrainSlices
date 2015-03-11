@@ -558,22 +558,8 @@ class MetaBase(dbBase):
                      prop.property_visible, prop.property_editable,
 
                      img.iid,
-                     CASE WHEN img.owner = %d THEN %d
-                          WHEN img.gid > 0 THEN %d
-                          WHEN img.public_image_view THEN %d
-                          ELSE %d END,
-                     CASE WHEN img.owner = %d THEN %d
-                          WHEN COALESCE(BOOL_OR(img.image_annotate), FALSE) THEN %d
-                          WHEN img.public_image_annotate THEN %d
-                          ELSE %d END,
-                     CASE WHEN img.owner = %d THEN %d
-                          WHEN COALESCE(BOOL_OR(img.image_edit), FALSE) THEN %d
-                          WHEN img.public_image_edit THEN %d
-                          ELSE %d END,
-                     CASE WHEN img.owner = %d THEN %d
-                          WHEN COALESCE(BOOL_OR(img.image_outline), FALSE) THEN %d
-                          WHEN img.public_image_outline THEN %d
-                          ELSE %d END,
+                     img.image_view, img.image_annotate,
+                     img.image_edit, img.image_outline,
 
                      img.public_image_view, img.public_image_edit,
                      img.public_image_annotate, img.public_image_outline,
@@ -587,7 +573,22 @@ class MetaBase(dbBase):
               FROM 
               (
                 SELECT img.iid,
-                       img.owner, COUNT(img.gid) AS gid,
+                       CASE WHEN img.owner = %d THEN %d
+                            WHEN COUNT(img.gid) > 0 THEN %d
+                            WHEN img.public_image_view THEN %d
+                            ELSE %d END AS image_view,
+                       CASE WHEN img.owner = %d THEN %d
+                            WHEN COALESCE(BOOL_OR(img.image_annotate), FALSE) THEN %d
+                            WHEN img.public_image_annotate THEN %d
+                            ELSE %d END AS image_annotate,
+                       CASE WHEN img.owner = %d THEN %d
+                            WHEN COALESCE(BOOL_OR(img.image_edit), FALSE) THEN %d
+                            WHEN img.public_image_edit THEN %d
+                            ELSE %d END AS image_edit,
+                       CASE WHEN img.owner = %d THEN %d
+                            WHEN COALESCE(BOOL_OR(img.image_outline), FALSE) THEN %d
+                            WHEN img.public_image_outline THEN %d
+                            ELSE %d END AS image_outline,
                        img.public_image_view, img.public_image_annotate,
                        img.public_image_edit, img.public_image_outline,
                        img.image_top, img.image_left,
