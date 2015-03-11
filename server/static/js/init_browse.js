@@ -193,15 +193,7 @@ function initBrowseFinish()
 {
   function browseSearch()
   {
-    waitWindow.message('Looking for example images. Please wait. <span class="fa fa-refresh fa-spin"></span>');
-    if (!searchEngine.search(searchCallback,
-                             $('#privilegeFilter').val(),
-                             parseInt($('#batchFilter').val()),
-                             50))
-    {
-      waitWindow.close();
-      alertWindow.error('Chosen filters can not match any images.');
-    }
+    $('#searchPropertySearch').click();
 
     $(this).unbind('click', browseSearch);
   }
@@ -627,7 +619,8 @@ function initBrowseFinish()
 
       if (!searchEngine.search(searchCallback,
                                $('#privilegeFilter').val(),
-                               parseInt($('#batchFilter').val())))
+                               parseInt($('#batchFilter').val()),
+                               parseInt($('#limitFilter').val())))
       {
         waitWindow.close();
         alertWindow.error('Chosen filters can not match any images.');

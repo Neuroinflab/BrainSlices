@@ -445,12 +445,25 @@ function initUpload()
         $('#privilegeFilterAccept')
           .prop('disabled', true)
           .css('display', 'none');
+
+        $('#limitFilter').val(20);
+        $('#limitFilter')
+          .children('.loggedOnly')
+            .prop('disabled', true)
+            .css('display', 'none');
         return;
       }
 
       $('#editModeImageAnnotations').css('display', 'none');
       $('#editMode').css('display', ''); // XXX???
       $('#batchFilterDiv').css('display', '');
+      $('#privilegeFilterAccept')
+        .prop('disabled', false)
+        .css('display', '');
+      $('#limitFilter')
+        .children('.loggedOnly')
+          .prop('disabled', false)
+          .css('display', '');
 
       loginConsole.ajax(
         '/upload/batchList',

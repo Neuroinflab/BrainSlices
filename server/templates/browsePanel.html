@@ -7,6 +7,31 @@
       <span class="fa fa-image"></span>
     -->
     <div class="brainslices-privilege-filter selectWrapper">
+     <select class="brainslices-privilege-filter selectWrapper" id="limitFilter">
+      <option value="20" selected="selected">
+       Limit the search to 20
+      </option>
+      <option value="50">
+       Limit the search to 50
+      </option>
+      <option value="100">
+       Limit the search to 100
+      </option>
+      <option value="200">
+       Limit the search to 200
+      </option>
+      <option value="500" class="loggedOnly">
+       Limit the search to 500
+      </option>
+      <option value="1000" class="loggedOnly">
+       Limit the search to 1000
+      </option>
+      <option value="" class="loggedOnly">
+       Do not limit the search
+      </option>
+     </select>
+    </div>
+    <div class="brainslices-privilege-filter selectWrapper">
      <select class="brainslices-privilege-filter selectWrapper" id="privilegeFilter">
       <option value="v" selected="selected">
        Images I can view
