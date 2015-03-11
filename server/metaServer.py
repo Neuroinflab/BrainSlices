@@ -32,7 +32,7 @@ from server import generateJson, Generator, Server, serveContent, useTemplate
 
 from tileBase import NO_PRIVILEGE
 from metaBase import MetaBase
-from bsConfig import BS_SERVICE_QUERY_LIMIT
+from bsConfig import BS_SERVICE_QUERY_LIMIT, BS_USER_DEFAULT_QUERY_LIMIT
 
 
 # privileges: o - owner, g - group, a - all # e - 'every logged' ;-)
@@ -126,9 +126,10 @@ class MetaServer(Generator, Server):
     uid = request.session.get('userID')
     properties, nonames = request.query
     limit = request.limit
-    if limit is None or BS_SERVICE_QUERY_LIMIT is not None and \
-      BS_SERVICE_QUERY_LIMIT < limit:
-      limit = BS_SERVICE_QUERY_LIMIT
+    serverLimit = BS_SERVICE_QUERY_LIMIT if uid is None else BS_USER_DEFAULT_QUERY_LIMIT
+    if limit is None or serverLimit is not None and \
+      serverLimit < limit:
+      limit = serverLimit
 
     selectors = [self.selectorClass[prop[1]](prop[0], *prop[2:])\
                  if prop[1] in 'tex' else\

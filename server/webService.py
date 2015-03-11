@@ -39,6 +39,55 @@ from userServer import UserServer
 from metaServer import MetaServer
 from indexerServer import IndexerServer
 
+#TODO: clean me!!!
+from bsConfig import BS_USER_DEFAULT_QUERY_LIMIT, BS_SERVICE_QUERY_LIMIT
+
+if BS_USER_DEFAULT_QUERY_LIMIT is None:
+  serviceQueryLimitValues = set([20, 50, 100, 200, 500, 1000, 2000,])
+
+else:
+  serviceQueryLimitValues = set([BS_USER_DEFAULT_QUERY_LIMIT])
+
+  magnitude = 10
+  while True:
+    if 2 * magnitude >= BS_USER_DEFAULT_QUERY_LIMIT:
+      break
+
+    serviceQueryLimitValues.add(2 * magnitude)
+
+    if 5 * magnitude >= BS_USER_DEFAULT_QUERY_LIMIT:
+      break
+
+    serviceQueryLimitValues.add(5 * magnitude)
+
+    magnitude *= 10
+    if magnitude >= BS_USER_DEFAULT_QUERY_LIMIT:
+      break;
+
+    serviceQueryLimitValues.add(magnitude)
+
+if BS_SERVICE_QUERY_LIMIT is not None:
+  serviceQueryLimitValues.add(BS_SERVICE_QUERY_LIMIT)
+
+serviceQueryLimitValues = sorted(serviceQueryLimitValues)
+
+serviceQueryLimitOptions = ['<option value="%d" selected="selected">Limit the search to %d</option>'\
+                            % (serviceQueryLimitValues[0], serviceQueryLimitValues[0])]
+if BS_SERVICE_QUERY_LIMIT is not None:
+  serviceQueryLimitOptions.extend('<option value="%d"%s>Limit the search to %d</option>' %\
+                                  (x, ' class="loggedOnly"' if x > BS_SERVICE_QUERY_LIMIT else '', x)\
+                                  for x in serviceQueryLimitValues[1:])
+else:
+  serviceQueryLimitOptions.extend('<option value="%d">Limit the search to %d</option>' %\
+                                  (x, x) for x in serviceQueryLimitValues[1:])
+
+if BS_USER_DEFAULT_QUERY_LIMIT is None:
+  serviceQueryLimitOptions.append('<option value="">Do not limit the search</option>')
+
+serviceQueryLimitOptions = '\n'.join(serviceQueryLimitOptions)
+
+
+
 class WebGenerator(Generator):
   def __init__(self, templatesPath):
     Generator.__init__(self, templatesPath)
@@ -65,7 +114,7 @@ class WebGenerator(Generator):
 
   @useTemplate('index')
   def index(self):
-    return [], []
+    return [('<!-- %serviceQueryLimitOptions% -->', serviceQueryLimitOptions)], []
 
 
 class WebService(Server):

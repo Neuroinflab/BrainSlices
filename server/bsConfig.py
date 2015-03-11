@@ -58,7 +58,7 @@ BS_SERVICE_NAME = config.get('Service', 'name')
 BS_SERVICE_SIGNATURE = config.get('Service', 'signature')
 BS_SERVICE_QUERY_LIMIT = None
 if config.has_option('Service', 'queryLimit'):
-  BS_SERVICE_QUERY_LIMIT = config.getint('Service', 'queryLimit')
+  BS_SERVICE_QUERY_LIMIT = max(config.getint('Service', 'queryLimit'), 20)
 
 BS_TILER_THREADS = config.getint('Tiler', 'threads')
 BS_TILER_MEMORY = config.getint('Tiler', 'memory')
@@ -68,9 +68,15 @@ BS_STREAM_TIMEOUT  = config.getint('Stream', 'timeout')
 
 BS_USER_DEFAULT_PIXEL_LIMIT = None
 BS_USER_DEFAULT_DISK_LIMIT = None
+BS_USER_DEFAULT_QUERY_LIMIT = None
 if config.has_section('User'):
   if config.has_option('User', 'defaultPixelLimit'):
     BS_USER_DEFAULT_PIXEL_LIMIT = config.getint('User', 'defaultPixelLimit')
 
   if config.has_option('User', 'defaultDiskLimit'):
     BS_USER_DEFAULT_DISK_LIMIT = config.getint('User', 'defaultDiskLimit')
+
+  if config.has_option('User', 'queryLimit'):
+    BS_USER_DEFAULT_QUERY_LIMIT = max(config.getint('User', 'queryLimit'), 20)
+    if BS_SERVICE_QUERY_LIMIT is None or BS_SERVICE_QUERY_LIMIT > BS_USER_DEFAULT_QUERY_LIMIT:
+      BS_SERVICE_QUERY_LIMIT = BS_USER_DEFAULT_QUERY_LIMIT
