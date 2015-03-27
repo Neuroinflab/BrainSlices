@@ -672,7 +672,10 @@ class MetaBase(dbBase):
 
               else:
                 last['ERROR'] = {'type': 'x', 'view': 'a', 'edit': 'a',
-                                 'value': 'unknown error' if invalid is None else invalid}
+                                 'value': 'unknown error' if invalid is None else\
+                                 ('not supported image format or corrupted image'\
+                                   if invalid.startswith('identify') or invalid.startswith('stream')\
+                                   else 'unknown')}
 
           res.append(info)
           if limit != None and len(res) >= limit:
@@ -709,7 +712,10 @@ class MetaBase(dbBase):
 
           else:
             last['ERROR'] = {'type': 'x', 'view': 'a', 'edit': 'a',
-                             'value': 'unknown error' if invalid is None else invalid}
+                             'value': 'unknown error' if invalid is None else\
+                             ('not supported image format or corrupted image'\
+                              if invalid.startswith('identify') or invalid.startswith('stream')\
+                              else 'unknown')}
 
       res.append(info)
 
