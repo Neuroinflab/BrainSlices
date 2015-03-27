@@ -30,7 +30,8 @@ from database import provideCursor, provideConnection, manageConnection,\
                      UNIQUE_VIOLATION
 
 from tileBase import IMAGE_STATUS_COMPLETED, NO_PRIVILEGE, PUBLIC_PRIVILEGE, \
-                     GROUP_PRIVILEGE, OWNER_PRIVILEGE
+                     GROUP_PRIVILEGE, OWNER_PRIVILEGE, IMAGE_STATUS_REMOVED,\
+                     IMAGE_STATUS_UPLOADING, IMAGE_STATUS_RECEIVED
 
 def unwrapProperties(type_, number, string, visible, editable):
   prop = {'type': type_,
@@ -412,8 +413,8 @@ class MetaBase(dbBase):
 
   @provideCursor
   def searchImagesPropertiesInfo(self, selectors, uid=None, privilege='v', bid=None, limit=None, cursor=None):
-    cond = "img.status %s %d AND " % ('=' if privilege == 'c' else '>',
-                                      IMAGE_STATUS_COMPLETED)
+    cond = "img.status > %d AND " % IMAGE_STATUS_COMPLETED if privilege == 'c' else\
+           "img.status <= %d AND img.status != %d AND " % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_REMOVED)
 
     if uid is None:
       if privilege == 'v': # view
@@ -469,6 +470,8 @@ class MetaBase(dbBase):
                      img.public_image_view, img.public_image_edit,
                      img.public_image_annotate, img.public_image_outline,
 
+                     img.invalid,
+
                      img.image_top, img.image_left,
                      img.image_width, img.image_height,
                      img.tile_width, img.tile_height,
@@ -481,6 +484,7 @@ class MetaBase(dbBase):
                 SELECT img.iid,
                        img.public_image_view, img.public_image_annotate,
                        img.public_image_edit, img.public_image_outline,
+                       img.invalid,
                        img.image_top, img.image_left,
                        img.image_width, img.image_height,
                        img.tile_width, img.tile_height,
@@ -568,6 +572,8 @@ class MetaBase(dbBase):
                      img.public_image_view, img.public_image_edit,
                      img.public_image_annotate, img.public_image_outline,
 
+                     img.invalid,
+
                      img.image_top, img.image_left,
                      img.image_width, img.image_height,
                      img.tile_width, img.tile_height,
@@ -595,6 +601,7 @@ class MetaBase(dbBase):
                             ELSE %d END AS image_outline,
                        img.public_image_view, img.public_image_annotate,
                        img.public_image_edit, img.public_image_outline,
+                       img.invalid,
                        img.image_top, img.image_left,
                        img.image_width, img.image_height,
                        img.tile_width, img.tile_height,
@@ -651,6 +658,21 @@ class MetaBase(dbBase):
         name, t, n, s, v, e, iid = row[:7] #, w, h = row[:9]
 
         if iid != lastIID:
+          if privilege == 'c':
+            status = info['status']
+            if status < IMAGE_STATUS_COMPLETED:
+              if status >= IMAGE_STATUS_UPLOADING:
+                if status >= IMAGE_STATUS_RECEIVED:
+                  last['PROCESSING...'] = {'type': 't', 'view': 'a', 'edit': 'a'}
+
+                else:
+                  last['RECEIVING...'] = {'type': 't', 'view': 'a', 'edit': 'a'}
+
+              else:
+                invalid = row[15]
+                last['ERROR'] = {'type': 'x', 'view': 'a', 'edit': 'a',
+                                 'value': 'unknown error' if invalid is None else invalid}
+
           res.append(info)
           if limit != None and len(res) >= limit:
             return res
@@ -665,13 +687,28 @@ class MetaBase(dbBase):
                            'imageTop', 'imageLeft', 'imageWidth',
                            'imageHeight', 'tileWidth', 'tileHeight',
                            'pixelSize', 'crc32', 'md5', 'status'],
-                          info + row[15:]))
+                          info + row[16:]))
           info['privileges'] = dict(zip(['publicView', 'publicEdit',
                                          'publicAnnotate', 'publicOutline'],
                                         row[11:15]))
 
         if name is not None:
           last[name] = unwrapProperties(t, n, s, v, e)
+
+      if privilege == 'c':
+        status = info['status']
+        if status < IMAGE_STATUS_COMPLETED:
+          if status >= IMAGE_STATUS_UPLOADING:
+            if status >= IMAGE_STATUS_RECEIVED:
+              last['PROCESSING...'] = {'type': 't', 'view': 'a', 'edit': 'a'}
+
+            else:
+              last['RECEIVING...'] = {'type': 't', 'view': 'a', 'edit': 'a'}
+
+          else:
+            invalid = row[15]
+            last['ERROR'] = {'type': 'x', 'view': 'a', 'edit': 'a',
+                             'value': 'unknown error' if invalid is None else invalid}
 
       res.append(info)
 
