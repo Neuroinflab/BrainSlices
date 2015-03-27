@@ -649,7 +649,7 @@ class MetaBase(dbBase):
                        'imageTop', 'imageLeft', 'imageWidth',
                        'imageHeight', 'tileWidth', 'tileHeight',
                        'pixelSize', 'crc32', 'md5', 'status'],
-                      info + row[15:]))
+                      info + row[16:]))
       info['privileges'] = dict(zip(['publicView', 'publicEdit',
                                      'publicAnnotate', 'publicOutline'],
                                     row[11:15]))
