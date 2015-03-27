@@ -75,6 +75,7 @@ function basicMetadataText(info)
 
   makeBasicDetails = function(info, $div)
   {
+    console.log(info)
     var $download =
       info.status > TILED ?
       $('<a>')
