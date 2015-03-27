@@ -95,7 +95,19 @@ var BrainSlices = {
       return name in triggers ? triggers[name] : defaults;
     }
   },
-  api: {},
+  api:
+  {
+    IMG_STATUS: {UPLOADING: 0,
+                 RECEIVING: 1,
+                 RECEIVED: 2,
+                 PROCESSING: 3,
+                 IDENTIFIED: 4,
+                 TILED: 5,
+                 COMPLETED: 6,
+                 ACCEPTED: 7,
+                 REMOVED: -1,
+                 ERROR: -2}
+  },
   gui:
   {
     tooltip:

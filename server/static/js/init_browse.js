@@ -71,11 +71,10 @@ function basicMetadataText(info)
 
 (function()
 {
-  var TILED = BrainSlices.gui.STATUS_MAP.TILED;
+  var TILED = BrainSlices.api.IMG_STATUS.TILED;
 
   makeBasicDetails = function(info, $div)
   {
-    console.log(info)
     var $download =
       info.status > TILED ?
       $('<a>')
@@ -221,7 +220,7 @@ var loadButtons = {};
 
 (function()
 {
-  var TILED = BrainSlices.gui.STATUS_MAP.TILED;
+  var TILED = BrainSlices.api.IMG_STATUS.TILED;
 
   initBrowseFinish = function()
   {
