@@ -613,6 +613,7 @@ class MetaBase(dbBase):
                          img.owner,
                          img.public_image_view, img.public_image_annotate,
                          img.public_image_edit, img.public_image_outline,
+                         img.invalid,
                          img.image_top, img.image_left,
                          img.image_width, img.image_height,
                          img.image_top, img.image_left,
