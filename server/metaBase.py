@@ -413,7 +413,7 @@ class MetaBase(dbBase):
 
   @provideCursor
   def searchImagesPropertiesInfo(self, selectors, uid=None, privilege='v', bid=None, limit=None, cursor=None):
-    cond = "img.status > %d AND " % IMAGE_STATUS_COMPLETED if privilege == 'c' else\
+    cond = "img.status > %d AND " % IMAGE_STATUS_COMPLETED if privilege != 'c' else\
            "img.status <= %d AND img.status != %d AND " % (IMAGE_STATUS_COMPLETED, IMAGE_STATUS_REMOVED)
 
     if uid is None:
