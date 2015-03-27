@@ -654,6 +654,7 @@ class MetaBase(dbBase):
       info['privileges'] = dict(zip(['publicView', 'publicEdit',
                                      'publicAnnotate', 'publicOutline'],
                                     row[11:15]))
+      invalid = row[15]
 
       for row in cursor:
         name, t, n, s, v, e, iid = row[:7] #, w, h = row[:9]
@@ -670,7 +671,6 @@ class MetaBase(dbBase):
                   last['RECEIVING...'] = {'type': 't', 'view': 'a', 'edit': 'a'}
 
               else:
-                invalid = row[15]
                 last['ERROR'] = {'type': 'x', 'view': 'a', 'edit': 'a',
                                  'value': 'unknown error' if invalid is None else invalid}
 
@@ -692,6 +692,7 @@ class MetaBase(dbBase):
           info['privileges'] = dict(zip(['publicView', 'publicEdit',
                                          'publicAnnotate', 'publicOutline'],
                                         row[11:15]))
+          invalid = row[15]
 
         if name is not None:
           last[name] = unwrapProperties(t, n, s, v, e)
@@ -707,7 +708,6 @@ class MetaBase(dbBase):
               last['RECEIVING...'] = {'type': 't', 'view': 'a', 'edit': 'a'}
 
           else:
-            invalid = row[15]
             last['ERROR'] = {'type': 'x', 'view': 'a', 'edit': 'a',
                              'value': 'unknown error' if invalid is None else invalid}
 
