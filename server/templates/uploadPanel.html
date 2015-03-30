@@ -16,14 +16,21 @@
 		 <div id="metadataUpload">
       Provide basic information about the images.<br>
       If not provided default values will be used. <br>
-      <label id="offsetUpload"></label><br>
       <label id="resolutionUpload"></label>
+      <details class="uploadAdvanced">
+       <summary class="uploadAdvanced">
+        <span class="fa fa-angle-double-up uploadAdvanced"></span>
+        <span class="fa fa-angle-double-down uploadAdvanced"></span>
+        Advanced
+       </summary>
+       <label id="offsetUpload"></label><br>
+      </details>
      </div>
 
      <div id="fileSelection"> 
       Select images for upload.<br>
       <input id="filesForUpload" type="file" multiple="multiple"/> <br>
-      <input type="checkbox" checked="checked" id="filterImageType"/> Filter image type <br>
+      <input type="checkbox" checked="checked" id="filterImageType"/> Do not upload non-image files. <br>
   
       <button id="uploadFiles">Upload</button>
      </div>
