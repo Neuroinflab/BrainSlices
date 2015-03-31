@@ -1640,21 +1640,21 @@ function initCart()
                                   {
                                     privilegeManager.changePublic(id, this.checked);
                                   }))
-                                .append('view'))
+                                .append('public view'))
                               .append($('<label>')
                                 .append($publicEdit
                                   .change(function()
                                   {
                                     privilegeManager.changePublic(id, null, this.checked);
                                   }))
-                                .append('edit'))
+                                .append('public edit'))
                               .append($('<label>')
                                 .append($publicAnnotate
                                   .change(function()
                                   {
                                     privilegeManager.changePublic(id, null, null, this.checked);
                                   }))
-                                .append('annotate'))
+                                .append('public annotate'))
                               //.append($('<label>')
                               //  .append($publicOutline
                               //    .change(function()
