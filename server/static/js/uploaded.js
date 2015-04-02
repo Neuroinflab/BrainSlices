@@ -254,23 +254,23 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
         .append($progress)
         .append($size);
 
-      var $iid = $('<td></td>');
-      var $crc32 = $('<td></td>');
+      //var $iid = $('<td></td>');
+      //var $crc32 = $('<td></td>');
       var $row = $('<tr></tr>')
 //                    .prop('draggable', true)
                     .append($('<td></td>')
                       .prop('draggable', true)
                       .text(image.name))
-                    .append($status)
-                    .append($iid)
-                    .append($crc32);
+                    .append($status);
+//                    .append($iid)
+//                    .append($crc32);
 
 
       var data = {$row: $row,
                   $progress: $progress,
                   $size: $size,
-                  $iid: $iid,
-                  $crc32: $crc32,
+//                  $iid: $iid,
+//                  $crc32: $crc32,
                   $status: $status,
                   size: image.size,
                   name: image.name,
@@ -286,8 +286,8 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
       if (!('uploaded' in image))
       {
         $size.text(hSize(image.size) + ' ready for upload.');
-        $crc32.html('<br>');
-        $iid.html('<br>');
+//        $crc32.html('<br>');
+//        $iid.html('<br>');
       }
       else
       {
@@ -379,15 +379,15 @@ with ({STATUS_MAP: BrainSlices.gui.STATUS_MAP,
       else
       {
         image.crc32 = crc32;
-        image.$crc32.text(("00000000" + (crc32 > 0 ? 
-                                         crc32 :
-                                         0x100000000 - crc32).toString(16))
-                          .substr(-8));
+//        image.$crc32.text(("00000000" + (crc32 > 0 ? 
+//                                         crc32 :
+//                                         0x100000000 - crc32).toString(16))
+//                          .substr(-8));
 
-        if (iid != null)
-        {
-          image.$iid.text(iid);
-        }
+//        if (iid != null)
+//        {
+//          image.$iid.text(iid);
+//        }
 
         if (uploaded != image.size)
         {

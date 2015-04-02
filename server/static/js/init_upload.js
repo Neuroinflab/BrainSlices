@@ -36,6 +36,8 @@ function initUpload()
     .click(function()
     {
       $('#fileListDiv').css('display', 'none');
+      var $ffu = $('#filesForUpload');
+      $ffu.replaceWith($ffu = $ffu.clone(true))
       $('#czarownik').css('display', 'inline-block');
     });
 
