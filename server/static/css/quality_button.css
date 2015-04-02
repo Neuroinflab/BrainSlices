@@ -49,21 +49,23 @@ input.target_select_y
 
 .zoom_select
 {
-  position: absolute;
+  /*position: absolute;*/
 }
 
 span.zoom_select
 {
   height: 100px;
   z-index: 1000;
-  top: 0;
-  left: 11px;
+  /*top: 0;
+  left: 11px;*/
+  margin-left: 11px;
+  margin-bottom: 10px;
 }
 
 input.zoom_select
 {
-  top: 110px;
-  left: 0;
+  /*top: 110px;
+  left: 0;*/
   padding: 0 3px;
   border-radius: 4px;
 }

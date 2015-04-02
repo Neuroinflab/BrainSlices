@@ -104,6 +104,19 @@ $.widget('brain_slices.zoom_select',
       .css('display', 'none')
       .append($zoomLog)
       .append($zoom)
+      .append($('<button>')
+        .addClass('icon')
+        .append($('<span>')
+          .addClass('fa fa-search-plus'))
+        .click(function()
+        {
+          thisInstance.options.callback(thisInstance.options.value);
+        }))
+      .append($('<button>')
+        .addClass('icon')
+        .append($('<span>')
+          .addClass('fa fa-times')));
+
 
     $(this.element)
       .append($button)

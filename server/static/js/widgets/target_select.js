@@ -38,8 +38,8 @@ $.widget('brain_slices.target_select',
     {
       $view.hide();
       $(document).unbind("click", hideHandler);
-      console.log($view);
-      stupid_view = $view
+      //console.log($view);
+      //stupid_view = $view
     }
 
     function callback()
@@ -73,34 +73,6 @@ $.widget('brain_slices.target_select',
         tooltipY: 'Y coordinate',
         onchange: callback
       })
-
-/*    var $x = $('<input>')
-      .attr(
-      {
-        type: 'number',
-        title: 'X coordinate',
-        value: '0'
-      })
-      .tooltip(BrainSlices.gui.tooltip)
-      .addClass('target_select_x')
-      .change(callback);
-
-    var $y = $('<input>')
-      .attr(
-      {
-        type: 'number',
-        title: 'Y coordinate',
-        value: '0'
-      })
-      .tooltip(BrainSlices.gui.tooltip)
-      .addClass('target_select_y')
-      .change(callback);
-
-    var $input = $('<label>')
-      .addClass('selectWrapper target_select')
-      .text('x')
-      .prepend($x)
-      .append($y);*/
 
     var $doNotClose = $.merge($.merge([], $input), $button);
 
