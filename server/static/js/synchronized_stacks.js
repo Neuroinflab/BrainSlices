@@ -180,7 +180,7 @@
           }
         }
       });
-      this.scope.set("synch", synchronize);
+      this.scope.set("synch", synchronize != false);
 
       //stacks
 
