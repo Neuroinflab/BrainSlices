@@ -74,6 +74,7 @@
      *                stack.
      *   resizeHandler - A handler of resize event of the window object.
      *   ondrop - function(ev, stackId)
+     *   scope - a scope object to cooperate with.
      *
      * Interface-oriented attributes:
      *   zoomUpdateEnabled - An internal flag for zoom change handlers
@@ -104,6 +105,7 @@
       var thisInstance = this;
 
       this.zoomUpdateEnabled = true;
+      this.scope = BS.scope; //FIXME
 
       this.stacks = [];
 
@@ -111,7 +113,7 @@
       this.ondrop = ondrop;
 
       this.gfx = gfx != null ? gfx : '/static/gfx';
-      BS.scope.register(
+      this.scope.register(
       {
         change:
         function(variable, val)
@@ -131,54 +133,54 @@
         }
       });
 
-  BS.scope.register(
-  {
-    change:
-    function(what, val)
-    {
-      if (what == "quality")
+      this.scope.register(
       {
-        thisInstance.setQuality(val, true);
-        thisInstance.update();
-      }
-    }
-  });
-
-  BS.scope.set("quality", "med");
-  BS.scope.register(
-  {
-    change:
-    function(what, val)
-    {
-      if( what == "trans")
-      {
-        thisInstance.setTransparency(val, true);
-        thisInstance.update();
-      }
-    }
-  });
-
-  BS.scope.set("trans", 0.5);
-
-  BS.scope.register(
-  {
-    change:
-    function(what, val)
-    {
-      if (what == "synch")
-      {
-        if (val)
+        change:
+        function(what, val)
         {
-          thisInstance.syncStart();
+          if (what == "quality")
+          {
+            thisInstance.setQuality(val, true);
+            thisInstance.update();
+          }
         }
-        else
+      });
+
+      this.scope.set("quality", "med");
+      this.scope.register(
+      {
+        change:
+        function(what, val)
         {
-          thisInstance.syncStop();
+          if( what == "trans")
+          {
+            thisInstance.setTransparency(val, true);
+            thisInstance.update();
+          }
         }
-      }
-    }
-  });
-  BS.scope.set("synch",true);
+      });
+
+      this.scope.set("trans", 0.5);
+
+      this.scope.register(
+      {
+        change:
+        function(what, val)
+        {
+          if (what == "synch")
+          {
+            if (val)
+            {
+              thisInstance.syncStart();
+            }
+            else
+            {
+              thisInstance.syncStop();
+            }
+          }
+        }
+      });
+      this.scope.set("synch", synchronize);
 
       //stacks
 
@@ -197,7 +199,7 @@
       this.nx = 0;
       this.ny = 0;
 
-      BS.scope.set("zoom", zoom != null ? zoom : 1.);
+      this.scope.set("zoom", zoom != null ? zoom : 1.);
       this.focusPointX = focusPointX != null ? focusPointX : 0.;
       this.focusPointY = focusPointY != null ? focusPointY : 0.;
       this.crosshairX = crosshairX;
@@ -490,7 +492,7 @@
       loadLayerByStack:
       function(stack, imageId)
       {
-        var quality = BS.scope.get('quality');//this.$quality.val();
+        var quality = this.scope.get('quality');//this.$quality.val();
         this.images.apply(imageId, function(image, updateIFace)
         {
           stack.loadFromCache(this, image.id, quality);
@@ -728,7 +730,7 @@
         }
 
         this.zoom = zoom;
-        BS.scope.set("zoom", zoom);
+        this.scope.set("zoom", zoom);
       },
 
       /**
@@ -765,8 +767,8 @@
             stack.setPixelSize(stack.pixelSize / factor, x, y);
             stack.update();
           }
-          //this.zoom *= factor;
-          //BS.scope.set("zoom", this.zoom);
+          this.zoom *= factor;
+          this.scope.set("zoom", this.zoom);
         }
         else
         {
@@ -805,7 +807,7 @@
 
         if (!doNotUpdate)
         {
-          BS.scope.set('quality', quality);
+          this.scope.set('quality', quality);
         }
       },
 
@@ -831,7 +833,7 @@
 
         if (!doNotUpdate)
         {
-          BS.scope.set('transparency', transparency);
+          this.scope.set('transparency', transparency);
         }
       },
 
