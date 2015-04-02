@@ -71,12 +71,12 @@ img.scale
   border: 1mm solid rgba(192, 192, 192, 0.7);
 }
 
-div.leftTileStack
+div.leftBorder
 {
   border-left: 1px solid #CACACA;
 }
 
-div.topTileStack
+div.topBorder
 {
   border-top: 1px solid #CACACA;
 }

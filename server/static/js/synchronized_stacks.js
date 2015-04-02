@@ -380,12 +380,19 @@
                   overflow: 'hidden',
                   'box-sizing': 'border-box'
                 })
-                [x > 0 ? 'addClass' : 'removeClass']('leftTileStack')
-                [y > 0 ? 'addClass' : 'removeClass']('topTileStack')
                 .bind('dragover', function(ev)
                 {
                   ev.originalEvent.preventDefault();
                 });
+
+              if (x > 0)
+              {
+                $div.addClass('leftBorder');
+              }
+              if (y > 0)
+              {
+                $div.addClass('topBorder');
+              }
 
               this.$displayContainer.append($div);
               stack = new api.CLayerStack($div, this.zoom, this.focusPointX,
