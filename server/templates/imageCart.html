@@ -1,12 +1,10 @@
 <div id="imageCart">
  <div id="imageCartHeader">
+  <div id="loadPanelHeader">
+  </div>
   <div id="imageCartHeaderWrapper">
    <div id="imageCartHeaderContent">
 
-    <div id="imageCartAllPanel" class="label-column">
-     <button id="cartHeaderToggle" title="toggle global manipulation panel">
-      <span class="fa"></span>
-     </button>
 
      <!--
      Image cart
@@ -25,68 +23,12 @@
       </span>
      </div>
 
-     <div id="orderPanel">
-     </div>
-     <div id="adjustPanel">
-      <div id="centerPanel">
-      </div>
-     </div>
-
-     <div id="privilegesPanel">
-      <label>
-       <input id="publicViewPrivilege" type="checkbox">
-       public view
-      </label>
-      <label>
-       <input id="publicEditPrivilege" type="checkbox">
-       public edit
-      </label>
-      <label>
-       <input id="publicAnnotatePrivilege" type="checkbox">
-       public annotate
-      </label>
-      <!--
-      <label>
-       <input id="publicOutlinePrivilege" type="checkbox">
-       outline
-      </label>
-      -->
-
-     </div>
-
-     <div id="propertyPanel">
-     </div>
-
-     <div id="managePanel">
-      <label class="managementPanelStatus">
-       <div class="selectWrapper">
-        <select id="managementPanelStatus" class="managementPanelStatus selectWrapper">
-         <option value="6" selected="selected">
-          Processed
-         </option>
-         <option value="7">
-          Accepted
-         </option>
-        </select>
-       </div>
-      </label>
-
-      <input type="checkbox" id="tiledImageDeleteAll">
-      <label id="tiledImageDeleteAllLabel" for="tiledImageDeleteAll" title="mark all images for permanent removal" class="fa fa-trash-o deleteImage"></label>
-     </div>
-
      <button id="emptyCart" title="empty the image cart">
       <span class="fa fa-trash-o"></span>
      </button>
 
-    </div>
-
-    <div id="loadAllWrapper">
-     <div id="loadAllPanelHeader"></div>
-     <div id="loadAllPanel" class="visible-column"></div>
-    </div>
-
-    <div id="imageCartHeaderColumnSeparator" class="column-separator"></div>
+     <div id="orderPanel">
+     </div>
 
    </div>
   </div>
@@ -98,30 +40,108 @@
  </div>
 
  <div id="imageCartFooter">
-  <span id="editPanel">
-   <button id="deleteImagesButton" title="remove selected images permanently">
-    <span class="fa fa-trash-o"></span>
-    Delete
-   </button>
-   <button id="editPanelSave">
-    <span class="fa fa-floppy-o"></span>
-    Save
-   </button>
-   <button id="editPanelReset">
-    <span class="fa fa-reply-all"></span>
-    Reset
-   </button>
-  </span>
-  
-  <div class="selectWrapper">
-   <select id="foldAllCart" class="selectWrapper">
-    <option selected="selected" value="fold">
-     fold all
-    </option>
-    <option value="unfold">
-     unfold all
-    </option>
-   </select>
+  <div id="applyToAllHeader">
+   <b>Apply to all panel</b>
+   <span id="cartHeaderToggle">
+    <span id="cartHeaderShow">
+     <!--<span class="fa fa-angle-double-up"></span>-->
+     more options
+    </span>
+    <span id="cartHeaderHide">
+     <!--<span class="fa fa-angle-double-down"></span>-->
+     less options
+    </span>
+   </span>
+  </div>
+
+  <div id="imageCartFooterWrapper">
+   <div id="imageCartFooterContent">
+
+    <div id="imageCartAllPanel" class="label-column">
+
+     <span id="editPanel">
+      <button id="deleteImagesButton" title="remove selected images permanently">
+       <span class="fa fa-trash-o"></span>
+       Delete
+      </button>
+      <button id="editPanelSave">
+       <span class="fa fa-floppy-o"></span>
+       Save
+      </button>
+      <button id="editPanelReset">
+       <span class="fa fa-reply-all"></span>
+       Reset
+      </button>
+     </span>
+     
+     <div class="selectWrapper">
+      <select id="foldAllCart" class="selectWrapper">
+       <option selected="selected" value="fold">
+        fold all
+       </option>
+       <option value="unfold">
+        unfold all
+       </option>
+      </select>
+     </div>
+
+     <div id="imageCartGlobalPanel">
+      <div id="adjustPanel">
+       <div id="centerPanel">
+       </div>
+      </div>
+
+      <div id="privilegesPanel">
+       <label>
+        <input id="publicViewPrivilege" type="checkbox">
+        public view
+       </label>
+       <label>
+        <input id="publicEditPrivilege" type="checkbox">
+        public edit
+       </label>
+       <label>
+        <input id="publicAnnotatePrivilege" type="checkbox">
+        public annotate
+       </label>
+       <!--
+       <label>
+        <input id="publicOutlinePrivilege" type="checkbox">
+        outline
+       </label>
+       -->
+
+      </div>
+
+      <div id="propertyPanel">
+      </div>
+
+      <div id="managePanel">
+       <label class="managementPanelStatus">
+        <div class="selectWrapper">
+         <select id="managementPanelStatus" class="managementPanelStatus selectWrapper">
+          <option value="6" selected="selected">
+           Processed
+          </option>
+          <option value="7">
+           Accepted
+          </option>
+         </select>
+        </div>
+       </label>
+
+       <input type="checkbox" id="tiledImageDeleteAll">
+       <label id="tiledImageDeleteAllLabel" for="tiledImageDeleteAll" title="mark all images for permanent removal" class="fa fa-trash-o deleteImage"></label>
+      </div>
+     </div>
+
+    </div>
+
+    <div id="loadAllPanel" class="visible-column"></div>
+
+    <!--<div id="imageCartHeaderColumnSeparator" class="column-separator"></div>-->
+
+   </div>
   </div>
  </div>
 

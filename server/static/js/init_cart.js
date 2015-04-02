@@ -1009,11 +1009,12 @@ function animateImageCartHeader(immediately)
 
   var scope = BrainSlices.scope;
   var space = $('#imageCart').innerHeight();
+  var spaceWithoutHeader = space - $('#imageCartHeader').outerHeight();
   var height = BrainSlices.scope.get('cartHeader') ?
-               $('#imageCartHeaderContent').outerHeight(true) :
-               31;
+               $('#imageCartFooterContent').outerHeight(true) :
+               Math.max(34, spaceWithoutHeader - $('#layerList').outerHeight());
 
-  var spaceLeft = space - height - $('#imageCartFooter').outerHeight();
+  var spaceLeft = spaceWithoutHeader - height;
 
   var imageCartHeaderCSS =
   {
@@ -1039,26 +1040,28 @@ function animateImageCartHeader(immediately)
     layerManager.doLazyRefresh();
 
     var oldHeight = $('#layerList').height();
-    var oldWidth = $('#imageCartHeaderWrapper').outerWidth();
+    var oldWidth = $('#imageCartFooterWrapper').outerWidth();
     // MUAHAHAHA - cached
     var newWidth = $('#layerList').width();
     if (oldWidth != newWidth)
     {
-      $('#imageCartHeader')
+      $('#imageCartFooter')
         .css('padding-right',
-             $('#imageCartHeader').innerWidth() - newWidth + 'px');
-      $('#imageCartFooter').css('width', newWidth + 'px');
+             $('#imageCartFooter').innerWidth() - newWidth + 'px');
+      $('#imageCartHeader').css('width', newWidth + 'px');
     }
 
     var visWidth = Math.max(scope.get('grid_dims').x * 21, 65);
     $('#loadAllPanel')
       .width(visWidth);
-    $('#imageCartHeaderColumnSeparator').css('right', visWidth + 'px');
-    var labelWidth = $('#imageCartHeaderContent').innerWidth() - visWidth - 1;
+    $('#loadPanelHeader')
+      .width(visWidth);
+    var labelWidth = $('#imageCartFooterContent').innerWidth() - visWidth - 2;
     $('#imageCartAllPanel')
       .css('width', labelWidth > 0 ? labelWidth + 'px' : '');
 
-    $('#foldAllCart').parent()
+    // XXX
+    $('#orderPanel').parent()
       .css('margin-right', visWidth + 1);
 
     var newHeight = $('#layerList').height();
@@ -1102,13 +1105,13 @@ function animateImageCartHeader(immediately)
 
   if (immediately)
   {
-    $('#imageCartHeader').css(imageCartHeaderCSS);
+    $('#imageCartFooter').css(imageCartHeaderCSS);
     $('#imageCartBody').css(imageCartBodyCSS);
     imageCartBodyComplete();
   }
   else
   {
-    $('#imageCartHeader')
+    $('#imageCartFooter')
       .animate(
         imageCartHeaderCSS,
         {
@@ -1238,16 +1241,17 @@ function initCart()
     {
       if (value)
       {
-        $('#cartHeaderToggle').find('span.fa')
-          .removeClass('fa-angle-double-down')
-          .addClass('fa-angle-double-up');
-
+        $('#cartHeaderShow').hide();
+        $('#cartHeaderHide').show();
+        $('#imageCartGlobalPanel').show();
+        $('#loadAllPanel').show();
       }
       else
       {
-        $('#cartHeaderToggle').find('span.fa')
-          .removeClass('fa-angle-double-up')
-          .addClass('fa-angle-double-down');
+        $('#cartHeaderHide').hide();
+        $('#cartHeaderShow').show();
+        $('#imageCartGlobalPanel').hide();
+        $('#loadAllPanel').hide();
       }
 
       animateImageCartHeader();
@@ -1272,7 +1276,6 @@ function initCart()
   });
 
   $('#cartHeaderToggle')
-    .tooltip(BrainSlices.gui.tooltip)
     .click(scope.getToggle('cartHeader'));
 
 

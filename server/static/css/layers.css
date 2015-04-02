@@ -15,19 +15,26 @@
   display: none;
 }
 
+#imageCartFooter,
 #imageCartHeader
 {
   position: relative;
-  height: 31px;
+  box-sizing: border-box;
 
   overflow: hidden;
 
+  background: #FFFFFF;
+}
+
+#imageCartHeader
+{
+  height: 61px;
+  padding: 2px 3px 4px 3px;
   text-align: center;
+  /*overflow-y: scroll;*/
+  /*z-index: 1;*/
 
   border-bottom: 1px solid #CACACA;
-  box-sizing: border-box;
-
-  background: #FFFFFF;
 }
 
 #imageCartBody
@@ -38,26 +45,33 @@
 
 #imageCartFooter
 {
-  position: relative;
   height: 31px;
-  box-sizing: border-box;
-
-  padding: 2px 3px 4px 3px;
   text-align: right;
-  /*overflow-y: scroll;*/
-  /*z-index: 1;*/
-
-  background: #FFFFFF;
   border-top: 1px solid #CACACA;
 }
 
-#cartHeaderToggle
+#applyToAllHeader
 {
   position: absolute;
   top: 0;
   left: 0;
   margin: 0;
+  padding: 0 5px 2px 5px;
   height: 22px;
+  border-bottom: 1px solid #CACACA;
+  border-right: 1px solid #CACACA;
+  border-bottom-right-radius: 4px;
+  background: #efefef;
+  z-index: 1;
+  min-width: 220px;
+  text-align: left;
+}
+
+#cartHeaderToggle
+{
+  color: #5080ff;
+  cursor: pointer;
+  float: right;
 }
 
 #emptyCart
@@ -85,16 +99,17 @@
   overflow: hidden;
 }
 
-#imageCartHeaderWrapper
+#imageCartFooterWrapper
 {
-  padding: 0 3px;
+  padding: 0 2px 0 3px;
 }
 
-#imageCartHeaderContent
+#imageCartFooterContent
 {
   overflow: hidden;
   position: relative;
   padding-top: 3px;
+  padding-bottom: 3px;
 }
 
 div.layer-row
@@ -121,25 +136,35 @@ div.layer-row-wrapper
   position: relative;
 }
 
-#loadAllWrapper
+#loadAllPanel
 {
-/*  position: relative;*/
+  /*box-sizing: border-box;*/
+  border: 1px solid #CACACA;
+  border-radius: 4px;
   display: inline-block;
   vertical-align: top;
 }
 
-#loadAllPanelHeader
+#loadPanelHeader
 {
-  height: 37px; /*40 - 3*/
+  position: absolute;
+  right: 2px;
+  bottom: 0;
+  width: 65px;
+  padding: 2px 0;
+  border-top: 1px solid #CACACA;
+  border-left: 1px solid #CACACA;
+  border-right: 1px solid #CACACA;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  background: #efefef;
+  z-index: 1;
+  font-weight: bold;
+  text-align: center;
 }
 
-#loadAllPanelHeader:before
+#loadPanelHeader:before
 {
-/*  position: absolute;
-  top: 5px;
-  left: 0;
-  right: 0;
-  text-align: center;*/
   content: "Loaded";
 }
 
@@ -192,6 +217,7 @@ div.label-column
 div.visible-column
 {
   text-align: center;
+  border-left: 1px solid #CACACA;
 }
 
 div.column-separator
