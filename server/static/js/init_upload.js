@@ -2,6 +2,7 @@ var uploadedFiles = null;
 var fileUploader = null;
 var privilegeManager = null;
 var propertiesManager = null;
+var bidSelected = null; // to transfer bid from upload to Browse
 
 function showFileList()
 {
@@ -15,8 +16,6 @@ function endFileList()
   $('#fileListClose').css('display', '');
 }
 
-
-
 function flushBatchFilter()
 {
   $('#batchFilter')
@@ -27,20 +26,21 @@ function flushBatchFilter()
     .val('none');
 }
 
+function czarownikShow()
+{
+  $('#fileListDiv').css('display', 'none');
+  var $ffu = $('#filesForUpload');
+  $ffu.replaceWith($ffu = $ffu.clone(true))
+  $('#czarownik').css('display', 'inline-block');
+}
+
 function initUpload()
 {
   $('#batchFilter')
     .tooltip(BrainSlices.gui.tooltip);
 
   $('#fileListClose')
-    .click(function()
-    {
-      $('#fileListDiv').css('display', 'none');
-      var $ffu = $('#filesForUpload');
-      $ffu.replaceWith($ffu = $ffu.clone(true))
-      $('#czarownik').css('display', 'inline-block');
-    });
-
+    .click(czarownikShow); 
   var STATUS_MAP = BrainSlices.gui.STATUS_MAP;
   var scope = BrainSlices.scope;
 
@@ -539,12 +539,42 @@ function initUpload()
                             function(status, msg)
                             {
                               //$('#czarownikOverlay').fadeOut();
-                              endFileList();
-
-                              if (msg)
+                              if (msg == 'No files to upload.')
                               {
-                                alertWindow[status ? 'message' : 'error'](msg);
+                                czarownikShow();
                               }
+                              else
+                              {
+                                endFileList();
+                              }
+
+                              if (status)
+                              {
+                                (function(bid)
+                                {
+                                  var $div = $('<div>')
+                                    .append($('<p>')
+                                      .text(msg))
+                                    .append($('<button>')
+                                      .text('Browse the collection (not accepted images only).')
+                                      .click(function()
+                                      {
+                                        searchEngine.reset();
+                                        $('#privilegeFilter').val('c');
+                                        $('#batchFilter').val(bid);
+                                        BrainSlices.scope.set('interfaceMode', 'browse');
+                                        $('#searchPropertySearch').click();
+                                        alertWindow.close();
+                                      }));
+                                  alertWindow.message($div);
+                                })(bidSelected);
+
+                              }
+                              else if (msg)
+                              {
+                                alertWindow.error(msg);
+                              }
+                              bidSelected = null;
                             },
                             $('#resolutionUpload').resolution('value'),
                             offset.top, offset.left);
@@ -594,7 +624,7 @@ function initUploadFinish()
   
       if ($('#newBatch').val() != 'yes')
       {
-        callback(parseInt($batchSelect.val()));
+        callback(bidSelected = parseInt($batchSelect.val()));
         return;
       }
 
@@ -628,7 +658,7 @@ function initUploadFinish()
             .val('no')
             .change();
 
-          callback(response.data.bid);
+          callback(bidSelected = response.data.bid);
         },
         batchDesc == '' ? null : {comment: batchDesc}, null, null,
         {cache: false});
