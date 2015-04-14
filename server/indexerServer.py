@@ -84,8 +84,8 @@ class IndexerServer(Generator, Server):
           content.append('<tr><th>%s</th><td>%s</td></tr>' %\
                          (name, prop['value']))
 
-      strings.append(('<!--%properties%-->', ''.join(content)))
-      strings.append(('%tags%', ', '.join(tags)))
+      strings.append(('<!--%properties%-->', (''.join(content)).decode('utf-8')))
+      strings.append(('%tags%', ', '.join(tags).decode('utf-8')))
 
     return strings, []
 

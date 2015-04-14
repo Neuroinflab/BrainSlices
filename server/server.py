@@ -128,7 +128,7 @@ def useTemplate(templateName):
     def toBeExecuted(self, *args, **kwargs):
       strings, jsons = function(self, *args, **kwargs)
       strings += [(k, json.dumps(v)) for (k, v) in jsons]
-      html = reduce(lambda x, (y, z): x.replace(y, z),
+      html = reduce(lambda x, (y, z): x.replace(y, z),#XXX: template is unicode
                     strings, self[templateName])
       return False, html, 'text/html'
 
