@@ -59,13 +59,20 @@ class IndexerServer(Generator, Server):
       tags = []
       content = []
       name = properties.pop('name', None)
-      if name: 
+      if name:
         if name['type'] == 't':
           tags.append('name')
+          namestring = ''
 
         else:
+          namestring = name['value'].decode('utf-8')
           strings.append(('<!--%name%-->',
-                          '<h1>%s</h1>' % name['value']))
+                          '<h1>%s</h1>' % namestring))
+
+      else:
+        namestring = ''
+
+      strings.append(('<!--%nameTitle%-->', namestring))
 
       desc = properties.pop('description', None)
       if desc:
