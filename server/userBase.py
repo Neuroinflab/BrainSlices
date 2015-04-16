@@ -184,9 +184,9 @@ class UserBase(dbBase):
     return cursor.rowcount == 1
 
   @provideCursor
-  def deleteUser(self, login, password, cursor = None):
-    #TODO: WTF??? why testing method to be None?
-    if not self.loginUser == None:
+  def deleteUser(self, login, cursor = None):
+    #TODO: reimplement for safe removal of users with images
+    if login is not None:
       delete_command = 'DELETE FROM users WHERE login = %(login)s'
       data = {'login': login}
       cursor.execute(delete_command, data)

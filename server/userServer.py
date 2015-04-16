@@ -127,7 +127,7 @@ instructions in the e&#8209;mail."""
           errorKey = mail[email][0]
           if errorKey in smtpErrors.keys():
             message = 'smtp error: ' + smtpErrors[errorKey]
-            self.userBase.deleteUser(login, password)
+            self.userBase.deleteUser(login)
 
     else:
       message = success if isinstance(success, (str, unicode)) \
