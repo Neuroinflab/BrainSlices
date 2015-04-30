@@ -257,6 +257,7 @@ var getEnumeratedSuggestionsFunction;
       .autocomplete(
       {
         source: getPropertySuggestions,
+        position: {collision: 'flipfit'},
         minLength: 0
       })
       .keypress(function(e)
@@ -405,6 +406,7 @@ var getEnumeratedSuggestionsFunction;
           {
             return getEnumerated(name);
           }),
+          position: {collision: 'flipfit'},
           minLength: 0
         })
         .change(function()
@@ -769,6 +771,7 @@ var PImagePropertyTriggers =
             {
               return getEnumerated(name);
             }),
+            position: {collision: 'flipfit'},
             minLength: 0
           })
           .keypress(function(e)

@@ -850,6 +850,7 @@ var CFilterPanel = null;
         [this.options.autocomplete](
         {
           source: this.options.source,
+          position: {collision: 'flipfit'},
           minLength: 0
         })
         .bind('keypress', this._enter);
