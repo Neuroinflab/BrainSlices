@@ -427,6 +427,7 @@ function initUpload()
           $('#propertyPanel').css('display', '');
           break;
       }
+      $('#editMode').val(value);
 
       layerManager.doLazyRefresh();
     }, 'editMode')

@@ -1773,6 +1773,7 @@ function initCart()
                                 rowElements.$description.removeClass('hidden');
                                 rowElements.$download.css('display', '');
                                 rowElements.$url.css('display', '');
+                                rowElements.$basicInfo.css('display', '');
                                 $drag.addClass('propertiesVisible');
                                 break;
 
@@ -1785,6 +1786,7 @@ function initCart()
                                 rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
                                 rowElements.$url.css('display', 'none');
+                                rowElements.$basicInfo.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$management.css('display', '');
@@ -1807,6 +1809,7 @@ function initCart()
                                 rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
                                 rowElements.$url.css('display', 'none');
+                                rowElements.$basicInfo.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$adjustment.css('display', '');
@@ -1829,6 +1832,7 @@ function initCart()
                                 rowElements.$annotate.css('display', 'none');
                                 rowElements.$download.css('display', 'none');
                                 rowElements.$url.css('display', 'none');
+                                rowElements.$basicInfo.css('display', 'none');
                                 if (image.info.editPrivilege > 0)
                                 {
                                   rowElements.$privileges.css('display', '');
@@ -1851,6 +1855,7 @@ function initCart()
                                 rowElements.$description.addClass('hidden');
                                 rowElements.$download.css('display', 'none');
                                 rowElements.$url.css('display', 'none');
+                                rowElements.$basicInfo.css('display', 'none');
                                 if (image.info.annotatePrivilege > 0)
                                 {
                                   rowElements.$annotate.css('display', '');
