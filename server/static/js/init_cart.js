@@ -331,7 +331,24 @@ var getEnumeratedSuggestionsFunction;
         .addClass('selectWrapper')
         .appendTo($addPanel));*/
 
-    var numericChange = false;
+    var changeTriggeredBy = null;
+    function triggerChangeOnce(val, me, next)
+    {
+      if (changeTriggeredBy != next)
+      {
+        if (!changeTriggeredBy)
+        {
+          changeTriggeredBy = me;
+          inputs[next].val(val).change();
+          changeTriggeredBy = null;
+        }
+        else
+        {
+          inputs[next].val(val).change();
+        }
+      }
+    }
+
     var inputs =
     {
       i: $('<input>')
@@ -347,9 +364,7 @@ var getEnumeratedSuggestionsFunction;
           var val = $(this).val();
 
           inputs.f.val(parseFloat(val));
-          numericChange = true;
-          inputs.s.val(val).change();
-          numericChange = false;
+          triggerChangeOnce(val, 'f', 's'); // float as numeric
         }),
       f: $('<input>')
         .attr(
@@ -361,10 +376,9 @@ var getEnumeratedSuggestionsFunction;
         .change(function()
         {
           var val = $(this).val();
+
           inputs.i.val(parseInt(val));
-          numericChange = true;
-          inputs.s.val(val).change();
-          numericChange = false;
+          triggerChangeOnce(val, 'f', 's');
         }),
       s: $('<input>')
         .attr(
@@ -375,7 +389,7 @@ var getEnumeratedSuggestionsFunction;
         .css('display', 'none')
         .change(function()
         {
-          inputs.x.val($(this).val()).change();
+          triggerChangeOnce($(this).val(), 's', 'x');
         }),
       e: $('<input>')
         .attr(
@@ -416,10 +430,11 @@ var getEnumeratedSuggestionsFunction;
         .change(function()
         {
           var val = $(this).val();
+
           var floatVal = parseFloat(val);
-          if (!isNaN(floatVal) && !numericChange)
+          if (floatVal == val && !isNaN(floatVal))
           {
-            inputs.f.val(floatVal).change();
+            triggerChangeOnce(floatVal, 'x', 'f');
           }
         })
     };
@@ -534,13 +549,18 @@ var getEnumeratedSuggestionsFunction;
                   break;
               }
 
-              if ('tif'.indexOf(type) < 0 && !isNaN(parseFloat(property.value))
-                  && confirm('The entered value seems to be a number, but the property type chosen is not numeric.\nDo you want to change the property type?'))
+              if ('tif'.indexOf(type) < 0)
               {
-                inputs.i.val(parseInt(property.value));
-                inputs.f.val(parseFloat(property.value));
-                console.log('ok');
-                return;
+                var value = property.value;
+                var floatValue = parseFloat(value);
+                if (!isNaN(floatValue) && value == floatValue
+                  && confirm('The entered value seems to be a number, but the property type chosen is not numeric.\nDo you want to change the property type?'))
+                {
+                  //inputs.i.val(parseInt(floatValue));
+                  //inputs.f.val(floatValue);
+                  console.log('ok');
+                  return;
+                }
               }
               console.log('cancel')
 
