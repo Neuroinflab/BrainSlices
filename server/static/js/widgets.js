@@ -1019,6 +1019,7 @@ var CFilterPanel = null;
         .propertyboxsearch(
         {
           source: $.proxy(this._source, this),
+          position: {collision: 'flipfit'},
           minLength: 0
         })
         .keypress(/*$.proxy(*/function(e)
