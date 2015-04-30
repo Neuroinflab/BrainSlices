@@ -1063,11 +1063,15 @@ function animateImageCartHeader(immediately)
     var oldWidth = $('#imageCartFooterWrapper').outerWidth();
     // MUAHAHAHA - cached
     var newWidth = $('#layerList').width();
+    console.log('nw', newWidth)
     if (oldWidth != newWidth)
     {
       $('#imageCartFooter')
         .css('padding-right',
              $('#imageCartFooter').innerWidth() - newWidth + 'px');
+    }
+    if ($('#imageCartHeader').width() != newWidth)
+    {
       $('#imageCartHeader').css('width', newWidth + 'px');
     }
 
