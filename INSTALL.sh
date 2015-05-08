@@ -111,7 +111,7 @@ askBool ()
 if askBool "Do you want to fetch required packages?
 (Operation requires sudo privileges.)" N #FETCH_PACKAGES
   then
-    sudo apt-get install at authbind imagemagick libboost-system-dev libboost-thread-dev libmagick++-dev libssl-dev postgresql python-cherrypy3 python-psycopg2
+    sudo apt-get install at authbind imagemagick libboost-system-dev libboost-thread-dev libmagick++-dev libssl-dev postgresql python-cherrypy3 python-openssl python-psycopg2
     # python-cherrypy # Ubuntu 13.10
     # postgresql-contrib postgresql-client
   fi
@@ -158,6 +158,71 @@ if [ "$BS_PORT" -lt 512 ]
 
 cat "$CURRENT_DIR/site.conf.template" | sed -e "s|\${host}|$BS_HOST|; s|\${port}|$BS_PORT| " > "$INSTALL_DIR/server/site.conf"
 
+
+
+if askBool "Do you want to set up also an HTTPS server (recommended; requires an SSL certificate and the private key)?" Y BS_HTTPS
+  then
+    BS_HTTPS_CERT=""
+    while [ "$BS_HTTPS_CERT" == "" ]
+      do
+        askPrompt "path to the certificate file (probably *.crt)" "" BS_HTTPS_CERT
+        if ! [ -f "$BS_HTTPS_CERT" ]
+          then
+            echo "ERROR: path must point to an actual file"
+            BS_HTTPS_CERT=""
+          fi
+      done
+
+    BS_HTTPS_KEY=""
+    while [ "$BS_HTTPS_KEY" == "" ]
+      do
+        askPrompt "path to the private key file (probably *.key)" "" BS_HTTPS_KEY
+        if ! [ -f "$BS_HTTPS_KEY" ]
+          then
+            echo "ERROR: path must point to an actual file"
+            BS_HTTPS_KEY=""
+          fi
+      done
+
+    #echo "server.ssl_certificate = '$BS_HTTPS_CERT'" >> "$INSTALL_DIR/server/site.conf"
+    #echo "server.ssl_private_key = '$BS_HTTPS_KEY'" >> "$INSTALL_DIR/server/site.conf"
+
+    BS_HTTPS_PORT=""
+    if [ 443 -eq "$BS_PORT" ]
+      then
+        HTTPS_PORT_HINT=""
+      else
+        HTTPS_PORT_HINT=443
+      fi
+
+    while [ "$BS_HTTPS_PORT" == "" ]
+      do
+    	  askPrompt "BrainSlices HTTPS port" "$HTTPS_PORT_HINT" BS_HTTPS_PORT
+        if [ "$BS_HTTPS_PORT" -eq "$BS_PORT" ]
+          then
+            echo "port $BS_HTTPS_PORT already chosen for HTTP"
+            if askBool "Do you want to abandon HTTP listening on the port?"
+              then
+                echo "server.ssl_module = 'pyopenssl'" >> "$INSTALL_DIR/server/site.conf"
+                echo "server.ssl_certificate = '$BS_HTTPS_CERT'" >> "$INSTALL_DIR/server/site.conf"
+                echo "server.ssl_private_key = '$BS_HTTPS_KEY'" >> "$INSTALL_DIR/server/site.conf"
+                BS_HTTPS=N
+
+              else
+                BS_HTTPS_PORT=""
+
+              fi
+          fi
+
+      done
+
+    if [ "$BS_HTTPS_PORT" -lt 512 ]
+      then
+        sudo touch "/etc/authbind/byaddr/$BS_HOST:$BS_HTTPS_PORT"
+        sudo chmod 100 "/etc/authbind/byaddr/$BS_HOST:$BS_HTTPS_PORT"
+        sudo chown $SERVER_USER "/etc/authbind/byaddr/$BS_HOST:$BS_HTTPS_PORT"
+      fi
+  fi
 
 BS_CONFIG="$INSTALL_DIR/server/brainslices.conf"
 
@@ -348,6 +413,15 @@ echo  >> "$BS_CONFIG"
 echo '[Stream]' >> "$BS_CONFIG"
 echo "files: $BS_STREAM_FILES" >> "$BS_CONFIG"
 echo "timeout: $BS_STREAM_TIMEOUT" >> "$BS_CONFIG"
+
+if [ "$BS_HTTPS" == Y ]
+  then
+    echo  >> "$BS_CONFIG"
+    echo '[HTTPS]' >> "$BS_CONFIG"
+    echo "certificate = $BS_HTTPS_CERT" >> "$BS_CONFIG"
+    echo "key = $BS_HTTPS_KEY" >> "$BS_CONFIG"
+    echo "port = $BS_HTTPS_PORT" >> "$BS_CONFIG"
+  fi
 
 cd auxilaryScripts/imageProcessing
 make all

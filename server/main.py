@@ -25,6 +25,7 @@ import os
 import cherrypy
 
 from webService import WebService
+from bsConfig import BS_HTTPS_PORT, BS_HTTPS_CERTIFICATE, BS_HTTPS_KEY, BS_HTTPS_CHAIN
 
 
 directoryName = os.path.abspath(os.path.dirname(__file__))
@@ -39,6 +40,25 @@ if __name__ == '__main__':
   cherrypy.config.update(siteconf)
 
   cherrypy.tree.mount(root=srv, script_name='/', config=appconf)
+
+  if BS_HTTPS_PORT is not None:
+    httpsServer = cherrypy._cpserver.Server()
+    httpsServer.socket_port = BS_HTTPS_PORT
+    httpsServer.ssl_module = 'pyopenssl'
+    httpsServer.ssl_certificate = BS_HTTPS_CERTIFICATE
+    httpsServer.ssl_private_key = BS_HTTPS_KEY
+    httpsServer.ssl_certificate_chain = BS_HTTPS_CHAIN
+
+    for attr in ['socket_host',
+                 'thread_pool',
+                 'socket_queue_size',
+                 'max_request_body_size',
+                 'socket_timeout',
+                ]:
+      setattr(httpsServer, attr, getattr(cherrypy.server, attr))
+
+    httpsServer.subscribe()
+
   cherrypy.engine.start()
   cherrypy.engine.block()
 

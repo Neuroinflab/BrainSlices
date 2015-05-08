@@ -80,3 +80,14 @@ if config.has_section('User'):
     BS_USER_DEFAULT_QUERY_LIMIT = max(config.getint('User', 'queryLimit'), 20)
     if BS_SERVICE_QUERY_LIMIT is None or BS_SERVICE_QUERY_LIMIT > BS_USER_DEFAULT_QUERY_LIMIT:
       BS_SERVICE_QUERY_LIMIT = BS_USER_DEFAULT_QUERY_LIMIT
+
+BS_HTTPS_PORT = None
+BS_HTTPS_CERTIFICATE = None
+BS_HTTPS_KEY = None
+BS_HTTPS_CHAIN = None
+if config.has_section('HTTPS'):
+  BS_HTTPS_PORT = config.getint('HTTPS', 'port')
+  BS_HTTPS_CERTIFICATE = config.get('HTTPS', 'certificate')
+  BS_HTTPS_KEY = config.get('HTTPS', 'key')
+  if config.has_option('HTTPS', 'chain'):
+    BS_HTTPS_CHAIN = config.get('HTTPS', 'chain')
