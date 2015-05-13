@@ -410,6 +410,41 @@ a.no_underline
   width: auto;
 }
 
+.centered
+{
+  text-align: center;
+}
+
+.safe:hover,
+.safe.selected
+{
+  color: #FFFFFF;
+  background-color: #309F30;
+  border-color: #60B060;
+}
+
+.unsafe:hover,
+.unsafe.selected
+{
+  color: #FFFFFF;
+  background-color: #FF0000;
+  border-color: #FF6060;
+}
+
+.unsafe.go-to-https
+{
+  float: left;
+}
+
+.safe.go-to-https
+{
+  float: right;
+}
+
+div.go-to-https
+{
+  max-width: 888px;
+}
 
 .polaroid-image
 {

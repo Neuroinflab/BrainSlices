@@ -40,7 +40,7 @@ from metaServer import MetaServer
 from indexerServer import IndexerServer
 
 #TODO: clean me!!!
-from bsConfig import BS_USER_DEFAULT_QUERY_LIMIT, BS_SERVICE_QUERY_LIMIT
+from bsConfig import BS_USER_DEFAULT_QUERY_LIMIT, BS_SERVICE_QUERY_LIMIT, BS_HTTPS_PORT
 
 if BS_USER_DEFAULT_QUERY_LIMIT is None:
   serviceQueryLimitValues = set([20, 50, 100, 200, 500, 1000, 2000,])
@@ -109,6 +109,11 @@ class WebGenerator(Generator):
     index['<!--%uploadPanel%-->'] = self.templateEngine('uploadPanel.html')
     index['<!--%userPanel%-->'] = userPanel
     index['<!--%brokenDuplicatePanel%-->'] = self.templateEngine('brokenDuplicatePanel.html')
+    if BS_HTTPS_PORT is not None:
+      goToHTTPS = self.templateEngine('goToHTTPS.js')
+      goToHTTPS['%HTTPS-PORT-GOES-HERE%'] = str(BS_HTTPS_PORT)
+      index['//%goToHTTPS-goes-here'] = goToHTTPS
+
 
     self['index'] = index
 

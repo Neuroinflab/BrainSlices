@@ -227,5 +227,6 @@ $(function()
                                           });
   initCart();
   initBrowseFinish();
+  goToHTTPS();
 });
 
