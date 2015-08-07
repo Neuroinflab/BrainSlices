@@ -50,6 +50,9 @@ class IndexerServer(Generator, Server):
                                                               image_height,
                                                               image_md5,
                                                               image_crc32""")
+    if not data:
+      return None
+
     width, height, md5, crc32 = data[5:]
     strings = [('<!--%size%-->', '%dx%d' % (width, height)),
                ('%md5%', md5),

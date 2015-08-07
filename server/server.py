@@ -126,7 +126,11 @@ def useTemplate(templateName):
   """
   def decoratorFunction(function):
     def toBeExecuted(self, *args, **kwargs):
-      strings, jsons = function(self, *args, **kwargs)
+      variables = function(self, *args, **kwargs)
+      if variables is None:
+         raise cherrypy.HTTPError("404 Not found")
+
+      strings, jsons = variables
       strings += [(k, json.dumps(v)) for (k, v) in jsons]
       html = reduce(lambda x, (y, z): x.replace(y, z),#XXX: template is unicode
                     strings, self[templateName])
