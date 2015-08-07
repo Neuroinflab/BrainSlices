@@ -74,10 +74,11 @@ with ({getThumbnail: BrainSlices.gui.getThumbnail,
   /************************************\
    * Constant: CHUNK_SIZE             *
    * The default size of a file chunk *
-   * (equals 1 MiB; actualy a global  *
-   * variable).                       *
+   * (reduced from 1 MiB because of   *
+   * CherryPy SSL bug; actualy a      *
+   * global variable).                *
   \************************************/
-  var CHUNK_SIZE = 1024 * 1024;
+  var CHUNK_SIZE = 1024 * 7; //1024;
 
   /**************************************\
    * Constant: MAX_SIMULTANEOUS_UPLOADS *
