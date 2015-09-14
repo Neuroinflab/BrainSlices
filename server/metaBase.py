@@ -481,7 +481,7 @@ class MetaBase(dbBase):
 
               FROM
               (
-                SELECT img.iid,
+                SELECT DISTINCT img.iid,
                        img.public_image_view, img.public_image_annotate,
                        img.public_image_edit, img.public_image_outline,
                        img.invalid,
@@ -582,7 +582,7 @@ class MetaBase(dbBase):
 
               FROM 
               (
-                SELECT img.iid,
+                SELECT DISTINCT img.iid,
                        CASE WHEN img.owner = %d THEN %d
                             WHEN COUNT(img.gid) > 0 THEN %d
                             WHEN img.public_image_view THEN %d
@@ -636,6 +636,7 @@ class MetaBase(dbBase):
                      'ALL' if limit is None else '%d' % limit)
 
     print query
+    print data
     cursor.execute(query, data)
     res = []
     if cursor.rowcount > 0:
