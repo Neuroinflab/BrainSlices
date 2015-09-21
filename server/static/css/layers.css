@@ -37,6 +37,11 @@
   border-bottom: 1px solid #CACACA;
 }
 
+#imageCartHeaderContent
+{
+  position: relative;
+}
+
 #imageCartBody
 {
   position: relative;
