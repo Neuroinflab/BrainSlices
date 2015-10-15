@@ -111,7 +111,7 @@ askBool ()
 if askBool "Do you want to fetch required packages?
 (Operation requires sudo privileges.)" N #FETCH_PACKAGES
   then
-    sudo apt-get install at authbind imagemagick libboost-system-dev libboost-thread-dev libmagick++-dev libssl-dev postgresql python-cherrypy3 python-openssl python-psycopg2
+    sudo apt-get install at authbind imagemagick libboost-system-dev libboost-thread-dev libmagick++-dev libssl-dev postgresql python-bcrypt python-cherrypy3 python-openssl python-psycopg2
     # python-cherrypy # Ubuntu 13.10
     # postgresql-contrib postgresql-client
   fi
