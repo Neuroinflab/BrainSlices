@@ -4,7 +4,7 @@
 #                                                                             #
 #    BrainSlices Software                                                     #
 #                                                                             #
-#    Copyright (C) 2012-2013 Jakub M. Kowalski, J. Potworowski                #
+#    Copyright (C) 2012-2015 Jakub M. Kowalski, J. Potworowski                #
 #                                                                             #
 #    This software is free software: you can redistribute it and/or modify    #
 #    it under the terms of the GNU General Public License as published by     #
@@ -23,6 +23,8 @@
 
 import hmac
 import hashlib
+
+BCRYPT_COMPLEXITY = 12
 
 class IHash:
   name = None
@@ -56,21 +58,26 @@ class BcryptHash(IHash):
     self.__hashpw = hashpw
     self.__gensalt = gensalt
     self.__complexity = complexity
+    self.name = 'bcrypt{:d}'.format(complexity)
+
+  def __saltPassword(self, login, password, salt):
+    return str(salt) + self.name + login + password
     
   def generateHash(self, login, password, salt):
-    return self.__hashpw(password, self.__gensalt(self.__complexity))
+    return self.__hashpw(self.__saltPassword(login, password, salt),
+                         self.__gensalt(self.__complexity))
     
   def checkHash(self, login, password, salt, hashed):
-    return self.__hashpw(password, hashed) == hashed
+    return self.__hashpw(self.__saltPassword(login, password, salt),
+                         hashed) == hashed
     
 
 algs = ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'bcrypt')
-complexity = 10
 
 HashAlgorithms = dict((alg, HashlibHash(alg)) for alg in algs if hasattr(hashlib, alg))
 
 try:
-  HashAlgorithms['bcrypt%d' % complexity] = BcryptHash(complexity)
+  HashAlgorithms['bcrypt%d' % BCRYPT_COMPLEXITY] = BcryptHash(BCRYPT_COMPLEXITY)
 
 except ImportError:
   pass
