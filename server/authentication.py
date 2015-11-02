@@ -23,6 +23,7 @@
 
 import hmac
 import hashlib
+import bcrypt
 
 BCRYPT_COMPLEXITY = 12
 
@@ -40,47 +41,78 @@ class HashlibHash(IHash):
   def __init__(self, algorithm):
     self.name = algorithm
     self.__algorithm = getattr(hashlib, algorithm)
-  
-  def generateHash(self, login, password, salt):
+
+  def __getDigest(self, login, password, salt):
     return hmac.new(str(salt) + self.name + login,
                     password,
                     self.__algorithm).hexdigest()
-  
+
+  def generateHash(self, login, password, salt):
+    return bcrypt.hashpw(self.__getDigest(login, password, salt),
+                         bcrypt.gensalt(BCRYPT_COMPLEXITY))
+
   def checkHash(self, login, password, salt, hashed):
-    return self.generateHash(login, password, salt) == hashed
+    return bcrypt.hashpw(self.__getDigest(login, password, salt),
+                         hashed) == hashed
 
 
 class BcryptHash(IHash):
   name = 'bcrypt'
 
   def __init__(self, complexity = 0):
-    from bcrypt import hashpw, gensalt
-    self.__hashpw = hashpw
-    self.__gensalt = gensalt
     self.__complexity = complexity
     self.name = 'bcrypt{:d}'.format(complexity)
 
   def __saltPassword(self, login, password, salt):
     return str(salt) + self.name + login + password
-    
+
   def generateHash(self, login, password, salt):
-    return self.__hashpw(self.__saltPassword(login, password, salt),
-                         self.__gensalt(self.__complexity))
-    
+    return bcrypt.hashpw(self.__saltPassword(login, password, salt),
+                         bcrypt.gensalt(self.__complexity))
+
   def checkHash(self, login, password, salt, hashed):
-    return self.__hashpw(self.__saltPassword(login, password, salt),
+    return bcrypt.hashpw(self.__saltPassword(login, password, salt),
                          hashed) == hashed
-    
 
 algs = ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'bcrypt')
 
 HashAlgorithms = dict((alg, HashlibHash(alg)) for alg in algs if hasattr(hashlib, alg))
-
-try:
-  HashAlgorithms['bcrypt%d' % BCRYPT_COMPLEXITY] = BcryptHash(BCRYPT_COMPLEXITY)
-
-except ImportError:
-  pass
+HashAlgorithms['bcrypt%d' % BCRYPT_COMPLEXITY] = BcryptHash(BCRYPT_COMPLEXITY)
 
 if __name__ == '__main__':
-  pass
+  import unittest
+
+  class HashTest(object):
+    @classmethod
+    def subclass(cls, name):
+      return type('{}{}'.format(name, cls.__name__),
+                  (cls, unittest.TestCase),
+                  {'algorithm': HashAlgorithms[name]})
+
+    def generateHash(self, login, password, salt):
+      return self.algorithm.generateHash(login, password, salt)
+
+    def checkHash(self, login, password, salt, hashed):
+      return self.algorithm.checkHash(login, password, salt, hashed)
+
+    def testCheckableHash(self):
+      hashed = self.generateHash('login', 'password', 42)
+      self.assertTrue(self.checkHash('login', 'password', 42, hashed))
+
+    def testPasswordCollisions(self):
+      hashed = self.generateHash('logina', 'password', 42)
+      self.assertFalse(self.checkHash('logina', 'pSSAword', 42, hashed))
+
+    def testSaltCollisions(self):
+      hashed = self.generateHash('loginek', 'pSSAword', 42)
+      self.assertFalse(self.checkHash('loginek', 'pSSAword', 1337, hashed))
+
+    def testLoginCollisions(self):
+      hashed = self.generateHash('user', 'password', 42)
+      self.assertFalse(self.checkHash('resu', 'password', 42, hashed))
+
+  testSuite = []
+  for name in HashAlgorithms:
+    testSuite.append(unittest.defaultTestLoader.loadTestsFromTestCase(HashTest.subclass(name)))
+
+  unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(testSuite))
