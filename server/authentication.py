@@ -74,7 +74,7 @@ class BcryptHash(IHash):
     return bcrypt.hashpw(self.__saltPassword(login, password, salt),
                          hashed) == hashed
 
-algs = ('sha224', 'sha256', 'sha384', 'sha512', 'bcrypt') # md5 sha1
+algs = ('sha512', 'bcrypt') # md5 sha1 sha224 sha256 sha384
 
 HashAlgorithms = dict((alg, HashlibHash(alg)) for alg in algs if hasattr(hashlib, alg))
 HashAlgorithms['bcrypt%d' % BCRYPT_COMPLEXITY] = BcryptHash(BCRYPT_COMPLEXITY)
