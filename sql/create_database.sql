@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Diagram Name: database
--- Created on: 12/11/2014 17:50:55
+-- Created on: 15/10/2015 12:52:12
 -- Diagram Version: 
 -- =============================================================================
 
@@ -92,7 +92,7 @@ CREATE TABLE "users" (
 	"salt" int4,
 	"md5" text,
 	"sha1" text,
-	"bcrypt10" text,
+	"bcrypt12" text,
 	"sha224" text,
 	"sha256" text,
 	"sha384" text,
@@ -106,7 +106,7 @@ CREATE TABLE "users" (
 	"first_login_date" timestamp,
 	"confirm_md5" text,
 	"confirm_sha1" text,
-	"confirm_bcrypt10" text,
+	"confirm_bcrypt12" text,
 	"confirm_sha224" text,
 	"confirm_sha256" text,
 	"confirm_sha384" text,
