@@ -26,7 +26,7 @@ if (window.location.protocol.toLowerCase() == 'http:')
         }))
       .append($('<button>')
         .addClass('safe go-to-https')
-        .text('Leave the page and go to a more secure connection')
+        .text('Enable a more SECURE CONNECTION')
         .click(function()
         {
           var url = document.createElement('a');
