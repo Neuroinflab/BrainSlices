@@ -45,8 +45,9 @@ function $summaryPromptForHTTPS()
   return $('<summary>')
     .addClass('form')
     .text(' Why may it be important?')
-    .prepend($spanOfClasses('fa fa-angle-double-up'))
-    .prepend($spanOfClasses('fa fa-angle-double-down'));
+    .prepend(
+      $spanOfClasses('fa fa-angle-double-up'),
+      $spanOfClasses('fa fa-angle-double-down'));
 }
 
 function $commentOnPossibleHTTPSWarning()
@@ -66,9 +67,9 @@ function $decisionDiv()
 function $stayButton()
 {
   return $('<button>')
-           .addClass('unsafe go-to-https')
-           .text('I DO UNDERSTAND THE RISK and choose to stay on the page')
-           .click(closeDialog);
+    .addClass('unsafe go-to-https')
+    .text('I DO UNDERSTAND THE RISK and choose to stay on the page')
+    .click(closeDialog);
 }
 
 function closeDialog()
@@ -79,9 +80,9 @@ function closeDialog()
 function $goToHTTPSButton()
 {
   return $('<button>')
-           .addClass('safe go-to-https')
-           .text('Enable a more SECURE CONNECTION')
-           .click(goToHTTPS);
+    .addClass('safe go-to-https')
+    .text('Enable a more SECURE CONNECTION')
+    .click(goToHTTPS);
 }
 
 function goToHTTPS()
