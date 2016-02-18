@@ -112,7 +112,7 @@ class WebGenerator(Generator):
     if BS_HTTPS_PORT is not None:
       goToHTTPS = self.templateEngine('goToHTTPS.js')
       goToHTTPS['%HTTPS-PORT-GOES-HERE%'] = str(BS_HTTPS_PORT)
-      index['//%goToHTTPS-goes-here'] = goToHTTPS
+      index['//%goToHTTPS-dialog-code-may-go-here%//'] = goToHTTPS
 
 
     self['index'] = index
