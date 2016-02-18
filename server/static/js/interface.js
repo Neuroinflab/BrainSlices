@@ -958,20 +958,31 @@
       this.window = new BS.gui.CCloseableDiv($div);
 
       /**
-       * Method: message
+       * Method: displayMessage
        *
        * Display a simple message.
        *
        * Parameters:
        *   message - A HTML message to be displayed;
        **********************************************/
-      this.message = function(message)
+      this.displayMessage = function(message)
       {
         $content
           .removeClass('error success')
           .html(message);
 
         this.window.open();
+      }
+
+      /**
+       * Method: message
+       *
+       * A legacy alias for .displayMessage()
+       * *************************************/
+      this.message = function(message)
+      {
+        console.warn('Deprecated method BrainSlices.gui.CMessage.message() called.');
+        this.displayMessage(message);
       }
 
       /**

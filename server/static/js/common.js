@@ -400,3 +400,13 @@ var BrainSlices = {
     }
   }
 }
+
+function $spanOfClasses(classes)
+{
+  return $('<span>').addClass(classes);
+}
+
+function $pOfText(text)
+{
+  return $('<p>').text(text);
+}
