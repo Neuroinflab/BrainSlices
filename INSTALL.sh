@@ -141,6 +141,7 @@ mkdir -p "$INSTALL_DIR/server/outlines"
 mkdir -p "$INSTALL_DIR/server/uploadSlots"
 mkdir -p "$INSTALL_DIR/server/sourceImages"
 mkdir -p "$INSTALL_DIR/server/tilingLogs"
+mkdir -p "$INSTALL_DIR/server/sessions"
 
 
 CURRENT_USER=`whoami`
@@ -493,8 +494,8 @@ BS_AUTOSTART="NO"
 if askBool "Do you want the server to automatically start at boot?"
   then
     BS_AUTOSTART="YES"
-    cat "$CURRENT_DIR/init.d/BrainSlices" | sed -e "s|\${path}|$INSTALL_DIR/server|; s|\${user}|$SERVER_USER| " > "$INSTALL_DIR/init.d"
-    sudo mv "$INSTALL_DIR/init.d" /etc/init.d/BrainSlices
+    cat "$CURRENT_DIR/init.d/BrainSlices" | sed -e "s|\${path}|$INSTALL_DIR/server|; s|\${user}|$SERVER_USER| " > "$INSTALL_DIR/init.sh"
+    sudo mv "$INSTALL_DIR/init.sh" /etc/init.d/BrainSlices
     sudo chmod 755 /etc/init.d/BrainSlices
     sudo chown root:root /etc/init.d/BrainSlices
     sudo update-rc.d BrainSlices defaults
