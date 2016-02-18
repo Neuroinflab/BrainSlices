@@ -227,6 +227,6 @@ $(function()
                                           });
   initCart();
   initBrowseFinish();
-  goToHTTPS();
+  executeServerInjectedCode();
 });
 
