@@ -99,12 +99,15 @@ class WebGenerator(Generator):
     userPanel = self.templateEngine('userPanel.html')
     userPanel['<!--%passwordStrength%-->'] = passwordStrength
 
+    homePanel = self.templateEngine('homePanel.html')
+    homePanel['<!--%cookiesInfoGoesHere%-->'] = self.templateEngine('cookies.html')
+
     index = self.templateEngine('main.html')
     index['<!--%imageCart%-->'] = self.templateEngine('imageCart.html')
     index['<!--%loginWindow%-->'] = loginWindow
     index['<!--%alertWindow%-->'] = self.templateEngine('alertWindow.html')
     index['<!--%waitWindow%-->'] = self.templateEngine('waitWindow.html')
-    index['<!--%homePanel%-->'] = self.templateEngine('homePanel.html')
+    index['<!--%homePanel%-->'] = homePanel
     index['<!--%browsePanel%-->'] = self.templateEngine('browsePanel.html')
     index['<!--%uploadPanel%-->'] = self.templateEngine('uploadPanel.html')
     index['<!--%userPanel%-->'] = userPanel
