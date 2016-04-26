@@ -112,6 +112,7 @@ class WebGenerator(Generator):
     index['<!--%uploadPanel%-->'] = self.templateEngine('uploadPanel.html')
     index['<!--%userPanel%-->'] = userPanel
     index['<!--%brokenDuplicatePanel%-->'] = self.templateEngine('brokenDuplicatePanel.html')
+    index['<!--%analytics%-->'] = self.templateEngine('analytics.html')
     if BS_HTTPS_PORT is not None:
       goToHTTPS = self.templateEngine('goToHTTPS.js')
       goToHTTPS['%HTTPS-PORT-GOES-HERE%'] = str(BS_HTTPS_PORT)

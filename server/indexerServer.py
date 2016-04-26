@@ -33,8 +33,13 @@ class IndexerServer(Generator, Server):
     self.tileBase = tileBase
     self.metaBase = metaBase
 
-    self['index'] = self.templateEngine('index.html')
-    self['info'] = self.templateEngine('info.html')
+    index = self.templateEngine('index.html')
+    index['<!--%analytics%-->'] = self.templateEngine('analytics.html')
+    self['index'] = index
+
+    info = self.templateEngine('info.html')
+    info['<!--%analytics%-->'] = self.templateEngine('analytics.html')
+    self['info'] = info
 
   @useTemplate('index')
   def index(self):
