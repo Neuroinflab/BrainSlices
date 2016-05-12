@@ -68,6 +68,19 @@ Sincerely yours,
 %s''' % (BS_SERVICE_NAME, BS_SERVICE_SIGNATURE)
 
 
+class SMTP(object):
+  def __enter__(self):
+    self.__smtp = smtplib.SMTP_SSL(BS_EMAIL_SERVER, BS_EMAIL_PORT)#smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
+    if BS_EMAIL_EHLO is not None:
+      self.__smtp.ehlo(BS_EMAIL_EHLO)
+
+    #self.__smtp.starttls()
+    self.__smtp.login(BS_EMAIL_LOGIN, BS_EMAIL_PASSWORD)
+    return self.__smtp
+
+  def __exit__(self, exception_type, exception_value, traceback):
+    self.__smtp.quit()
+
 def sendConfirmationEmail(request, confirmId):
   name = request.name.decode('utf-8')
   email = request.email.decode('utf-8')
@@ -94,21 +107,13 @@ def sendConfirmationEmailAux(name, email, login, confirmId):
   customerMsg['To'] = Header(emailAdress.encode(BS_EMAIL_ENCODING), BS_EMAIL_ENCODING)
   customerMsg['Date'] = eutils.formatdate()
   
-  smtp = smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
-  if BS_EMAIL_EHLO is not None:
-    smtp.ehlo(BS_EMAIL_EHLO)
-
-  smtp.starttls()
-  smtp.login(BS_EMAIL_LOGIN, BS_EMAIL_PASSWORD)
-  try:
-    smtp.sendmail(BS_EMAIL_ADDRESS,
-                  email,
-                  customerMsg.as_string())
-  except smtplib.SMTPRecipientsRefused as e:
-    smtp.quit()
-    return e.recipients
-
-  smtp.quit()
+  with SMTP() as smtp:
+    try:
+      smtp.sendmail(BS_EMAIL_ADDRESS,
+                    email,
+                    customerMsg.as_string())
+    except smtplib.SMTPRecipientsRefused as e:
+      return e.recipients
 
   return True
 
@@ -139,21 +144,13 @@ def sendRegenerationEmailAux(email, name, login, confirmId):
   customerMsg['To'] = Header(emailAdress.encode(BS_EMAIL_ENCODING), BS_EMAIL_ENCODING)
   customerMsg['Date'] = eutils.formatdate()
   
-  smtp = smtplib.SMTP(BS_EMAIL_SERVER, BS_EMAIL_PORT)
-  if BS_EMAIL_EHLO is not None:
-    smtp.ehlo(BS_EMAIL_EHLO)
-
-  smtp.starttls()
-  smtp.login(BS_EMAIL_LOGIN, BS_EMAIL_PASSWORD)
-  try:
-    smtp.sendmail(BS_EMAIL_ADDRESS,
-                  email,
-                  customerMsg.as_string())
-  except smtplib.SMTPRecipientsRefused as e:
-    smtp.quit()
-    return e.recipients
-
-  smtp.quit()
+  with SMTP() as smtp:
+    try:
+      smtp.sendmail(BS_EMAIL_ADDRESS,
+                    email,
+                    customerMsg.as_string())
+    except smtplib.SMTPRecipientsRefused as e:
+      return e.recipients
 
   return True
 
