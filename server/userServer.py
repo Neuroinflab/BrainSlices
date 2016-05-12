@@ -176,7 +176,7 @@ To complete the regeneration process please check your e&#8209;mail box and foll
             else:
               errorKey = mail[email][0]
               if errorKey in smtpErrors.keys():
-                message = 'SmtpSslManager error: ' + smtpErrors[errorKey]
+                message = 'SMTP error: ' + smtpErrors[errorKey]
 
     return generateJson(data = login, status = status, message = message)
 
