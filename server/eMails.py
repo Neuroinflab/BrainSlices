@@ -32,7 +32,7 @@ from smptManager import MANAGERS_BY_SECURITY
 
 SmtpManagerClass = MANAGERS_BY_SECURITY['ssl']
 
-BS_EMAIL_FROM = ("%s <%s>" % (BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)).encode(BS_EMAIL_ENCODING)
+BS_EMAIL_FROM = u'{} <{}>'.format(BS_SERVICE_SIGNATURE, BS_EMAIL_ADDRESS)
 
 #registration templates
 #CONFIRMATION_LINK_TEMPLATE = 'http://%s/user/confirmRegistration?confirm=%%s&login=%%s' % BS_SERVICE_SERVER
