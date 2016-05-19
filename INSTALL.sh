@@ -108,6 +108,33 @@ askBool ()
   false
 }
 
+selectKey()
+{
+  if [ "$#" -lt "4" ]
+    then
+      echo "ERROR: should be $0 <prompt> <variable> <option1> <option2> [<option3> ...]"
+    fi
+
+  local PROMPT="$1"
+  local VAR=$2
+  local OPS3="$PS3"
+  PS3="$PROMPT: "
+
+  shift 2
+  select OPTION in "$@"
+  do
+    if [ "$OPTION" ]
+    then
+      eval $VAR="$OPTION"
+      break
+    else
+      echo "The choice ($REPLY) is unavailable. Please provide a valid number (of the chosen option)."
+    fi
+  done
+  PS3=$OPS3
+}
+
+
 if askBool "Do you want to fetch required packages?
 (Operation requires sudo privileges.)" N #FETCH_PACKAGES
   then
@@ -346,7 +373,15 @@ echo "password: $BS_DB_PASSWORD" >> "$BS_CONFIG"
 echo "encoding: $BS_DB_ENCODING" >> "$BS_CONFIG"
 
 askPrompt "Email host" localhost BS_EMAIL_SERVER
-askPrompt "Email port" 587 BS_EMAIL_PORT
+selectKey "Connection security" BS_EMAIL_SECURITY none ssl starttls
+if [ "$BS_EMAIL_SECURITY" = "ssl" ]
+  then
+    BS_EMAIL_PORT=465
+  else
+    BS_EMAIL_PORT=587
+  fi
+
+askPrompt "Email port" $BS_EMAIL_PORT BS_EMAIL_PORT
 askPrompt "Email login" "" BS_EMAIL_LOGIN
 askPassw "email password" BS_EMAIL_PASSWORD
 askPrompt "Email address" "$BS_EMAIL_LOGIN@$BS_EMAIL_SERVER" BS_EMAIL_ADDRESS
@@ -360,6 +395,7 @@ echo "user: $BS_EMAIL_LOGIN" >> "$BS_CONFIG"
 echo "password: $BS_EMAIL_PASSWORD" >> "$BS_CONFIG"
 echo "address: $BS_EMAIL_ADDRESS" >> "$BS_CONFIG"
 echo "encoding: $BS_EMAIL_ENCODING" >> "$BS_CONFIG" 
+echo "security: $BS_EMAIL_SECURITY" >> "$BS_CONFIG"
 
 if [ "$BS_PORT" == "80" ]
   then
